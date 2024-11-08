@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Files</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="img/icon-192x192.png" type="image/x-icon">
+</head>
+<body onload="LoadGeneral()" class="dark-theme text-normal" id="body">
+    <div class="shop-nav color-text dark-theme text-normal" id="navbar">
+        <div class="nav">
+            <span class="count">
+                <img src="img/dogecoin-min.png" class="big-icon"><span id="dg-count" class="text-normal"></span>
+            </span>
+            <span class="count text-normal" id="pts-count">Descarga de Recursos (Modo Offline)</span>
+            <span id="back" onclick="Redirect('menu.html')">
+                <img src="img/icons/front-page-svgrepo-com.svg" class="big-icon">
+            </span>
+        </div>
+    </div>
+    <br><br><br>
+    <div class="container shop">
+        <div class="group color-text dark-theme" id="group">
+            <div class="flex-right center">
+                <p>
+                    Si los archivos ya estabán descargados, se actualizarán con el servidor, si estás sin
+                    conexión, se cargarán desde caché.
+                </p>
+                <p>
+                    Realizar esto es importante para poder mejorar la velocidad de carga y usar la aplicación
+                    en el modo Offline (Sin conexión).
+                </p>
+                <p>
+                    Nota: Se pueden descargar hasta 118 MB, revisa el peso de la descarga antes de descargar con
+                    redes móviles, tu proovedor de red móvil podría aplicar cargos de conexión.
+                </p>
+            </div>
+        </div>
+        <div class="group color-text dark-theme" id="group1">
+            <div class="flex-right center">
+                <p>
+                    Descarga de Scripts.
+                </p>
+            </div>
+            <div class="flex-right center">
+                <p>
+                    Peso estimado: 506 KB
+                </p>
+            </div>
+            <div class="flex-right center" onclick="DownloadScripts()">
+                <img src="img/icons/application-svgrepo-com.svg">
+                <p id="process-resources">Descargar Scripts</p>
+            </div>
+            <div class="flex-right center">
+                <div id="resource-container">Contenedor de scripts...</div>
+            </div>
+        </div>
+        <div class="group color-text dark-theme" id="group2">
+            <div class="flex-right center">
+                <p>
+                    Descarga de imagenes.
+                </p>
+            </div>
+            <div class="flex-right center">
+                <p>
+                    Peso estimado: 9.98 MB
+                </p>
+            </div>
+            <div class="flex-right center" onclick="DownloadImages()">
+                <img src="img/icons/picture-svgrepo-com.svg">
+                <p id="process-images">Descargar Imagenes</p>
+                <img src="img/locked-cheems.png" id="loadableIMG">
+            </div>
+        </div>
+        <div class="group color-text dark-theme" id="group3">
+            <div class="flex-right center">
+                <p>
+                    Descarga de efectos de sonido.
+                </p>
+            </div>
+            <div class="flex-right center">
+                <p>
+                    Peso estimado: 305 KB
+                </p>
+            </div>
+            <div class="flex-right center" onclick="DownloadSounds()">
+                <img src="img/icons/sound-svgrepo-com.svg">
+                <div class="go-down">
+                    <p id="process-sounds">Descargar Efectos de sonido.</p>
+                    <audio src="" id="loadableSound" controls></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/functions.js"></script>
+    <script src="js/offlineMode.js"></script>
+    <script src="js/SoundDefinitions.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>

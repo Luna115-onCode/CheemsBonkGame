@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheems Bonk Game</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="img/icon-192x192.png" type="image/x-icon">
+</head>
+<body onload="LoadFirst()" class="dark-theme text-normal" id="body">
+    <div class="nav color-text dark-theme text-normal" id="navbar">
+        <span class="count">
+            <img src="img/dogecoin-min.png" class="big-icon"><span class="text-normal" id="dg-count"></span>
+        </span>
+        <span class="count text-normal" id="pts-count">0 pts.</span>
+        <span class="icon" id="shop" onclick="Redirect('menu.html')">
+            <img src="img/icons/menu-svgrepo-com.svg" class="big-icon">
+        </span>
+    </div>
+    <div class="container">
+        <div class="upper-container color-text dark-theme" id="upper-container">
+            <span class="count down">High Score de toques:<br><span id="max-count">0</span></span>
+            <span class="count down">Toques totales:<br><span id="general-count">0</span></span>
+            <span class="count down">Toques de esta sesión:<br><span id="this-count">0</span></span>
+        </div>
+        <div class="img-container" onclick="Redirect('game.html')">
+            <img src="img/locked-cheems.png" id="cheems-img">
+        </div>
+    </div>
+    <script src="js/functions.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/buttons.js"></script>
+    <script src="js/SoundDefinitions.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

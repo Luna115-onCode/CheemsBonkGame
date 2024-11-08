@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="img/icon-192x192.png" type="image/x-icon">
+</head>
+<body onload="LoadCloset()" class="color-text dark-theme text-normal" id="body">
+    <div class="shop-nav dark-theme text-normal" id="navbar">
+        <div class="nav">
+            <span class="count">
+                <img src="img/dogecoin-min.png" class="big-icon"><span id="dg-count" class="text-normal"></span>
+            </span>
+            <span class="count text-normal" id="pts-count">0 pts.</span>
+            <span class="icon" id="back" onclick="Redirect('menu.html')">
+                <img src="img/icons/front-page-svgrepo-com.svg" class="big-icon">
+            </span>
+        </div>
+        <div class="shop-text" id="shop-text">
+            Personalización
+        </div>
+    </div>
+    <br><br><br>
+    <div class="container shop">
+        <div class="group dark-theme" id="group">
+            <h1>
+                Cheems (Skins)
+            </h1>
+            <div class="flex-right">
+                <img src="img/locked-cheems.png" id="BuyCheems1" onclick="ChangeCheems('normal', c1)">
+                <img src="img/locked-cheems.png" id="BuyCheems2" onclick="ChangeCheems('little', c2)">
+                <img src="img/locked-cheems.png" id="BuyCheems3" onclick="ChangeCheems('adult', c3)">
+            </div>
+            <div class="flex-right">
+                <img src="img/locked-cheems.png" id="BuyCheems4" onclick="ChangeCheems('kid', c4)">
+                <img src="img/locked-cheems.png" id="BuyCheems5" onclick="ChangeCheems('mamado', c5)">
+                <img src="img/locked-cheems.png" id="BuyCheems6" onclick="ChangeCheems('pixelart', c6)">
+            </div>
+            <div class="flex-right">
+                <img src="img/locked-cheems.png" id="BuyCheems7" onclick="ChangeCheems('elegant', c7)">
+                <img src="img/locked-cheems.png" id="BuyCheems8" onclick="ChangeCheems('3d', c8)">
+                <img src="img/locked-cheems.png" id="BuyCheems9" onclick="ChangeCheems('black', c9)">
+            </div>
+        </div>
+        <div class="group dark-theme" id="group1">
+            <h1>
+                Sonidos
+            </h1>
+            <div class="flex-right">
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('1', s1)" id="BS1"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('2', s2)" id="BS2"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('3', s3)" id="BS3"></img>
+            </div>
+            <div class="flex-right">
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('4', s4)" id="BS4"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('5', s5)" id="BS5"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('6', s6)" id="BS6"></img>
+            </div>
+            <div class="flex-right">
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('7', s7)" id="BS7"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('8', s8)" id="BS8"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('9', s9)" id="BS9"></img>
+            </div>
+            <div class="flex-right">
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('10', s10)" id="BS10"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('11', s11)" id="BS11"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSound('12', s12)" id="BS12"></img>
+            </div>
+        </div>
+        <div class="group dark-theme" id="group2">
+            <h1>
+                Música de fondo
+            </h1>
+            <div class="flex-right">
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSong(1, m1)" id="BM1"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSong(2, m2)" id="BM2"></img>
+                <img src="img/icons/music-svgrepo-com.svg" onclick="ChangeSong(3, m3)" id="BM3"></img>
+            </div>
+            <div class="flex-right">
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSong(4, m4)" id="BM4"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSong(5, m5)" id="BM5"></img>
+                <img src="img/icons/volume-cross-svgrepo-com.svg" onclick="ChangeSong(6, m6)" id="BM6"></img>
+            </div>
+        </div>
+    </div>
+    <script src="js/index.js"></script>
+    <script src="js/functions.js"></script>
+    <script src="js/SoundDefinitions.js"></script>
+</body>
+</html>

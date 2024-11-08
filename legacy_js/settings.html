@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajustes</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="img/icon-192x192.png" type="image/x-icon">
+</head>
+<body onload="LoadSettings()" class="dark-theme text-normal" id="body">
+    <div class="shop-nav color-text dark-theme text-normal" id="navbar">
+        <div class="nav">
+            <span class="count icon">
+                <img src="img/dogecoin-min.png" class="big-icon"><span class="dg-count" class="text-normal"></span>
+            </span>
+            <span class="count text-normal" id="pts-count">Ajustes</span>
+            <span id="back" onclick="Redirect('menu.html')">
+                <img src="img/icons/front-page-svgrepo-com.svg" class="big-icon">
+            </span>
+        </div>
+    </div>
+    <br><br><br>
+    <div class="container shop">
+        <div class="group color-text dark-theme" id="group">
+            <div class="flex-right center">
+                <img src="img/icons/music-svgrepo-com.svg">
+                <p>Volumen de la música</p>
+            </div>
+            <div class="flex-right center">
+                <img id="music-vol-icon" src="img/icons/volume-loud-svgrepo-com.svg" class="icon" onclick="setVolCont('music')"><input type="range" id="music-volume" min="0" max="100" onchange="SetVolumeMusic()">
+            </div>
+            <div class="flex-right center">
+                <img src="img/icons/earphone-svgrepo-com.svg">
+                <p>Volumen de los efectos</p>
+            </div>
+            <div class="flex-right center">
+                <img id="effects-vol-icon" src="img/icons/volume-loud-svgrepo-com.svg" class="icon" onclick="setVolCont('effects')"><input type="range" id="effect-volume" min="0" max="100" onchange="SetVolumeEffect()">
+            </div>
+            <div class="flex-right center">
+                Tema de la app (colores):
+            </div>
+            <div class="flex-right down">
+                <div class="selected-cheems light-theme color-text" onclick="SwitchTheme(0)">
+                    Modo claro
+                </div>
+                <div class="selected-cheems dark-theme color-text" onclick="SwitchTheme(1)">
+                    Modo Oscuro
+                </div>
+                <p class="selected-cheems contrast-theme color-text" onclick="SwitchTheme(2)">
+                    Modo Alto contraste
+                </p>
+            </div>
+            <div class="flex-right center">
+                Tamaño de la fuente:
+            </div>
+            <div class="flex-right">
+                <div class="text-smaller" onclick="SetAccesibility(0)">
+                    Small
+                </div>
+                <div class="text-small" onclick="SetAccesibility(1)">
+                    Small
+                </div>
+                <div class="text-normal" onclick="SetAccesibility(2)">
+                    Normal
+                </div>
+                <div class="text-big" onclick="SetAccesibility(3)">
+                    Big
+                </div>
+                <div class="text-max" onclick="SetAccesibility(4)">
+                    Biggest
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="js/functions.js"></script>
+    <script src="js/index.js"></script>
+    <script src="js/buttons.js"></script>
+    <script src="js/SoundDefinitions.js"></script>
+</body>
+</html>
