@@ -1,1 +1,38 @@
-/* You can add global styles to this file, and also import other style files */
+/*App*/
+html {
+    user-select: none;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+/*Fonts*/
+@font-face {
+    font-family: 'Kalam';
+    src: 'fonts/Kalam-Regular.ttf' format('truetype');
+}
+
+/*Accesibility*/
+.text-normal {
+    font-size: large;
+}
+.text-big {
+    font-size: x-large;
+}
+.text-max {
+    font-size: xxx-large;
+}
+.text-small {
+    font-size: small;
+}
+.text-smaller {
+    font-size: xx-small;
+}
+.color-text.theme-contrast {
+    color: rgb(255, 255, 0);
+}
+.color-text.theme-dark {
+    color: rgb(145, 145, 72);
+}
+.color-text.theme-light {
+    color: rgb(194, 194, 72);
+}

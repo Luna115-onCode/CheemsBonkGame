@@ -1,0 +1,18 @@
+<nav class="{{tools.themeColor}} {{tools.fontSize}}">
+    <span class="text">
+        <img src="img/dogecoin-min.svg"
+        (click)="enableDevOption()"
+        class="icon">
+        @if (tools.actPage === "/") {
+            <span class="{{tools.fontSize}}">0</span>
+        }
+    </span>
+    <span class="text color-text {{tools.themeColor}} {{tools.fontSize}}">{{title}}</span>
+    <span (click)="tools.redirectBack()">
+        @if (tools.actPage !== "/") {
+            <img src="img/icons/front-page-svgrepo-com.svg" class="icon">
+        } @else {
+            <img src="img/icons/menu-svgrepo-com.svg" class="icon">
+        }
+    </span>
+</nav>

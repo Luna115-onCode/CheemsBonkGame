@@ -1,8 +1,73 @@
-/*Fonts*/
-@font-face {
-    font-family: 'Kalam';
-    src: url('../fonts/Kalam-Regular.ttf') format('truetype');
+
+
+/*Light theme*/
+body.theme-light {
+    background-color: aliceblue;
+    color: black;
 }
+.group.theme-light {
+    background-color: antiquewhite;
+    border: solid black;
+}
+.upper-container.theme-light {
+    border: solid black;
+    background-color: rgba(223, 213, 118, 0.568);
+}
+.selected-cheems.theme-light {
+    background-color: rgba(230, 186, 128, 0.699);
+}
+
+
+
+/*Dark theme*/
+body.theme-dark {
+    background-color: rgb(54, 54, 54);
+    color: rgb(211, 211, 211);
+}
+.group.theme-dark {
+    background-color: rgb(82, 75, 67);
+    border: solid black;
+}
+.upper-container.theme-dark {
+    border: solid black;
+    background-color: rgba(90, 86, 49, 0.568);
+}
+.selected-cheems.theme-dark {
+    background-color: rgba(59, 37, 7, 0.699);
+}
+
+
+/*High contrast theme*/
+body.theme-contrast {
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 0, 255);
+}
+.group.theme-contrast {
+    background-color: rgb(0, 0, 255);
+    border: solid rgb(255, 0, 255);
+}
+.upper-container.theme-contrast {
+    border: solid rgb(255, 0, 255);
+    background-color: rgba(255, 230, 0, 0.801);
+}
+
+.selected-cheems.theme-contrast {
+    background-color: rgba(255, 0, 0, 0.699);
+}
+
+
+
+
+
+/*Utilities*/
+.color-text {
+    font-family: "Kalam";
+}
+.hidden {
+    display: none;
+}
+
+
 /*General group*/
 .container {
     width: 100%;
@@ -64,42 +129,7 @@
     display: flex;
     justify-content: space-around;
 }
-.nav {
-    width: 100%;
-    height: 50px;
-    text-align: center;
-    font-weight: 500;
-    font-size: 150%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-}
-.shop-nav {
-    position:fixed;
-    z-index:1000;
-    top:0;
-    left:0;
-    width: 99%;
-    height: auto;
-}
-.shop-nav .nav {
-    border: none;
-}
-.shop-text {
-    margin-top: 1%;
-    width: 60%;
-    height: 50px;
-    text-align: center;
-    font-weight: 900;
-    font-size: 150%;
-    border-radius: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    margin-left: auto;
-    margin-right: auto;
-}
+
 .selected-cheems {
     border-radius: 50%;
     transform: scale(115%);
@@ -113,139 +143,6 @@
     width: 99%;
     height: 400px;
     text-align: center;
-}
-.count {
-    font-weight: 900;
-    font-size: 100%;
-    display: flex;
-    align-items: center;
-}
-/*Utilities*/
-.color-text {
-    font-family: "Kalam";
-}
-.hidden {
-    display: none;
-}
-.count.down {
-    flex-direction: column;
-}
-.icon {
-    width: 3vw !important;
-}
-.big-icon {
-    height: 100%;
-    width: auto;   
-}
-
-/*Light theme*/
-body.light-theme {
-    background-color: aliceblue;
-    color: black;
-}
-.group.light-theme {
-    background-color: antiquewhite;
-    border: solid black;
-}
-.upper-container.light-theme {
-    border: solid black;
-    background-color: rgba(223, 213, 118, 0.568);
-}
-.nav.light-theme {
-    background-color: rgb(167, 93, 33);
-    border: solid black;
-}
-.shop-nav.light-theme {
-    background-color: rgb(167, 93, 33);
-    border: solid black;
-}
-.selected-cheems.light-theme {
-    background-color: rgba(230, 186, 128, 0.699);
-}
-.upper-container.light-theme .count {
-    border: solid black;
-}
-.color-text.light-theme {
-    color: rgb(194, 194, 72);
-}
-
-/*Dark theme*/
-body.dark-theme {
-    background-color: rgb(54, 54, 54);
-    color: rgb(211, 211, 211);
-}
-.group.dark-theme {
-    background-color: rgb(82, 75, 67);
-    border: solid black;
-}
-.upper-container.dark-theme {
-    border: solid black;
-    background-color: rgba(90, 86, 49, 0.568);
-}
-.nav.dark-theme {
-    background-color: rgb(63, 35, 12);
-    border: solid black;
-}
-.shop-nav.dark-theme {
-    background-color: rgb(78, 50, 27);
-    border: solid black;
-}
-.selected-cheems.dark-theme {
-    background-color: rgba(59, 37, 7, 0.699);
-}
-.upper-container.dark-theme .count {
-    border: solid black;
-}
-.color-text.dark-theme {
-    color: rgb(145, 145, 72);
-}
-
-/*High contrast theme*/
-body.contrast-theme {
-    background-color: rgb(0, 0, 0);
-    color: rgb(255, 0, 255);
-}
-.group.contrast-theme {
-    background-color: rgb(0, 0, 255);
-    border: solid rgb(255, 0, 255);
-}
-.upper-container.contrast-theme {
-    border: solid rgb(255, 0, 255);
-    background-color: rgba(255, 230, 0, 0.801);
-}
-.nav.contrast-theme {
-    background-color: rgb(255, 115, 0);
-    border: solid rgb(255, 0, 255);
-}
-.shop-nav.contrast-theme {
-    background-color: rgb(255, 115, 0);
-    border: solid rgb(255, 0, 255);
-}
-.selected-cheems.contrast-theme {
-    background-color: rgba(255, 0, 0, 0.699);
-}
-.upper-container.contrast-theme .count {
-    border: solid rgb(255, 0, 255);
-}
-.color-text.contrast-theme {
-    color: rgb(255, 255, 0);
-}
-
-/*Accesibility*/
-.text-normal {
-    font-size: large;
-}
-.text-big {
-    font-size: x-large;
-}
-.text-max {
-    font-size: xxx-large;
-}
-.text-small {
-    font-size: small;
-}
-.text-smaller {
-    font-size: xx-small;
 }
 
 
@@ -262,8 +159,5 @@ body.contrast-theme {
         height: 450px;
         text-align: center;
         margin-left: 0%;
-    }
-    .upper-container .count {
-        border: none !important;
     }
 }
