@@ -12,14 +12,6 @@ export interface PageName {
   };
 }
 
-export interface OptionsText {
-  [key: string]: {
-    changeLang: {
-      button: string;
-    }
-  }
-}
-
 export const showCoins: Array<string> = [
   "game", "dev-settings"
 ];
@@ -45,7 +37,7 @@ export const pageName: PageName = {
   },
 };
 
-export const optionsText: OptionsText = {
+export const optionsText = {
   es: {
     changeLang: {
       button: "Cambiar idioma"
@@ -54,6 +46,23 @@ export const optionsText: OptionsText = {
   en: {
     changeLang: {
       button: "Change Language"
+    }
+  }
+}
+
+export const gameText = {
+  es: {
+    navbar: {
+      highScore: "Mayor puntaje de toques",
+      actScore: "Toques actuales",
+      totalScore: "Toques totales"
+    }
+  },
+  en: {
+    navbar: {
+      highScore: "Highest touch score",
+      actScore: "Current touches",
+      totalScore: "Total touches"
     }
   }
 }

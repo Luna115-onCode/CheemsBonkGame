@@ -1,8 +1,10 @@
 /*App*/
 html {
     user-select: none;
-    overflow-y: hidden;
-    overflow-x: hidden;
+}
+.icon {
+    height: 100%;
+    width: auto;   
 }
 
 /*Fonts*/
@@ -13,20 +15,21 @@ html {
 
 /*Accesibility*/
 .text-normal {
-    font-size: large;
+    font-size: 14pt;
 }
 .text-big {
-    font-size: x-large;
+    font-size: 18pt;
 }
-.text-max {
-    font-size: xxx-large;
+.text-bigger {
+    font-size: 24pt;
 }
 .text-small {
-    font-size: small;
+    font-size: 12pt;
 }
 .text-smaller {
-    font-size: xx-small;
+    font-size: 8pt;
 }
+
 .color-text.theme-contrast {
     color: rgb(255, 255, 0);
 }

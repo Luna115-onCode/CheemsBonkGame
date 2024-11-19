@@ -7,8 +7,8 @@
             <span class="{{tools.fontSize}}">0</span>
         }
     </span>
-    <span class="text color-text {{tools.themeColor}} {{tools.fontSize}}">{{tools.pageName[tools.lang][tools.actPage]}}</span>
-    <span (click)="tools.redirectBack()">
+    <span class="preventive text color-text {{tools.themeColor}} {{tools.fontSize}}">{{tools.pageName[tools.lang][tools.actPage]}}</span>
+    <span class="text" (click)="tools.redirectBack()">
         @if (tools.actPage !== "game") {
             <img src="img/icons/front-page-svgrepo-com.svg" class="icon">
         } @else {
@@ -16,3 +16,10 @@
         }
     </span>
 </nav>
+@if (tools.actPage === "game") {
+    <div class="upper-container {{tools.themeColor}} {{tools.fontSize}}" id="upper-container">
+        <span class="count down">{{tools.texts[tools.lang].navbar.highScore}}:<br><span id="max-count">0</span></span>
+        <span class="count down">{{tools.texts[tools.lang].navbar.totalScore}}:<br><span id="general-count">0</span></span>
+        <span class="count down">{{tools.texts[tools.lang].navbar.actScore}}:<br><span id="this-count">0</span></span>
+    </div>
+}

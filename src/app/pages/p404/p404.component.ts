@@ -1,11 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { NavbarComponent } from "../../components/navbar/navbar.component";
 import { ToolsService } from '../../services/tools.service';
 
 @Component({
   selector: 'app-p404',
   standalone: true,
-  imports: [NavbarComponent],
+  imports: [],
   templateUrl: './p404.component.html',
   styleUrl: './p404.component.css'
 })

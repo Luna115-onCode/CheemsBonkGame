@@ -1,11 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ToolsService } from '../../services/tools.service';
-import { NavbarComponent } from "../../components/navbar/navbar.component";
 
 @Component({
   selector: 'app-closet',
   standalone: true,
-  imports: [NavbarComponent],
+  imports: [],
   templateUrl: './closet.component.html',
   styleUrl: './closet.component.css'
 })

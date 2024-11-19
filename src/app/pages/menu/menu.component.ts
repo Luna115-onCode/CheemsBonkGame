@@ -1,11 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ToolsService } from '../../services/tools.service';
-import { NavbarComponent } from "../../components/navbar/navbar.component";
 
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [NavbarComponent],
+  imports: [],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })

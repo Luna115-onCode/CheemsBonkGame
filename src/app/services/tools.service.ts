@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { Router } from '@angular/router';
-import { OptionsText, optionsText, PageName, pageName } from './constants.service';
+import { NavigationStart, Router } from '@angular/router';
+import { gameText, optionsText, PageName, pageName } from './constants.service';
 
 
 @Injectable({
@@ -14,7 +14,15 @@ export class ToolsService {
   lang: string = "en";
   texts: any;
   pageName: PageName = pageName;
-  constructor(private titleInt: Title, private router: Router) { }
+  constructor(private titleInt: Title, private router: Router) {
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        if (event.navigationTrigger === 'popstate') {
+          this.redirectBack(true);
+        }
+      }
+    });
+  }
 
   setTitle(page: keyof PageName[""]): void {
     let title = pageName[this.lang][page];
@@ -32,6 +40,9 @@ export class ToolsService {
       case "settings":
         this.texts = optionsText;
         break;
+      case "game":
+        this.texts = gameText;
+        break;
     }
   }
 
@@ -43,7 +54,7 @@ export class ToolsService {
     window.location.reload();
   }
 
-  redirectBack(): void {
+  redirectBack(fromSystem:boolean=false): void {
     if (["devSettings", "closet", "settings", "onWork"].includes(this.actPage)) {
       this.redirect("menu");
     }
@@ -51,7 +62,7 @@ export class ToolsService {
         this.redirect("game");
     }
     else if (["game"].includes(this.actPage)) {
-      this.redirect("menu");
+      fromSystem ? this.redirect("game") : this.redirect("menu");
     }
   }
 
