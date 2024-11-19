@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ToolsService } from '../../tools.service';
+import { ToolsService } from '../../services/tools.service';
 import { NavbarComponent } from "../../components/navbar/navbar.component";
 
 @Component({
@@ -11,9 +11,10 @@ import { NavbarComponent } from "../../components/navbar/navbar.component";
 })
 export class MenuComponent implements OnInit {
   tools: ToolsService = inject(ToolsService);
+  
 
   ngOnInit(): void {
-    this.tools.setTitle("Menu");
-    this.tools.actPage = "/menu"
+    this.tools.setTitle("menu");
+    this.tools.actPage = "menu"
   }
 }

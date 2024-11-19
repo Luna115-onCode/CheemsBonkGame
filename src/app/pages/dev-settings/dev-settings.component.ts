@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ToolsService } from '../../tools.service';
+import { ToolsService } from '../../services/tools.service';
 import { NavbarComponent } from "../../components/navbar/navbar.component";
 
 @Component({
@@ -13,7 +13,7 @@ export class DevSettingsComponent implements OnInit {
   tools: ToolsService = inject(ToolsService);
 
   ngOnInit(): void {
-    this.tools.setTitle("Developer Settings");
-    this.tools.actPage = "/dev-settings";
+    this.tools.setTitle("devSettings");
+    this.tools.actPage = "devSettings";
   }
 }

@@ -1,1 +1,18 @@
 <app-navbar/>
+<ul>
+    <li (click)="tools.redirect('/closet')">
+        {{tools.pageName[tools.lang].closet}}
+    </li>
+    <li (click)="tools.redirect('/devSettings')">
+        {{tools.pageName[tools.lang].devSettings}}
+    </li>
+    <li (click)="tools.redirect('/onWork')">
+        {{tools.pageName[tools.lang].onWork}}
+    </li>
+    <li (click)="tools.redirect('/noexiste')">
+        {{tools.pageName[tools.lang].p404}}
+    </li>
+    <li (click)="tools.redirect('/settings')">
+        {{tools.pageName[tools.lang].settings}}
+    </li>
+</ul>

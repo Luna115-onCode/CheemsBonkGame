@@ -3,13 +3,13 @@
         <img src="img/dogecoin-min.svg"
         (click)="enableDevOption()"
         class="icon">
-        @if (tools.actPage === "/") {
+        @if (tools.actPage === "game") {
             <span class="{{tools.fontSize}}">0</span>
         }
     </span>
-    <span class="text color-text {{tools.themeColor}} {{tools.fontSize}}">{{title}}</span>
+    <span class="text color-text {{tools.themeColor}} {{tools.fontSize}}">{{tools.pageName[tools.lang][tools.actPage]}}</span>
     <span (click)="tools.redirectBack()">
-        @if (tools.actPage !== "/") {
+        @if (tools.actPage !== "game") {
             <img src="img/icons/front-page-svgrepo-com.svg" class="icon">
         } @else {
             <img src="img/icons/menu-svgrepo-com.svg" class="icon">

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NavbarComponent } from "../../components/navbar/navbar.component";
-import { ToolsService } from '../../tools.service';
+import { ToolsService } from '../../services/tools.service';
 
 @Component({
   selector: 'app-p404',
@@ -13,8 +13,8 @@ export class P404Component implements OnInit {
   tools: ToolsService = inject(ToolsService);
 
   ngOnInit(): void {
-    this.tools.setTitle("404");
-    this.tools.actPage = "/404";
+    this.tools.setTitle("p404");
+    this.tools.actPage = "p404";
   }
 
 }

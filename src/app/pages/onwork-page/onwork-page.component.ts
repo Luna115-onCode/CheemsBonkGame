@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { ToolsService } from '../../tools.service';
+import { ToolsService } from '../../services/tools.service';
 import { NavbarComponent } from "../../components/navbar/navbar.component";
 
 @Component({
@@ -13,7 +13,7 @@ export class OnworkPageComponent implements OnInit {
   tools: ToolsService = inject(ToolsService);
 
   ngOnInit(): void {
-    this.tools.setTitle("Page on work");
-    this.tools.actPage = "/not-available";
+    this.tools.setTitle("onWork");
+    this.tools.actPage = "onWork";
   }
 }
