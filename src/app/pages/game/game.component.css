@@ -1,26 +1,5 @@
 .img-container img {
     width: 99%;
-    height: 400px;
+    height: 80vh;
     text-align: center;
-}
-.img-container img.full-size {
-    width: 99%;
-    height: 400px;
-    text-align: center;
-}
-
-/*For high resolution devices.*/
-@media (min-width: 750px) {
-    .img-container img {
-        width: 70%;
-        height: 450px;
-        text-align: center;
-        margin-left: 10%;
-    }
-    .img-container img.full-size {
-        width: 99%;
-        height: 450px;
-        text-align: center;
-        margin-left: 0%;
-    }
 }

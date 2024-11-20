@@ -14,11 +14,10 @@ export class SettingsComponent implements OnInit {
   ngOnInit(): void {
     this.tools.setTitle("settings");
     this.tools.actPage = "settings";
-    this.tools.getTexts("settings");
     console.log(this.tools.lang)
   }
 
   changeLanguage(): void {
-    this.tools.changeLanguage(this.tools.actPage);
+    this.tools.changeLanguage();
   }
 }

@@ -1,3 +1,7 @@
-<div class="img-container" onclick="ClickCheems()">
-    <img src="img/locked-cheems.png" id="cheems-img">
+<div class="img-container" (click)="onClick(true)">
+    @if (clicked) {
+        <img src="img/hit/{{tools.selectedCheems}}.png">
+    } @else {
+        <img src="img/cheems/{{tools.selectedCheems}}.png">
+    }
 </div>

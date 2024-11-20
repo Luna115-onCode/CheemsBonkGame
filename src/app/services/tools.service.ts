@@ -12,8 +12,17 @@ export class ToolsService {
   themeColor: string = "theme-light";
   actPage: keyof PageName[""] = "game";
   lang: string = "en";
-  texts: any;
+  selectedCheems: string = "normal";
+  selectedSound: string = "hit";
+
+  actScore: number = 0;
+  highScore: number = 0;
+  totalScore: number = 0;
+
+  game: any = gameText;
+  options: any = optionsText;
   pageName: PageName = pageName;
+
   constructor(private titleInt: Title, private router: Router) {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
@@ -29,21 +38,10 @@ export class ToolsService {
     this.titleInt.setTitle(title);
   }
 
-  changeLanguage(page: keyof PageName[""]) {
+  changeLanguage() {
     this.lang === 'es' ? this.lang = 'en' : this.lang = 'es';
     localStorage.setItem("CheemsBonkLang", this.lang);
     this.reload();
-  }
-
-  getTexts(page: keyof PageName[""]): void {
-    switch (page) {
-      case "settings":
-        this.texts = optionsText;
-        break;
-      case "game":
-        this.texts = gameText;
-        break;
-    }
   }
 
   redirect(url: string): void {
@@ -66,9 +64,68 @@ export class ToolsService {
     }
   }
 
+  updateScore(value: number): void {
+    this.actScore += value;
+    this.totalScore += value;
+    if (this.actScore >= this.highScore) {
+      this.highScore = this.actScore;
+    }
+
+    localStorage.setItem("CheemsBonkTotalScore", JSON.stringify(this.totalScore));
+    localStorage.setItem("CheemsBonkHighScore", JSON.stringify(this.highScore));
+  }
+
+  playSound(): void {
+    let sfx = new Audio("sound/"+this.selectedSound+".ogg");
+    sfx.play();
+  }
+
+
+
+
+
+
+
+
   loadApp(): void {
+    this.loadSettings();
+    this.loadCheems();
+    this.loadSounds();
+    this.loadScore();
+  }
+
+  loadSettings(): void {
     let savedLang = localStorage.getItem("CheemsBonkLang");
     let lang: string = savedLang === null ? "en" : savedLang;
     this.lang = lang;
+  }
+
+  loadCheems(): void {
+    let savedCheems = localStorage.getItem("CheemsBonkCheems");
+    let cheems: string = savedCheems === null ? "normal" : savedCheems;
+    this.selectedCheems = cheems;
+  }
+
+  loadSounds(): void {
+    let savedSound = localStorage.getItem("CheemsBonkSound");
+    let sound: string = savedSound === null ? "hit" : savedSound;
+    this.selectedSound = sound;
+  }
+
+  loadScore(): void {
+    let totalScore = localStorage.getItem("CheemsBonkTotalScore");
+    let highScore = localStorage.getItem("CheemsBonkHighScore");
+    let total: number = totalScore === null ? 0 : this.parseNumber(totalScore);
+    let high: number = highScore === null ? 0 : this.parseNumber(highScore);
+    this.highScore = high;
+    this.totalScore = total;
+  }
+
+  parseNumber(value: string): number {
+    return +value
+  }
+
+  parseString(value: any): string {
+    return value+""
   }
 }

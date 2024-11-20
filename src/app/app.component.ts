@@ -22,7 +22,7 @@ export class AppComponent implements OnInit {
     document.onmousedown = function() {return false};
 
     document.addEventListener('keydown', this.onKeyDown.bind(this));
-    document.addEventListener('keyup', this.onKeyUp.bind(this));
+    document.addEventListener('touchstart', this.onTouchStart.bind(this));
     window.addEventListener('beforeunload', this.handleReload);
     
     this.tools.loadApp();
@@ -34,11 +34,11 @@ export class AppComponent implements OnInit {
   
   onKeyDown(event: KeyboardEvent): void {
     event.preventDefault();
-    //TODO: implement code for pressing key
-    //! Maybe this event can be deleted with it's handler
   }
 
-  onKeyUp(event: KeyboardEvent): void {
-    //TODO: implement code for release keyboard
+  onTouchStart(event: TouchEvent): void {
+    if (event.touches.length >= 2) {
+      event.preventDefault();
+    }
   }
 }
