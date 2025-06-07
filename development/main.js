@@ -36107,6 +36107,16 @@ var P404Component = class _P404Component {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(P404Component, { className: "P404Component", filePath: "src/app/pages/p404/p404.component.ts", lineNumber: 10 });
 })();
 
+// src/app/guards/guard.guard.ts
+var developmentGuard = (route, state) => {
+  window.location.href = "/CheemsBonkGame/development";
+  return false;
+};
+var testingGuard = (route, state) => {
+  window.location.href = "/CheemsBonkGame/test";
+  return false;
+};
+
 // src/app/app.routes.ts
 var routes = [
   { path: "game", component: GameComponent, pathMatch: "full" },
@@ -36117,6 +36127,8 @@ var routes = [
   { path: "onWork", component: OnworkPageComponent, pathMatch: "full" },
   { path: "p404", component: P404Component, pathMatch: "full" },
   { path: "", redirectTo: "game", pathMatch: "full" },
+  { path: "development", component: GameComponent, canActivate: [developmentGuard] },
+  { path: "test", component: GameComponent, canActivate: [testingGuard] },
   { path: "**", redirectTo: "p404" }
 ];
 
