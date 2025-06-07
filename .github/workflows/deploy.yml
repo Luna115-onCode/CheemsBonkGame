@@ -15,7 +15,7 @@ jobs:
         id: set-env
         run: |
           echo "::set-output name=build_env::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo 'production'; else echo 'development'; fi)"
-          echo "::set-output name=path::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo '/'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo '/test'; else echo '/development'; fi)"
+          echo "::set-output name=path::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo ''; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo 'test'; else echo 'development'; fi)"
           echo "::set-output name=page_root::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo '/CheemsBonkGame/'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo '/CheemsBonkGame/test/'; else echo '/CheemsBonkGame/development/'; fi)"
           echo "::set-output name=build_prefix::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo 'prod'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo 'test'; else echo 'dev'; fi)"
       - name: Checkout code
@@ -73,22 +73,37 @@ jobs:
           git fetch origin gh-pages
           git worktree add deploy-folder gh-pages
 
+      - name: backup lower environment files
+        if: ${{ steps.set-env.outputs.build_env == 'production' }}
+        env:
+          build_env: ${{ steps.set-env.outputs.build_env }}
+        run: |
+          mkdir -p development-backup
+          mkdir -p test-backup
+          cp -r deploy-folder/development/* development-backup/ || true
+          cp -r deploy-folder/test/* test-backup/ || true
+
       - name: Clean Deployment Directory
         env:
           path: ${{ steps.set-env.outputs.path }}
         run: |
-          target_dir="deploy-folder$path"
+          target_dir="deploy-folder/$path"
           mkdir -p "$target_dir"
-          find "$target_dir" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+          find "$target_dir" -mindepth 1 -not -name '.git' -exec rm -rf {} +
 
       - name: Copy New Files to Deploy Folder
         env:
           path: ${{ steps.set-env.outputs.path }}
+          build_env: ${{ steps.set-env.outputs.build_env }}
         run: |
-          target_dir="deploy-folder$path"
+          target_dir="deploy-folder/$path"
           mkdir -p "$target_dir"
-          cp -r dist/cheems-angular/browser/* "$target_dir/"
-          cp README.md .gitignore "$target_dir/"
+          cp -r dist/cheems-angular/browser/* "$target_dir"
+          cp README.md .gitignore "$target_dir"
+          if [ "$build_env" = "production" ]; then
+            cp -r development-backup/* "$target_dir/development/" || true
+            cp -r test-backup/* "$target_dir/test/" || true
+          fi
 
       - name: Commit and Deploy to GitHub Pages
         working-directory: deploy-folder
