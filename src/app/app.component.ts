@@ -5,11 +5,10 @@ import { ToolsService } from './services/tools.service';
 import { NavbarComponent } from "./components/navbar/navbar.component";
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet, CommonModule, NavbarComponent],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+    selector: 'app-root',
+    imports: [RouterOutlet, CommonModule, NavbarComponent],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
   tools: ToolsService = inject(ToolsService);

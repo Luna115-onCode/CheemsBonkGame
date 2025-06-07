@@ -2,11 +2,10 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ToolsService } from '../../services/tools.service';
 
 @Component({
-  selector: 'app-game',
-  standalone: true,
-  imports: [],
-  templateUrl: './game.component.html',
-  styleUrl: './game.component.css'
+    selector: 'app-game',
+    imports: [],
+    templateUrl: './game.component.html',
+    styleUrl: './game.component.css'
 })
 export class GameComponent implements OnInit {
   tools: ToolsService = inject(ToolsService);
