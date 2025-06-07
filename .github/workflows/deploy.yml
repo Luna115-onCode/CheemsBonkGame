@@ -79,7 +79,7 @@ jobs:
         run: |
           target_dir="deploy-folder$path"
           mkdir -p "$target_dir"
-          find "$target_dir" -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'test' ! -name 'development' -exec rm -rf {} +
+          find "$target_dir" -mindepth 1 -maxdepth 1 -type d ! -name '.git' ! -name 'test' ! -name 'development' -exec rm -rf -- {} +
 
       - name: Copy New Files to Deploy Folder
         env:
