@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/styles.css"],
-  "sourcesContent": ["/*Fonts*/\n@font-face {\n    font-family: 'Kalam';\n    src: url('/fonts/Kalam-Regular.ttf') format('truetype');\n}\n\n/*App*/\nhtml {\n    user-select: none;\n    font-family: Kalam, Arial, Helvetica, sans-serif;\n}\n.icon {\n    height: 100%;\n    width: auto;   \n}\n\n/*Accesibility*/\n.text-normal {\n    font-size: 14pt;\n}\n.text-big {\n    font-size: 18pt;\n}\n.text-bigger {\n    font-size: 24pt;\n}\n.text-small {\n    font-size: 12pt;\n}\n.text-smaller {\n    font-size: 8pt;\n}\n\n.color-text.theme-contrast {\n    color: rgb(255, 255, 0);\n}\n.color-text.theme-dark {\n    color: rgb(145, 145, 72);\n}\n.color-text.theme-light {\n    color: rgb(194, 194, 72);\n}"],
-  "mappings": ";AACA;AACI,eAAa;AACb,OAAK,8BAAgC,OAAO;AAChD;AAGA;AACI,uBAAa;AAAb,eAAa;AACb;AAAA,IAAa,KAAK;AAAA,IAAE,KAAK;AAAA,IAAE,SAAS;AAAA,IAAE;AAC1C;AACA,CAAC;AACG,UAAQ;AACR,SAAO;AACX;AAGA,CAAC;AACG,aAAW;AACf;AACA,CAAC;AACG,aAAW;AACf;AACA,CAAC;AACG,aAAW;AACf;AACA,CAAC;AACG,aAAW;AACf;AACA,CAAC;AACG,aAAW;AACf;AAEA,CAAC,UAAU,CAAC;AACR,SAAO,IAAI,GAAG,EAAE,GAAG,EAAE;AACzB;AACA,CAHC,UAGU,CAAC;AACR,SAAO,IAAI,GAAG,EAAE,GAAG,EAAE;AACzB;AACA,CANC,UAMU,CAAC;AACR,SAAO,IAAI,GAAG,EAAE,GAAG,EAAE;AACzB;",
-  "names": []
-}
