@@ -86,8 +86,8 @@ jobs:
           cp -r dist/cheems-angular/browser/* "$target_dir"
           cp README.md .gitignore "$target_dir"
           if [ "$build_env" = "production" ]; then
-            cp -r development-backup/* "$target_dir/development/" || true
-            cp -r test-backup/* "$target_dir/test/" || true
+            cp .pwa/inde.html "deploy-folder/"
+            cp README.md .gitignore "deploy-folder/"
           fi
 
       - name: Commit and Deploy to GitHub Pages
