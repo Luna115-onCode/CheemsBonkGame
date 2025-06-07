@@ -17,5 +17,7 @@ export const routes: Routes = [
     {path: "onWork", component: OnworkPageComponent, pathMatch: "full"},
     {path: "p404", component: P404Component, pathMatch: "full"},
     {path: "", redirectTo: "game", pathMatch: "full"},
+    {path: "development", component: GameComponent, canActivate: [developmentGuard]},
+    {path: "test", component: GameComponent, canActivate: [testingGuard]},
     {path: "**", redirectTo: "p404"}
 ];
