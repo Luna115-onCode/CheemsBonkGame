@@ -1,16 +1,17 @@
+/*Fonts*/
+@font-face {
+    font-family: 'Kalam';
+    src: url('/fonts/Kalam-Regular.ttf') format('truetype');
+}
+
 /*App*/
 html {
     user-select: none;
+    font-family: Kalam, Arial, Helvetica, sans-serif;
 }
 .icon {
     height: 100%;
     width: auto;   
-}
-
-/*Fonts*/
-@font-face {
-    font-family: 'Kalam';
-    src: 'fonts/Kalam-Regular.ttf' format('truetype');
 }
 
 /*Accesibility*/

@@ -18,6 +18,7 @@ export class ToolsService {
   actScore: number = 0;
   highScore: number = 0;
   totalScore: number = 0;
+  dogeCoins: number = 0;
 
   game: any = gameText;
   options: any = optionsText;
@@ -115,10 +116,13 @@ export class ToolsService {
   loadScore(): void {
     let totalScore = localStorage.getItem("CheemsBonkTotalScore");
     let highScore = localStorage.getItem("CheemsBonkHighScore");
+    let dogeCoins = localStorage.getItem("CheemsBonkDogeCoins");
     let total: number = totalScore === null ? 0 : this.parseNumber(totalScore);
     let high: number = highScore === null ? 0 : this.parseNumber(highScore);
+    let dc: number = dogeCoins === null ? 0 : this.parseNumber(dogeCoins);
     this.highScore = high;
     this.totalScore = total;
+    this.dogeCoins = dc;
   }
 
   parseNumber(value: string): number {
@@ -127,5 +131,9 @@ export class ToolsService {
 
   parseString(value: any): string {
     return value+""
+  }
+
+  async sleep(time:number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, time));
   }
 }
