@@ -7,25 +7,25 @@
   "start_url": "/CheemsBonkGame/development/",
   "icons": [
     {
-      "src": "/CheemsBonkGame/development/img/icon-72x72.png",
+      "src": "/CheemsBonkGame/development/img/icons/pwa/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/CheemsBonkGame/development/img/icon-144x144.png",
+      "src": "/CheemsBonkGame/development/img/icons/pwa/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/CheemsBonkGame/development/img/icon-192x192.png",
+      "src": "/CheemsBonkGame/development/img/icons/pwa/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/CheemsBonkGame/development/img/icon-512x512.png",
+      "src": "/CheemsBonkGame/development/img/icons/pwa/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"

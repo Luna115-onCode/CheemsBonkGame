@@ -1,0 +1,101 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - release
+      - development
+      - testing
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set environment variables
+        id: set-env
+        run: |
+          echo "::set-output name=build_env::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo 'production'; else echo 'development'; fi)"
+          echo "::set-output name=path::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo '/'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo '/test'; else echo '/development'; fi)"
+          echo "::set-output name=page_root::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo '/CheemsBonkGame/'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo '/CheemsBonkGame/test/'; else echo '/CheemsBonkGame/development/'; fi)"
+          echo "::set-output name=build_prefix::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo 'prod'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo 'test'; else echo 'dev'; fi)"
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: latest
+
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup PWA
+        env:
+          build_prefix: ${{ steps.set-env.outputs.build_prefix }}
+        run: |
+          rm -rf public/img/icons/pwa
+          mkdir -p public/img/icons/pwa
+          cp .pwa/icons-$build_prefix/pwa/* public/img/icons/pwa
+          rm public/favicon.ico
+          cp .pwa/favicon-$build_prefix.ico public/favicon.ico
+          rm public/manifest.webmanifest
+          cp .pwa/manifest-$build_prefix.webmanifest public/manifest.webmanifest
+          if [ "$build_prefix" = "prod" ]; then
+            cp .pwa/ngsw-config-prod.json ngsw-config.json
+          else
+            cp .pwa/ngsw-config-other.json ngsw-config.json
+          fi
+
+      - name: Build the application
+        env:
+          build_env: ${{ steps.set-env.outputs.build_env }}
+          page_root: ${{ steps.set-env.outputs.page_root }}
+        run: npm run build -- --configuration="$build_env" --base-href="$page_root"
+
+      - name: Set up SSH Key
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/deploy_key
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Prepare Git Worktree for gh-pages
+        run: |
+          git fetch origin gh-pages
+          git worktree add deploy-folder gh-pages
+
+      - name: Clean Deployment Directory
+        env:
+          path: ${{ steps.set-env.outputs.path }}
+        run: |
+          target_dir="deploy-folder$path"
+          mkdir -p "$target_dir"
+          find "$target_dir" -mindepth 1 -not -name '.git' -not -name 'test' -not -name 'development' -exec rm -rf {} +
+
+      - name: Copy New Files to Deploy Folder
+        env:
+          path: ${{ steps.set-env.outputs.path }}
+        run: |
+          target_dir="deploy-folder$path"
+          mkdir -p "$target_dir"
+          cp -r dist/cheems-angular/browser/* "$target_dir/"
+          cp README.md .gitignore "$target_dir/"
+
+      - name: Commit and Deploy to GitHub Pages
+        working-directory: deploy-folder
+        run: |
+          git add .
+          git commit -m "Deploy #${{ github.run_number }} from ${{ github.ref }} branch - ${{ steps.set-env.outputs.build_env }}"
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts" git push git@github.com:${{ github.repository }} gh-pages --force
+
+      - name: Clean Up Worktree
+        run: git worktree remove deploy-folder --force
