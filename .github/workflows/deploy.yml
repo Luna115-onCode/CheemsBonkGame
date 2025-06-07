@@ -86,7 +86,7 @@ jobs:
           cp -r dist/cheems-angular/browser/* "$target_dir"
           cp README.md .gitignore "$target_dir"
           if [ "$build_env" = "production" ]; then
-            cp .pwa/inde.html "deploy-folder/"
+            cp .pwa/index.html "deploy-folder/"
             cp README.md .gitignore "deploy-folder/"
           fi
 
