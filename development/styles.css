@@ -1,0 +1,45 @@
+/* src/styles.css */
+@font-face {
+  font-family: "Kalam";
+  src: url(/fonts/Kalam-Regular.ttf) format("truetype");
+}
+html {
+  -webkit-user-select: none;
+  user-select: none;
+  font-family:
+    Kalam,
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+.icon {
+  height: 100%;
+  width: auto;
+}
+.text-normal {
+  font-size: 14pt;
+}
+.text-big {
+  font-size: 18pt;
+}
+.text-bigger {
+  font-size: 24pt;
+}
+.text-small {
+  font-size: 12pt;
+}
+.text-smaller {
+  font-size: 8pt;
+}
+.color-text.theme-contrast {
+  color: rgb(255, 255, 0);
+}
+.color-text.theme-dark {
+  color: rgb(145, 145, 72);
+}
+.color-text.theme-light {
+  color: rgb(194, 194, 72);
+}
+
+/* angular:styles/global:styles */
+/*# sourceMappingURL=styles.css.map */
