@@ -15,8 +15,8 @@ jobs:
         id: set-env
         run: |
           echo "::set-output name=build_env::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo 'production'; else echo 'development'; fi)"
-          echo "::set-output name=path::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo ''; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo 'test'; else echo 'development'; fi)"
-          echo "::set-output name=page_root::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo '/CheemsBonkGame/'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo '/CheemsBonkGame/test/'; else echo '/CheemsBonkGame/development/'; fi)"
+          echo "::set-output name=path::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo 'app'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo 'test'; else echo 'development'; fi)"
+          echo "::set-output name=page_root::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo '/CheemsBonkGame/app/'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo '/CheemsBonkGame/test/'; else echo '/CheemsBonkGame/development/'; fi)"
           echo "::set-output name=build_prefix::$(if [ '${{ github.ref }}' = 'refs/heads/release' ]; then echo 'prod'; elif [ '${{ github.ref }}' = 'refs/heads/testing' ]; then echo 'test'; else echo 'dev'; fi)"
       - name: Checkout code
         uses: actions/checkout@v3
@@ -98,12 +98,8 @@ jobs:
         run: |
           target_dir="deploy-folder/$path"
           mkdir -p "$target_dir"
-          cp -r dist/cheems-angular/browser/* "$target_dir"
-          cp README.md .gitignore "$target_dir"
-          if [ "$build_env" = "production" ]; then
-            cp -r development-backup/* "$target_dir/development/" || true
-            cp -r test-backup/* "$target_dir/test/" || true
-          fi
+          cp -r dist/cheems-angular/browser/* "$target_dir/"
+          cp README.md .gitignore "$target_dir/"
 
       - name: Commit and Deploy to GitHub Pages
         working-directory: deploy-folder
