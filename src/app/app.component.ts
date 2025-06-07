@@ -23,13 +23,8 @@ export class AppComponent implements OnInit {
 
     document.addEventListener('keydown', this.onKeyDown.bind(this));
     document.addEventListener('touchstart', this.onTouchStart.bind(this));
-    window.addEventListener('beforeunload', this.handleReload);
     
     this.tools.loadApp();
-  }
-
-  handleReload(): void {
-    //TODO: implement reload event
   }
   
   onKeyDown(event: KeyboardEvent): void {

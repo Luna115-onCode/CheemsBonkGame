@@ -4,7 +4,7 @@
         (click)="enableDevOption()"
         class="icon">
         @if (tools.actPage === "game") {
-            <span class="{{tools.fontSize}}">0</span>
+            <span class="color-text {{tools.themeColor}} {{tools.fontSize}}">0</span>
         }
     </span>
     <span class="preventive text color-text {{tools.themeColor}} {{tools.fontSize}}">{{tools.pageName[tools.lang][tools.actPage]}}</span>
