@@ -39,8 +39,8 @@ jobs:
           rm -rf public/img/icons/pwa
           mkdir -p public/img/icons/pwa
           cp .pwa/icons-$build_prefix/pwa/* public/img/icons/pwa
-          rm public/favicon.ico
-          cp .pwa/favicon-$build_prefix.ico public/favicon.ico
+          rm public/img/favicon.ico
+          cp .pwa/favicon-$build_prefix.ico public/img/favicon.ico
           rm public/manifest.webmanifest
           cp .pwa/manifest-$build_prefix.webmanifest public/manifest.webmanifest
           if [ "$build_prefix" = "prod" ]; then
