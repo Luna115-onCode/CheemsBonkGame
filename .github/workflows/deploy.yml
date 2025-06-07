@@ -83,11 +83,11 @@ jobs:
         run: |
           target_dir="deploy-folder/$path"
           mkdir -p "$target_dir"
-          cp -r dist/cheems-angular/browser/* "$target_dir/"
-          cp README.md .gitignore "$target_dir/"
+          cp -r dist/cheems-angular/browser/* "$target_dir"
+          cp README.md .gitignore "$target_dir"
           if [ "$build_env" = "production" ]; then
-            cp .pwa/index.html "deploy-folder/"
-            cp README.md .gitignore "deploy-folder/"
+            cp -r development-backup/* "$target_dir/development/" || true
+            cp -r test-backup/* "$target_dir/test/" || true
           fi
 
       - name: Commit and Deploy to GitHub Pages
