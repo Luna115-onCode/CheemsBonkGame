@@ -43,11 +43,6 @@ jobs:
           cp .pwa/favicon-$build_prefix.ico public/img/favicon.ico
           rm public/manifest.webmanifest
           cp .pwa/manifest-$build_prefix.webmanifest public/manifest.webmanifest
-          if [ "$build_prefix" = "prod" ]; then
-            cp .pwa/ngsw-config-prod.json ngsw-config.json
-          else
-            cp .pwa/ngsw-config-other.json ngsw-config.json
-          fi
 
       - name: Build the application
         env:
@@ -98,8 +93,12 @@ jobs:
         run: |
           target_dir="deploy-folder/$path"
           mkdir -p "$target_dir"
-          cp -r dist/cheems-angular/browser/* "$target_dir/"
-          cp README.md .gitignore "$target_dir/"
+          cp -r dist/cheems-angular/browser/* "$target_dir"
+          cp README.md .gitignore "$target_dir"
+          if [ "$build_env" = "production" ]; then
+            cp .pwa/inde.html "deploy-folder/"
+            cp README.md .gitignore "deploy-folder/"
+          fi
 
       - name: Commit and Deploy to GitHub Pages
         working-directory: deploy-folder
