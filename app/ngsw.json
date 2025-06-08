@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1749333913694,
+  "timestamp": 1749341025187,
   "index": "/CheemsBonkGame/app/index.html",
   "assetGroups": [
     {
@@ -148,14 +148,14 @@
     "/CheemsBonkGame/app/img/icons/volume-loud-svgrepo-com.svg": "4aa6a7f476256300378d275359c7908bc14c6fa6",
     "/CheemsBonkGame/app/img/icons/volume-small-svgrepo-com.svg": "e6cff6f1a08192f058140f574c06bfae88960ea5",
     "/CheemsBonkGame/app/img/locked-cheems.png": "5d04535f1a205a7bf4aaab635a43be8623afd787",
-    "/CheemsBonkGame/app/index.html": "a1782a7008c7bb4f34a08277c526fd4ba640a837",
+    "/CheemsBonkGame/app/index.html": "7cb263b5d0c6e20ee44688e03145d677018c2597",
     "/CheemsBonkGame/app/licences/electro-electro-summer-positive-party-141081-license.txt": "b69186088ecbacb2ddf79bc8a179f7d3753568aa",
     "/CheemsBonkGame/app/licences/futuro-bajo-titanium-170190-license.txt": "6398b14d44e07b24e1eb6d8efeddf3e4048a1682",
     "/CheemsBonkGame/app/licences/futuro-bajo-trap-future-bass-royalty-free-music-167020-license.txt": "fa1298faa5261b1eb5f3a23667646935995a712f",
     "/CheemsBonkGame/app/licences/guitarra-solista-separation-185196-license.txt": "72f4f4be684748d2581282af3e230d2572066e57",
     "/CheemsBonkGame/app/licences/needed.txt": "a2d15029485c920e21abcbeea6f44bc934029ddb",
     "/CheemsBonkGame/app/main-ASAHCN6G.js": "8c0b4d3aecbd2f06644969be43255d116b3e5d3d",
-    "/CheemsBonkGame/app/manifest.webmanifest": "bbe5cc70ade9f49c4d0060ca6de4c1d9308e7407",
+    "/CheemsBonkGame/app/manifest.webmanifest": "a4701b2401a9c12abf68439f30787a41bac940c3",
     "/CheemsBonkGame/app/polyfills-B6TNHZQ6.js": "bf76ac291d7f51c1139b7edcf86b359a30c08c64",
     "/CheemsBonkGame/app/styles-4FZITWLZ.css": "080a07f443c0348e62926ce12b19d8b815be6d13"
   },
