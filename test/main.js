@@ -35878,12 +35878,12 @@ var TextContainerComponent = class _TextContainerComponent {
     if (rf & 1) {
       \u0275\u0275element(0, "div", 0);
     }
-  }, styles: ["\n\n.container[_ngcontent-%COMP%] {\n  background-color:;\n}\n/*# sourceMappingURL=text-container.component.css.map */"] });
+  }, encapsulation: 2 });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TextContainerComponent, [{
     type: Component,
-    args: [{ selector: "app-text-container", imports: [], template: '<div class="container"></div>', styles: ["/* src/app/components/text-container/text-container.component.css */\n.container {\n  background-color:;\n}\n/*# sourceMappingURL=text-container.component.css.map */\n"] }]
+    args: [{ selector: "app-text-container", imports: [], template: '<div class="container"></div>' }]
   }], null, null);
 })();
 (() => {
