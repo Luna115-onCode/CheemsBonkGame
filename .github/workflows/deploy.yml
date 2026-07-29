@@ -86,8 +86,8 @@ jobs:
           path: ${{ steps.set-env.outputs.path }}
         run: |
           target_dir="deploy-folder/$path"
+          rm -rf "$target_dir"
           mkdir -p "$target_dir"
-          find "$target_dir" -mindepth 1 -not -name '.git' -exec rm -rf {} +
 
       - name: Copy New Files to Deploy Folder
         env:
