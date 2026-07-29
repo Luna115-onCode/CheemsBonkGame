@@ -19,18 +19,26 @@ export class AppComponent implements OnInit {
     document.ondragstart = function(){return false};
     document.onselectstart = function(){return false};
 
-    document.addEventListener('keydown', this.onKeyDown.bind(this));
-    document.addEventListener('touchstart', this.onTouchStart.bind(this));
+    document.addEventListener('keydown', this.onKeyDown.bind(this), { passive: false });
+    document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
+
+    window.addEventListener('beforeunload', (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = 'Changes may not be saved';
+      return 'Changes may not be saved';
+    });
     
     this.tools.loadApp();
   }
   
   onKeyDown(event: KeyboardEvent): void {
-    event.preventDefault();
+    if (event.key === ' ' || event.code === 'Space' || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) {
+      event.preventDefault();
+    }
   }
 
   onTouchStart(event: TouchEvent): void {
-    if (event.touches.length >= 2) {
+    if (event.touches.length >= 2 && event.cancelable) {
       event.preventDefault();
     }
   }
