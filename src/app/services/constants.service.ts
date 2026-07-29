@@ -45,95 +45,95 @@ export const showCoins: Array<string> = [
 
 export const pageName: PageName = {
   es: {
-    closet: "Personalización",
-    devSettings: "Opciones de desarrollador",
-    game: "Juego de Cheems Bonk",
-    menu: "Menú principal",
-    onWork: "En desarrollo",
-    p404: "Error 404",
-    settings: "Ajustes"
+    closet: "",
+    devSettings: "",
+    game: "",
+    menu: "",
+    onWork: "",
+    p404: "",
+    settings: ""
   },
   en: {
-    closet: "Customization",
-    devSettings: "Developer Settings",
-    game: "Cheems Bonk Game",
-    menu: "Main Menu",
-    onWork: "On Development",
-    p404: "Error 404",
-    settings: "Settings"
+    closet: "",
+    devSettings: "",
+    game: "",
+    menu: "",
+    onWork: "",
+    p404: "",
+    settings: ""
   },
 };
 
 export const menuText = {
   es: {
-    settings: "Ajustes",
-    offline: "Descarga de recursos (Modo offline)",
-    shop: "Tienda de personalización",
-    closet: "Personalización",
-    stats: "Estadísticas",
-    licenses: "Licencias",
-    devMenu: "Opciones de desarrollo",
-    buyDogeCoin: "Comprar 1 DogeCoin",
-    buyDogeCoinSub: "Costo de hoy: ",
-    buyDogeCoinSuccess: "¡Compraste 1 DogeCoin!",
-    buyDogeCoinFail: "¡Necesitas más puntos!"
+    settings: "",
+    offline: "",
+    shop: "",
+    closet: "",
+    stats: "",
+    licenses: "",
+    devMenu: "",
+    buyDogeCoin: "",
+    buyDogeCoinSub: "",
+    buyDogeCoinSuccess: "",
+    buyDogeCoinFail: ""
   },
   en: {
-    settings: "Settings",
-    offline: "Download Resources (Offline Mode)",
-    shop: "Customization Shop",
-    closet: "Closet / Customization",
-    stats: "Statistics",
-    licenses: "Licenses",
-    devMenu: "Developer Options",
-    buyDogeCoin: "Buy 1 DogeCoin",
-    buyDogeCoinSub: "Today's price: ",
-    buyDogeCoinSuccess: "You bought 1 DogeCoin!",
-    buyDogeCoinFail: "You need more points!"
+    settings: "",
+    offline: "",
+    shop: "",
+    closet: "",
+    stats: "",
+    licenses: "",
+    devMenu: "",
+    buyDogeCoin: "",
+    buyDogeCoinSub: "",
+    buyDogeCoinSuccess: "",
+    buyDogeCoinFail: ""
   }
 };
 
 export const optionsText = {
   es: {
     changeLang: {
-      button: "Cambiar idioma (Switch Language)"
+      button: ""
     },
-    musicVolume: "Volumen de la música",
-    effectsVolume: "Volumen de los efectos",
-    appTheme: "Tema de la app (colores):",
+    musicVolume: "",
+    effectsVolume: "",
+    appTheme: "",
     themes: {
-      light: "Modo claro",
-      dark: "Modo oscuro",
-      contrast: "Modo alto contraste"
+      light: "",
+      dark: "",
+      contrast: ""
     },
-    fontSize: "Tamaño de la fuente:",
+    fontSize: "",
     sizes: {
-      smaller: "Muy pequeña",
-      small: "Pequeña",
-      normal: "Normal",
-      big: "Grande",
-      max: "Muy grande"
+      smaller: "",
+      small: "",
+      normal: "",
+      big: "",
+      max: ""
     }
   },
   en: {
     changeLang: {
-      button: "Switch Language (Cambiar idioma)"
+      button: ""
     },
-    musicVolume: "Music volume",
-    effectsVolume: "Effects volume",
-    appTheme: "App theme (colors):",
+    musicVolume: "",
+    effectsVolume: "",
+    appTheme: "",
     themes: {
-      light: "Light Mode",
-      dark: "Dark Mode",
-      contrast: "High Contrast Mode"
+      light: "",
+      dark: "",
+      contrast: ""
     },
-    fontSize: "Font size:",
+    fontSize: "",
     sizes: {
-      smaller: "Smallest",
-      small: "Small",
-      normal: "Normal",
-      big: "Big",
-      max: "Biggest"
+      smaller: "",
+      small: "",
+      normal: "",
+      big: "",
+      max: ""
     }
   }
 };
@@ -141,99 +141,103 @@ export const optionsText = {
 export const gameText = {
   es: {
     navbar: {
-      highScore: "Mayor puntaje",
-      actScore: "Toques actuales",
-      totalScore: "Toques totales"
+      highScore: "",
+      actScore: "",
+      totalScore: ""
     },
-    tapToBonk: "¡Haz clic en Cheems para un BONK!"
+    tapToBonk: ""
   },
   en: {
     navbar: {
-      highScore: "High score",
-      actScore: "Current touches",
-      totalScore: "Total touches"
+      highScore: "",
+      actScore: "",
+      totalScore: ""
     },
-    tapToBonk: "Click Cheems for a BONK!"
+    tapToBonk: ""
   }
 };
 
 export const closetText = {
   es: {
-    title: "Personalización",
-    cheemsSection: "Cheems (Skins)",
-    soundsSection: "Sonidos de golpe",
-    musicSection: "Música de fondo",
-    selected: "Seleccionado",
-    equipped: "Equipado",
-    purchased: "Comprado",
-    cost: "Costo:",
-    free: "Gratis",
-    buy: "Comprar",
-    equip: "Equipado",
-    needMoreCoins: "¡Necesitas más DogeCoins!",
-    itemBought: "¡Comprado con éxito!",
-    itemSelected: "¡Seleccionado!"
+    title: "",
+    cheemsSection: "",
+    soundsSection: "",
+    musicSection: "",
+    selected: "",
+    equipped: "",
+    purchased: "",
+    cost: "",
+    free: "",
+    buy: "",
+    equip: "",
+    needMoreCoins: "",
+    itemBought: "",
+    itemSelected: ""
   },
   en: {
-    title: "Customization Shop",
-    cheemsSection: "Cheems (Skins)",
-    soundsSection: "Hit Sounds",
-    musicSection: "Background Music",
-    selected: "Selected",
-    equipped: "Equipped",
-    purchased: "Purchased",
-    cost: "Cost:",
-    free: "Free",
-    buy: "Buy",
-    equip: "Equip",
-    needMoreCoins: "Need more DogeCoins!",
-    itemBought: "Successfully purchased!",
-    itemSelected: "Selected!"
+    title: "",
+    cheemsSection: "",
+    soundsSection: "",
+    musicSection: "",
+    selected: "",
+    equipped: "",
+    purchased: "",
+    cost: "",
+    free: "",
+    buy: "",
+    equip: "",
+    needMoreCoins: "",
+    itemBought: "",
+    itemSelected: ""
   }
 };
 
 export const devText = {
   es: {
-    title: "Opciones de desarrollo",
-    resetToZero: "Restablecer a cero (Reset)",
-    unlockAll: "Desbloquear todo",
-    giveDogeCoins: "Añadir +100 DogeCoins",
-    givePoints: "Añadir +1000 Puntos",
-    success: "¡Completado!"
+    title: "",
+    resetToZero: "",
+    unlockAll: "",
+    giveDogeCoins: "",
+    givePoints: "",
+    success: "",
+    unlocked: "",
+    locked: ""
   },
   en: {
-    title: "Developer Options",
-    resetToZero: "Reset to zero",
-    unlockAll: "Unlock All",
-    giveDogeCoins: "Add +100 DogeCoins",
-    givePoints: "Add +1000 Points",
-    success: "Done!"
+    title: "",
+    resetToZero: "",
+    unlockAll: "",
+    giveDogeCoins: "",
+    givePoints: "",
+    success: "",
+    unlocked: "",
+    locked: ""
   }
 };
 
 export const onWorkText = {
   es: {
-    title: "Página en desarrollo",
-    message: "Esta página está en desarrollo aún. ¡Vuelve pronto!",
-    backToMenu: "Volver al menú"
+    title: "",
+    message: "",
+    backToMenu: ""
   },
   en: {
-    title: "Page Under Development",
-    message: "This page is still under development. Check back soon!",
-    backToMenu: "Back to Menu"
+    title: "",
+    message: "",
+    backToMenu: ""
   }
 };
 
 export const p404Text = {
   es: {
-    title: "Error 404",
-    message: "La página que buscas no existe en el universo Cheems.",
-    backToGame: "Volver al juego"
+    title: "",
+    message: "",
+    backToGame: ""
   },
   en: {
-    title: "Error 404",
-    message: "The page you are looking for does not exist in the Cheems universe.",
-    backToGame: "Back to Game"
+    title: "",
+    message: "",
+    backToGame: ""
   }
 };
 

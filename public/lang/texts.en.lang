@@ -72,7 +72,9 @@
     "unlockAll": "Unlock All",
     "giveDogeCoins": "Add +100 DogeCoins",
     "givePoints": "Add +1000 Points",
-    "success": "Done!"
+    "success": "Done!",
+    "unlocked": "Developer Menu UNLOCKED!",
+    "locked": "Developer Menu locked."
   },
   "onWork": {
     "title": "Page Under Development",

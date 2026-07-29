@@ -250,17 +250,9 @@ export class ToolsService {
       this.devMenuUnlocked = !this.devMenuUnlocked;
       localStorage.setItem("CheemsAppLiDevMenu", JSON.stringify(this.devMenuUnlocked));
       if (this.devMenuUnlocked) {
-        this.showToast(
-          this.lang === 'es'
-            ? "¡Menú de desarrollo DESBLOQUEADO!"
-            : "Developer Menu UNLOCKED!"
-        );
+        this.showToast(this.dev[this.lang].unlocked);
       } else {
-        this.showToast(
-          this.lang === 'es'
-            ? "Menú de desarrollo bloqueado."
-            : "Developer Menu locked."
-        );
+        this.showToast(this.dev[this.lang].locked);
       }
       this.devClickCount = 0;
       this.playSound('4');

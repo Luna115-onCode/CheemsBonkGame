@@ -72,7 +72,9 @@
     "unlockAll": "Desbloquear todo",
     "giveDogeCoins": "Añadir +100 DogeCoins",
     "givePoints": "Añadir +1000 Puntos",
-    "success": "¡Completado!"
+    "success": "¡Completado!",
+    "unlocked": "¡Menú de desarrollo DESBLOQUEADO!",
+    "locked": "Menú de desarrollo bloqueado."
   },
   "onWork": {
     "title": "Página en desarrollo",
