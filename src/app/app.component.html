@@ -1,2 +1,7 @@
 <app-navbar/>
 <router-outlet />
+@if (tools.toastMessage) {
+    <div class="toast-popup {{tools.themeColor}} {{tools.fontSize}}">
+        {{tools.toastMessage}}
+    </div>
+}

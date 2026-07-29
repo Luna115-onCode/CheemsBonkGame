@@ -1,0 +1,20 @@
+<div class="container">
+    <div class="group {{tools.themeColor}} dev-box">
+        <h2 class="dev-title">{{tools.dev[tools.lang].title}}</h2>
+
+        <div class="dev-actions">
+            <button class="btn-card {{tools.themeColor}} dev-btn" (click)="unlockAll()">
+                {{tools.dev[tools.lang].unlockAll}}
+            </button>
+            <button class="btn-card {{tools.themeColor}} dev-btn" (click)="resetToZero()">
+                {{tools.dev[tools.lang].resetToZero}}
+            </button>
+            <button class="btn-card {{tools.themeColor}} dev-btn" (click)="addDogeCoins()">
+                {{tools.dev[tools.lang].giveDogeCoins}}
+            </button>
+            <button class="btn-card {{tools.themeColor}} dev-btn" (click)="addPoints()">
+                {{tools.dev[tools.lang].givePoints}}
+            </button>
+        </div>
+    </div>
+</div>

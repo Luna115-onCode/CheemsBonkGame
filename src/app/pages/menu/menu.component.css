@@ -1,0 +1,109 @@
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.25rem;
+    width: 95%;
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.menu-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.15rem;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid transparent;
+}
+
+.menu-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+}
+
+.menu-card:active {
+    transform: translateY(1px) scale(0.98);
+}
+
+.menu-icon {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.coin-glow {
+    filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.7));
+}
+
+.card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-weight: 900;
+    font-size: 1.1em;
+}
+
+.card-sub {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+/* Theme specific cards */
+.menu-card.theme-dark {
+    background: linear-gradient(145deg, rgba(80, 68, 55, 0.85), rgba(50, 42, 33, 0.95));
+    border: 1px solid rgba(255, 209, 102, 0.25);
+    color: rgb(245, 235, 220);
+}
+
+.menu-card.theme-light {
+    background: linear-gradient(145deg, rgba(255, 245, 230, 0.9), rgba(240, 225, 195, 0.95));
+    border: 1px solid rgba(156, 92, 20, 0.3);
+    color: rgb(70, 45, 20);
+}
+
+.menu-card.theme-contrast {
+    background: #000000;
+    border: 2px solid #ffffff;
+    color: #ffffff;
+}
+
+.menu-card.theme-contrast:hover {
+    border-color: #ffff00;
+    color: #ffff00;
+}
+
+/* Dogecoin special card */
+.dogecoin-card.theme-dark {
+    background: linear-gradient(145deg, rgba(120, 95, 40, 0.9), rgba(75, 55, 20, 0.95));
+    border-color: #ffd166;
+}
+
+.dogecoin-card.theme-light {
+    background: linear-gradient(145deg, rgba(255, 225, 160, 0.95), rgba(245, 205, 130, 0.95));
+    border-color: #9c5c14;
+}
+
+.dogecoin-card.theme-contrast {
+    border-color: #ffff00;
+    color: #ffff00;
+}
+
+/* Developer card */
+.dev-card {
+    border-style: dashed !important;
+}
+
+@media (max-width: 600px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+        padding: 1.25rem;
+    }
+}

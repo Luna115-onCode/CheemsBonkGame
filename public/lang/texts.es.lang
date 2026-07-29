@@ -1,0 +1,87 @@
+{
+  "pageName": {
+    "closet": "Personalización",
+    "devSettings": "Opciones de desarrollador",
+    "game": "Juego de Cheems Bonk",
+    "menu": "Menú principal",
+    "onWork": "En desarrollo",
+    "p404": "Error 404",
+    "settings": "Ajustes"
+  },
+  "menu": {
+    "settings": "Ajustes",
+    "offline": "Descarga de recursos (Modo offline)",
+    "shop": "Tienda de personalización",
+    "closet": "Personalización",
+    "stats": "Estadísticas",
+    "licenses": "Licencias",
+    "devMenu": "Opciones de desarrollo",
+    "buyDogeCoin": "Comprar 1 DogeCoin",
+    "buyDogeCoinSub": "Costo de hoy: ",
+    "buyDogeCoinSuccess": "¡Compraste 1 DogeCoin!",
+    "buyDogeCoinFail": "¡Necesitas más puntos!"
+  },
+  "options": {
+    "changeLang": {
+      "button": "Cambiar idioma (Switch Language)"
+    },
+    "musicVolume": "Volumen de la música",
+    "effectsVolume": "Volumen de los efectos",
+    "appTheme": "Tema de la app (colores):",
+    "themes": {
+      "light": "Modo claro",
+      "dark": "Modo oscuro",
+      "contrast": "Modo alto contraste"
+    },
+    "fontSize": "Tamaño de la fuente:",
+    "sizes": {
+      "smaller": "Muy pequeña",
+      "small": "Pequeña",
+      "normal": "Normal",
+      "big": "Grande",
+      "max": "Muy grande"
+    }
+  },
+  "game": {
+    "navbar": {
+      "highScore": "Mayor puntaje",
+      "actScore": "Toques actuales",
+      "totalScore": "Toques totales"
+    },
+    "tapToBonk": "¡Haz clic en Cheems para un BONK!"
+  },
+  "closet": {
+    "title": "Personalización",
+    "cheemsSection": "Cheems (Skins)",
+    "soundsSection": "Sonidos de golpe",
+    "musicSection": "Música de fondo",
+    "selected": "Seleccionado",
+    "equipped": "Equipado",
+    "purchased": "Comprado",
+    "cost": "Costo:",
+    "free": "Gratis",
+    "buy": "Comprar",
+    "equip": "Equipado",
+    "needMoreCoins": "¡Necesitas más DogeCoins!",
+    "itemBought": "¡Comprado con éxito!",
+    "itemSelected": "¡Seleccionado!"
+  },
+  "dev": {
+    "title": "Opciones de desarrollo",
+    "resetToZero": "Restablecer a cero (Reset)",
+    "unlockAll": "Desbloquear todo",
+    "giveDogeCoins": "Añadir +100 DogeCoins",
+    "givePoints": "Añadir +1000 Puntos",
+    "success": "¡Completado!"
+  },
+  "onWork": {
+    "title": "Página en desarrollo",
+    "message": "Esta página está en desarrollo aún. ¡Vuelve pronto!",
+    "backToMenu": "Volver al menú"
+  },
+  "p404": {
+    "title": "Error 404",
+    "message": "La página que buscas no existe en el universo Cheems.",
+    "backToGame": "Volver al juego"
+  }
+}

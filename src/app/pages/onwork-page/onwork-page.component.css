@@ -1,0 +1,32 @@
+.work-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 500px;
+    margin: 3rem auto;
+    text-align: center;
+    padding: 2.5rem;
+}
+
+.work-img {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));
+}
+
+.work-title {
+    font-weight: 900;
+    font-size: 1.5em;
+}
+
+.work-msg {
+    opacity: 0.85;
+    line-height: 1.4;
+}
+
+.work-btn {
+    margin-top: 1rem;
+    padding: 0.75rem 2rem;
+}

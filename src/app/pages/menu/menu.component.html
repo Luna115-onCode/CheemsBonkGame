@@ -1,18 +1,62 @@
-<ul>
-    <app-text-container/>
-    <li (click)="tools.redirect('/closet')">
-        {{tools.pageName[tools.lang].closet}}
-    </li>
-    <li (click)="tools.redirect('/devSettings')">
-        {{tools.pageName[tools.lang].devSettings}}
-    </li>
-    <li (click)="tools.redirect('/onWork')">
-        {{tools.pageName[tools.lang].onWork}}
-    </li>
-    <li (click)="tools.redirect('/noexiste')">
-        {{tools.pageName[tools.lang].p404}}
-    </li>
-    <li (click)="tools.redirect('/settings')">
-        {{tools.pageName[tools.lang].settings}}
-    </li>
-</ul>
+<div class="container">
+    <div class="group {{tools.themeColor}} menu-grid">
+        <!-- Buy DogeCoin Card -->
+        <div class="menu-card dogecoin-card {{tools.themeColor}}" (click)="buyDogeCoin()">
+            <img src="img/dogecoin-min.png" class="menu-icon coin-glow" alt="DogeCoin">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].buyDogeCoin}}</div>
+                <div class="card-sub">{{tools.menu[tools.lang].buyDogeCoinSub}} <strong>{{dailyPrice}} Pts</strong></div>
+            </div>
+        </div>
+
+        <!-- Customization / Closet -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('closet')">
+            <img src="img/icons/personal-svgrepo-com.svg" class="menu-icon" alt="Closet">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].closet}}</div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('settings')">
+            <img src="img/icons/set-up-svgrepo-com.svg" class="menu-icon" alt="Settings">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].settings}}</div>
+            </div>
+        </div>
+
+        <!-- Offline Mode / Resource Download -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('onWork')">
+            <img src="img/icons/link-svgrepo-com.svg" class="menu-icon" alt="Offline Mode">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].offline}}</div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('onWork')">
+            <img src="img/icons/report-svgrepo-com.svg" class="menu-icon" alt="Stats">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].stats}}</div>
+            </div>
+        </div>
+
+        <!-- Licenses -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('onWork')">
+            <img src="img/icons/the-internet-svgrepo-com.svg" class="menu-icon" alt="Licenses">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].licenses}}</div>
+            </div>
+        </div>
+
+        <!-- Developer Options (Hidden unless unlocked) -->
+        @if (tools.devMenuUnlocked) {
+            <div class="menu-card dev-card {{tools.themeColor}}" (click)="tools.redirect('devSettings')">
+                <img src="img/icons/application-svgrepo-com.svg" class="menu-icon" alt="Dev Settings">
+                <div class="card-content">
+                    <div class="card-title">{{tools.menu[tools.lang].devMenu}}</div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

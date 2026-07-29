@@ -18,7 +18,6 @@ export class AppComponent implements OnInit {
     //!document.oncontextmenu = function(){return false};
     document.ondragstart = function(){return false};
     document.onselectstart = function(){return false};
-    document.onmousedown = function() {return false};
 
     document.addEventListener('keydown', this.onKeyDown.bind(this));
     document.addEventListener('touchstart', this.onTouchStart.bind(this));
