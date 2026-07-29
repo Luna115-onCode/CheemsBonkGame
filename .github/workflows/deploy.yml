@@ -71,8 +71,7 @@ jobs:
           page_root: ${{ steps.set-env.outputs.page_root }}
         run: npm run build -- --configuration="$build_env" --base-href="$page_root"
 
-      - name: Set up SSH Key (if DEPLOY_KEY is provided)
-        if: "${{ secrets.DEPLOY_KEY != '' }}"
+      - name: Set up SSH Key
         env:
           DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
