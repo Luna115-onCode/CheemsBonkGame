@@ -71,11 +71,30 @@ jobs:
           page_root: ${{ steps.set-env.outputs.page_root }}
         run: npm run build -- --configuration="$build_env" --base-href="$page_root"
 
+      - name: Set up SSH Key (if DEPLOY_KEY is provided)
+        if: "${{ secrets.DEPLOY_KEY != '' }}"
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          printf "%s\n" "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null || true
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/deploy_key
+
       - name: Clone gh-pages branch
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          if [ -n "$DEPLOY_KEY" ]; then
+            REPO_URL="git@github.com:${{ github.repository }}.git"
+            export GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts"
+          else
+            REPO_URL="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          fi
           if git clone --branch gh-pages --single-branch "$REPO_URL" deploy-folder 2>/dev/null; then
             echo "Cloned existing gh-pages branch."
           else
@@ -106,7 +125,12 @@ jobs:
 
       - name: Commit and Push to gh-pages
         working-directory: deploy-folder
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
         run: |
+          if [ -n "$DEPLOY_KEY" ]; then
+            export GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts"
+          fi
           git add .
           if git diff --cached --quiet; then
             echo "No changes to commit. Skipping deployment."
