@@ -29,6 +29,11 @@ export class SettingsComponent implements OnInit {
     this.tools.changeLanguage();
   }
 
+  onLanguageChange(event: any): void {
+    const key = event.target.value;
+    this.tools.setLanguage(key);
+  }
+
   selectTheme(index: number): void {
     this.tools.switchTheme(index);
   }

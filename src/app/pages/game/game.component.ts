@@ -5,6 +5,7 @@ interface FloatingScore {
   id: number;
   x: number;
   y: number;
+  value: number;
 }
 
 @Component({
@@ -36,7 +37,7 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   onKeyUp(event: KeyboardEvent): void {
-    if (event.key === " ") {
+    if (event.code === "Space") {
       this.onClick(false, event);
     }
   }
@@ -61,11 +62,12 @@ export class GameComponent implements OnInit, OnDestroy {
 
   clickCheems(x: number, y: number): void {
     this.clicked = true;
-    this.tools.updateScore(1);
+    const gained = this.tools.getActiveMultiplier();
+    this.tools.updateScore(gained);
     this.tools.playSound();
 
     const scoreId = this.nextScoreId++;
-    this.floatingScores.push({ id: scoreId, x, y });
+    this.floatingScores.push({ id: scoreId, x, y, value: gained });
     setTimeout(() => {
       this.floatingScores = this.floatingScores.filter(item => item.id !== scoreId);
     }, 800);

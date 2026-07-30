@@ -38,8 +38,10 @@
             <span class="score-value">{{tools.highScore}}</span>
         </div>
         <div class="score-box">
-            <span class="score-label">{{tools.game[tools.lang].navbar.totalScore}}</span>
-            <span class="score-value">{{tools.totalScore}}</span>
+            @if (tools.boosterEndTime !== 0 && tools.getBoosterRemainingSeconds() > 0) {
+                <span class="score-label booster-nav-label">⚡ x{{tools.boosterMultiplier}} {{tools.game[tools.lang]?.navbar?.booster || 'Booster'}}</span>
+                <span class="score-value booster-nav-value">{{tools.getBoosterFormattedTime()}}</span>
+            }
         </div>
         <div class="score-box">
             <span class="score-label">{{tools.game[tools.lang].navbar.actScore}}</span>

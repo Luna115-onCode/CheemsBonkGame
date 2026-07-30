@@ -1,0 +1,58 @@
+[
+  {
+    "id": "music_0",
+    "nameKey": "music_0",
+    "file": "",
+    "basePath": "sound/music/",
+    "default": true,
+    "storageKey": "m0"
+  },
+  {
+    "id": "music_1",
+    "nameKey": "music_1",
+    "file": "A_Jazz_Piano.ogg",
+    "basePath": "sound/music/",
+    "default": true,
+    "storageKey": "m1"
+  },
+  {
+    "id": "music_2",
+    "nameKey": "music_2",
+    "file": "Jack_Bootleg.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m2"
+  },
+  {
+    "id": "music_3",
+    "nameKey": "music_3",
+    "file": "Magic_night.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m3"
+  },
+  {
+    "id": "music_4",
+    "nameKey": "music_4",
+    "file": "Minimalism_No9.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m4"
+  },
+  {
+    "id": "music_5",
+    "nameKey": "music_5",
+    "file": "Minimalism_No10.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m5"
+  },
+  {
+    "id": "music_6",
+    "nameKey": "music_6",
+    "file": "When_you_smile.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m6"
+  }
+]

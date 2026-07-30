@@ -1,282 +1,345 @@
 import { Injectable } from '@angular/core';
 
 export interface PageName {
-  [key: string]: {
-    closet: string;
-    devSettings: string;
-    game: string;
-    menu: string;
-    onWork: string;
-    p404: string;
-    settings: string;
-  };
+  closet: string;
+  devSettings: string;
+  game: string;
+  menu: string;
+  onWork: string;
+  p404: string;
+  settings: string;
+  offline: string;
+  shop: string;
+}
+
+export function createLangMap<T extends object>(base: T): Record<string, T> {
+  return new Proxy({} as Record<string, T>, {
+    get(target, prop: string) {
+      if (!(prop in target)) {
+        target[prop] = JSON.parse(JSON.stringify(base));
+      }
+      return target[prop];
+    }
+  });
 }
 
 export interface CheemsSkinItem {
   id: string;
-  nameEs: string;
-  nameEn: string;
+  nameKey?: string;
+  nameEs?: string;
+  nameEn?: string;
   img: string;
-  cost: number;
+  imgUrl?: string;
+  hitImg?: string;
+  hitImgUrl?: string;
+  cost?: number;
   default?: boolean;
   storageKey: string;
 }
 
 export interface SoundEffectItem {
   id: string;
-  name: string;
-  cost: number;
+  nameKey?: string;
+  name?: string;
+  cost?: number;
   default?: boolean;
   storageKey: string;
+  file?: string;
+  files?: string[];
+  basePath?: string;
 }
 
 export interface MusicTrackItem {
-  id: number;
-  name: string;
+  id: string | number;
+  nameKey?: string;
+  name?: string;
   file: string;
+  basePath?: string;
+  url?: string;
   default?: boolean;
-  cost: number;
+  cost?: number;
   storageKey: string;
 }
+
+export interface LanguageItem {
+  key: string;
+  name: string;
+}
+
+export const AVAILABLE_LANGUAGES: Array<LanguageItem> = [
+  { key: 'es', name: 'Español' },
+  { key: 'en', name: 'English' }
+];
 
 export const showCoins: Array<string> = [
   "game", "dev-settings", "closet", "menu"
 ];
 
 export const pageName: PageName = {
-  es: {
-    closet: "",
-    devSettings: "",
-    game: "",
-    menu: "",
-    onWork: "",
-    p404: "",
-    settings: ""
-  },
-  en: {
-    closet: "",
-    devSettings: "",
-    game: "",
-    menu: "",
-    onWork: "",
-    p404: "",
-    settings: ""
-  },
+  closet: "",
+  devSettings: "",
+  game: "",
+  menu: "",
+  onWork: "",
+  p404: "",
+  settings: "",
+  offline: "",
+  shop: ""
 };
 
 export const menuText = {
-  es: {
-    settings: "",
-    offline: "",
-    shop: "",
-    closet: "",
-    stats: "",
-    licenses: "",
-    devMenu: "",
-    buyDogeCoin: "",
-    buyDogeCoinSub: "",
-    buyDogeCoinSuccess: "",
-    buyDogeCoinFail: ""
-  },
-  en: {
-    settings: "",
-    offline: "",
-    shop: "",
-    closet: "",
-    stats: "",
-    licenses: "",
-    devMenu: "",
-    buyDogeCoin: "",
-    buyDogeCoinSub: "",
-    buyDogeCoinSuccess: "",
-    buyDogeCoinFail: ""
-  }
+  settings: "",
+  offline: "",
+  shop: "",
+  closet: "",
+  stats: "",
+  licenses: "",
+  devMenu: "",
+  buyDogeCoin: "",
+  buyDogeCoinSub: "",
+  buyDogeCoinSuccess: "",
+  buyDogeCoinFail: ""
 };
 
 export const optionsText = {
-  es: {
-    changeLang: {
-      button: ""
-    },
-    musicVolume: "",
-    effectsVolume: "",
-    appTheme: "",
-    themes: {
-      light: "",
-      dark: "",
-      contrast: ""
-    },
-    fontSize: "",
-    sizes: {
-      smaller: "",
-      small: "",
-      normal: "",
-      big: "",
-      max: ""
-    }
+  changeLang: {
+    button: ""
   },
-  en: {
-    changeLang: {
-      button: ""
-    },
-    musicVolume: "",
-    effectsVolume: "",
-    appTheme: "",
-    themes: {
-      light: "",
-      dark: "",
-      contrast: ""
-    },
-    fontSize: "",
-    sizes: {
-      smaller: "",
-      small: "",
-      normal: "",
-      big: "",
-      max: ""
-    }
+  musicVolume: "",
+  effectsVolume: "",
+  appTheme: "",
+  themes: {
+    light: "",
+    dark: "",
+    contrast: ""
+  },
+  fontSize: "",
+  sizes: {
+    smaller: "",
+    small: "",
+    normal: "",
+    big: "",
+    max: ""
   }
 };
 
 export const gameText = {
-  es: {
-    navbar: {
-      highScore: "",
-      actScore: "",
-      totalScore: ""
-    },
-    tapToBonk: ""
+  navbar: {
+    highScore: "",
+    actScore: "",
+    totalScore: ""
   },
-  en: {
-    navbar: {
-      highScore: "",
-      actScore: "",
-      totalScore: ""
-    },
-    tapToBonk: ""
-  }
+  tapToBonk: ""
 };
 
 export const closetText = {
-  es: {
-    title: "",
-    cheemsSection: "",
-    soundsSection: "",
-    musicSection: "",
-    selected: "",
-    equipped: "",
-    purchased: "",
-    cost: "",
-    free: "",
-    buy: "",
-    equip: "",
-    needMoreCoins: "",
-    itemBought: "",
-    itemSelected: ""
-  },
-  en: {
-    title: "",
-    cheemsSection: "",
-    soundsSection: "",
-    musicSection: "",
-    selected: "",
-    equipped: "",
-    purchased: "",
-    cost: "",
-    free: "",
-    buy: "",
-    equip: "",
-    needMoreCoins: "",
-    itemBought: "",
-    itemSelected: ""
-  }
+  title: "",
+  cheemsSection: "",
+  soundsSection: "",
+  musicSection: "",
+  selected: "",
+  equipped: "",
+  purchased: "",
+  cost: "",
+  free: "",
+  buy: "",
+  equip: "",
+  needMoreCoins: "",
+  itemBought: "",
+  itemSelected: ""
 };
 
 export const devText = {
-  es: {
-    title: "",
-    resetToZero: "",
-    unlockAll: "",
-    giveDogeCoins: "",
-    givePoints: "",
-    success: "",
-    unlocked: "",
-    locked: ""
-  },
-  en: {
-    title: "",
-    resetToZero: "",
-    unlockAll: "",
-    giveDogeCoins: "",
-    givePoints: "",
-    success: "",
-    unlocked: "",
-    locked: ""
-  }
+  title: "",
+  resetToZero: "",
+  unlockAll: "",
+  giveDogeCoins: "",
+  givePoints: "",
+  success: "",
+  unlocked: "",
+  locked: ""
 };
 
 export const onWorkText = {
-  es: {
-    title: "",
-    message: "",
-    backToMenu: ""
-  },
-  en: {
-    title: "",
-    message: "",
-    backToMenu: ""
-  }
+  title: "",
+  message: "",
+  backToMenu: ""
 };
 
 export const p404Text = {
-  es: {
-    title: "",
-    message: "",
-    backToGame: ""
-  },
-  en: {
-    title: "",
-    message: "",
-    backToGame: ""
-  }
+  title: "",
+  message: "",
+  backToGame: ""
 };
 
-export const CHEEMS_SKINS: Array<CheemsSkinItem> = [
-  { id: 'normal', nameEs: 'Cheems Normal', nameEn: 'Normal Cheems', img: 'normal.png', cost: 0, default: true, storageKey: 'c1' },
-  { id: 'little', nameEs: 'Cheems Chiquito', nameEn: 'Little Cheems', img: 'little.png', cost: 10, storageKey: 'c2' },
-  { id: 'adult', nameEs: 'Cheems Adulto', nameEn: 'Adult Cheems', img: 'adult.png', cost: 10, storageKey: 'c3' },
-  { id: 'kid', nameEs: 'Cheems Niño', nameEn: 'Kid Cheems', img: 'kid.png', cost: 10, storageKey: 'c4' },
-  { id: 'mamado', nameEs: 'Cheems Mamado', nameEn: 'Buff Cheems', img: 'mamado.png', cost: 10, storageKey: 'c5' },
-  { id: 'pixelart', nameEs: 'Cheems Pixel', nameEn: 'Pixel Cheems', img: 'pixelart.png', cost: 10, storageKey: 'c6' },
-  { id: 'elegant', nameEs: 'Cheems Elegante', nameEn: 'Elegant Cheems', img: 'elegant.png', cost: 10, storageKey: 'c7' },
-  { id: '3d', nameEs: 'Cheems 3D', nameEn: '3D Cheems', img: '3d.png', cost: 10, storageKey: 'c8' },
-  { id: 'black', nameEs: 'Cheems Oscuro', nameEn: 'Dark Cheems', img: 'black.png', cost: 10, storageKey: 'c9' }
+export const offlineText = {
+  title: "",
+  subtitle: "",
+  downloadAll: "",
+  essentialsTitle: "",
+  essentialsDesc: "",
+  sfxTitle: "",
+  sfxDesc: "",
+  musicTitle: "",
+  musicDesc: "",
+  downloaded: "",
+  download: "",
+  downloading: "",
+  successToast: "",
+  errorToast: ""
+};
+
+export interface OfflineCategory {
+  id: 'essentials' | 'sfx' | 'music';
+  titleKey: string;
+  descKey: string;
+  sizeLabel: string;
+  urls: string[];
+}
+
+export const OFFLINE_CATEGORIES: OfflineCategory[] = [
+  {
+    id: 'essentials',
+    titleKey: 'essentialsTitle',
+    descKey: 'essentialsDesc',
+    sizeLabel: '~9.5 MB',
+    urls: [
+      '/',
+      'index.html',
+      'favicon.ico',
+      'manifest.webmanifest',
+      'closet.json',
+      'items/cheems.json',
+      'items/sound_effects.json',
+      'items/music.json',
+      'lang/texts.en.lang',
+      'lang/texts.es.lang',
+      'img/dogecoin-min.png',
+      'img/dogecoin-min.svg',
+      'img/dogecoin.png',
+      'img/dogecoin.svg',
+      'img/favicon.ico',
+      'img/cheems/3d.png',
+      'img/cheems/adult.png',
+      'img/cheems/black.png',
+      'img/cheems/elegant.png',
+      'img/cheems/kid.png',
+      'img/cheems/little.png',
+      'img/cheems/locked-cheems.png',
+      'img/cheems/mamado.png',
+      'img/cheems/normal.png',
+      'img/cheems/pixelart.png',
+      'img/hit/3d.png',
+      'img/hit/adult.png',
+      'img/hit/black.png',
+      'img/hit/elegant.png',
+      'img/hit/kid.png',
+      'img/hit/little.png',
+      'img/hit/mamado.png',
+      'img/hit/normal.png',
+      'img/hit/pixelart.png',
+      'img/icons/application-svgrepo-com.svg',
+      'img/icons/black-music-svgrepo-com.svg',
+      'img/icons/black-sound-svgrepo-com.svg',
+      'img/icons/earphone-svgrepo-com.svg',
+      'img/icons/front-page-svgrepo-com.svg',
+      'img/icons/link-svgrepo-com.svg',
+      'img/icons/lock-keyhole-minimalistic-svgrepo-com.svg',
+      'img/icons/lock-keyhole-minimalistic-unlocked-svgrepo-com.svg',
+      'img/icons/menu-svgrepo-com.svg',
+      'img/icons/music-svgrepo-com.svg',
+      'img/icons/personal-svgrepo-com.svg',
+      'img/icons/picture-svgrepo-com.svg',
+      'img/icons/play-svgrepo-com.svg',
+      'img/icons/report-svgrepo-com.svg',
+      'img/icons/set-up-svgrepo-com.svg',
+      'img/icons/shopping-svgrepo-com.svg',
+      'img/icons/sound-svgrepo-com.svg',
+      'img/icons/the-internet-svgrepo-com.svg',
+      'img/icons/trophy-svgrepo-com.svg',
+      'img/icons/volume-cross-svgrepo-com.svg',
+      'img/icons/volume-loud-svgrepo-com.svg',
+      'img/icons/volume-small-svgrepo-com.svg',
+      'img/icons/pwa/icon-144x144.png',
+      'img/icons/pwa/icon-192x192.png',
+      'img/icons/pwa/icon-512x512.png',
+      'img/icons/pwa/icon-72x72.png'
+    ]
+  },
+  {
+    id: 'sfx',
+    titleKey: 'sfxTitle',
+    descKey: 'sfxDesc',
+    sizeLabel: '~550 KB',
+    urls: [
+      'sound/discord-connect.ogg',
+      'sound/discord-disconnect.ogg',
+      'sound/discord-msg.ogg',
+      'sound/hello.ogg',
+      'sound/hit-minecraft.ogg',
+      'sound/hit.ogg',
+      'sound/hurt-minecraft.ogg',
+      'sound/hurt-roblox.ogg',
+      'sound/levelup1.ogg',
+      'sound/levelup2.ogg',
+      'sound/no.ogg',
+      'sound/pato.ogg',
+      'sound/peluche.ogg',
+      'sound/splat.ogg',
+      'sound/windows-error.ogg',
+      'sound/menu/Desaparecer.ogg',
+      'sound/menu/deslis.ogg',
+      'sound/menu/teclas.ogg'
+    ]
+  },
+  {
+    id: 'music',
+    titleKey: 'musicTitle',
+    descKey: 'musicDesc',
+    sizeLabel: '~119 MB',
+    urls: [
+      'sound/music/A_Jazz_Piano.ogg',
+      'sound/music/Jack_Bootleg.ogg',
+      'sound/music/Magic_night.ogg',
+      'sound/music/Minimalism_No10.ogg',
+      'sound/music/Minimalism_No9.ogg',
+      'sound/music/TETRIS (Joey iLLah Bootleg) (Final).wav',
+      'sound/music/When_you_smile.ogg',
+      'sound/music/believe-me-143530.mp3',
+      'sound/music/city-streets-background-version-166003.mp3',
+      'sound/music/coffee-shop-189585.mp3',
+      'sound/music/electro-summer-positive-party-141081.mp3',
+      'sound/music/separation-185196.mp3',
+      'sound/music/titanium-170190.mp3',
+      'sound/music/trap-future-bass-royalty-free-music-167020.mp3'
+    ]
+  }
 ];
 
-export const SOUND_EFFECTS: Array<SoundEffectItem> = [
-  { id: '1', name: 'Hit (Bonk)', cost: 0, default: true, storageKey: 's1' },
-  { id: '2', name: 'Hurt Minecraft', cost: 10, storageKey: 's2' },
-  { id: '3', name: 'Hurt Roblox', cost: 10, storageKey: 's3' },
-  { id: '4', name: 'Level Up', cost: 10, storageKey: 's4' },
-  { id: '5', name: 'Discord', cost: 10, storageKey: 's5' },
-  { id: '6', name: 'Hello FNAF', cost: 10, storageKey: 's6' },
-  { id: '7', name: 'Hit Minecraft', cost: 10, storageKey: 's7' },
-  { id: '8', name: 'NO', cost: 10, storageKey: 's8' },
-  { id: '9', name: 'Duck', cost: 10, storageKey: 's9' },
-  { id: '10', name: 'Toy', cost: 10, storageKey: 's10' },
-  { id: '11', name: 'Splat', cost: 10, storageKey: 's11' },
-  { id: '12', name: 'Windows Error', cost: 10, storageKey: 's12' }
-];
+export const CHEEMS_SKINS: Array<CheemsSkinItem> = [];
 
-export const MUSIC_TRACKS: Array<MusicTrackItem> = [
-  { id: 0, name: 'Mute / Sin música', file: '', default: true, cost: 0, storageKey: 'm0' },
-  { id: 1, name: 'A Jazz Piano', file: 'A_Jazz_Piano.ogg', default: true, cost: 0, storageKey: 'm1' },
-  { id: 2, name: 'Jack Bootleg', file: 'Jack_Bootleg.ogg', default: false, cost: 10, storageKey: 'm2' },
-  { id: 3, name: 'Magic Night', file: 'Magic_night.ogg', default: false, cost: 10, storageKey: 'm3' },
-  { id: 4, name: 'Minimalism No9', file: 'Minimalism_No9.ogg', default: false, cost: 10, storageKey: 'm4' },
-  { id: 5, name: 'Minimalism No10', file: 'Minimalism_No10.ogg', default: false, cost: 10, storageKey: 'm5' },
-  { id: 6, name: 'When You Smile', file: 'When_you_smile.ogg', default: false, cost: 10, storageKey: 'm6' }
-];
+export const SOUND_EFFECTS: Array<SoundEffectItem> = [];
+
+export const MUSIC_TRACKS: Array<MusicTrackItem> = [];
+
+export interface ShopItem {
+  id: string;
+  type: 'dogecoin' | 'booster' | 'cheems' | 'sound' | 'music';
+  targetId?: string | number;
+  nameKey?: string;
+  nameEs?: string;
+  nameEn?: string;
+  descKey?: string;
+  descEs?: string;
+  descEn?: string;
+  cost: number;
+  costCoins?: number;
+  multiplier?: number;
+  durationMin?: number;
+  icon: string;
+  dailyLimit?: number;
+  oneTimePurchase?: boolean;
+}
 
 @Injectable({
   providedIn: 'root'

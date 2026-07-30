@@ -16,7 +16,14 @@ import {
   MUSIC_TRACKS,
   CheemsSkinItem,
   SoundEffectItem,
-  MusicTrackItem
+  MusicTrackItem,
+  createLangMap,
+  AVAILABLE_LANGUAGES,
+  LanguageItem,
+  offlineText,
+  OfflineCategory,
+  OFFLINE_CATEGORIES,
+  ShopItem
 } from './constants.service';
 
 @Injectable({
@@ -25,11 +32,11 @@ import {
 export class ToolsService {
   fontSize: string = "text-normal";
   themeColor: string = "theme-dark";
-  actPage: keyof PageName[""] = "game";
+  actPage: keyof PageName = "game";
   lang: string = "es";
-  selectedCheems: string = "normal";
-  selectedSound: string = "1";
-  selectedMusic: number = 1;
+  selectedCheems: string = "cheems_normal";
+  selectedSound: string = "sfx_1";
+  selectedMusic: string = "music_1";
 
   actScore: number = 0;
   points: number = 0;
@@ -47,19 +54,30 @@ export class ToolsService {
   unlockedSounds: Record<string, boolean> = {};
   unlockedMusic: Record<string, boolean> = {};
 
-  game: any = gameText;
-  options: any = optionsText;
-  menu: any = menuText;
-  closet: any = closetText;
-  dev: any = devText;
-  onWork: any = onWorkText;
-  p404: any = p404Text;
-  pageName: any = pageName;
+  game: any = createLangMap(gameText);
+  options: any = createLangMap(optionsText);
+  menu: any = createLangMap(menuText);
+  closet: any = createLangMap(closetText);
+  dev: any = createLangMap(devText);
+  onWork: any = createLangMap(onWorkText);
+  p404: any = createLangMap(p404Text);
+  offline: any = createLangMap(offlineText);
+  shop: any = {};
+  pageName: any = createLangMap(pageName);
+  offlineCategories: Array<OfflineCategory> = OFFLINE_CATEGORIES;
+  shopItemsText: Record<string, Record<string, string>> = {};
+  itemsText: Record<string, Record<string, string>> = {};
+  shopItems: Array<ShopItem> = [];
+  boosterEndTime: number = 0;
+  boosterMultiplier: number = 1;
+  private audioCtx: AudioContext | null = null;
+  private musicSource: AudioBufferSourceNode | null = null;
+  private musicGain: GainNode | null = null;
+  private currentMusicBuffer: AudioBuffer | null = null;
+  private currentMusicFile: string = "";
+  private isWindowBlurred: boolean = false;
 
-  availableLanguages: Array<{ code: string; name: string }> = [
-    { code: 'es', name: 'Español' },
-    { code: 'en', name: 'English' }
-  ];
+  availableLanguages: Array<LanguageItem> = AVAILABLE_LANGUAGES;
 
   cheemsSkins: Array<CheemsSkinItem> = CHEEMS_SKINS;
   soundEffects: Array<SoundEffectItem> = SOUND_EFFECTS;
@@ -82,13 +100,13 @@ export class ToolsService {
 
     this.musicAudio.loop = true;
     this.musicAudio.addEventListener('ended', () => {
-      if (this.selectedMusic !== 0) {
+      if (String(this.selectedMusic) !== '0') {
         this.musicAudio.play().catch(() => {});
       }
     });
 
     const resumeMusicOnInteraction = () => {
-      if (this.selectedMusic !== 0 && this.musicAudio.paused) {
+      if (String(this.selectedMusic) !== '0' && this.musicAudio.paused) {
         this.playMusic(this.selectedMusic);
       }
     };
@@ -103,12 +121,18 @@ export class ToolsService {
   }
 
   changeLanguage(): void {
-    const currentIdx = this.availableLanguages.findIndex(l => l.code === this.lang);
+    const currentIdx = this.availableLanguages.findIndex(l => l.key === this.lang);
     const nextIdx = (currentIdx + 1) % this.availableLanguages.length;
-    this.lang = this.availableLanguages[nextIdx].code;
-    localStorage.setItem("CheemsBonkLang", this.lang);
-    this.loadLanguageFile(this.lang);
-    this.setTitle(this.actPage);
+    this.setLanguage(this.availableLanguages[nextIdx].key);
+  }
+
+  setLanguage(key: string): void {
+    if (this.availableLanguages.some(l => l.key === key)) {
+      this.lang = key;
+      localStorage.setItem("CheemsBonkLang", this.lang);
+      this.loadLanguageFile(this.lang);
+      this.setTitle(this.actPage);
+    }
   }
 
   async loadLanguageFile(langCode: string): Promise<void> {
@@ -134,42 +158,99 @@ export class ToolsService {
         if (data.dev) this.dev[langCode] = { ...this.dev[langCode], ...data.dev };
         if (data.onWork) this.onWork[langCode] = { ...this.onWork[langCode], ...data.onWork };
         if (data.p404) this.p404[langCode] = { ...this.p404[langCode], ...data.p404 };
+        if (data.offline) this.offline[langCode] = { ...this.offline[langCode], ...data.offline };
+        if (data.shop) this.shop[langCode] = { ...this.shop[langCode], ...data.shop };
+        if (data.shopItemsText) this.shopItemsText[langCode] = { ...this.shopItemsText[langCode], ...data.shopItemsText };
+        if (data.itemsText) this.itemsText[langCode] = { ...this.itemsText[langCode], ...data.itemsText };
       }
     } catch (err) {
       console.warn(`Could not load language file lang/texts.${langCode}.lang`, err);
     }
   }
 
-  async loadStorePrices(): Promise<void> {
+  async loadClosetPrices(): Promise<void> {
     try {
-      const res = await fetch('store.json');
-      if (res.ok) {
-        const prices = await res.json();
-        if (prices.cheems) {
-          this.cheemsSkins.forEach(skin => {
-            if (prices.cheems[skin.id] !== undefined) {
-              skin.cost = prices.cheems[skin.id];
-            }
-          });
+      const [cheemsRes, soundsRes, musicRes, closetRes] = await Promise.all([
+        fetch('items/cheems.json').catch(() => null),
+        fetch('items/sound_effects.json').catch(() => null),
+        fetch('items/music.json').catch(() => null),
+        fetch('closet.json').catch(() => null)
+      ]);
+
+      const cheemsCatalog: Array<CheemsSkinItem> = cheemsRes && cheemsRes.ok ? await cheemsRes.json() : [];
+      const soundsCatalog: Array<SoundEffectItem> = soundsRes && soundsRes.ok ? await soundsRes.json() : [];
+      const musicCatalog: Array<MusicTrackItem> = musicRes && musicRes.ok ? await musicRes.json() : [];
+
+      let closetData: any = null;
+      if (closetRes && closetRes.ok) {
+        closetData = await closetRes.json();
+      }
+
+      if (closetData) {
+        this.cheemsSkins = this.buildItemsList<CheemsSkinItem>(closetData.cheems, cheemsCatalog);
+        this.soundEffects = this.buildItemsList<SoundEffectItem>(closetData.sounds, soundsCatalog);
+        this.musicTracks = this.buildItemsList<MusicTrackItem>(closetData.music, musicCatalog);
+      } else {
+        this.cheemsSkins = [...cheemsCatalog];
+        this.soundEffects = [...soundsCatalog];
+        this.musicTracks = [...musicCatalog];
+      }
+
+      this.loadUnlocks();
+      this.appendUnlockableShopItems();
+      this.playMusic(this.selectedMusic);
+    } catch (err) {
+      console.warn('Could not load closet.json or items, using default arrays', err);
+    }
+  }
+
+  private buildItemsList<T extends { id: any; cost?: number }>(
+    closetSection: any,
+    catalog: Array<T>
+  ): Array<T> {
+    const result: Array<T> = [];
+    if (!closetSection || !catalog || catalog.length === 0) {
+      return result;
+    }
+
+    if (Array.isArray(closetSection)) {
+      for (const entry of closetSection) {
+        let itemId: any;
+        let overrideCost: number | undefined;
+
+        if (typeof entry === 'object' && entry !== null) {
+          itemId = entry.id;
+          if (entry.cost !== undefined) {
+            overrideCost = Number(entry.cost);
+          }
+        } else {
+          itemId = entry;
         }
-        if (prices.sounds) {
-          this.soundEffects.forEach(sound => {
-            if (prices.sounds[sound.id] !== undefined) {
-              sound.cost = prices.sounds[sound.id];
-            }
-          });
-        }
-        if (prices.music) {
-          this.musicTracks.forEach(track => {
-            if (prices.music[String(track.id)] !== undefined) {
-              track.cost = prices.music[String(track.id)];
-            }
-          });
+
+        const found = catalog.find(item => String(item.id) === String(itemId));
+        if (found) {
+          const itemCopy = { ...found };
+          if (overrideCost !== undefined && !isNaN(overrideCost)) {
+            itemCopy.cost = overrideCost;
+          }
+          result.push(itemCopy);
         }
       }
-    } catch (err) {
-      console.warn('Could not load store.json, using default prices', err);
+    } else if (typeof closetSection === 'object' && closetSection !== null) {
+      for (const key of Object.keys(closetSection)) {
+        const found = catalog.find(item => String(item.id) === String(key));
+        if (found) {
+          const itemCopy = { ...found };
+          const overrideCost = Number(closetSection[key]);
+          if (!isNaN(overrideCost)) {
+            itemCopy.cost = overrideCost;
+          }
+          result.push(itemCopy);
+        }
+      }
     }
+
+    return result;
   }
 
   redirect(url: string): void {
@@ -181,7 +262,7 @@ export class ToolsService {
   }
 
   redirectBack(fromSystem: boolean = false): void {
-    if (["devSettings", "closet", "settings", "onWork"].includes(this.actPage)) {
+    if (["devSettings", "closet", "settings", "onWork", "offline", "shop"].includes(this.actPage)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage)) {
       this.redirect("game");
@@ -217,15 +298,16 @@ export class ToolsService {
   }
 
   getDailyDogeCoinPrice(): number {
-    const todayStr = new Date().toISOString().slice(0, 10);
-    let seed = 0;
-    for (let i = 0; i < todayStr.length; i++) {
-      seed = ((seed << 5) - seed) + todayStr.charCodeAt(i);
-      seed |= 0;
-    }
-    const absSeed = Math.abs(seed);
-    const offset = (absSeed % 101) - 50;
-    return 100 + offset;
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const dateNum = Number(`${yyyy}${mm}${dd}`);
+    const product = dateNum * Math.PI;
+    const str = product.toString().replace('.', '');
+    const digits = str.slice(8, 11);
+    const price = parseInt(digits, 10);
+    return isNaN(price) ? 100 : price;
   }
 
   buyDogeCoin(): boolean {
@@ -235,6 +317,7 @@ export class ToolsService {
       this.dogeCoins += 1;
       localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
       localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
+      this.recordDailyPurchase("dogecoin_daily");
       this.showToast(this.menu[this.lang].buyDogeCoinSuccess);
       this.playSound();
       return true;
@@ -255,63 +338,134 @@ export class ToolsService {
         this.showToast(this.dev[this.lang].locked);
       }
       this.devClickCount = 0;
-      this.playSound('4');
+      this.playSound('sfx_4');
     }
   }
 
   playSound(customSoundId?: string): void {
     const soundToPlay = customSoundId || this.selectedSound;
+    const item = this.soundEffects.find(s => String(s.id) === String(soundToPlay));
     let file = "hit.ogg";
-    switch (soundToPlay) {
-      case '1': file = "hit.ogg"; break;
-      case '2': file = "hurt-minecraft.ogg"; break;
-      case '3': file = "hurt-roblox.ogg"; break;
-      case '4':
-        const randLvl = Math.floor(Math.random() * 5) + 1;
-        file = randLvl === 4 ? "levelup2.ogg" : "levelup1.ogg";
-        break;
-      case '5':
-        const randDis = Math.floor(Math.random() * 3) + 1;
-        if (randDis === 1) file = "discord-connect.ogg";
-        else if (randDis === 2) file = "discord-disconnect.ogg";
-        else file = "discord-msg.ogg";
-        break;
-      case '6': file = "hello.ogg"; break;
-      case '7': file = "hit-minecraft.ogg"; break;
-      case '8': file = "no.ogg"; break;
-      case '9': file = "pato.ogg"; break;
-      case '10': file = "peluche.ogg"; break;
-      case '11': file = "splat.ogg"; break;
-      case '12': file = "windows-error.ogg"; break;
-      default: file = "hit.ogg"; break;
+    let basePath = "sound/";
+    if (item) {
+      if (item.basePath) basePath = item.basePath;
+      if (item.files && item.files.length > 0) {
+        const idx = Math.floor(Math.random() * item.files.length);
+        file = item.files[idx];
+      } else if (item.file) {
+        file = item.file;
+      }
     }
-    this.soundAudio.src = "sound/" + file;
+    this.soundAudio.src = basePath + file;
     this.soundAudio.volume = this.effVol / 100;
     this.soundAudio.play().catch(() => {});
   }
 
-  playMusic(songId?: number): void {
+  playMusic(songId?: string | number): void {
     const trackId = songId !== undefined ? songId : this.selectedMusic;
-    const track = this.musicTracks.find(t => t.id === trackId);
-    if (!track || track.id === 0 || !track.file) {
-      this.musicAudio.pause();
-      this.musicAudio.src = "";
+    const track = this.musicTracks.find(t => String(t.id) === String(trackId));
+    if (!track || String(track.id) === '0' || !track.file) {
+      this.stopBackgroundMusic();
       return;
     }
-    const targetSrc = "sound/music/" + track.file;
+    const basePath = track.basePath || "sound/music/";
+    const fullPath = track.url || (basePath + track.file);
+    this.playBackgroundMusic(track.file, fullPath);
+  }
+
+  async playBackgroundMusic(file: string, customUrl?: string): Promise<void> {
+    if (!file || this.musVol <= 0 || String(this.selectedMusic) === '0') {
+      this.stopBackgroundMusic();
+      return;
+    }
+
+    const targetSrc = customUrl || ("sound/music/" + file);
+    try {
+      if (!this.audioCtx) {
+        this.audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      }
+      if (this.currentMusicFile !== file) {
+        this.currentMusicFile = file;
+        const res = await fetch(targetSrc);
+        if (res.ok) {
+          const arrayBuf = await res.arrayBuffer();
+          const audioBuf = await this.audioCtx.decodeAudioData(arrayBuf);
+          this.currentMusicBuffer = audioBuf;
+          this.startWebAudioMusic();
+          return;
+        }
+      } else {
+        if (this.audioCtx.state === 'suspended' && !this.isWindowBlurred) {
+          this.audioCtx.resume().catch(() => {});
+        }
+        return;
+      }
+    } catch (e) {
+      console.warn("Web Audio API failed, falling back to HTMLAudioElement", e);
+    }
+
     if (!this.musicAudio.src.endsWith(targetSrc)) {
       this.musicAudio.src = targetSrc;
       this.musicAudio.loop = true;
       this.musicAudio.load();
     }
     this.musicAudio.volume = this.musVol / 100;
-    this.musicAudio.play().catch(() => {});
+    if (!this.isWindowBlurred) {
+      this.musicAudio.play().catch(() => {});
+    }
+  }
+
+  startWebAudioMusic(): void {
+    if (!this.audioCtx || !this.currentMusicBuffer) return;
+    if (this.musicSource) {
+      try { this.musicSource.stop(); } catch {}
+      this.musicSource.disconnect();
+    }
+    if (!this.musicGain) {
+      this.musicGain = this.audioCtx.createGain();
+      this.musicGain.connect(this.audioCtx.destination);
+    }
+    this.musicGain.gain.value = this.musVol / 100;
+    this.musicSource = this.audioCtx.createBufferSource();
+    this.musicSource.buffer = this.currentMusicBuffer;
+    this.musicSource.loop = true;
+    this.musicSource.connect(this.musicGain);
+    if (!this.isWindowBlurred) {
+      this.musicSource.start(0);
+    }
+  }
+
+  stopBackgroundMusic(): void {
+    if (this.musicSource) {
+      try { this.musicSource.stop(); } catch {}
+      this.musicSource = null;
+    }
+    if (!this.musicAudio.paused) {
+      this.musicAudio.pause();
+      this.musicAudio.src = "";
+    }
   }
 
   setMusicVolume(vol: number): void {
     this.musVol = Math.max(0, Math.min(100, vol));
     this.musicAudio.volume = this.musVol / 100;
+    if (this.musicGain && this.audioCtx) {
+      this.musicGain.gain.value = this.musVol / 100;
+    }
     localStorage.setItem("CheemsAppLiMusicVolume", String(this.musVol));
+    if (this.musVol === 0) {
+      if (this.audioCtx && this.audioCtx.state === 'running') {
+        this.audioCtx.suspend().catch(() => {});
+      }
+      this.musicAudio.pause();
+    } else if (!this.isWindowBlurred && String(this.selectedMusic) !== '0') {
+      if (this.audioCtx && this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume().catch(() => {});
+      }
+      if (this.musicAudio.paused && this.musicAudio.src) {
+        this.musicAudio.play().catch(() => {});
+      }
+    }
   }
 
   setEffectVolume(vol: number): void {
@@ -346,7 +500,7 @@ export class ToolsService {
   }
 
   isCheemsUnlocked(id: string): boolean {
-    if (id === 'normal') return true;
+    if (id === 'normal' || id === 'cheems_normal') return true;
     const item = this.cheemsSkins.find(s => s.id === id);
     if (!item) return false;
     return !!this.unlockedCheems[item.storageKey];
@@ -357,32 +511,19 @@ export class ToolsService {
       this.selectedCheems = skin.id;
       localStorage.setItem("CheemsAppLiSelCheems", skin.id);
       localStorage.setItem("CheemsBonkCheems", skin.id);
-      this.showToast(this.closet[this.lang].itemSelected);
+      this.showToast(this.closet[this.lang]?.itemSelected || "Selected!");
       this.playSound();
       return true;
     } else {
-      if (this.dogeCoins >= skin.cost) {
-        this.dogeCoins -= skin.cost;
-        this.unlockedCheems[skin.storageKey] = true;
-        this.selectedCheems = skin.id;
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
-        localStorage.setItem(skin.storageKey, JSON.stringify(true));
-        localStorage.setItem("CheemsAppLiSelCheems", skin.id);
-        localStorage.setItem("CheemsBonkCheems", skin.id);
-        this.showToast(this.closet[this.lang].itemBought);
-        this.playSound();
-        return true;
-      } else {
-        this.showToast(this.closet[this.lang].needMoreCoins);
-        this.playSound('8');
-        return false;
-      }
+      this.showToast(this.closet[this.lang]?.buyInShop || "Buy this item in the Shop!");
+      this.playSound('sfx_8');
+      return false;
     }
   }
 
   isSoundUnlocked(id: string): boolean {
-    if (id === '1') return true;
-    const item = this.soundEffects.find(s => s.id === id);
+    if (id === '1' || id === 'sfx_1') return true;
+    const item = this.soundEffects.find(s => String(s.id) === String(id));
     if (!item) return false;
     return !!this.unlockedSounds[item.storageKey];
   }
@@ -392,32 +533,19 @@ export class ToolsService {
       this.selectedSound = sound.id;
       localStorage.setItem("CheemsAppLiSelSound", sound.id);
       localStorage.setItem("CheemsBonkSound", sound.id);
-      this.showToast(this.closet[this.lang].itemSelected);
+      this.showToast(this.closet[this.lang]?.itemSelected || "Selected!");
       this.playSound(sound.id);
       return true;
     } else {
-      if (this.dogeCoins >= sound.cost) {
-        this.dogeCoins -= sound.cost;
-        this.unlockedSounds[sound.storageKey] = true;
-        this.selectedSound = sound.id;
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
-        localStorage.setItem(sound.storageKey, JSON.stringify(true));
-        localStorage.setItem("CheemsAppLiSelSound", sound.id);
-        localStorage.setItem("CheemsBonkSound", sound.id);
-        this.showToast(this.closet[this.lang].itemBought);
-        this.playSound(sound.id);
-        return true;
-      } else {
-        this.showToast(this.closet[this.lang].needMoreCoins);
-        this.playSound('8');
-        return false;
-      }
+      this.showToast(this.closet[this.lang]?.buyInShop || "Buy this item in the Shop!");
+      this.playSound('sfx_8');
+      return false;
     }
   }
 
-  isMusicUnlocked(id: number): boolean {
-    if (id === 0 || id === 1) return true;
-    const item = this.musicTracks.find(m => m.id === id);
+  isMusicUnlocked(id: any): boolean {
+    if (String(id) === '0' || String(id) === '1' || id === 'music_0' || id === 'music_1') return true;
+    const item = this.musicTracks.find(m => String(m.id) === String(id));
     if (!item) return false;
     return !!this.unlockedMusic[item.storageKey];
   }
@@ -427,24 +555,14 @@ export class ToolsService {
       this.selectMusic(track);
       return true;
     } else {
-      if (this.dogeCoins >= track.cost) {
-        this.dogeCoins -= track.cost;
-        this.unlockedMusic[track.storageKey] = true;
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
-        localStorage.setItem(track.storageKey, JSON.stringify(true));
-        this.selectMusic(track);
-        this.showToast(this.closet[this.lang].itemBought);
-        return true;
-      } else {
-        this.showToast(this.closet[this.lang].needMoreCoins);
-        this.playSound('8');
-        return false;
-      }
+      this.showToast(this.closet[this.lang]?.buyInShop || "Buy this item in the Shop!");
+      this.playSound('sfx_8');
+      return false;
     }
   }
 
   selectMusic(track: MusicTrackItem): void {
-    this.selectedMusic = track.id;
+    this.selectedMusic = track.id as any;
     localStorage.setItem("CheemsAppLiSelMusic", String(track.id));
     this.playMusic(track.id);
     this.showToast(this.closet[this.lang].itemSelected);
@@ -474,7 +592,7 @@ export class ToolsService {
     localStorage.setItem("CheemsAppLiMaxCounter", JSON.stringify(this.highScore));
     localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
     this.showToast(this.dev[this.lang].success);
-    this.playSound('4');
+    this.playSound('sfx_4');
   }
 
   resetToZero(): void {
@@ -483,9 +601,9 @@ export class ToolsService {
     this.totalScore = 0;
     this.highScore = 0;
     this.dogeCoins = 0;
-    this.selectedCheems = "normal";
-    this.selectedSound = "1";
-    this.selectedMusic = 1;
+    this.selectedCheems = "cheems_normal";
+    this.selectedSound = "sfx_1";
+    this.selectedMusic = "music_1";
     this.effVol = 100;
     this.musVol = 50;
     this.themeColor = "theme-dark";
@@ -513,9 +631,9 @@ export class ToolsService {
     localStorage.setItem("CheemsAppLiTotalCounter", "0");
     localStorage.setItem("CheemsAppLiMaxCounter", "0");
     localStorage.setItem("CheemsAppLiDogecoins", "0");
-    localStorage.setItem("CheemsAppLiSelCheems", "normal");
-    localStorage.setItem("CheemsAppLiSelSound", "1");
-    localStorage.setItem("CheemsAppLiSelMusic", "1");
+    localStorage.setItem("CheemsAppLiSelCheems", "cheems_normal");
+    localStorage.setItem("CheemsAppLiSelSound", "sfx_1");
+    localStorage.setItem("CheemsAppLiSelMusic", "music_1");
     localStorage.setItem("CheemsAppLiMusicVolume", "50");
     localStorage.setItem("CheemsAppLiEffectsVolume", "100");
     localStorage.setItem("CheemsAppLiActTheme", "1");
@@ -527,7 +645,10 @@ export class ToolsService {
   loadApp(): void {
     this.loadSettings();
     this.loadLanguageFile(this.lang);
-    this.loadStorePrices();
+    this.loadClosetPrices();
+    this.loadShopItems();
+    this.loadBoosterState();
+    this.setupWindowFocusListeners();
     this.loadCheems();
     this.loadSounds();
     this.loadMusic();
@@ -538,7 +659,7 @@ export class ToolsService {
 
   loadSettings(): void {
     const savedLang = localStorage.getItem("CheemsBonkLang");
-    this.lang = savedLang && this.availableLanguages.some(l => l.code === savedLang) ? savedLang : "es";
+    this.lang = savedLang && this.availableLanguages.some(l => l.key === savedLang) ? savedLang : "es";
 
     const savedTheme = localStorage.getItem("CheemsAppLiActTheme");
     const themeIdx = savedTheme !== null ? +savedTheme : 1;
@@ -557,17 +678,17 @@ export class ToolsService {
 
   loadCheems(): void {
     const savedCheems = localStorage.getItem("CheemsAppLiSelCheems") || localStorage.getItem("CheemsBonkCheems");
-    this.selectedCheems = savedCheems ? savedCheems.replace(/"/g, '') : "normal";
+    this.selectedCheems = savedCheems ? savedCheems.replace(/"/g, '') : "cheems_normal";
   }
 
   loadSounds(): void {
     const savedSound = localStorage.getItem("CheemsAppLiSelSound") || localStorage.getItem("CheemsBonkSound");
-    this.selectedSound = savedSound ? savedSound.replace(/"/g, '') : "1";
+    this.selectedSound = savedSound ? savedSound.replace(/"/g, '') : "sfx_1";
   }
 
   loadMusic(): void {
     const savedMusic = localStorage.getItem("CheemsAppLiSelMusic");
-    this.selectedMusic = savedMusic !== null && !isNaN(+savedMusic) ? +savedMusic : 1;
+    this.selectedMusic = savedMusic ? savedMusic.replace(/"/g, '') : "music_1";
     this.playMusic(this.selectedMusic);
   }
 
@@ -630,5 +751,413 @@ export class ToolsService {
 
   async sleep(time: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, time));
+  }
+
+  async checkCategoryCached(category: OfflineCategory): Promise<boolean> {
+    if (!('caches' in window)) return false;
+    try {
+      const cache = await caches.open('cheems-bonk-offline-v1');
+      for (const url of category.urls) {
+        const match = await cache.match(url);
+        if (!match) {
+          return localStorage.getItem(`cheems_offline_cached_${category.id}`) === 'true';
+        }
+      }
+      return true;
+    } catch {
+      return localStorage.getItem(`cheems_offline_cached_${category.id}`) === 'true';
+    }
+  }
+
+  async cacheCategory(category: OfflineCategory, onProgress?: (progress: number) => void): Promise<boolean> {
+    if (!('caches' in window)) return false;
+    try {
+      const cache = await caches.open('cheems-bonk-offline-v1');
+      let completed = 0;
+      for (const url of category.urls) {
+        try {
+          const res = await fetch(url);
+          if (res.ok) {
+            await cache.put(url, res);
+          }
+        } catch (e) {
+          console.warn(`Failed to cache ${url}`, e);
+        }
+        completed++;
+        if (onProgress) {
+          onProgress(Math.round((completed / category.urls.length) * 100));
+        }
+      }
+      localStorage.setItem(`cheems_offline_cached_${category.id}`, 'true');
+      return true;
+    } catch (err) {
+      console.error("Error caching category:", err);
+      return false;
+    }
+  }
+
+  loadBoosterState(): void {
+    const storedEndTime = localStorage.getItem("CheemsAppLiBoosterEndTime");
+    const storedMultiplier = localStorage.getItem("CheemsAppLiBoosterMultiplier");
+    this.boosterEndTime = storedEndTime ? +storedEndTime : 0;
+    this.boosterMultiplier = storedMultiplier ? +storedMultiplier : 1;
+  }
+
+  async loadShopItems(): Promise<void> {
+    try {
+      const res = await fetch("shop.json");
+      if (res.ok) {
+        this.shopItems = await res.json();
+      }
+    } catch (err) {
+      console.warn("Could not load shop.json", err);
+    }
+    this.appendUnlockableShopItems();
+  }
+
+  getActiveMultiplier(): number {
+    const now = Date.now();
+    if (now < this.boosterEndTime) {
+      return this.boosterMultiplier;
+    } else if (this.boosterEndTime !== 0) {
+      this.boosterEndTime = 0;
+      this.boosterMultiplier = 1;
+      localStorage.setItem("CheemsAppLiBoosterEndTime", "0");
+      localStorage.setItem("CheemsAppLiBoosterMultiplier", "1");
+    }
+    return 1;
+  }
+
+  getBoosterRemainingSeconds(): number {
+    const now = Date.now();
+    if (now < this.boosterEndTime) {
+      return Math.max(0, Math.ceil((this.boosterEndTime - now) / 1000));
+    }
+    return 0;
+  }
+
+  getBoosterFormattedTime(): string {
+    const totalSeconds = this.getBoosterRemainingSeconds();
+    if (totalSeconds <= 60) {
+      return String(totalSeconds).padStart(2, '0');
+    }
+    const secs = totalSeconds % 60;
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    if (totalSeconds <= 3600) {
+      return `${String(totalMinutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    const mins = totalMinutes % 60;
+    const totalHours = Math.floor(totalMinutes / 60);
+    if (totalSeconds <= 86400) {
+      return `${String(totalHours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    const hours = totalHours % 24;
+    const days = Math.floor(totalHours / 24);
+    return `${days} ${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  activateBooster(multiplier: number, durationMin: number): void {
+    const durationMs = durationMin * 60 * 1000;
+    const now = Date.now();
+    if (now < this.boosterEndTime && this.boosterMultiplier === multiplier) {
+      this.boosterEndTime += durationMs;
+    } else {
+      this.boosterEndTime = now + durationMs;
+      this.boosterMultiplier = multiplier;
+    }
+    localStorage.setItem("CheemsAppLiBoosterEndTime", String(this.boosterEndTime));
+    localStorage.setItem("CheemsAppLiBoosterMultiplier", String(this.boosterMultiplier));
+    this.showToast(this.shop[this.lang]?.boosterActivated || "Booster activated!");
+    this.playSound();
+  }
+
+  getDailyPurchaseCount(itemId: string): number {
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      const stored = localStorage.getItem("CheemsAppLiShopDailyPurchases");
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data && data.date === today && data.purchases) {
+          return data.purchases[itemId] || 0;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    return 0;
+  }
+
+  recordDailyPurchase(itemId: string): void {
+    const today = new Date().toISOString().slice(0, 10);
+    let purchases: Record<string, number> = {};
+    try {
+      const stored = localStorage.getItem("CheemsAppLiShopDailyPurchases");
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data && data.date === today && data.purchases) {
+          purchases = data.purchases;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    purchases[itemId] = (purchases[itemId] || 0) + 1;
+    localStorage.setItem("CheemsAppLiShopDailyPurchases", JSON.stringify({ date: today, purchases }));
+  }
+
+  canBuyDailyLimit(item: ShopItem): boolean {
+    if (!item.dailyLimit || item.dailyLimit <= 0) {
+      return true;
+    }
+    return this.getDailyPurchaseCount(item.id) < item.dailyLimit;
+  }
+
+  getRemainingDailyLimit(item: ShopItem): number {
+    if (!item.dailyLimit || item.dailyLimit <= 0) {
+      return 0;
+    }
+    return Math.max(0, item.dailyLimit - this.getDailyPurchaseCount(item.id));
+  }
+
+  getLifetimePurchaseCount(itemId: string): number {
+    try {
+      const stored = localStorage.getItem("CheemsAppLiShopLifetimePurchases");
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data && data[itemId]) {
+          return data[itemId];
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+    return 0;
+  }
+
+  recordLifetimePurchase(itemId: string): void {
+    try {
+      const stored = localStorage.getItem("CheemsAppLiShopLifetimePurchases");
+      const data = stored ? JSON.parse(stored) : {};
+      data[itemId] = (data[itemId] || 0) + 1;
+      localStorage.setItem("CheemsAppLiShopLifetimePurchases", JSON.stringify(data));
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  isLifetimeLimitReached(item: ShopItem): boolean {
+    if (item.type === 'cheems') {
+      const target = String(item.targetId !== undefined ? item.targetId : item.id);
+      return this.isCheemsUnlocked(target);
+    }
+    if (item.type === 'sound') {
+      const target = String(item.targetId !== undefined ? item.targetId : item.id);
+      return this.isSoundUnlocked(target);
+    }
+    if (item.type === 'music') {
+      const target = String(item.targetId !== undefined ? item.targetId : item.id);
+      return this.isMusicUnlocked(target);
+    }
+    if (item.oneTimePurchase) {
+      return this.getLifetimePurchaseCount(item.id) >= 1;
+    }
+    return false;
+  }
+
+  appendUnlockableShopItems(): void {
+    if (!this.cheemsSkins.length && !this.soundEffects.length && !this.musicTracks.length) {
+      return;
+    }
+
+    this.cheemsSkins.forEach(skin => {
+      if (!skin.default && skin.id !== 'cheems_normal' && skin.id !== 'normal' && !this.shopItems.some(i => i.id === skin.id)) {
+        this.shopItems.push({
+          id: skin.id,
+          type: 'cheems',
+          targetId: skin.id,
+          nameKey: skin.nameKey,
+          cost: 0,
+          costCoins: skin.cost,
+          icon: this.getCheemsImg(skin.id),
+          oneTimePurchase: true
+        });
+      }
+    });
+
+    this.soundEffects.forEach(sound => {
+      if (!sound.default && sound.id !== 'sfx_1' && sound.id !== '1' && !this.shopItems.some(i => i.id === sound.id)) {
+        this.shopItems.push({
+          id: sound.id,
+          type: 'sound',
+          targetId: sound.id,
+          nameKey: sound.nameKey,
+          cost: 0,
+          costCoins: sound.cost,
+          icon: "img/icons/sound-svgrepo-com.svg",
+          oneTimePurchase: true
+        });
+      }
+    });
+
+    this.musicTracks.forEach(track => {
+      if (!track.default && String(track.id) !== 'music_0' && String(track.id) !== 'music_1' && String(track.id) !== '0' && String(track.id) !== '1' && !this.shopItems.some(i => i.id === String(track.id))) {
+        this.shopItems.push({
+          id: String(track.id),
+          type: 'music',
+          targetId: track.id,
+          nameKey: track.nameKey,
+          cost: 0,
+          costCoins: track.cost,
+          icon: "img/icons/music-svgrepo-com.svg",
+          oneTimePurchase: true
+        });
+      }
+    });
+  }
+
+  buyShopUnlockableItem(item: ShopItem): boolean {
+    if (this.isLifetimeLimitReached(item)) {
+      this.showToast(this.shop[this.lang]?.alreadyPurchased || "Already purchased!");
+      return false;
+    }
+    const ptsCost = item.cost || 0;
+    const coinCost = item.costCoins || 0;
+    if (this.points >= ptsCost && this.dogeCoins >= coinCost) {
+      this.points -= ptsCost;
+      this.dogeCoins -= coinCost;
+      localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
+      localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
+
+      if (item.type === 'cheems') {
+        const targetId = String(item.targetId !== undefined ? item.targetId : item.id);
+        const skin = this.cheemsSkins.find(s => s.id === targetId);
+        if (skin) {
+          this.unlockedCheems[skin.storageKey] = true;
+          localStorage.setItem(skin.storageKey, JSON.stringify(true));
+        }
+      } else if (item.type === 'sound') {
+        const targetId = String(item.targetId !== undefined ? item.targetId : item.id);
+        const sound = this.soundEffects.find(s => s.id === targetId);
+        if (sound) {
+          this.unlockedSounds[sound.storageKey] = true;
+          localStorage.setItem(sound.storageKey, JSON.stringify(true));
+        }
+      } else if (item.type === 'music') {
+        const targetId = String(item.targetId !== undefined ? item.targetId : item.id);
+        const track = this.musicTracks.find(m => String(m.id) === targetId);
+        if (track) {
+          this.unlockedMusic[track.storageKey] = true;
+          localStorage.setItem(track.storageKey, JSON.stringify(true));
+        }
+      }
+
+      this.recordDailyPurchase(item.id);
+      this.recordLifetimePurchase(item.id);
+      this.showToast(this.shop[this.lang]?.itemBoughtGoToCloset || "Item purchased! Go to Closet to equip.");
+      this.playSound();
+      return true;
+    } else {
+      if (this.points < ptsCost) {
+        this.showToast(this.shop[this.lang]?.needMorePoints || "Not enough points!");
+      } else {
+        this.showToast(this.shop[this.lang]?.needMoreCoins || "Need more DogeCoins!");
+      }
+      this.playSound('sfx_8');
+      return false;
+    }
+  }
+
+
+  private setupWindowFocusListeners(): void {
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.pauseAllAudioForBlur();
+      } else {
+        this.resumeAllAudioForFocus();
+      }
+    });
+
+    window.addEventListener('blur', () => {
+      this.pauseAllAudioForBlur();
+    });
+
+    window.addEventListener('focus', () => {
+      if (!document.hidden) {
+        this.resumeAllAudioForFocus();
+      }
+    });
+  }
+
+  private pauseAllAudioForBlur(): void {
+    if (this.isWindowBlurred) return;
+    this.isWindowBlurred = true;
+    if (this.audioCtx && this.audioCtx.state === 'running') {
+      this.audioCtx.suspend().catch(() => {});
+    }
+    if (!this.musicAudio.paused) {
+      this.musicAudio.pause();
+    }
+  }
+
+  private resumeAllAudioForFocus(): void {
+    if (!this.isWindowBlurred) return;
+    this.isWindowBlurred = false;
+    if (String(this.selectedMusic) !== '0' && this.musVol > 0) {
+      if (this.audioCtx && this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume().catch(() => {});
+      } else if (this.musicAudio.paused && this.musicAudio.src) {
+        this.musicAudio.play().catch(() => {});
+      }
+    }
+  }
+
+  getCheemsImg(id: string): string {
+    const skin = this.cheemsSkins.find(s => s.id === id);
+    if (skin?.imgUrl) return skin.imgUrl;
+    return "img/cheems/" + (skin?.img || id + ".png");
+  }
+
+  getCheemsHitImg(id: string): string {
+    const skin = this.cheemsSkins.find(s => s.id === id);
+    if (skin?.hitImgUrl) return skin.hitImgUrl;
+    return "img/hit/" + (skin?.hitImg || skin?.img || id + ".png");
+  }
+
+  getShopItemName(item: ShopItem): string {
+    if (item.nameKey && this.shopItemsText[this.lang]?.[item.nameKey]) {
+      return this.shopItemsText[this.lang][item.nameKey];
+    }
+    if (item.nameKey && this.itemsText[this.lang]?.[item.nameKey]) {
+      return this.itemsText[this.lang][item.nameKey];
+    }
+    return this.lang === 'es' ? (item.nameEs || item.nameEn || item.id) : (item.nameEn || item.nameEs || item.id);
+  }
+
+  getShopItemDesc(item: ShopItem): string {
+    if (item.descKey && this.shopItemsText[this.lang]?.[item.descKey]) {
+      return this.shopItemsText[this.lang][item.descKey];
+    }
+    return this.lang === 'es' ? (item.descEs || item.descEn || '') : (item.descEn || item.descEs || '');
+  }
+
+  getCheemsName(skin: CheemsSkinItem): string {
+    if (skin.nameKey && this.itemsText[this.lang]?.[skin.nameKey]) {
+      return this.itemsText[this.lang][skin.nameKey];
+    }
+    return this.lang === 'es' ? (skin.nameEs || skin.nameEn || skin.id) : (skin.nameEn || skin.nameEs || skin.id);
+  }
+
+  getSoundName(sound: SoundEffectItem): string {
+    if (sound.nameKey && this.itemsText[this.lang]?.[sound.nameKey]) {
+      return this.itemsText[this.lang][sound.nameKey];
+    }
+    return sound.name || sound.id;
+  }
+
+  getMusicName(track: MusicTrackItem): string {
+    if (track.nameKey && this.itemsText[this.lang]?.[track.nameKey]) {
+      return this.itemsText[this.lang][track.nameKey];
+    }
+    return track.name || String(track.id);
   }
 }

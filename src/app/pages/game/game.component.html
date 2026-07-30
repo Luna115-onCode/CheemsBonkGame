@@ -1,11 +1,11 @@
 <div class="game-container" (click)="onClick(true, $event)" (touchstart)="onClick(true, $event)">
     <div class="img-wrapper" [class.bonked]="clicked">
         @if (clicked) {
-            <img [src]="'img/hit/' + tools.selectedCheems + '.png'"
+            <img [src]="tools.getCheemsHitImg(tools.selectedCheems)"
                  class="cheems-img hit-img"
                  alt="Cheems Hit">
         } @else {
-            <img [src]="'img/cheems/' + tools.selectedCheems + '.png'"
+            <img [src]="tools.getCheemsImg(tools.selectedCheems)"
                  class="cheems-img"
                  alt="Cheems">
         }
@@ -19,7 +19,7 @@
         <div class="floating-plus {{tools.themeColor}}"
              [style.left.px]="score.x"
              [style.top.px]="score.y">
-            +1
+            +{{score.value}}
         </div>
     }
 </div>

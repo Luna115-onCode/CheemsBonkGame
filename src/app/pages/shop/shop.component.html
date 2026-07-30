@@ -1,0 +1,194 @@
+<div class="shop-container {{tools.themeColor}}" id="shop-top">
+    <!-- Header -->
+    <header class="shop-header">
+        <h1 class="shop-title">{{tools.shop[tools.lang]?.title || 'Shop'}}</h1>
+        <p class="shop-subtitle">{{tools.shop[tools.lang]?.subtitle}}</p>
+    </header>
+
+    <!-- Section Navigation Buttons -->
+    <div class="shop-nav-bar">
+        @if (dogecoinItems.length > 0) {
+            <button class="shop-nav-btn nav-dogecoin" (click)="scrollToSection('sec-dogecoin')">
+                {{tools.shop[tools.lang]?.dogecoinSection || 'DogeCoins'}}
+            </button>
+        }
+        @if (boosterItems.length > 0) {
+            <button class="shop-nav-btn nav-booster" (click)="scrollToSection('sec-booster')">
+                {{tools.shop[tools.lang]?.boosterSection || 'Boosters'}}
+            </button>
+        }
+        @if (cheemsItems.length > 0) {
+            <button class="shop-nav-btn nav-cheems" (click)="scrollToSection('sec-cheems')">
+                {{tools.shop[tools.lang]?.cheemsSection || 'Cheems Skins'}}
+            </button>
+        }
+        @if (soundItems.length > 0) {
+            <button class="shop-nav-btn nav-sound" (click)="scrollToSection('sec-sound')">
+                {{tools.shop[tools.lang]?.sfxSection || 'Sound Effects'}}
+            </button>
+        }
+        @if (musicItems.length > 0) {
+            <button class="shop-nav-btn nav-music" (click)="scrollToSection('sec-music')">
+                {{tools.shop[tools.lang]?.musicSection || 'Background Music'}}
+            </button>
+        }
+    </div>
+
+    <!-- Active Booster Banner -->
+    @if (tools.getBoosterRemainingSeconds() > 0) {
+        <div class="active-booster-banner">
+            <div class="booster-banner-icon">⚡</div>
+            <div class="booster-banner-content">
+                <span class="booster-banner-title">
+                    {{tools.shop[tools.lang]?.activeBooster || 'Active Booster:'}}
+                    <strong>x{{tools.getActiveMultiplier()}} {{tools.shop[tools.lang]?.pointsPerClick || 'Points per Click'}}</strong>
+                </span>
+                <span class="booster-banner-timer">
+                    ⏳ {{tools.getBoosterFormattedTime()}} {{tools.shop[tools.lang]?.remaining || 'remaining'}}
+                </span>
+            </div>
+        </div>
+    }
+
+    <!-- Current Balance Status Bar -->
+    <div class="shop-balance-bar">
+        <div class="balance-item">
+            <span class="balance-label">Points:</span>
+            <span class="balance-value points-val">{{tools.points | number}} Pts</span>
+        </div>
+        <div class="balance-item">
+            <span class="balance-label">DogeCoins:</span>
+            <span class="balance-value doge-val">
+                <img src="img/dogecoin-min.png" class="mini-coin-icon" alt="DogeCoin">
+                {{tools.dogeCoins}}
+            </span>
+        </div>
+    </div>
+
+    <!-- Reusable Shop Card Template -->
+    <ng-template #shopCard let-item>
+        <div class="shop-card"
+             [class.coin-card]="item.type === 'dogecoin'"
+             [class.booster-card]="item.type === 'booster'"
+             [class.cheems-card]="item.type === 'cheems'"
+             [class.sound-card]="item.type === 'sound'"
+             [class.music-card]="item.type === 'music'">
+            <div class="shop-card-icon-wrapper">
+                @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png')) {
+                    <img [src]="getShopCardIcon(item)" class="shop-card-icon" [alt]="tools.getShopItemName(item)">
+                } @else {
+                    <span class="shop-card-emoji">{{item.icon}}</span>
+                }
+                @if (item.type === 'booster') {
+                    <span class="multiplier-badge">x{{item.multiplier || 1}}</span>
+                }
+            </div>
+
+            <div class="shop-card-info">
+                <h3 class="item-name">{{tools.getShopItemName(item)}}</h3>
+                <p class="item-desc">{{tools.getShopItemDesc(item)}}</p>
+                @if (tools.isLifetimeLimitReached(item)) {
+                    <div class="daily-limit-badge limit-reached">
+                        {{tools.shop[tools.lang]?.purchased || 'Purchased'}}
+                    </div>
+                } @else if (item.dailyLimit && item.dailyLimit > 0) {
+                    <div class="daily-limit-badge" [class.limit-reached]="!tools.canBuyDailyLimit(item)">
+                        {{tools.getRemainingDailyLimit(item)}} / {{item.dailyLimit}} {{tools.shop[tools.lang]?.remainingToday || 'left today'}}
+                    </div>
+                }
+            </div>
+
+            <div class="shop-card-footer">
+                @if (tools.isLifetimeLimitReached(item)) {
+                    <div class="item-cost">
+                        <span class="cost-val free-cost">{{tools.shop[tools.lang]?.purchased || 'Purchased'}}</span>
+                    </div>
+                    <button class="buy-btn" disabled>
+                        {{tools.shop[tools.lang]?.purchased || 'Purchased'}}
+                    </button>
+                } @else {
+                    <div class="item-cost">
+                        @if (item.type === 'dogecoin') {
+                            <span class="cost-label">{{tools.shop[tools.lang]?.todaysPrice || 'Today\'s Price:'}}</span>
+                        }
+                        <span class="cost-val" [class.free-cost]="formatItemCost(item) === (tools.shop[tools.lang]?.free || 'Free')">{{formatItemCost(item)}}</span>
+                    </div>
+
+                    <button class="buy-btn"
+                            (click)="buyItem(item)"
+                            [disabled]="!canBuy(item)">
+                        {{tools.shop[tools.lang]?.buyBtn || 'Buy'}}
+                    </button>
+                }
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- DogeCoins Section -->
+    @if (dogecoinItems.length > 0) {
+        <div class="section-separator" id="sec-dogecoin">
+            <h2 class="section-title dogecoin-title">{{tools.shop[tools.lang]?.dogecoinSection || 'DogeCoins'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of dogecoinItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Boosters Section -->
+    @if (boosterItems.length > 0) {
+        <div class="section-separator" id="sec-booster">
+            <h2 class="section-title booster-title">{{tools.shop[tools.lang]?.boosterSection || 'Boosters'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of boosterItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Cheems Skins Section -->
+    @if (cheemsItems.length > 0) {
+        <div class="section-separator" id="sec-cheems">
+            <h2 class="section-title cheems-title">{{tools.shop[tools.lang]?.cheemsSection || 'Cheems Skins'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of cheemsItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Sound Effects Section -->
+    @if (soundItems.length > 0) {
+        <div class="section-separator" id="sec-sound">
+            <h2 class="section-title sound-title">{{tools.shop[tools.lang]?.sfxSection || 'Sound Effects'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of soundItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Music Tracks Section -->
+    @if (musicItems.length > 0) {
+        <div class="section-separator" id="sec-music">
+            <h2 class="section-title music-title">{{tools.shop[tools.lang]?.musicSection || 'Background Music'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of musicItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top-btn {{tools.themeColor}}"
+            [class.visible]="showScrollTop"
+            (click)="scrollToTop()"
+            aria-label="Back to top">
+        ↑
+    </button>
+</div>

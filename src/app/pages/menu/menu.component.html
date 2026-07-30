@@ -1,11 +1,10 @@
 <div class="container">
     <div class="group {{tools.themeColor}} menu-grid">
-        <!-- Buy DogeCoin Card -->
-        <div class="menu-card dogecoin-card {{tools.themeColor}}" (click)="buyDogeCoin()">
-            <img src="img/dogecoin-min.png" class="menu-icon coin-glow" alt="DogeCoin">
+        <!-- Shop Card -->
+        <div class="menu-card dogecoin-card {{tools.themeColor}}" (click)="tools.redirect('shop')">
+            <img src="img/icons/trophy-svgrepo-com.svg" class="menu-icon coin-glow" alt="Shop">
             <div class="card-content">
-                <div class="card-title">{{tools.menu[tools.lang].buyDogeCoin}}</div>
-                <div class="card-sub">{{tools.menu[tools.lang].buyDogeCoinSub}} <strong>{{dailyPrice}} Pts</strong></div>
+                <div class="card-title">{{tools.menu[tools.lang].shop}}</div>
             </div>
         </div>
 
@@ -26,7 +25,7 @@
         </div>
 
         <!-- Offline Mode / Resource Download -->
-        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('onWork')">
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('offline')">
             <img src="img/icons/link-svgrepo-com.svg" class="menu-icon" alt="Offline Mode">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].offline}}</div>

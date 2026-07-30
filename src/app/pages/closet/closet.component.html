@@ -19,21 +19,21 @@
 
     @if (activeTab === 'cheems') {
         <div class="shop-grid">
-            @for (skin of tools.cheemsSkins; track skin.id) {
+            @for (skin of tools.cheemsSkins; track $index) {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedCheems === skin.id"
                      (click)="onSelectCheems(skin)">
-                    <img [src]="tools.isCheemsUnlocked(skin.id) ? 'img/cheems/' + skin.img : 'img/cheems/locked-cheems.png'"
+                    <img [src]="tools.isCheemsUnlocked(skin.id) ? tools.getCheemsImg(skin.id) : 'img/cheems/locked-cheems.png'"
                          class="item-img"
                          [alt]="skin.id">
                     <div class="item-info">
-                        <span class="item-name">{{tools.lang === 'es' ? skin.nameEs : skin.nameEn}}</span>
+                        <span class="item-name">{{tools.getCheemsName(skin)}}</span>
                         @if (tools.selectedCheems === skin.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else if (tools.isCheemsUnlocked(skin.id)) {
                             <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         } @else {
-                            <span class="status-badge cost-badge">{{skin.cost}} DGC</span>
+                            <span class="status-badge cost-badge">{{tools.closet[tools.lang]?.inShop || 'In Shop'}}</span>
                         }
                     </div>
                 </div>
@@ -43,21 +43,21 @@
 
     @if (activeTab === 'sounds') {
         <div class="shop-grid">
-            @for (sound of tools.soundEffects; track sound.id) {
+            @for (sound of tools.soundEffects; track $index) {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedSound === sound.id"
                      (click)="onSelectSound(sound)">
                     <img [src]="tools.isSoundUnlocked(sound.id) ? 'img/icons/sound-svgrepo-com.svg' : 'img/icons/black-sound-svgrepo-com.svg'"
                          class="item-icon"
-                         [alt]="sound.name">
+                         [alt]="tools.getSoundName(sound)">
                     <div class="item-info">
-                        <span class="item-name">{{sound.name}}</span>
+                        <span class="item-name">{{tools.getSoundName(sound)}}</span>
                         @if (tools.selectedSound === sound.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else if (tools.isSoundUnlocked(sound.id)) {
                             <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         } @else {
-                            <span class="status-badge cost-badge">{{sound.cost}} DGC</span>
+                            <span class="status-badge cost-badge">{{tools.closet[tools.lang]?.inShop || 'In Shop'}}</span>
                         }
                     </div>
                 </div>
@@ -67,25 +67,25 @@
 
     @if (activeTab === 'music') {
         <div class="shop-grid">
-            @for (track of tools.musicTracks; track track.id) {
+            @for (track of tools.musicTracks; track $index) {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedMusic === track.id"
                      (click)="onSelectMusic(track)">
                     @if (!tools.isMusicUnlocked(track.id)) {
-                        <img src="img/icons/black-music-svgrepo-com.svg" class="item-icon" [alt]="track.name">
+                        <img src="img/icons/black-music-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else if (track.id === 0) {
-                        <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="track.name">
+                        <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else {
-                        <img src="img/icons/music-svgrepo-com.svg" class="item-icon" [alt]="track.name">
+                        <img src="img/icons/music-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     }
                     <div class="item-info">
-                        <span class="item-name">{{track.name}}</span>
+                        <span class="item-name">{{tools.getMusicName(track)}}</span>
                         @if (tools.selectedMusic === track.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else if (tools.isMusicUnlocked(track.id)) {
                             <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         } @else {
-                            <span class="status-badge cost-badge">{{track.cost}} DGC</span>
+                            <span class="status-badge cost-badge">{{tools.closet[tools.lang]?.inShop || 'In Shop'}}</span>
                         }
                     </div>
                 </div>

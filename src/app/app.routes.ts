@@ -6,6 +6,8 @@ import { DevSettingsComponent } from './pages/dev-settings/dev-settings.componen
 import { ClosetComponent } from './pages/closet/closet.component';
 import { OnworkPageComponent } from './pages/onwork-page/onwork-page.component';
 import { P404Component } from './pages/p404/p404.component';
+import { OfflineComponent } from './pages/offline/offline.component';
+import { ShopComponent } from './pages/shop/shop.component';
 import { developmentGuard, devGuard, testingGuard, appGuard } from './guards/guard.guard';
 
 export const routes: Routes = [
@@ -15,6 +17,8 @@ export const routes: Routes = [
     {path: "devSettings", component: DevSettingsComponent, pathMatch: "full"},
     {path: "closet", component: ClosetComponent, pathMatch: "full"},
     {path: "onWork", component: OnworkPageComponent, pathMatch: "full"},
+    {path: "offline", component: OfflineComponent, pathMatch: "full"},
+    {path: "shop", component: ShopComponent, pathMatch: "full"},
     {path: "p404", component: P404Component, pathMatch: "full"},
     {path: "", redirectTo: "game", pathMatch: "full"},
     {path: "dev", component: GameComponent, canActivate: [devGuard]},

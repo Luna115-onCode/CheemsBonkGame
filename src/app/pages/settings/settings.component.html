@@ -2,9 +2,12 @@
     <div class="group {{tools.themeColor}} settings-box">
         <!-- Language Switcher -->
         <div class="setting-row">
-            <button class="btn-card {{tools.themeColor}} lang-btn" (click)="changeLanguage()">
-                {{tools.options[tools.lang].changeLang.button}}
-            </button>
+            <span class="setting-label">{{tools.options[tools.lang].changeLang.button}}</span>
+            <select class="btn-card lang-select {{tools.themeColor}}" [value]="tools.lang" (change)="onLanguageChange($event)">
+                @for (langItem of tools.availableLanguages; track langItem.key) {
+                    <option [value]="langItem.key" [selected]="langItem.key === tools.lang">{{langItem.name}}</option>
+                }
+            </select>
         </div>
 
         <!-- Music Volume -->

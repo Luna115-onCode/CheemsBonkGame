@@ -1,0 +1,45 @@
+<div class="container">
+    <div class="group {{tools.themeColor}} offline-box">
+        <div class="header-section">
+            <h2 class="offline-title">{{tools.offline[tools.lang]?.title}}</h2>
+            <p class="offline-subtitle">{{tools.offline[tools.lang]?.subtitle}}</p>
+            <button class="btn-card {{tools.themeColor}} download-all-btn"
+                    [disabled]="isDownloadingAll"
+                    (click)="downloadAll()">
+                ⬇ {{tools.offline[tools.lang]?.downloadAll}}
+            </button>
+        </div>
+
+        <div class="categories-list">
+            @for (cat of tools.offlineCategories; track cat.id) {
+                <div class="category-card {{tools.themeColor}}">
+                    <div class="cat-info">
+                        <div class="cat-title-row">
+                            <span class="cat-title">{{tools.offline[tools.lang]?.[cat.titleKey]}}</span>
+                            <span class="size-badge">{{cat.sizeLabel}}</span>
+                        </div>
+                        <div class="cat-desc">{{tools.offline[tools.lang]?.[cat.descKey]}}</div>
+                    </div>
+
+                    <div class="cat-action">
+                        @if (cachedStatus[cat.id]) {
+                            <span class="status-tick downloaded-tick" title="Downloaded">
+                                ✓ {{tools.offline[tools.lang]?.downloaded}}
+                            </span>
+                        } @else if (downloadingStatus[cat.id]) {
+                            <span class="status-tick downloading-tick">
+                                ⏳ {{downloadProgress[cat.id]}}%
+                            </span>
+                        } @else {
+                            <button class="status-tick download-btn {{tools.themeColor}}"
+                                    (click)="downloadCategory(cat)"
+                                    title="Download">
+                                ⬇ {{tools.offline[tools.lang]?.download}}
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
