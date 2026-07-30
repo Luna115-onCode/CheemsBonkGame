@@ -35912,7 +35912,6 @@ var ToolsService = class _ToolsService {
   soundEffects = SOUND_EFFECTS;
   musicTracks = MUSIC_TRACKS;
   musicAudio = new Audio();
-  soundAudio = new Audio();
   toastMessage = "";
   toastTimer = null;
   constructor(titleInt, router) {
@@ -36112,31 +36111,52 @@ var ToolsService = class _ToolsService {
     localStorage.setItem("CheemsBonkTotalScore", JSON.stringify(this.totalScore));
     localStorage.setItem("CheemsBonkHighScore", JSON.stringify(this.highScore));
   }
-  getDailyDogeCoinPrice() {
+  getDailyDogeCoinPrice(priceType = 1) {
     const d = /* @__PURE__ */ new Date();
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     const dateNum = Number(`${yyyy}${mm}${dd}`);
     const product = dateNum * Math.PI;
-    const str = product.toString().replace(".", "");
-    const digits = str.slice(8, 11);
+    const str = (product.toString().replace(".", "") + "00000000000000000000").slice(0, 30);
+    let digits = "";
+    switch (priceType) {
+      case 2:
+        digits = str.slice(1, 4);
+        break;
+      case 3:
+        digits = str.slice(4, 7);
+        break;
+      case 4:
+        digits = str.slice(11, 14);
+        break;
+      case 1:
+      default:
+        digits = str.slice(8, 11);
+        break;
+    }
     const price = parseInt(digits, 10);
-    return isNaN(price) ? 100 : price;
+    return !isNaN(price) && price > 0 ? price : 100;
   }
-  buyDogeCoin() {
-    const cost = this.getDailyDogeCoinPrice();
+  buyDogeCoin(customCost, coinsAmount = 1, itemId = "dogecoin_daily") {
+    const cost = customCost !== void 0 ? customCost : this.getDailyDogeCoinPrice();
+    const coinsToAdd = coinsAmount && coinsAmount > 0 ? coinsAmount : 1;
     if (this.points >= cost) {
       this.points -= cost;
-      this.dogeCoins += 1;
+      this.dogeCoins += coinsToAdd;
       localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
       localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
-      this.recordDailyPurchase("dogecoin_daily");
-      this.showToast(this.menu[this.lang].buyDogeCoinSuccess);
+      this.recordDailyPurchase(itemId);
+      let successMsg = this.menu[this.lang]?.buyDogeCoinSuccess || `You bought ${coinsToAdd} DogeCoin(s)!`;
+      if (coinsToAdd !== 1) {
+        successMsg = successMsg.replace("1 DogeCoin", `${coinsToAdd} DogeCoins`);
+      }
+      this.showToast(successMsg);
       this.playSound();
       return true;
     } else {
       this.showToast(this.menu[this.lang].buyDogeCoinFail);
+      this.playSound("sfx_8");
       return false;
     }
   }
@@ -36169,9 +36189,9 @@ var ToolsService = class _ToolsService {
         file = item.file;
       }
     }
-    this.soundAudio.src = basePath + file;
-    this.soundAudio.volume = this.effVol / 100;
-    this.soundAudio.play().catch(() => {
+    const sfx = new Audio(basePath + file);
+    sfx.volume = this.effVol / 100;
+    sfx.play().catch(() => {
     });
   }
   playMusic(songId) {
@@ -36628,13 +36648,47 @@ var ToolsService = class _ToolsService {
       try {
         const res = yield fetch("shop.json");
         if (res.ok) {
-          this.shopItems = yield res.json();
+          const rawItems = yield res.json();
+          this.shopItems = rawItems.map((item) => __spreadProps(__spreadValues({}, item), {
+            cost: this.evaluatePriceExpression(item.cost),
+            costCoins: this.evaluatePriceExpression(item.costCoins),
+            coinsGiven: item.coinsGiven !== void 0 ? this.evaluatePriceExpression(item.coinsGiven) : void 0,
+            dailyLimit: item.dailyLimit !== void 0 ? this.evaluatePriceExpression(item.dailyLimit) : void 0
+          }));
         }
       } catch (err) {
         console.warn("Could not load shop.json", err);
       }
       this.appendUnlockableShopItems();
     });
+  }
+  evaluatePriceExpression(expression) {
+    if (expression === void 0 || expression === null)
+      return 0;
+    if (typeof expression === "number")
+      return Math.max(0, Math.round(expression));
+    if (typeof expression !== "string")
+      return 0;
+    try {
+      let parsedStr = expression;
+      parsedStr = parsedStr.replace(/\$\{daily_price_1\}/g, String(this.getDailyDogeCoinPrice(1)));
+      parsedStr = parsedStr.replace(/\$\{daily_price_2\}/g, String(this.getDailyDogeCoinPrice(2)));
+      parsedStr = parsedStr.replace(/\$\{daily_price_3\}/g, String(this.getDailyDogeCoinPrice(3)));
+      parsedStr = parsedStr.replace(/\$\{daily_price_4\}/g, String(this.getDailyDogeCoinPrice(4)));
+      parsedStr = parsedStr.replace(/\$\{daily_price\}/g, String(this.getDailyDogeCoinPrice(1)));
+      if (/[^0-9\+\-\*\/\%\.\s\(\)]/.test(parsedStr)) {
+        console.warn("Invalid characters in price expression:", parsedStr);
+        return 0;
+      }
+      const result = new Function(`return (${parsedStr})`)();
+      const num = Number(result);
+      if (isNaN(num))
+        return 0;
+      return Math.max(0, Math.round(num));
+    } catch (e) {
+      console.warn("Could not evaluate price expression:", expression, e);
+      return 0;
+    }
   }
   getActiveMultiplier() {
     const now = Date.now();
@@ -38885,7 +38939,8 @@ var ShopComponent = class _ShopComponent {
       return;
     }
     if (item.type === "dogecoin") {
-      this.tools.buyDogeCoin();
+      const coinsGiven = item.coinsGiven || 1;
+      this.tools.buyDogeCoin(item.cost, coinsGiven, item.id);
     } else if (item.type === "booster") {
       const ptsCost = item.cost || 0;
       const coinCost = item.costCoins || 0;
@@ -38922,13 +38977,13 @@ var ShopComponent = class _ShopComponent {
     if (!this.tools.canBuyDailyLimit(item)) {
       return false;
     }
-    const ptsCost = item.type === "dogecoin" ? this.dailyPrice : item.cost || 0;
-    const coinsCost = item.type === "dogecoin" ? 0 : item.costCoins || 0;
+    const ptsCost = item.cost !== void 0 ? item.cost : item.type === "dogecoin" ? this.dailyPrice : 0;
+    const coinsCost = item.costCoins || 0;
     return this.tools.points >= ptsCost && this.tools.dogeCoins >= coinsCost;
   }
   formatItemCost(item) {
-    const ptsCost = item.type === "dogecoin" ? this.dailyPrice : item.cost || 0;
-    const coinsCost = item.type === "dogecoin" ? 0 : item.costCoins || 0;
+    const ptsCost = item.cost !== void 0 ? item.cost : item.type === "dogecoin" ? this.dailyPrice : 0;
+    const coinsCost = item.costCoins || 0;
     if (ptsCost === 0 && coinsCost === 0) {
       return this.tools.shop[this.tools.lang]?.free || "Free";
     }

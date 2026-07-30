@@ -1,36 +1,126 @@
-﻿[
+[
   {
-    "id": "dogecoin_daily",
+    "id": "dogecoin_1",
     "type": "dogecoin",
-    "nameKey": "shop_dogecoin_name",
-    "descKey": "shop_dogecoin_desc",
-    "cost": 100,
+    "nameKey": "shop_dogecoin_special_name",
+    "descKey": "shop_dogecoin_special_desc",
+    "cost": "${daily_price} / 2",
     "costCoins": 0,
+    "coinsGiven": 1,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": "${daily_price_4} / 100 + 1"
+  },
+  {
+    "id": "dogecoin_2",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_1_name",
+    "descKey": "shop_dogecoin_1_desc",
+    "cost": "${daily_price}",
+    "costCoins": 0,
+    "coinsGiven": 1,
     "multiplier": 1,
     "durationMin": 0,
     "icon": "img/dogecoin-min.png",
     "dailyLimit": 0
   },
   {
-    "id": "boost_2x_5m",
+    "id": "dogecoin_3",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_2_name",
+    "descKey": "shop_dogecoin_2_desc",
+    "cost": "${daily_price} * 1.8",
+    "costCoins": 0,
+    "coinsGiven": 2,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": 0
+  },
+  {
+    "id": "dogecoin_4",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_5_name",
+    "descKey": "shop_dogecoin_5_desc",
+    "cost": "${daily_price} * 10 - ${daily_price} - ${daily_price_2}",
+    "costCoins": 0,
+    "coinsGiven": 5,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": "${daily_price_4} / 10 + 1"
+  },
+  {
+    "id": "dogecoin_5",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_10_name",
+    "descKey": "shop_dogecoin_10_desc",
+    "cost": "${daily_price} * 10 - ${daily_price} - ${daily_price_3} * 2",
+    "costCoins": 0,
+    "coinsGiven": 10,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": "${daily_price_2} / 10 + 1"
+  },
+  {
+    "id": "dogecoin_6",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_20_name",
+    "descKey": "shop_dogecoin_20_desc",
+    "cost": "${daily_price} * 20 - ${daily_price} - ${daily_price_4} * 2",
+    "costCoins": 0,
+    "coinsGiven": 20,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": "${daily_price_3} / 10 + 1"
+  },
+  {
+    "id": "boost_2x_free",
     "type": "booster",
     "nameKey": "shop_boost_2x_5m_name",
     "descKey": "shop_boost_2x_5m_desc",
     "cost": 0,
-    "costCoins": 2,
+    "costCoins": 0,
     "multiplier": 2,
     "durationMin": 5,
     "icon": "img/icons/trophy-svgrepo-com.svg",
-    "dailyLimit": 0
+    "dailyLimit": "${daily_price} / 100 + 1"
   },
   {
-    "id": "boost_3x_5m",
+    "id": "boost_3x_free",
     "type": "booster",
     "nameKey": "shop_boost_3x_5m_name",
     "descKey": "shop_boost_3x_5m_desc",
-    "cost": 500,
+    "cost": 0,
     "costCoins": 0,
     "multiplier": 3,
+    "durationMin": 5,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": "${daily_price_2} / 100 + 1"
+  },
+  {
+    "id": "boost_10x_free",
+    "type": "booster",
+    "nameKey": "shop_boost_10x_3m_name",
+    "descKey": "shop_boost_10x_3m_desc",
+    "cost": 0,
+    "costCoins": 0,
+    "multiplier": 10,
+    "durationMin": 3,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": "${daily_price_3} / 100 + 1"
+  },
+  {
+    "id": "boost_2x_5m",
+    "type": "booster",
+    "nameKey": "shop_boost_2x_5m_name",
+    "descKey": "shop_boost_2x_5m_desc",
+    "cost": 200,
+    "costCoins": 0,
+    "multiplier": 2,
     "durationMin": 5,
     "icon": "img/icons/trophy-svgrepo-com.svg",
     "dailyLimit": 0
@@ -40,21 +130,9 @@
     "type": "booster",
     "nameKey": "shop_boost_2x_10m_name",
     "descKey": "shop_boost_2x_10m_desc",
-    "cost": 0,
+    "cost": 350,
     "costCoins": 0,
     "multiplier": 2,
-    "durationMin": 10,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
-    "dailyLimit": 1
-  },
-  {
-    "id": "boost_3x_10m",
-    "type": "booster",
-    "nameKey": "shop_boost_3x_10m_name",
-    "descKey": "shop_boost_3x_10m_desc",
-    "cost": 900,
-    "costCoins": 9,
-    "multiplier": 3,
     "durationMin": 10,
     "icon": "img/icons/trophy-svgrepo-com.svg",
     "dailyLimit": 0
@@ -64,10 +142,34 @@
     "type": "booster",
     "nameKey": "shop_boost_2x_20m_name",
     "descKey": "shop_boost_2x_20m_desc",
-    "cost": 800,
-    "costCoins": 8,
+    "cost": 600,
+    "costCoins": 0,
     "multiplier": 2,
     "durationMin": 20,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "boost_3x_5m",
+    "type": "booster",
+    "nameKey": "shop_boost_3x_5m_name",
+    "descKey": "shop_boost_3x_5m_desc",
+    "cost": 0,
+    "costCoins": 1,
+    "multiplier": 3,
+    "durationMin": 5,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "boost_3x_10m",
+    "type": "booster",
+    "nameKey": "shop_boost_3x_10m_name",
+    "descKey": "shop_boost_3x_10m_desc",
+    "cost": 0,
+    "costCoins": 2,
+    "multiplier": 3,
+    "durationMin": 10,
     "icon": "img/icons/trophy-svgrepo-com.svg",
     "dailyLimit": 0
   },
@@ -76,15 +178,15 @@
     "type": "booster",
     "nameKey": "shop_boost_3x_20m_name",
     "descKey": "shop_boost_3x_20m_desc",
-    "cost": 1600,
-    "costCoins": 16,
+    "cost": 0,
+    "costCoins": 3,
     "multiplier": 3,
     "durationMin": 20,
     "icon": "img/icons/trophy-svgrepo-com.svg",
     "dailyLimit": 0
   },
   {
-    "id": "little",
+    "id": "cheems_little",
     "type": "cheems",
     "nameKey": "cheems_little",
     "cost": 0,
@@ -93,7 +195,7 @@
     "oneTimePurchase": true
   },
   {
-    "id": "adult",
+    "id": "cheems_adult",
     "type": "cheems",
     "nameKey": "cheems_adult",
     "cost": 0,
@@ -102,7 +204,7 @@
     "oneTimePurchase": true
   },
   {
-    "id": "kid",
+    "id": "cheems_kid",
     "type": "cheems",
     "nameKey": "cheems_kid",
     "cost": 0,
@@ -111,7 +213,7 @@
     "oneTimePurchase": true
   },
   {
-    "id": "mamado",
+    "id": "cheems_mamado",
     "type": "cheems",
     "nameKey": "cheems_mamado",
     "cost": 0,
@@ -120,7 +222,7 @@
     "oneTimePurchase": true
   },
   {
-    "id": "pixelart",
+    "id": "cheems_pixelart",
     "type": "cheems",
     "nameKey": "cheems_pixelart",
     "cost": 0,
@@ -129,7 +231,7 @@
     "oneTimePurchase": true
   },
   {
-    "id": "elegant",
+    "id": "cheems_elegant",
     "type": "cheems",
     "nameKey": "cheems_elegant",
     "cost": 0,
@@ -138,7 +240,7 @@
     "oneTimePurchase": true
   },
   {
-    "id": "3d",
+    "id": "cheems_3d",
     "type": "cheems",
     "nameKey": "cheems_3d",
     "cost": 0,
@@ -147,7 +249,7 @@
     "oneTimePurchase": true
   },
   {
-    "id": "black",
+    "id": "cheems_black",
     "type": "cheems",
     "nameKey": "cheems_black",
     "cost": 0,
