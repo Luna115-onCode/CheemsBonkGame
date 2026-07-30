@@ -1,14 +1,14 @@
 {
   "cheems": [
-    "normal",
-    "little",
-    "adult",
-    "kid",
-    "mamado",
-    "pixelart",
-    "elegant",
-    "3d",
-    "black"
+    "cheems_normal",
+    "cheems_little",
+    "cheems_adult",
+    "cheems_kid",
+    "cheems_mamado",
+    "cheems_pixelart",
+    "cheems_elegant",
+    "cheems_3d",
+    "cheems_black"
   ],
   "sounds": [
     "sfx_1",
