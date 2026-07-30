@@ -1,0 +1,36 @@
+{
+  "cheems": [
+    "normal",
+    "little",
+    "adult",
+    "kid",
+    "mamado",
+    "pixelart",
+    "elegant",
+    "3d",
+    "black"
+  ],
+  "sounds": [
+    "sfx_1",
+    "sfx_2",
+    "sfx_3",
+    "sfx_4",
+    "sfx_5",
+    "sfx_6",
+    "sfx_7",
+    "sfx_8",
+    "sfx_9",
+    "sfx_10",
+    "sfx_11",
+    "sfx_12"
+  ],
+  "music": [
+    "music_0",
+    "music_1",
+    "music_2",
+    "music_3",
+    "music_4",
+    "music_5",
+    "music_6"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1785318217597,
+  "timestamp": 1785393918490,
   "index": "/CheemsBonkGame/dev/index.html",
   "assetGroups": [
     {
@@ -27,6 +27,7 @@
         "ignoreVary": true
       },
       "urls": [
+        "/CheemsBonkGame/dev/closet.json",
         "/CheemsBonkGame/dev/fonts/Kalam-Regular.ttf",
         "/CheemsBonkGame/dev/img/capture1.png",
         "/CheemsBonkGame/dev/img/capture2.png",
@@ -81,6 +82,9 @@
         "/CheemsBonkGame/dev/img/icons/volume-cross-svgrepo-com.svg",
         "/CheemsBonkGame/dev/img/icons/volume-loud-svgrepo-com.svg",
         "/CheemsBonkGame/dev/img/icons/volume-small-svgrepo-com.svg",
+        "/CheemsBonkGame/dev/items/cheems.json",
+        "/CheemsBonkGame/dev/items/music.json",
+        "/CheemsBonkGame/dev/items/sound_effects.json",
         "/CheemsBonkGame/dev/lang/texts.en.lang",
         "/CheemsBonkGame/dev/lang/texts.es.lang",
         "/CheemsBonkGame/dev/licences/electro-electro-summer-positive-party-141081-license.txt",
@@ -88,6 +92,7 @@
         "/CheemsBonkGame/dev/licences/futuro-bajo-trap-future-bass-royalty-free-music-167020-license.txt",
         "/CheemsBonkGame/dev/licences/guitarra-solista-separation-185196-license.txt",
         "/CheemsBonkGame/dev/licences/needed.txt",
+        "/CheemsBonkGame/dev/shop.json",
         "/CheemsBonkGame/dev/sound/discord-connect.ogg",
         "/CheemsBonkGame/dev/sound/discord-disconnect.ogg",
         "/CheemsBonkGame/dev/sound/discord-msg.ogg",
@@ -119,14 +124,14 @@
         "/CheemsBonkGame/dev/sound/pato.ogg",
         "/CheemsBonkGame/dev/sound/peluche.ogg",
         "/CheemsBonkGame/dev/sound/splat.ogg",
-        "/CheemsBonkGame/dev/sound/windows-error.ogg",
-        "/CheemsBonkGame/dev/store.json"
+        "/CheemsBonkGame/dev/sound/windows-error.ogg"
       ],
       "patterns": []
     }
   ],
   "dataGroups": [],
   "hashTable": {
+    "/CheemsBonkGame/dev/closet.json": "1b6b66e3629a9d68d3b935b2f7a6f3752d3e86b6",
     "/CheemsBonkGame/dev/fonts/Kalam-Regular.ttf": "8780563680372a86968c46c50cba05143654fe49",
     "/CheemsBonkGame/dev/img/capture1.png": "aa06d74cf63a4c0e0655cb2ae1c319569f47577f",
     "/CheemsBonkGame/dev/img/capture2.png": "075c0fc6af45fd7be2325506cd3a28880d543ab3",
@@ -182,16 +187,20 @@
     "/CheemsBonkGame/dev/img/icons/volume-loud-svgrepo-com.svg": "4aa6a7f476256300378d275359c7908bc14c6fa6",
     "/CheemsBonkGame/dev/img/icons/volume-small-svgrepo-com.svg": "e6cff6f1a08192f058140f574c06bfae88960ea5",
     "/CheemsBonkGame/dev/index.html": "41be89bda99932cb13eb1566012c10e3de7e021b",
-    "/CheemsBonkGame/dev/lang/texts.en.lang": "eec1d4593d2e31f41d04d99f5c33b51b2657417e",
-    "/CheemsBonkGame/dev/lang/texts.es.lang": "ff95df8b81f27b4f91e75175e9ca6508ee21bc46",
+    "/CheemsBonkGame/dev/items/cheems.json": "bbcc43a81452ec2e016957aa8412328c191afb1a",
+    "/CheemsBonkGame/dev/items/music.json": "fa52ab4d6084af2743b783b5b3ba8cdc8b1e303e",
+    "/CheemsBonkGame/dev/items/sound_effects.json": "1ba2fe243c46e840b21f780aa3c015f599015073",
+    "/CheemsBonkGame/dev/lang/texts.en.lang": "c2f2c14ebc27a742490bd57dc28cf75b56729281",
+    "/CheemsBonkGame/dev/lang/texts.es.lang": "3b012e941341ffa71392e82a5b8059403f9ac7dc",
     "/CheemsBonkGame/dev/licences/electro-electro-summer-positive-party-141081-license.txt": "b69186088ecbacb2ddf79bc8a179f7d3753568aa",
     "/CheemsBonkGame/dev/licences/futuro-bajo-titanium-170190-license.txt": "6398b14d44e07b24e1eb6d8efeddf3e4048a1682",
     "/CheemsBonkGame/dev/licences/futuro-bajo-trap-future-bass-royalty-free-music-167020-license.txt": "fa1298faa5261b1eb5f3a23667646935995a712f",
     "/CheemsBonkGame/dev/licences/guitarra-solista-separation-185196-license.txt": "72f4f4be684748d2581282af3e230d2572066e57",
     "/CheemsBonkGame/dev/licences/needed.txt": "a2d15029485c920e21abcbeea6f44bc934029ddb",
-    "/CheemsBonkGame/dev/main.js": "83be90ac4ff7e254972cd1b67ebe4126df278f66",
+    "/CheemsBonkGame/dev/main.js": "986c4dfcc6c924ded228dbf1221d20160c8da0f0",
     "/CheemsBonkGame/dev/manifest.webmanifest": "e1bb6537aeb79eeb070ef90801d13b102e6ad58f",
     "/CheemsBonkGame/dev/polyfills.js": "321b3a888edbd93081a92e1659c272f85bbaf088",
+    "/CheemsBonkGame/dev/shop.json": "1c8bde4765642b68b511cc0ab30932e046732f96",
     "/CheemsBonkGame/dev/sound/discord-connect.ogg": "d2f627d480193da754ac854250e450fdaa6e7df6",
     "/CheemsBonkGame/dev/sound/discord-disconnect.ogg": "26d7c79ef75572cfa9ee2c03031709b745d37d15",
     "/CheemsBonkGame/dev/sound/discord-msg.ogg": "e7e4cc5f1a28de32f43594b589d2a905302110f6",
@@ -224,8 +233,7 @@
     "/CheemsBonkGame/dev/sound/peluche.ogg": "107c91760bff598807708b0ab04691556114797b",
     "/CheemsBonkGame/dev/sound/splat.ogg": "1692cf037af84fa26ff5b15bc52e135af6d5c8b8",
     "/CheemsBonkGame/dev/sound/windows-error.ogg": "d6bbe76606cc0768fddcd56f4d192de6a29f5385",
-    "/CheemsBonkGame/dev/store.json": "bc7e8c4367aa7bdf9611fdbd5392454fdfc1de56",
-    "/CheemsBonkGame/dev/styles.css": "fa43cf1d9b43d3f86b8c361462250e362a251b02"
+    "/CheemsBonkGame/dev/styles.css": "df75c31f650e67c822035975464a24b2e0b5eb96"
   },
   "navigationUrls": [
     {

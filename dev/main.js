@@ -35605,230 +35605,246 @@ function provideRouterInitializer() {
 var VERSION4 = new Version("19.2.14");
 
 // src/app/services/constants.service.ts
+function createLangMap(base) {
+  return new Proxy({}, {
+    get(target, prop) {
+      if (!(prop in target)) {
+        target[prop] = JSON.parse(JSON.stringify(base));
+      }
+      return target[prop];
+    }
+  });
+}
+var AVAILABLE_LANGUAGES = [
+  { key: "es", name: "Espa\xF1ol" },
+  { key: "en", name: "English" }
+];
 var pageName = {
-  es: {
-    closet: "",
-    devSettings: "",
-    game: "",
-    menu: "",
-    onWork: "",
-    p404: "",
-    settings: ""
-  },
-  en: {
-    closet: "",
-    devSettings: "",
-    game: "",
-    menu: "",
-    onWork: "",
-    p404: "",
-    settings: ""
-  }
+  closet: "",
+  devSettings: "",
+  game: "",
+  menu: "",
+  onWork: "",
+  p404: "",
+  settings: "",
+  offline: "",
+  shop: ""
 };
 var menuText = {
-  es: {
-    settings: "",
-    offline: "",
-    shop: "",
-    closet: "",
-    stats: "",
-    licenses: "",
-    devMenu: "",
-    buyDogeCoin: "",
-    buyDogeCoinSub: "",
-    buyDogeCoinSuccess: "",
-    buyDogeCoinFail: ""
-  },
-  en: {
-    settings: "",
-    offline: "",
-    shop: "",
-    closet: "",
-    stats: "",
-    licenses: "",
-    devMenu: "",
-    buyDogeCoin: "",
-    buyDogeCoinSub: "",
-    buyDogeCoinSuccess: "",
-    buyDogeCoinFail: ""
-  }
+  settings: "",
+  offline: "",
+  shop: "",
+  closet: "",
+  stats: "",
+  licenses: "",
+  devMenu: "",
+  buyDogeCoin: "",
+  buyDogeCoinSub: "",
+  buyDogeCoinSuccess: "",
+  buyDogeCoinFail: ""
 };
 var optionsText = {
-  es: {
-    changeLang: {
-      button: ""
-    },
-    musicVolume: "",
-    effectsVolume: "",
-    appTheme: "",
-    themes: {
-      light: "",
-      dark: "",
-      contrast: ""
-    },
-    fontSize: "",
-    sizes: {
-      smaller: "",
-      small: "",
-      normal: "",
-      big: "",
-      max: ""
-    }
+  changeLang: {
+    button: ""
   },
-  en: {
-    changeLang: {
-      button: ""
-    },
-    musicVolume: "",
-    effectsVolume: "",
-    appTheme: "",
-    themes: {
-      light: "",
-      dark: "",
-      contrast: ""
-    },
-    fontSize: "",
-    sizes: {
-      smaller: "",
-      small: "",
-      normal: "",
-      big: "",
-      max: ""
-    }
+  musicVolume: "",
+  effectsVolume: "",
+  appTheme: "",
+  themes: {
+    light: "",
+    dark: "",
+    contrast: ""
+  },
+  fontSize: "",
+  sizes: {
+    smaller: "",
+    small: "",
+    normal: "",
+    big: "",
+    max: ""
   }
 };
 var gameText = {
-  es: {
-    navbar: {
-      highScore: "",
-      actScore: "",
-      totalScore: ""
-    },
-    tapToBonk: ""
+  navbar: {
+    highScore: "",
+    actScore: "",
+    totalScore: ""
   },
-  en: {
-    navbar: {
-      highScore: "",
-      actScore: "",
-      totalScore: ""
-    },
-    tapToBonk: ""
-  }
+  tapToBonk: ""
 };
 var closetText = {
-  es: {
-    title: "",
-    cheemsSection: "",
-    soundsSection: "",
-    musicSection: "",
-    selected: "",
-    equipped: "",
-    purchased: "",
-    cost: "",
-    free: "",
-    buy: "",
-    equip: "",
-    needMoreCoins: "",
-    itemBought: "",
-    itemSelected: ""
-  },
-  en: {
-    title: "",
-    cheemsSection: "",
-    soundsSection: "",
-    musicSection: "",
-    selected: "",
-    equipped: "",
-    purchased: "",
-    cost: "",
-    free: "",
-    buy: "",
-    equip: "",
-    needMoreCoins: "",
-    itemBought: "",
-    itemSelected: ""
-  }
+  title: "",
+  cheemsSection: "",
+  soundsSection: "",
+  musicSection: "",
+  selected: "",
+  equipped: "",
+  purchased: "",
+  cost: "",
+  free: "",
+  buy: "",
+  equip: "",
+  needMoreCoins: "",
+  itemBought: "",
+  itemSelected: ""
 };
 var devText = {
-  es: {
-    title: "",
-    resetToZero: "",
-    unlockAll: "",
-    giveDogeCoins: "",
-    givePoints: "",
-    success: "",
-    unlocked: "",
-    locked: ""
-  },
-  en: {
-    title: "",
-    resetToZero: "",
-    unlockAll: "",
-    giveDogeCoins: "",
-    givePoints: "",
-    success: "",
-    unlocked: "",
-    locked: ""
-  }
+  title: "",
+  resetToZero: "",
+  unlockAll: "",
+  giveDogeCoins: "",
+  givePoints: "",
+  success: "",
+  unlocked: "",
+  locked: ""
 };
 var onWorkText = {
-  es: {
-    title: "",
-    message: "",
-    backToMenu: ""
-  },
-  en: {
-    title: "",
-    message: "",
-    backToMenu: ""
-  }
+  title: "",
+  message: "",
+  backToMenu: ""
 };
 var p404Text = {
-  es: {
-    title: "",
-    message: "",
-    backToGame: ""
-  },
-  en: {
-    title: "",
-    message: "",
-    backToGame: ""
-  }
+  title: "",
+  message: "",
+  backToGame: ""
 };
-var CHEEMS_SKINS = [
-  { id: "normal", nameEs: "Cheems Normal", nameEn: "Normal Cheems", img: "normal.png", cost: 0, default: true, storageKey: "c1" },
-  { id: "little", nameEs: "Cheems Chiquito", nameEn: "Little Cheems", img: "little.png", cost: 10, storageKey: "c2" },
-  { id: "adult", nameEs: "Cheems Adulto", nameEn: "Adult Cheems", img: "adult.png", cost: 10, storageKey: "c3" },
-  { id: "kid", nameEs: "Cheems Ni\xF1o", nameEn: "Kid Cheems", img: "kid.png", cost: 10, storageKey: "c4" },
-  { id: "mamado", nameEs: "Cheems Mamado", nameEn: "Buff Cheems", img: "mamado.png", cost: 10, storageKey: "c5" },
-  { id: "pixelart", nameEs: "Cheems Pixel", nameEn: "Pixel Cheems", img: "pixelart.png", cost: 10, storageKey: "c6" },
-  { id: "elegant", nameEs: "Cheems Elegante", nameEn: "Elegant Cheems", img: "elegant.png", cost: 10, storageKey: "c7" },
-  { id: "3d", nameEs: "Cheems 3D", nameEn: "3D Cheems", img: "3d.png", cost: 10, storageKey: "c8" },
-  { id: "black", nameEs: "Cheems Oscuro", nameEn: "Dark Cheems", img: "black.png", cost: 10, storageKey: "c9" }
+var offlineText = {
+  title: "",
+  subtitle: "",
+  downloadAll: "",
+  essentialsTitle: "",
+  essentialsDesc: "",
+  sfxTitle: "",
+  sfxDesc: "",
+  musicTitle: "",
+  musicDesc: "",
+  downloaded: "",
+  download: "",
+  downloading: "",
+  successToast: "",
+  errorToast: ""
+};
+var OFFLINE_CATEGORIES = [
+  {
+    id: "essentials",
+    titleKey: "essentialsTitle",
+    descKey: "essentialsDesc",
+    sizeLabel: "~9.5 MB",
+    urls: [
+      "/",
+      "index.html",
+      "favicon.ico",
+      "manifest.webmanifest",
+      "closet.json",
+      "items/cheems.json",
+      "items/sound_effects.json",
+      "items/music.json",
+      "lang/texts.en.lang",
+      "lang/texts.es.lang",
+      "img/dogecoin-min.png",
+      "img/dogecoin-min.svg",
+      "img/dogecoin.png",
+      "img/dogecoin.svg",
+      "img/favicon.ico",
+      "img/cheems/3d.png",
+      "img/cheems/adult.png",
+      "img/cheems/black.png",
+      "img/cheems/elegant.png",
+      "img/cheems/kid.png",
+      "img/cheems/little.png",
+      "img/cheems/locked-cheems.png",
+      "img/cheems/mamado.png",
+      "img/cheems/normal.png",
+      "img/cheems/pixelart.png",
+      "img/hit/3d.png",
+      "img/hit/adult.png",
+      "img/hit/black.png",
+      "img/hit/elegant.png",
+      "img/hit/kid.png",
+      "img/hit/little.png",
+      "img/hit/mamado.png",
+      "img/hit/normal.png",
+      "img/hit/pixelart.png",
+      "img/icons/application-svgrepo-com.svg",
+      "img/icons/black-music-svgrepo-com.svg",
+      "img/icons/black-sound-svgrepo-com.svg",
+      "img/icons/earphone-svgrepo-com.svg",
+      "img/icons/front-page-svgrepo-com.svg",
+      "img/icons/link-svgrepo-com.svg",
+      "img/icons/lock-keyhole-minimalistic-svgrepo-com.svg",
+      "img/icons/lock-keyhole-minimalistic-unlocked-svgrepo-com.svg",
+      "img/icons/menu-svgrepo-com.svg",
+      "img/icons/music-svgrepo-com.svg",
+      "img/icons/personal-svgrepo-com.svg",
+      "img/icons/picture-svgrepo-com.svg",
+      "img/icons/play-svgrepo-com.svg",
+      "img/icons/report-svgrepo-com.svg",
+      "img/icons/set-up-svgrepo-com.svg",
+      "img/icons/shopping-svgrepo-com.svg",
+      "img/icons/sound-svgrepo-com.svg",
+      "img/icons/the-internet-svgrepo-com.svg",
+      "img/icons/trophy-svgrepo-com.svg",
+      "img/icons/volume-cross-svgrepo-com.svg",
+      "img/icons/volume-loud-svgrepo-com.svg",
+      "img/icons/volume-small-svgrepo-com.svg",
+      "img/icons/pwa/icon-144x144.png",
+      "img/icons/pwa/icon-192x192.png",
+      "img/icons/pwa/icon-512x512.png",
+      "img/icons/pwa/icon-72x72.png"
+    ]
+  },
+  {
+    id: "sfx",
+    titleKey: "sfxTitle",
+    descKey: "sfxDesc",
+    sizeLabel: "~550 KB",
+    urls: [
+      "sound/discord-connect.ogg",
+      "sound/discord-disconnect.ogg",
+      "sound/discord-msg.ogg",
+      "sound/hello.ogg",
+      "sound/hit-minecraft.ogg",
+      "sound/hit.ogg",
+      "sound/hurt-minecraft.ogg",
+      "sound/hurt-roblox.ogg",
+      "sound/levelup1.ogg",
+      "sound/levelup2.ogg",
+      "sound/no.ogg",
+      "sound/pato.ogg",
+      "sound/peluche.ogg",
+      "sound/splat.ogg",
+      "sound/windows-error.ogg",
+      "sound/menu/Desaparecer.ogg",
+      "sound/menu/deslis.ogg",
+      "sound/menu/teclas.ogg"
+    ]
+  },
+  {
+    id: "music",
+    titleKey: "musicTitle",
+    descKey: "musicDesc",
+    sizeLabel: "~119 MB",
+    urls: [
+      "sound/music/A_Jazz_Piano.ogg",
+      "sound/music/Jack_Bootleg.ogg",
+      "sound/music/Magic_night.ogg",
+      "sound/music/Minimalism_No10.ogg",
+      "sound/music/Minimalism_No9.ogg",
+      "sound/music/TETRIS (Joey iLLah Bootleg) (Final).wav",
+      "sound/music/When_you_smile.ogg",
+      "sound/music/believe-me-143530.mp3",
+      "sound/music/city-streets-background-version-166003.mp3",
+      "sound/music/coffee-shop-189585.mp3",
+      "sound/music/electro-summer-positive-party-141081.mp3",
+      "sound/music/separation-185196.mp3",
+      "sound/music/titanium-170190.mp3",
+      "sound/music/trap-future-bass-royalty-free-music-167020.mp3"
+    ]
+  }
 ];
-var SOUND_EFFECTS = [
-  { id: "1", name: "Hit (Bonk)", cost: 0, default: true, storageKey: "s1" },
-  { id: "2", name: "Hurt Minecraft", cost: 10, storageKey: "s2" },
-  { id: "3", name: "Hurt Roblox", cost: 10, storageKey: "s3" },
-  { id: "4", name: "Level Up", cost: 10, storageKey: "s4" },
-  { id: "5", name: "Discord", cost: 10, storageKey: "s5" },
-  { id: "6", name: "Hello FNAF", cost: 10, storageKey: "s6" },
-  { id: "7", name: "Hit Minecraft", cost: 10, storageKey: "s7" },
-  { id: "8", name: "NO", cost: 10, storageKey: "s8" },
-  { id: "9", name: "Duck", cost: 10, storageKey: "s9" },
-  { id: "10", name: "Toy", cost: 10, storageKey: "s10" },
-  { id: "11", name: "Splat", cost: 10, storageKey: "s11" },
-  { id: "12", name: "Windows Error", cost: 10, storageKey: "s12" }
-];
-var MUSIC_TRACKS = [
-  { id: 0, name: "Mute / Sin m\xFAsica", file: "", default: true, cost: 0, storageKey: "m0" },
-  { id: 1, name: "A Jazz Piano", file: "A_Jazz_Piano.ogg", default: true, cost: 0, storageKey: "m1" },
-  { id: 2, name: "Jack Bootleg", file: "Jack_Bootleg.ogg", default: false, cost: 10, storageKey: "m2" },
-  { id: 3, name: "Magic Night", file: "Magic_night.ogg", default: false, cost: 10, storageKey: "m3" },
-  { id: 4, name: "Minimalism No9", file: "Minimalism_No9.ogg", default: false, cost: 10, storageKey: "m4" },
-  { id: 5, name: "Minimalism No10", file: "Minimalism_No10.ogg", default: false, cost: 10, storageKey: "m5" },
-  { id: 6, name: "When You Smile", file: "When_you_smile.ogg", default: false, cost: 10, storageKey: "m6" }
-];
+var CHEEMS_SKINS = [];
+var SOUND_EFFECTS = [];
+var MUSIC_TRACKS = [];
 var TranslationsService = class _TranslationsService {
   constructor() {
   }
@@ -35854,9 +35870,9 @@ var ToolsService = class _ToolsService {
   themeColor = "theme-dark";
   actPage = "game";
   lang = "es";
-  selectedCheems = "normal";
-  selectedSound = "1";
-  selectedMusic = 1;
+  selectedCheems = "cheems_normal";
+  selectedSound = "sfx_1";
+  selectedMusic = "music_1";
   actScore = 0;
   points = 0;
   highScore = 0;
@@ -35869,18 +35885,29 @@ var ToolsService = class _ToolsService {
   unlockedCheems = {};
   unlockedSounds = {};
   unlockedMusic = {};
-  game = gameText;
-  options = optionsText;
-  menu = menuText;
-  closet = closetText;
-  dev = devText;
-  onWork = onWorkText;
-  p404 = p404Text;
-  pageName = pageName;
-  availableLanguages = [
-    { code: "es", name: "Espa\xF1ol" },
-    { code: "en", name: "English" }
-  ];
+  game = createLangMap(gameText);
+  options = createLangMap(optionsText);
+  menu = createLangMap(menuText);
+  closet = createLangMap(closetText);
+  dev = createLangMap(devText);
+  onWork = createLangMap(onWorkText);
+  p404 = createLangMap(p404Text);
+  offline = createLangMap(offlineText);
+  shop = {};
+  pageName = createLangMap(pageName);
+  offlineCategories = OFFLINE_CATEGORIES;
+  shopItemsText = {};
+  itemsText = {};
+  shopItems = [];
+  boosterEndTime = 0;
+  boosterMultiplier = 1;
+  audioCtx = null;
+  musicSource = null;
+  musicGain = null;
+  currentMusicBuffer = null;
+  currentMusicFile = "";
+  isWindowBlurred = false;
+  availableLanguages = AVAILABLE_LANGUAGES;
   cheemsSkins = CHEEMS_SKINS;
   soundEffects = SOUND_EFFECTS;
   musicTracks = MUSIC_TRACKS;
@@ -35900,13 +35927,13 @@ var ToolsService = class _ToolsService {
     });
     this.musicAudio.loop = true;
     this.musicAudio.addEventListener("ended", () => {
-      if (this.selectedMusic !== 0) {
+      if (String(this.selectedMusic) !== "0") {
         this.musicAudio.play().catch(() => {
         });
       }
     });
     const resumeMusicOnInteraction = () => {
-      if (this.selectedMusic !== 0 && this.musicAudio.paused) {
+      if (String(this.selectedMusic) !== "0" && this.musicAudio.paused) {
         this.playMusic(this.selectedMusic);
       }
     };
@@ -35919,12 +35946,17 @@ var ToolsService = class _ToolsService {
     this.titleInt.setTitle(title);
   }
   changeLanguage() {
-    const currentIdx = this.availableLanguages.findIndex((l) => l.code === this.lang);
+    const currentIdx = this.availableLanguages.findIndex((l) => l.key === this.lang);
     const nextIdx = (currentIdx + 1) % this.availableLanguages.length;
-    this.lang = this.availableLanguages[nextIdx].code;
-    localStorage.setItem("CheemsBonkLang", this.lang);
-    this.loadLanguageFile(this.lang);
-    this.setTitle(this.actPage);
+    this.setLanguage(this.availableLanguages[nextIdx].key);
+  }
+  setLanguage(key) {
+    if (this.availableLanguages.some((l) => l.key === key)) {
+      this.lang = key;
+      localStorage.setItem("CheemsBonkLang", this.lang);
+      this.loadLanguageFile(this.lang);
+      this.setTitle(this.actPage);
+    }
   }
   loadLanguageFile(langCode) {
     return __async(this, null, function* () {
@@ -35954,44 +35986,93 @@ var ToolsService = class _ToolsService {
             this.onWork[langCode] = __spreadValues(__spreadValues({}, this.onWork[langCode]), data.onWork);
           if (data.p404)
             this.p404[langCode] = __spreadValues(__spreadValues({}, this.p404[langCode]), data.p404);
+          if (data.offline)
+            this.offline[langCode] = __spreadValues(__spreadValues({}, this.offline[langCode]), data.offline);
+          if (data.shop)
+            this.shop[langCode] = __spreadValues(__spreadValues({}, this.shop[langCode]), data.shop);
+          if (data.shopItemsText)
+            this.shopItemsText[langCode] = __spreadValues(__spreadValues({}, this.shopItemsText[langCode]), data.shopItemsText);
+          if (data.itemsText)
+            this.itemsText[langCode] = __spreadValues(__spreadValues({}, this.itemsText[langCode]), data.itemsText);
         }
       } catch (err) {
         console.warn(`Could not load language file lang/texts.${langCode}.lang`, err);
       }
     });
   }
-  loadStorePrices() {
+  loadClosetPrices() {
     return __async(this, null, function* () {
       try {
-        const res = yield fetch("store.json");
-        if (res.ok) {
-          const prices = yield res.json();
-          if (prices.cheems) {
-            this.cheemsSkins.forEach((skin) => {
-              if (prices.cheems[skin.id] !== void 0) {
-                skin.cost = prices.cheems[skin.id];
-              }
-            });
-          }
-          if (prices.sounds) {
-            this.soundEffects.forEach((sound) => {
-              if (prices.sounds[sound.id] !== void 0) {
-                sound.cost = prices.sounds[sound.id];
-              }
-            });
-          }
-          if (prices.music) {
-            this.musicTracks.forEach((track) => {
-              if (prices.music[String(track.id)] !== void 0) {
-                track.cost = prices.music[String(track.id)];
-              }
-            });
-          }
+        const [cheemsRes, soundsRes, musicRes, closetRes] = yield Promise.all([
+          fetch("items/cheems.json").catch(() => null),
+          fetch("items/sound_effects.json").catch(() => null),
+          fetch("items/music.json").catch(() => null),
+          fetch("closet.json").catch(() => null)
+        ]);
+        const cheemsCatalog = cheemsRes && cheemsRes.ok ? yield cheemsRes.json() : [];
+        const soundsCatalog = soundsRes && soundsRes.ok ? yield soundsRes.json() : [];
+        const musicCatalog = musicRes && musicRes.ok ? yield musicRes.json() : [];
+        let closetData = null;
+        if (closetRes && closetRes.ok) {
+          closetData = yield closetRes.json();
         }
+        if (closetData) {
+          this.cheemsSkins = this.buildItemsList(closetData.cheems, cheemsCatalog);
+          this.soundEffects = this.buildItemsList(closetData.sounds, soundsCatalog);
+          this.musicTracks = this.buildItemsList(closetData.music, musicCatalog);
+        } else {
+          this.cheemsSkins = [...cheemsCatalog];
+          this.soundEffects = [...soundsCatalog];
+          this.musicTracks = [...musicCatalog];
+        }
+        this.loadUnlocks();
+        this.appendUnlockableShopItems();
+        this.playMusic(this.selectedMusic);
       } catch (err) {
-        console.warn("Could not load store.json, using default prices", err);
+        console.warn("Could not load closet.json or items, using default arrays", err);
       }
     });
+  }
+  buildItemsList(closetSection, catalog) {
+    const result = [];
+    if (!closetSection || !catalog || catalog.length === 0) {
+      return result;
+    }
+    if (Array.isArray(closetSection)) {
+      for (const entry of closetSection) {
+        let itemId;
+        let overrideCost;
+        if (typeof entry === "object" && entry !== null) {
+          itemId = entry.id;
+          if (entry.cost !== void 0) {
+            overrideCost = Number(entry.cost);
+          }
+        } else {
+          itemId = entry;
+        }
+        const found = catalog.find((item) => String(item.id) === String(itemId));
+        if (found) {
+          const itemCopy = __spreadValues({}, found);
+          if (overrideCost !== void 0 && !isNaN(overrideCost)) {
+            itemCopy.cost = overrideCost;
+          }
+          result.push(itemCopy);
+        }
+      }
+    } else if (typeof closetSection === "object" && closetSection !== null) {
+      for (const key of Object.keys(closetSection)) {
+        const found = catalog.find((item) => String(item.id) === String(key));
+        if (found) {
+          const itemCopy = __spreadValues({}, found);
+          const overrideCost = Number(closetSection[key]);
+          if (!isNaN(overrideCost)) {
+            itemCopy.cost = overrideCost;
+          }
+          result.push(itemCopy);
+        }
+      }
+    }
+    return result;
   }
   redirect(url) {
     this.router.navigate([url]);
@@ -36000,7 +36081,7 @@ var ToolsService = class _ToolsService {
     window.location.reload();
   }
   redirectBack(fromSystem = false) {
-    if (["devSettings", "closet", "settings", "onWork"].includes(this.actPage)) {
+    if (["devSettings", "closet", "settings", "onWork", "offline", "shop"].includes(this.actPage)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage)) {
       this.redirect("game");
@@ -36032,15 +36113,16 @@ var ToolsService = class _ToolsService {
     localStorage.setItem("CheemsBonkHighScore", JSON.stringify(this.highScore));
   }
   getDailyDogeCoinPrice() {
-    const todayStr = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-    let seed = 0;
-    for (let i = 0; i < todayStr.length; i++) {
-      seed = (seed << 5) - seed + todayStr.charCodeAt(i);
-      seed |= 0;
-    }
-    const absSeed = Math.abs(seed);
-    const offset = absSeed % 101 - 50;
-    return 100 + offset;
+    const d = /* @__PURE__ */ new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const dateNum = Number(`${yyyy}${mm}${dd}`);
+    const product = dateNum * Math.PI;
+    const str = product.toString().replace(".", "");
+    const digits = str.slice(8, 11);
+    const price = parseInt(digits, 10);
+    return isNaN(price) ? 100 : price;
   }
   buyDogeCoin() {
     const cost = this.getDailyDogeCoinPrice();
@@ -36049,6 +36131,7 @@ var ToolsService = class _ToolsService {
       this.dogeCoins += 1;
       localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
       localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
+      this.recordDailyPurchase("dogecoin_daily");
       this.showToast(this.menu[this.lang].buyDogeCoinSuccess);
       this.playSound();
       return true;
@@ -36068,87 +36151,142 @@ var ToolsService = class _ToolsService {
         this.showToast(this.dev[this.lang].locked);
       }
       this.devClickCount = 0;
-      this.playSound("4");
+      this.playSound("sfx_4");
     }
   }
   playSound(customSoundId) {
     const soundToPlay = customSoundId || this.selectedSound;
+    const item = this.soundEffects.find((s) => String(s.id) === String(soundToPlay));
     let file = "hit.ogg";
-    switch (soundToPlay) {
-      case "1":
-        file = "hit.ogg";
-        break;
-      case "2":
-        file = "hurt-minecraft.ogg";
-        break;
-      case "3":
-        file = "hurt-roblox.ogg";
-        break;
-      case "4":
-        const randLvl = Math.floor(Math.random() * 5) + 1;
-        file = randLvl === 4 ? "levelup2.ogg" : "levelup1.ogg";
-        break;
-      case "5":
-        const randDis = Math.floor(Math.random() * 3) + 1;
-        if (randDis === 1)
-          file = "discord-connect.ogg";
-        else if (randDis === 2)
-          file = "discord-disconnect.ogg";
-        else
-          file = "discord-msg.ogg";
-        break;
-      case "6":
-        file = "hello.ogg";
-        break;
-      case "7":
-        file = "hit-minecraft.ogg";
-        break;
-      case "8":
-        file = "no.ogg";
-        break;
-      case "9":
-        file = "pato.ogg";
-        break;
-      case "10":
-        file = "peluche.ogg";
-        break;
-      case "11":
-        file = "splat.ogg";
-        break;
-      case "12":
-        file = "windows-error.ogg";
-        break;
-      default:
-        file = "hit.ogg";
-        break;
+    let basePath = "sound/";
+    if (item) {
+      if (item.basePath)
+        basePath = item.basePath;
+      if (item.files && item.files.length > 0) {
+        const idx = Math.floor(Math.random() * item.files.length);
+        file = item.files[idx];
+      } else if (item.file) {
+        file = item.file;
+      }
     }
-    this.soundAudio.src = "sound/" + file;
+    this.soundAudio.src = basePath + file;
     this.soundAudio.volume = this.effVol / 100;
     this.soundAudio.play().catch(() => {
     });
   }
   playMusic(songId) {
     const trackId = songId !== void 0 ? songId : this.selectedMusic;
-    const track = this.musicTracks.find((t) => t.id === trackId);
-    if (!track || track.id === 0 || !track.file) {
-      this.musicAudio.pause();
-      this.musicAudio.src = "";
+    const track = this.musicTracks.find((t) => String(t.id) === String(trackId));
+    if (!track || String(track.id) === "0" || !track.file) {
+      this.stopBackgroundMusic();
       return;
     }
-    const targetSrc = "sound/music/" + track.file;
-    if (!this.musicAudio.src.endsWith(targetSrc)) {
-      this.musicAudio.src = targetSrc;
-      this.musicAudio.loop = true;
-      this.musicAudio.load();
-    }
-    this.musicAudio.volume = this.musVol / 100;
-    this.musicAudio.play().catch(() => {
+    const basePath = track.basePath || "sound/music/";
+    const fullPath = track.url || basePath + track.file;
+    this.playBackgroundMusic(track.file, fullPath);
+  }
+  playBackgroundMusic(file, customUrl) {
+    return __async(this, null, function* () {
+      if (!file || this.musVol <= 0 || String(this.selectedMusic) === "0") {
+        this.stopBackgroundMusic();
+        return;
+      }
+      const targetSrc = customUrl || "sound/music/" + file;
+      try {
+        if (!this.audioCtx) {
+          this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (this.currentMusicFile !== file) {
+          this.currentMusicFile = file;
+          const res = yield fetch(targetSrc);
+          if (res.ok) {
+            const arrayBuf = yield res.arrayBuffer();
+            const audioBuf = yield this.audioCtx.decodeAudioData(arrayBuf);
+            this.currentMusicBuffer = audioBuf;
+            this.startWebAudioMusic();
+            return;
+          }
+        } else {
+          if (this.audioCtx.state === "suspended" && !this.isWindowBlurred) {
+            this.audioCtx.resume().catch(() => {
+            });
+          }
+          return;
+        }
+      } catch (e) {
+        console.warn("Web Audio API failed, falling back to HTMLAudioElement", e);
+      }
+      if (!this.musicAudio.src.endsWith(targetSrc)) {
+        this.musicAudio.src = targetSrc;
+        this.musicAudio.loop = true;
+        this.musicAudio.load();
+      }
+      this.musicAudio.volume = this.musVol / 100;
+      if (!this.isWindowBlurred) {
+        this.musicAudio.play().catch(() => {
+        });
+      }
     });
+  }
+  startWebAudioMusic() {
+    if (!this.audioCtx || !this.currentMusicBuffer)
+      return;
+    if (this.musicSource) {
+      try {
+        this.musicSource.stop();
+      } catch {
+      }
+      this.musicSource.disconnect();
+    }
+    if (!this.musicGain) {
+      this.musicGain = this.audioCtx.createGain();
+      this.musicGain.connect(this.audioCtx.destination);
+    }
+    this.musicGain.gain.value = this.musVol / 100;
+    this.musicSource = this.audioCtx.createBufferSource();
+    this.musicSource.buffer = this.currentMusicBuffer;
+    this.musicSource.loop = true;
+    this.musicSource.connect(this.musicGain);
+    if (!this.isWindowBlurred) {
+      this.musicSource.start(0);
+    }
+  }
+  stopBackgroundMusic() {
+    if (this.musicSource) {
+      try {
+        this.musicSource.stop();
+      } catch {
+      }
+      this.musicSource = null;
+    }
+    if (!this.musicAudio.paused) {
+      this.musicAudio.pause();
+      this.musicAudio.src = "";
+    }
   }
   setMusicVolume(vol) {
     this.musVol = Math.max(0, Math.min(100, vol));
     this.musicAudio.volume = this.musVol / 100;
+    if (this.musicGain && this.audioCtx) {
+      this.musicGain.gain.value = this.musVol / 100;
+    }
     localStorage.setItem("CheemsAppLiMusicVolume", String(this.musVol));
+    if (this.musVol === 0) {
+      if (this.audioCtx && this.audioCtx.state === "running") {
+        this.audioCtx.suspend().catch(() => {
+        });
+      }
+      this.musicAudio.pause();
+    } else if (!this.isWindowBlurred && String(this.selectedMusic) !== "0") {
+      if (this.audioCtx && this.audioCtx.state === "suspended") {
+        this.audioCtx.resume().catch(() => {
+        });
+      }
+      if (this.musicAudio.paused && this.musicAudio.src) {
+        this.musicAudio.play().catch(() => {
+        });
+      }
+    }
   }
   setEffectVolume(vol) {
     this.effVol = Math.max(0, Math.min(100, vol));
@@ -36199,7 +36337,7 @@ var ToolsService = class _ToolsService {
     document.body.className = `${this.themeColor} ${this.fontSize}`;
   }
   isCheemsUnlocked(id) {
-    if (id === "normal")
+    if (id === "normal" || id === "cheems_normal")
       return true;
     const item = this.cheemsSkins.find((s) => s.id === id);
     if (!item)
@@ -36211,32 +36349,19 @@ var ToolsService = class _ToolsService {
       this.selectedCheems = skin.id;
       localStorage.setItem("CheemsAppLiSelCheems", skin.id);
       localStorage.setItem("CheemsBonkCheems", skin.id);
-      this.showToast(this.closet[this.lang].itemSelected);
+      this.showToast(this.closet[this.lang]?.itemSelected || "Selected!");
       this.playSound();
       return true;
     } else {
-      if (this.dogeCoins >= skin.cost) {
-        this.dogeCoins -= skin.cost;
-        this.unlockedCheems[skin.storageKey] = true;
-        this.selectedCheems = skin.id;
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
-        localStorage.setItem(skin.storageKey, JSON.stringify(true));
-        localStorage.setItem("CheemsAppLiSelCheems", skin.id);
-        localStorage.setItem("CheemsBonkCheems", skin.id);
-        this.showToast(this.closet[this.lang].itemBought);
-        this.playSound();
-        return true;
-      } else {
-        this.showToast(this.closet[this.lang].needMoreCoins);
-        this.playSound("8");
-        return false;
-      }
+      this.showToast(this.closet[this.lang]?.buyInShop || "Buy this item in the Shop!");
+      this.playSound("sfx_8");
+      return false;
     }
   }
   isSoundUnlocked(id) {
-    if (id === "1")
+    if (id === "1" || id === "sfx_1")
       return true;
-    const item = this.soundEffects.find((s) => s.id === id);
+    const item = this.soundEffects.find((s) => String(s.id) === String(id));
     if (!item)
       return false;
     return !!this.unlockedSounds[item.storageKey];
@@ -36246,32 +36371,19 @@ var ToolsService = class _ToolsService {
       this.selectedSound = sound.id;
       localStorage.setItem("CheemsAppLiSelSound", sound.id);
       localStorage.setItem("CheemsBonkSound", sound.id);
-      this.showToast(this.closet[this.lang].itemSelected);
+      this.showToast(this.closet[this.lang]?.itemSelected || "Selected!");
       this.playSound(sound.id);
       return true;
     } else {
-      if (this.dogeCoins >= sound.cost) {
-        this.dogeCoins -= sound.cost;
-        this.unlockedSounds[sound.storageKey] = true;
-        this.selectedSound = sound.id;
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
-        localStorage.setItem(sound.storageKey, JSON.stringify(true));
-        localStorage.setItem("CheemsAppLiSelSound", sound.id);
-        localStorage.setItem("CheemsBonkSound", sound.id);
-        this.showToast(this.closet[this.lang].itemBought);
-        this.playSound(sound.id);
-        return true;
-      } else {
-        this.showToast(this.closet[this.lang].needMoreCoins);
-        this.playSound("8");
-        return false;
-      }
+      this.showToast(this.closet[this.lang]?.buyInShop || "Buy this item in the Shop!");
+      this.playSound("sfx_8");
+      return false;
     }
   }
   isMusicUnlocked(id) {
-    if (id === 0 || id === 1)
+    if (String(id) === "0" || String(id) === "1" || id === "music_0" || id === "music_1")
       return true;
-    const item = this.musicTracks.find((m) => m.id === id);
+    const item = this.musicTracks.find((m) => String(m.id) === String(id));
     if (!item)
       return false;
     return !!this.unlockedMusic[item.storageKey];
@@ -36281,19 +36393,9 @@ var ToolsService = class _ToolsService {
       this.selectMusic(track);
       return true;
     } else {
-      if (this.dogeCoins >= track.cost) {
-        this.dogeCoins -= track.cost;
-        this.unlockedMusic[track.storageKey] = true;
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
-        localStorage.setItem(track.storageKey, JSON.stringify(true));
-        this.selectMusic(track);
-        this.showToast(this.closet[this.lang].itemBought);
-        return true;
-      } else {
-        this.showToast(this.closet[this.lang].needMoreCoins);
-        this.playSound("8");
-        return false;
-      }
+      this.showToast(this.closet[this.lang]?.buyInShop || "Buy this item in the Shop!");
+      this.playSound("sfx_8");
+      return false;
     }
   }
   selectMusic(track) {
@@ -36326,7 +36428,7 @@ var ToolsService = class _ToolsService {
     localStorage.setItem("CheemsAppLiMaxCounter", JSON.stringify(this.highScore));
     localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
     this.showToast(this.dev[this.lang].success);
-    this.playSound("4");
+    this.playSound("sfx_4");
   }
   resetToZero() {
     this.actScore = 0;
@@ -36334,9 +36436,9 @@ var ToolsService = class _ToolsService {
     this.totalScore = 0;
     this.highScore = 0;
     this.dogeCoins = 0;
-    this.selectedCheems = "normal";
-    this.selectedSound = "1";
-    this.selectedMusic = 1;
+    this.selectedCheems = "cheems_normal";
+    this.selectedSound = "sfx_1";
+    this.selectedMusic = "music_1";
     this.effVol = 100;
     this.musVol = 50;
     this.themeColor = "theme-dark";
@@ -36364,9 +36466,9 @@ var ToolsService = class _ToolsService {
     localStorage.setItem("CheemsAppLiTotalCounter", "0");
     localStorage.setItem("CheemsAppLiMaxCounter", "0");
     localStorage.setItem("CheemsAppLiDogecoins", "0");
-    localStorage.setItem("CheemsAppLiSelCheems", "normal");
-    localStorage.setItem("CheemsAppLiSelSound", "1");
-    localStorage.setItem("CheemsAppLiSelMusic", "1");
+    localStorage.setItem("CheemsAppLiSelCheems", "cheems_normal");
+    localStorage.setItem("CheemsAppLiSelSound", "sfx_1");
+    localStorage.setItem("CheemsAppLiSelMusic", "music_1");
     localStorage.setItem("CheemsAppLiMusicVolume", "50");
     localStorage.setItem("CheemsAppLiEffectsVolume", "100");
     localStorage.setItem("CheemsAppLiActTheme", "1");
@@ -36377,7 +36479,10 @@ var ToolsService = class _ToolsService {
   loadApp() {
     this.loadSettings();
     this.loadLanguageFile(this.lang);
-    this.loadStorePrices();
+    this.loadClosetPrices();
+    this.loadShopItems();
+    this.loadBoosterState();
+    this.setupWindowFocusListeners();
     this.loadCheems();
     this.loadSounds();
     this.loadMusic();
@@ -36387,7 +36492,7 @@ var ToolsService = class _ToolsService {
   }
   loadSettings() {
     const savedLang = localStorage.getItem("CheemsBonkLang");
-    this.lang = savedLang && this.availableLanguages.some((l) => l.code === savedLang) ? savedLang : "es";
+    this.lang = savedLang && this.availableLanguages.some((l) => l.key === savedLang) ? savedLang : "es";
     const savedTheme = localStorage.getItem("CheemsAppLiActTheme");
     const themeIdx = savedTheme !== null ? +savedTheme : 1;
     this.switchTheme(themeIdx);
@@ -36401,15 +36506,15 @@ var ToolsService = class _ToolsService {
   }
   loadCheems() {
     const savedCheems = localStorage.getItem("CheemsAppLiSelCheems") || localStorage.getItem("CheemsBonkCheems");
-    this.selectedCheems = savedCheems ? savedCheems.replace(/"/g, "") : "normal";
+    this.selectedCheems = savedCheems ? savedCheems.replace(/"/g, "") : "cheems_normal";
   }
   loadSounds() {
     const savedSound = localStorage.getItem("CheemsAppLiSelSound") || localStorage.getItem("CheemsBonkSound");
-    this.selectedSound = savedSound ? savedSound.replace(/"/g, "") : "1";
+    this.selectedSound = savedSound ? savedSound.replace(/"/g, "") : "sfx_1";
   }
   loadMusic() {
     const savedMusic = localStorage.getItem("CheemsAppLiSelMusic");
-    this.selectedMusic = savedMusic !== null && !isNaN(+savedMusic) ? +savedMusic : 1;
+    this.selectedMusic = savedMusic ? savedMusic.replace(/"/g, "") : "music_1";
     this.playMusic(this.selectedMusic);
   }
   loadScore() {
@@ -36465,6 +36570,390 @@ var ToolsService = class _ToolsService {
       return new Promise((resolve) => setTimeout(resolve, time));
     });
   }
+  checkCategoryCached(category) {
+    return __async(this, null, function* () {
+      if (!("caches" in window))
+        return false;
+      try {
+        const cache = yield caches.open("cheems-bonk-offline-v1");
+        for (const url of category.urls) {
+          const match2 = yield cache.match(url);
+          if (!match2) {
+            return localStorage.getItem(`cheems_offline_cached_${category.id}`) === "true";
+          }
+        }
+        return true;
+      } catch {
+        return localStorage.getItem(`cheems_offline_cached_${category.id}`) === "true";
+      }
+    });
+  }
+  cacheCategory(category, onProgress) {
+    return __async(this, null, function* () {
+      if (!("caches" in window))
+        return false;
+      try {
+        const cache = yield caches.open("cheems-bonk-offline-v1");
+        let completed = 0;
+        for (const url of category.urls) {
+          try {
+            const res = yield fetch(url);
+            if (res.ok) {
+              yield cache.put(url, res);
+            }
+          } catch (e) {
+            console.warn(`Failed to cache ${url}`, e);
+          }
+          completed++;
+          if (onProgress) {
+            onProgress(Math.round(completed / category.urls.length * 100));
+          }
+        }
+        localStorage.setItem(`cheems_offline_cached_${category.id}`, "true");
+        return true;
+      } catch (err) {
+        console.error("Error caching category:", err);
+        return false;
+      }
+    });
+  }
+  loadBoosterState() {
+    const storedEndTime = localStorage.getItem("CheemsAppLiBoosterEndTime");
+    const storedMultiplier = localStorage.getItem("CheemsAppLiBoosterMultiplier");
+    this.boosterEndTime = storedEndTime ? +storedEndTime : 0;
+    this.boosterMultiplier = storedMultiplier ? +storedMultiplier : 1;
+  }
+  loadShopItems() {
+    return __async(this, null, function* () {
+      try {
+        const res = yield fetch("shop.json");
+        if (res.ok) {
+          this.shopItems = yield res.json();
+        }
+      } catch (err) {
+        console.warn("Could not load shop.json", err);
+      }
+      this.appendUnlockableShopItems();
+    });
+  }
+  getActiveMultiplier() {
+    const now = Date.now();
+    if (now < this.boosterEndTime) {
+      return this.boosterMultiplier;
+    } else if (this.boosterEndTime !== 0) {
+      this.boosterEndTime = 0;
+      this.boosterMultiplier = 1;
+      localStorage.setItem("CheemsAppLiBoosterEndTime", "0");
+      localStorage.setItem("CheemsAppLiBoosterMultiplier", "1");
+    }
+    return 1;
+  }
+  getBoosterRemainingSeconds() {
+    const now = Date.now();
+    if (now < this.boosterEndTime) {
+      return Math.max(0, Math.ceil((this.boosterEndTime - now) / 1e3));
+    }
+    return 0;
+  }
+  getBoosterFormattedTime() {
+    const totalSeconds = this.getBoosterRemainingSeconds();
+    if (totalSeconds <= 60) {
+      return String(totalSeconds).padStart(2, "0");
+    }
+    const secs = totalSeconds % 60;
+    const totalMinutes = Math.floor(totalSeconds / 60);
+    if (totalSeconds <= 3600) {
+      return `${String(totalMinutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+    const mins = totalMinutes % 60;
+    const totalHours = Math.floor(totalMinutes / 60);
+    if (totalSeconds <= 86400) {
+      return `${String(totalHours).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+    const hours = totalHours % 24;
+    const days = Math.floor(totalHours / 24);
+    return `${days} ${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+  }
+  activateBooster(multiplier, durationMin) {
+    const durationMs = durationMin * 60 * 1e3;
+    const now = Date.now();
+    if (now < this.boosterEndTime && this.boosterMultiplier === multiplier) {
+      this.boosterEndTime += durationMs;
+    } else {
+      this.boosterEndTime = now + durationMs;
+      this.boosterMultiplier = multiplier;
+    }
+    localStorage.setItem("CheemsAppLiBoosterEndTime", String(this.boosterEndTime));
+    localStorage.setItem("CheemsAppLiBoosterMultiplier", String(this.boosterMultiplier));
+    this.showToast(this.shop[this.lang]?.boosterActivated || "Booster activated!");
+    this.playSound();
+  }
+  getDailyPurchaseCount(itemId) {
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    try {
+      const stored = localStorage.getItem("CheemsAppLiShopDailyPurchases");
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data && data.date === today && data.purchases) {
+          return data.purchases[itemId] || 0;
+        }
+      }
+    } catch (e) {
+    }
+    return 0;
+  }
+  recordDailyPurchase(itemId) {
+    const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    let purchases = {};
+    try {
+      const stored = localStorage.getItem("CheemsAppLiShopDailyPurchases");
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data && data.date === today && data.purchases) {
+          purchases = data.purchases;
+        }
+      }
+    } catch (e) {
+    }
+    purchases[itemId] = (purchases[itemId] || 0) + 1;
+    localStorage.setItem("CheemsAppLiShopDailyPurchases", JSON.stringify({ date: today, purchases }));
+  }
+  canBuyDailyLimit(item) {
+    if (!item.dailyLimit || item.dailyLimit <= 0) {
+      return true;
+    }
+    return this.getDailyPurchaseCount(item.id) < item.dailyLimit;
+  }
+  getRemainingDailyLimit(item) {
+    if (!item.dailyLimit || item.dailyLimit <= 0) {
+      return 0;
+    }
+    return Math.max(0, item.dailyLimit - this.getDailyPurchaseCount(item.id));
+  }
+  getLifetimePurchaseCount(itemId) {
+    try {
+      const stored = localStorage.getItem("CheemsAppLiShopLifetimePurchases");
+      if (stored) {
+        const data = JSON.parse(stored);
+        if (data && data[itemId]) {
+          return data[itemId];
+        }
+      }
+    } catch (e) {
+    }
+    return 0;
+  }
+  recordLifetimePurchase(itemId) {
+    try {
+      const stored = localStorage.getItem("CheemsAppLiShopLifetimePurchases");
+      const data = stored ? JSON.parse(stored) : {};
+      data[itemId] = (data[itemId] || 0) + 1;
+      localStorage.setItem("CheemsAppLiShopLifetimePurchases", JSON.stringify(data));
+    } catch (e) {
+    }
+  }
+  isLifetimeLimitReached(item) {
+    if (item.type === "cheems") {
+      const target = String(item.targetId !== void 0 ? item.targetId : item.id);
+      return this.isCheemsUnlocked(target);
+    }
+    if (item.type === "sound") {
+      const target = String(item.targetId !== void 0 ? item.targetId : item.id);
+      return this.isSoundUnlocked(target);
+    }
+    if (item.type === "music") {
+      const target = String(item.targetId !== void 0 ? item.targetId : item.id);
+      return this.isMusicUnlocked(target);
+    }
+    if (item.oneTimePurchase) {
+      return this.getLifetimePurchaseCount(item.id) >= 1;
+    }
+    return false;
+  }
+  appendUnlockableShopItems() {
+    if (!this.cheemsSkins.length && !this.soundEffects.length && !this.musicTracks.length) {
+      return;
+    }
+    this.cheemsSkins.forEach((skin) => {
+      if (!skin.default && skin.id !== "cheems_normal" && skin.id !== "normal" && !this.shopItems.some((i) => i.id === skin.id)) {
+        this.shopItems.push({
+          id: skin.id,
+          type: "cheems",
+          targetId: skin.id,
+          nameKey: skin.nameKey,
+          cost: 0,
+          costCoins: skin.cost,
+          icon: this.getCheemsImg(skin.id),
+          oneTimePurchase: true
+        });
+      }
+    });
+    this.soundEffects.forEach((sound) => {
+      if (!sound.default && sound.id !== "sfx_1" && sound.id !== "1" && !this.shopItems.some((i) => i.id === sound.id)) {
+        this.shopItems.push({
+          id: sound.id,
+          type: "sound",
+          targetId: sound.id,
+          nameKey: sound.nameKey,
+          cost: 0,
+          costCoins: sound.cost,
+          icon: "img/icons/sound-svgrepo-com.svg",
+          oneTimePurchase: true
+        });
+      }
+    });
+    this.musicTracks.forEach((track) => {
+      if (!track.default && String(track.id) !== "music_0" && String(track.id) !== "music_1" && String(track.id) !== "0" && String(track.id) !== "1" && !this.shopItems.some((i) => i.id === String(track.id))) {
+        this.shopItems.push({
+          id: String(track.id),
+          type: "music",
+          targetId: track.id,
+          nameKey: track.nameKey,
+          cost: 0,
+          costCoins: track.cost,
+          icon: "img/icons/music-svgrepo-com.svg",
+          oneTimePurchase: true
+        });
+      }
+    });
+  }
+  buyShopUnlockableItem(item) {
+    if (this.isLifetimeLimitReached(item)) {
+      this.showToast(this.shop[this.lang]?.alreadyPurchased || "Already purchased!");
+      return false;
+    }
+    const ptsCost = item.cost || 0;
+    const coinCost = item.costCoins || 0;
+    if (this.points >= ptsCost && this.dogeCoins >= coinCost) {
+      this.points -= ptsCost;
+      this.dogeCoins -= coinCost;
+      localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
+      localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
+      if (item.type === "cheems") {
+        const targetId = String(item.targetId !== void 0 ? item.targetId : item.id);
+        const skin = this.cheemsSkins.find((s) => s.id === targetId);
+        if (skin) {
+          this.unlockedCheems[skin.storageKey] = true;
+          localStorage.setItem(skin.storageKey, JSON.stringify(true));
+        }
+      } else if (item.type === "sound") {
+        const targetId = String(item.targetId !== void 0 ? item.targetId : item.id);
+        const sound = this.soundEffects.find((s) => s.id === targetId);
+        if (sound) {
+          this.unlockedSounds[sound.storageKey] = true;
+          localStorage.setItem(sound.storageKey, JSON.stringify(true));
+        }
+      } else if (item.type === "music") {
+        const targetId = String(item.targetId !== void 0 ? item.targetId : item.id);
+        const track = this.musicTracks.find((m) => String(m.id) === targetId);
+        if (track) {
+          this.unlockedMusic[track.storageKey] = true;
+          localStorage.setItem(track.storageKey, JSON.stringify(true));
+        }
+      }
+      this.recordDailyPurchase(item.id);
+      this.recordLifetimePurchase(item.id);
+      this.showToast(this.shop[this.lang]?.itemBoughtGoToCloset || "Item purchased! Go to Closet to equip.");
+      this.playSound();
+      return true;
+    } else {
+      if (this.points < ptsCost) {
+        this.showToast(this.shop[this.lang]?.needMorePoints || "Not enough points!");
+      } else {
+        this.showToast(this.shop[this.lang]?.needMoreCoins || "Need more DogeCoins!");
+      }
+      this.playSound("sfx_8");
+      return false;
+    }
+  }
+  setupWindowFocusListeners() {
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        this.pauseAllAudioForBlur();
+      } else {
+        this.resumeAllAudioForFocus();
+      }
+    });
+    window.addEventListener("blur", () => {
+      this.pauseAllAudioForBlur();
+    });
+    window.addEventListener("focus", () => {
+      if (!document.hidden) {
+        this.resumeAllAudioForFocus();
+      }
+    });
+  }
+  pauseAllAudioForBlur() {
+    if (this.isWindowBlurred)
+      return;
+    this.isWindowBlurred = true;
+    if (this.audioCtx && this.audioCtx.state === "running") {
+      this.audioCtx.suspend().catch(() => {
+      });
+    }
+    if (!this.musicAudio.paused) {
+      this.musicAudio.pause();
+    }
+  }
+  resumeAllAudioForFocus() {
+    if (!this.isWindowBlurred)
+      return;
+    this.isWindowBlurred = false;
+    if (String(this.selectedMusic) !== "0" && this.musVol > 0) {
+      if (this.audioCtx && this.audioCtx.state === "suspended") {
+        this.audioCtx.resume().catch(() => {
+        });
+      } else if (this.musicAudio.paused && this.musicAudio.src) {
+        this.musicAudio.play().catch(() => {
+        });
+      }
+    }
+  }
+  getCheemsImg(id) {
+    const skin = this.cheemsSkins.find((s) => s.id === id);
+    if (skin?.imgUrl)
+      return skin.imgUrl;
+    return "img/cheems/" + (skin?.img || id + ".png");
+  }
+  getCheemsHitImg(id) {
+    const skin = this.cheemsSkins.find((s) => s.id === id);
+    if (skin?.hitImgUrl)
+      return skin.hitImgUrl;
+    return "img/hit/" + (skin?.hitImg || skin?.img || id + ".png");
+  }
+  getShopItemName(item) {
+    if (item.nameKey && this.shopItemsText[this.lang]?.[item.nameKey]) {
+      return this.shopItemsText[this.lang][item.nameKey];
+    }
+    if (item.nameKey && this.itemsText[this.lang]?.[item.nameKey]) {
+      return this.itemsText[this.lang][item.nameKey];
+    }
+    return this.lang === "es" ? item.nameEs || item.nameEn || item.id : item.nameEn || item.nameEs || item.id;
+  }
+  getShopItemDesc(item) {
+    if (item.descKey && this.shopItemsText[this.lang]?.[item.descKey]) {
+      return this.shopItemsText[this.lang][item.descKey];
+    }
+    return this.lang === "es" ? item.descEs || item.descEn || "" : item.descEn || item.descEs || "";
+  }
+  getCheemsName(skin) {
+    if (skin.nameKey && this.itemsText[this.lang]?.[skin.nameKey]) {
+      return this.itemsText[this.lang][skin.nameKey];
+    }
+    return this.lang === "es" ? skin.nameEs || skin.nameEn || skin.id : skin.nameEn || skin.nameEs || skin.id;
+  }
+  getSoundName(sound) {
+    if (sound.nameKey && this.itemsText[this.lang]?.[sound.nameKey]) {
+      return this.itemsText[this.lang][sound.nameKey];
+    }
+    return sound.name || sound.id;
+  }
+  getMusicName(track) {
+    if (track.nameKey && this.itemsText[this.lang]?.[track.nameKey]) {
+      return this.itemsText[this.lang][track.nameKey];
+    }
+    return track.name || String(track.id);
+  }
   static \u0275fac = function ToolsService_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ToolsService)(\u0275\u0275inject(Title), \u0275\u0275inject(Router));
   };
@@ -36487,7 +36976,7 @@ function GameComponent_Conditional_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275property("src", "img/hit/" + ctx_r0.tools.selectedCheems + ".png", \u0275\u0275sanitizeUrl);
+    \u0275\u0275property("src", ctx_r0.tools.getCheemsHitImg(ctx_r0.tools.selectedCheems), \u0275\u0275sanitizeUrl);
   }
 }
 function GameComponent_Conditional_3_Template(rf, ctx) {
@@ -36496,13 +36985,13 @@ function GameComponent_Conditional_3_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275property("src", "img/cheems/" + ctx_r0.tools.selectedCheems + ".png", \u0275\u0275sanitizeUrl);
+    \u0275\u0275property("src", ctx_r0.tools.getCheemsImg(ctx_r0.tools.selectedCheems), \u0275\u0275sanitizeUrl);
   }
 }
 function GameComponent_For_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div");
-    \u0275\u0275text(1, " +1 ");
+    \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -36510,6 +36999,8 @@ function GameComponent_For_7_Template(rf, ctx) {
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275classMapInterpolate1("floating-plus ", ctx_r0.tools.themeColor, "");
     \u0275\u0275styleProp("left", score_r2.x, "px")("top", score_r2.y, "px");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" +", score_r2.value, " ");
   }
 }
 var GameComponent = class _GameComponent {
@@ -36531,7 +37022,7 @@ var GameComponent = class _GameComponent {
     }
   }
   onKeyUp(event) {
-    if (event.key === " ") {
+    if (event.code === "Space") {
       this.onClick(false, event);
     }
   }
@@ -36554,10 +37045,11 @@ var GameComponent = class _GameComponent {
   }
   clickCheems(x, y) {
     this.clicked = true;
-    this.tools.updateScore(1);
+    const gained = this.tools.getActiveMultiplier();
+    this.tools.updateScore(gained);
     this.tools.playSound();
     const scoreId = this.nextScoreId++;
-    this.floatingScores.push({ id: scoreId, x, y });
+    this.floatingScores.push({ id: scoreId, x, y, value: gained });
     setTimeout(() => {
       this.floatingScores = this.floatingScores.filter((item) => item.id !== scoreId);
     }, 800);
@@ -36585,7 +37077,7 @@ var GameComponent = class _GameComponent {
       \u0275\u0275elementStart(4, "div");
       \u0275\u0275text(5);
       \u0275\u0275elementEnd();
-      \u0275\u0275repeaterCreate(6, GameComponent_For_7_Template, 2, 7, "div", 4, _forTrack0);
+      \u0275\u0275repeaterCreate(6, GameComponent_For_7_Template, 2, 8, "div", 4, _forTrack0);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
@@ -36605,48 +37097,24 @@ var GameComponent = class _GameComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GameComponent, [{
     type: Component,
-    args: [{ selector: "app-game", imports: [], template: `<div class="game-container" (click)="onClick(true, $event)" (touchstart)="onClick(true, $event)">
-    <div class="img-wrapper" [class.bonked]="clicked">
-        @if (clicked) {
-            <img [src]="'img/hit/' + tools.selectedCheems + '.png'"
-                 class="cheems-img hit-img"
-                 alt="Cheems Hit">
-        } @else {
-            <img [src]="'img/cheems/' + tools.selectedCheems + '.png'"
-                 class="cheems-img"
-                 alt="Cheems">
-        }
-    </div>
-
-    <div class="hint-text color-text {{tools.themeColor}} {{tools.fontSize}}">
-        {{tools.game[tools.lang].tapToBonk}}
-    </div>
-
-    @for (score of floatingScores; track score.id) {
-        <div class="floating-plus {{tools.themeColor}}"
-             [style.left.px]="score.x"
-             [style.top.px]="score.y">
-            +1
-        </div>
-    }
-</div>`, styles: ["/* src/app/pages/game/game.component.css */\n.game-container {\n  width: 100%;\n  min-height: calc(100vh - 150px);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  cursor: pointer;\n  user-select: none;\n  -webkit-user-select: none;\n  overflow: hidden;\n  padding: 2rem;\n}\n.img-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 70vw;\n  max-width: 420px;\n  height: 60vh;\n  max-height: 420px;\n  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);\n  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));\n}\n.img-wrapper.bonked {\n  transform: scale(0.92) rotate(-3deg);\n}\n.cheems-img {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  pointer-events: none;\n}\n.hint-text {\n  margin-top: 1.5rem;\n  font-weight: 900;\n  opacity: 0.85;\n  text-align: center;\n  letter-spacing: 0.5px;\n  animation: pulseHint 2s infinite ease-in-out;\n}\n@keyframes pulseHint {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 0.85;\n  }\n  50% {\n    transform: scale(1.05);\n    opacity: 1;\n  }\n}\n.floating-plus {\n  position: fixed;\n  pointer-events: none;\n  font-weight: 900;\n  font-size: 2.2rem;\n  z-index: 1000;\n  transform: translate(-50%, -50%);\n  animation: floatUp 0.8s ease-out forwards;\n  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);\n}\n.floating-plus.theme-dark {\n  color: #ffd166;\n}\n.floating-plus.theme-light {\n  color: #9c5c14;\n}\n.floating-plus.theme-contrast {\n  color: #00ffff;\n}\n@keyframes floatUp {\n  0% {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(0.8);\n  }\n  50% {\n    transform: translate(-50%, -100px) scale(1.3);\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-50%, -150px) scale(1);\n  }\n}\n/*# sourceMappingURL=game.component.css.map */\n"] }]
+    args: [{ selector: "app-game", imports: [], template: '<div class="game-container" (click)="onClick(true, $event)" (touchstart)="onClick(true, $event)">\n    <div class="img-wrapper" [class.bonked]="clicked">\n        @if (clicked) {\n            <img [src]="tools.getCheemsHitImg(tools.selectedCheems)"\n                 class="cheems-img hit-img"\n                 alt="Cheems Hit">\n        } @else {\n            <img [src]="tools.getCheemsImg(tools.selectedCheems)"\n                 class="cheems-img"\n                 alt="Cheems">\n        }\n    </div>\n\n    <div class="hint-text color-text {{tools.themeColor}} {{tools.fontSize}}">\n        {{tools.game[tools.lang].tapToBonk}}\n    </div>\n\n    @for (score of floatingScores; track score.id) {\n        <div class="floating-plus {{tools.themeColor}}"\n             [style.left.px]="score.x"\n             [style.top.px]="score.y">\n            +{{score.value}}\n        </div>\n    }\n</div>', styles: ["/* src/app/pages/game/game.component.css */\n.game-container {\n  width: 100%;\n  min-height: calc(100vh - 150px);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  cursor: pointer;\n  user-select: none;\n  -webkit-user-select: none;\n  overflow: hidden;\n  padding: 2rem;\n}\n.img-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 70vw;\n  max-width: 420px;\n  height: 60vh;\n  max-height: 420px;\n  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);\n  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));\n}\n.img-wrapper.bonked {\n  transform: scale(0.92) rotate(-3deg);\n}\n.cheems-img {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  pointer-events: none;\n}\n.hint-text {\n  margin-top: 1.5rem;\n  font-weight: 900;\n  opacity: 0.85;\n  text-align: center;\n  letter-spacing: 0.5px;\n  animation: pulseHint 2s infinite ease-in-out;\n}\n@keyframes pulseHint {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 0.85;\n  }\n  50% {\n    transform: scale(1.05);\n    opacity: 1;\n  }\n}\n.floating-plus {\n  position: fixed;\n  pointer-events: none;\n  font-weight: 900;\n  font-size: 2.2rem;\n  z-index: 1000;\n  transform: translate(-50%, -50%);\n  animation: floatUp 0.8s ease-out forwards;\n  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);\n}\n.floating-plus.theme-dark {\n  color: #ffd166;\n}\n.floating-plus.theme-light {\n  color: #9c5c14;\n}\n.floating-plus.theme-contrast {\n  color: #00ffff;\n}\n@keyframes floatUp {\n  0% {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(0.8);\n  }\n  50% {\n    transform: translate(-50%, -100px) scale(1.3);\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-50%, -150px) scale(1);\n  }\n}\n/*# sourceMappingURL=game.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GameComponent, { className: "GameComponent", filePath: "src/app/pages/game/game.component.ts", lineNumber: 16 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GameComponent, { className: "GameComponent", filePath: "src/app/pages/game/game.component.ts", lineNumber: 17 });
 })();
 
 // src/app/pages/menu/menu.component.ts
-function MenuComponent_Conditional_36_Template(rf, ctx) {
+function MenuComponent_Conditional_32_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("click", function MenuComponent_Conditional_36_Template_div_click_0_listener() {
+    \u0275\u0275listener("click", function MenuComponent_Conditional_32_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.tools.redirect("devSettings"));
     });
-    \u0275\u0275element(1, "img", 12);
+    \u0275\u0275element(1, "img", 11);
     \u0275\u0275elementStart(2, "div", 3)(3, "div", 4);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -36672,62 +37140,57 @@ var MenuComponent = class _MenuComponent {
   static \u0275fac = function MenuComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MenuComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 37, vars: 30, consts: [[1, "container"], [3, "click"], ["src", "img/dogecoin-min.png", "alt", "DogeCoin", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], [1, "card-sub"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/link-svgrepo-com.svg", "alt", "Offline Mode", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], [3, "class"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Dev Settings", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 33, vars: 28, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/link-svgrepo-com.svg", "alt", "Offline Mode", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], [3, "class"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Dev Settings", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_2_listener() {
-        return ctx.buyDogeCoin();
+        return ctx.tools.redirect("shop");
       });
       \u0275\u0275element(3, "img", 2);
       \u0275\u0275elementStart(4, "div", 3)(5, "div", 4);
       \u0275\u0275text(6);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(7, "div", 5);
-      \u0275\u0275text(8);
-      \u0275\u0275elementStart(9, "strong");
-      \u0275\u0275text(10);
-      \u0275\u0275elementEnd()()()();
-      \u0275\u0275elementStart(11, "div", 1);
-      \u0275\u0275listener("click", function MenuComponent_Template_div_click_11_listener() {
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(7, "div", 1);
+      \u0275\u0275listener("click", function MenuComponent_Template_div_click_7_listener() {
         return ctx.tools.redirect("closet");
       });
-      \u0275\u0275element(12, "img", 6);
-      \u0275\u0275elementStart(13, "div", 3)(14, "div", 4);
-      \u0275\u0275text(15);
+      \u0275\u0275element(8, "img", 5);
+      \u0275\u0275elementStart(9, "div", 3)(10, "div", 4);
+      \u0275\u0275text(11);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(16, "div", 1);
-      \u0275\u0275listener("click", function MenuComponent_Template_div_click_16_listener() {
+      \u0275\u0275elementStart(12, "div", 1);
+      \u0275\u0275listener("click", function MenuComponent_Template_div_click_12_listener() {
         return ctx.tools.redirect("settings");
       });
-      \u0275\u0275element(17, "img", 7);
-      \u0275\u0275elementStart(18, "div", 3)(19, "div", 4);
-      \u0275\u0275text(20);
+      \u0275\u0275element(13, "img", 6);
+      \u0275\u0275elementStart(14, "div", 3)(15, "div", 4);
+      \u0275\u0275text(16);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(21, "div", 1);
-      \u0275\u0275listener("click", function MenuComponent_Template_div_click_21_listener() {
+      \u0275\u0275elementStart(17, "div", 1);
+      \u0275\u0275listener("click", function MenuComponent_Template_div_click_17_listener() {
+        return ctx.tools.redirect("offline");
+      });
+      \u0275\u0275element(18, "img", 7);
+      \u0275\u0275elementStart(19, "div", 3)(20, "div", 4);
+      \u0275\u0275text(21);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(22, "div", 1);
+      \u0275\u0275listener("click", function MenuComponent_Template_div_click_22_listener() {
         return ctx.tools.redirect("onWork");
       });
-      \u0275\u0275element(22, "img", 8);
-      \u0275\u0275elementStart(23, "div", 3)(24, "div", 4);
-      \u0275\u0275text(25);
+      \u0275\u0275element(23, "img", 8);
+      \u0275\u0275elementStart(24, "div", 3)(25, "div", 4);
+      \u0275\u0275text(26);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(26, "div", 1);
-      \u0275\u0275listener("click", function MenuComponent_Template_div_click_26_listener() {
+      \u0275\u0275elementStart(27, "div", 1);
+      \u0275\u0275listener("click", function MenuComponent_Template_div_click_27_listener() {
         return ctx.tools.redirect("onWork");
       });
-      \u0275\u0275element(27, "img", 9);
-      \u0275\u0275elementStart(28, "div", 3)(29, "div", 4);
-      \u0275\u0275text(30);
+      \u0275\u0275element(28, "img", 9);
+      \u0275\u0275elementStart(29, "div", 3)(30, "div", 4);
+      \u0275\u0275text(31);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(31, "div", 1);
-      \u0275\u0275listener("click", function MenuComponent_Template_div_click_31_listener() {
-        return ctx.tools.redirect("onWork");
-      });
-      \u0275\u0275element(32, "img", 10);
-      \u0275\u0275elementStart(33, "div", 3)(34, "div", 4);
-      \u0275\u0275text(35);
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275template(36, MenuComponent_Conditional_36_Template, 5, 4, "div", 11);
+      \u0275\u0275template(32, MenuComponent_Conditional_32_Template, 5, 4, "div", 10);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -36736,11 +37199,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("menu-card dogecoin-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(4);
-      \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].buyDogeCoin);
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", ctx.tools.menu[ctx.tools.lang].buyDogeCoinSub, " ");
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", ctx.dailyPrice, " Pts");
+      \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].shop);
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(4);
@@ -36762,7 +37221,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275advance(4);
       \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].licenses);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.tools.devMenuUnlocked ? 36 : -1);
+      \u0275\u0275conditional(ctx.tools.devMenuUnlocked ? 32 : -1);
     }
   }, styles: ["\n\n.menu-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));\n  gap: 1.25rem;\n  width: 95%;\n  max-width: 900px;\n  margin: 2rem auto;\n  padding: 2rem;\n}\n.menu-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  gap: 1rem;\n  padding: 1.15rem;\n  border-radius: 16px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid transparent;\n}\n.menu-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);\n}\n.menu-card[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.98);\n}\n.menu-icon[_ngcontent-%COMP%] {\n  width: 44px;\n  height: 44px;\n  object-fit: contain;\n  flex-shrink: 0;\n}\n.coin-glow[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.7));\n}\n.card-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.card-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.card-sub[_ngcontent-%COMP%] {\n  font-size: 0.85em;\n  opacity: 0.8;\n}\n.menu-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(80, 68, 55, 0.85),\n      rgba(50, 42, 33, 0.95));\n  border: 1px solid rgba(255, 209, 102, 0.25);\n  color: rgb(245, 235, 220);\n}\n.menu-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.9),\n      rgba(240, 225, 195, 0.95));\n  border: 1px solid rgba(156, 92, 20, 0.3);\n  color: rgb(70, 45, 20);\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dogecoin-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(120, 95, 40, 0.9),\n      rgba(75, 55, 20, 0.95));\n  border-color: #ffd166;\n}\n.dogecoin-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 225, 160, 0.95),\n      rgba(245, 205, 130, 0.95));\n  border-color: #9c5c14;\n}\n.dogecoin-card.theme-contrast[_ngcontent-%COMP%] {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dev-card[_ngcontent-%COMP%] {\n  border-style: dashed !important;\n}\n@media (max-width: 600px) {\n  .menu-grid[_ngcontent-%COMP%] {\n    grid-template-columns: 1fr;\n    padding: 1.25rem;\n  }\n}\n/*# sourceMappingURL=menu.component.css.map */"] });
 };
@@ -36771,12 +37230,11 @@ var MenuComponent = class _MenuComponent {
     type: Component,
     args: [{ selector: "app-menu", imports: [], template: `<div class="container">
     <div class="group {{tools.themeColor}} menu-grid">
-        <!-- Buy DogeCoin Card -->
-        <div class="menu-card dogecoin-card {{tools.themeColor}}" (click)="buyDogeCoin()">
-            <img src="img/dogecoin-min.png" class="menu-icon coin-glow" alt="DogeCoin">
+        <!-- Shop Card -->
+        <div class="menu-card dogecoin-card {{tools.themeColor}}" (click)="tools.redirect('shop')">
+            <img src="img/icons/trophy-svgrepo-com.svg" class="menu-icon coin-glow" alt="Shop">
             <div class="card-content">
-                <div class="card-title">{{tools.menu[tools.lang].buyDogeCoin}}</div>
-                <div class="card-sub">{{tools.menu[tools.lang].buyDogeCoinSub}} <strong>{{dailyPrice}} Pts</strong></div>
+                <div class="card-title">{{tools.menu[tools.lang].shop}}</div>
             </div>
         </div>
 
@@ -36797,7 +37255,7 @@ var MenuComponent = class _MenuComponent {
         </div>
 
         <!-- Offline Mode / Resource Download -->
-        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('onWork')">
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('offline')">
             <img src="img/icons/link-svgrepo-com.svg" class="menu-icon" alt="Offline Mode">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].offline}}</div>
@@ -36838,6 +37296,21 @@ var MenuComponent = class _MenuComponent {
 })();
 
 // src/app/pages/settings/settings.component.ts
+var _forTrack02 = ($index, $item) => $item.key;
+function SettingsComponent_For_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "option", 4);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const langItem_r1 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275property("value", langItem_r1.key)("selected", langItem_r1.key === ctx_r1.tools.lang);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(langItem_r1.name);
+  }
+}
 var SettingsComponent = class _SettingsComponent {
   tools = inject(ToolsService);
   ngOnInit() {
@@ -36855,6 +37328,10 @@ var SettingsComponent = class _SettingsComponent {
   changeLanguage() {
     this.tools.changeLanguage();
   }
+  onLanguageChange(event) {
+    const key = event.target.value;
+    this.tools.setLanguage(key);
+  }
   selectTheme(index) {
     this.tools.switchTheme(index);
   }
@@ -36864,93 +37341,99 @@ var SettingsComponent = class _SettingsComponent {
   static \u0275fac = function SettingsComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _SettingsComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsComponent, selectors: [["app-settings"]], decls: 37, vars: 39, consts: [[1, "container"], [1, "setting-row"], [3, "click"], [1, "setting-label"], ["type", "range", "min", "0", "max", "100", 3, "input", "value"], [1, "options-group"], [1, "btn-card", "theme-btn", 3, "click"], [1, "btn-card", "font-btn", 3, "click"]], template: function SettingsComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsComponent, selectors: [["app-settings"]], decls: 40, vars: 40, consts: [[1, "container"], [1, "setting-row"], [1, "setting-label"], [3, "change", "value"], [3, "value", "selected"], ["type", "range", "min", "0", "max", "100", 3, "input", "value"], [1, "options-group"], [1, "btn-card", "theme-btn", 3, "click"], [1, "btn-card", "font-btn", 3, "click"]], template: function SettingsComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1)(3, "button", 2);
-      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_3_listener() {
-        return ctx.changeLanguage();
-      });
+      \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1)(3, "span", 2);
       \u0275\u0275text(4);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(5, "div", 1)(6, "span", 3);
-      \u0275\u0275text(7);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(8, "input", 4);
-      \u0275\u0275listener("input", function SettingsComponent_Template_input_input_8_listener($event) {
+      \u0275\u0275elementStart(5, "select", 3);
+      \u0275\u0275listener("change", function SettingsComponent_Template_select_change_5_listener($event) {
+        return ctx.onLanguageChange($event);
+      });
+      \u0275\u0275repeaterCreate(6, SettingsComponent_For_7_Template, 2, 3, "option", 4, _forTrack02);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(8, "div", 1)(9, "span", 2);
+      \u0275\u0275text(10);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(11, "input", 5);
+      \u0275\u0275listener("input", function SettingsComponent_Template_input_input_11_listener($event) {
         return ctx.onMusicVolumeChange($event);
       });
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(9, "div", 1)(10, "span", 3);
-      \u0275\u0275text(11);
+      \u0275\u0275elementStart(12, "div", 1)(13, "span", 2);
+      \u0275\u0275text(14);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(12, "input", 4);
-      \u0275\u0275listener("input", function SettingsComponent_Template_input_input_12_listener($event) {
+      \u0275\u0275elementStart(15, "input", 5);
+      \u0275\u0275listener("input", function SettingsComponent_Template_input_input_15_listener($event) {
         return ctx.onEffectsVolumeChange($event);
       });
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(13, "div", 1)(14, "span", 3);
-      \u0275\u0275text(15);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(16, "div", 5)(17, "button", 6);
-      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_17_listener() {
-        return ctx.selectTheme(0);
-      });
+      \u0275\u0275elementStart(16, "div", 1)(17, "span", 2);
       \u0275\u0275text(18);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(19, "button", 6);
-      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_19_listener() {
+      \u0275\u0275elementStart(19, "div", 6)(20, "button", 7);
+      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_20_listener() {
+        return ctx.selectTheme(0);
+      });
+      \u0275\u0275text(21);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(22, "button", 7);
+      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_22_listener() {
         return ctx.selectTheme(1);
       });
-      \u0275\u0275text(20);
+      \u0275\u0275text(23);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(21, "button", 6);
-      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_21_listener() {
+      \u0275\u0275elementStart(24, "button", 7);
+      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_24_listener() {
         return ctx.selectTheme(2);
       });
-      \u0275\u0275text(22);
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(23, "div", 1)(24, "span", 3);
       \u0275\u0275text(25);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(26, "div", 5)(27, "button", 7);
-      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_27_listener() {
-        return ctx.selectFontSize(0);
-      });
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(26, "div", 1)(27, "span", 2);
       \u0275\u0275text(28);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(29, "button", 7);
-      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_29_listener() {
+      \u0275\u0275elementStart(29, "div", 6)(30, "button", 8);
+      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_30_listener() {
+        return ctx.selectFontSize(0);
+      });
+      \u0275\u0275text(31);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(32, "button", 8);
+      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_32_listener() {
         return ctx.selectFontSize(1);
       });
-      \u0275\u0275text(30);
+      \u0275\u0275text(33);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(31, "button", 7);
-      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_31_listener() {
+      \u0275\u0275elementStart(34, "button", 8);
+      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_34_listener() {
         return ctx.selectFontSize(2);
       });
-      \u0275\u0275text(32);
+      \u0275\u0275text(35);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(33, "button", 7);
-      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_33_listener() {
+      \u0275\u0275elementStart(36, "button", 8);
+      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_36_listener() {
         return ctx.selectFontSize(3);
       });
-      \u0275\u0275text(34);
+      \u0275\u0275text(37);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(35, "button", 7);
-      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_35_listener() {
+      \u0275\u0275elementStart(38, "button", 8);
+      \u0275\u0275listener("click", function SettingsComponent_Template_button_click_38_listener() {
         return ctx.selectFontSize(4);
       });
-      \u0275\u0275text(36);
+      \u0275\u0275text(39);
       \u0275\u0275elementEnd()()()()();
     }
     if (rf & 2) {
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " settings-box");
-      \u0275\u0275advance(2);
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, " lang-btn");
-      \u0275\u0275advance();
-      \u0275\u0275textInterpolate1(" ", ctx.tools.options[ctx.tools.lang].changeLang.button, " ");
       \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate(ctx.tools.options[ctx.tools.lang].changeLang.button);
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("btn-card lang-select ", ctx.tools.themeColor, "");
+      \u0275\u0275property("value", ctx.tools.lang);
+      \u0275\u0275advance();
+      \u0275\u0275repeater(ctx.tools.availableLanguages);
+      \u0275\u0275advance(4);
       \u0275\u0275textInterpolate2("", ctx.tools.options[ctx.tools.lang].musicVolume, " (", ctx.tools.musVol, "%)");
       \u0275\u0275advance();
       \u0275\u0275property("value", ctx.tools.musVol);
@@ -36995,7 +37478,7 @@ var SettingsComponent = class _SettingsComponent {
       \u0275\u0275advance();
       \u0275\u0275textInterpolate1(" ", ctx.tools.options[ctx.tools.lang].sizes.max, " ");
     }
-  }, styles: ["\n\n.settings-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 2rem;\n  width: 90%;\n  max-width: 750px;\n  margin: 2rem auto;\n  padding: 2.5rem;\n}\n.setting-row[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.85rem;\n  width: 100%;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.15);\n  padding-bottom: 1.5rem;\n}\n.setting-row[_ngcontent-%COMP%]:last-child {\n  border-bottom: none;\n  padding-bottom: 0;\n}\n.setting-label[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.options-group[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  width: 100%;\n}\n.lang-btn[_ngcontent-%COMP%] {\n  padding: 1rem 2rem;\n  font-size: 1.1em;\n}\n.active-opt[_ngcontent-%COMP%] {\n  background: #ffd166 !important;\n  color: #1a1612 !important;\n  transform: scale(1.05);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5) !important;\n}\nbody.theme-light[_ngcontent-%COMP%]   .active-opt[_ngcontent-%COMP%] {\n  background: #9c5c14 !important;\n  color: #ffffff !important;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5) !important;\n}\nbody.theme-contrast[_ngcontent-%COMP%]   .active-opt[_ngcontent-%COMP%] {\n  background: #ffff00 !important;\n  color: #000000 !important;\n  border: 2px solid #ffff00 !important;\n  box-shadow: none !important;\n}\ninput[type=range][_ngcontent-%COMP%] {\n  width: 80%;\n  max-width: 350px;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
+  }, styles: ["\n\n.settings-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 2rem;\n  width: 90%;\n  max-width: 750px;\n  margin: 2rem auto;\n  padding: 2.5rem;\n}\n.setting-row[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.85rem;\n  width: 100%;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.15);\n  padding-bottom: 1.5rem;\n}\n.setting-row[_ngcontent-%COMP%]:last-child {\n  border-bottom: none;\n  padding-bottom: 0;\n}\n.setting-label[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.options-group[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  width: 100%;\n}\n.lang-select[_ngcontent-%COMP%] {\n  padding: 0.75rem 1.5rem;\n  font-size: 1.1em;\n  cursor: pointer;\n  width: 80%;\n  max-width: 350px;\n  text-align: center;\n  border-radius: 14px;\n  outline: none;\n  font-weight: 700;\n}\n.lang-select[_ngcontent-%COMP%]   option[_ngcontent-%COMP%] {\n  background-color: #2d2823;\n  color: #ffd166;\n  font-weight: bold;\n}\nbody.theme-light[_ngcontent-%COMP%]   .lang-select[_ngcontent-%COMP%]   option[_ngcontent-%COMP%] {\n  background-color: #fffaf0;\n  color: #5a3505;\n}\nbody.theme-contrast[_ngcontent-%COMP%]   .lang-select[_ngcontent-%COMP%]   option[_ngcontent-%COMP%] {\n  background-color: #000000;\n  color: #ffff00;\n}\n.active-opt[_ngcontent-%COMP%] {\n  background: #ffd166 !important;\n  color: #1a1612 !important;\n  transform: scale(1.05);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5) !important;\n}\nbody.theme-light[_ngcontent-%COMP%]   .active-opt[_ngcontent-%COMP%] {\n  background: #9c5c14 !important;\n  color: #ffffff !important;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5) !important;\n}\nbody.theme-contrast[_ngcontent-%COMP%]   .active-opt[_ngcontent-%COMP%] {\n  background: #ffff00 !important;\n  color: #000000 !important;\n  border: 2px solid #ffff00 !important;\n  box-shadow: none !important;\n}\ninput[type=range][_ngcontent-%COMP%] {\n  width: 80%;\n  max-width: 350px;\n}\n/*# sourceMappingURL=settings.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsComponent, [{
@@ -37004,9 +37487,12 @@ var SettingsComponent = class _SettingsComponent {
     <div class="group {{tools.themeColor}} settings-box">
         <!-- Language Switcher -->
         <div class="setting-row">
-            <button class="btn-card {{tools.themeColor}} lang-btn" (click)="changeLanguage()">
-                {{tools.options[tools.lang].changeLang.button}}
-            </button>
+            <span class="setting-label">{{tools.options[tools.lang].changeLang.button}}</span>
+            <select class="btn-card lang-select {{tools.themeColor}}" [value]="tools.lang" (change)="onLanguageChange($event)">
+                @for (langItem of tools.availableLanguages; track langItem.key) {
+                    <option [value]="langItem.key" [selected]="langItem.key === tools.lang">{{langItem.name}}</option>
+                }
+            </select>
         </div>
 
         <!-- Music Volume -->
@@ -37083,7 +37569,7 @@ var SettingsComponent = class _SettingsComponent {
             </div>
         </div>
     </div>
-</div>`, styles: ["/* src/app/pages/settings/settings.component.css */\n.settings-box {\n  display: flex;\n  flex-direction: column;\n  gap: 2rem;\n  width: 90%;\n  max-width: 750px;\n  margin: 2rem auto;\n  padding: 2.5rem;\n}\n.setting-row {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.85rem;\n  width: 100%;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.15);\n  padding-bottom: 1.5rem;\n}\n.setting-row:last-child {\n  border-bottom: none;\n  padding-bottom: 0;\n}\n.setting-label {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.options-group {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  width: 100%;\n}\n.lang-btn {\n  padding: 1rem 2rem;\n  font-size: 1.1em;\n}\n.active-opt {\n  background: #ffd166 !important;\n  color: #1a1612 !important;\n  transform: scale(1.05);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5) !important;\n}\nbody.theme-light .active-opt {\n  background: #9c5c14 !important;\n  color: #ffffff !important;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5) !important;\n}\nbody.theme-contrast .active-opt {\n  background: #ffff00 !important;\n  color: #000000 !important;\n  border: 2px solid #ffff00 !important;\n  box-shadow: none !important;\n}\ninput[type=range] {\n  width: 80%;\n  max-width: 350px;\n}\n/*# sourceMappingURL=settings.component.css.map */\n"] }]
+</div>`, styles: ["/* src/app/pages/settings/settings.component.css */\n.settings-box {\n  display: flex;\n  flex-direction: column;\n  gap: 2rem;\n  width: 90%;\n  max-width: 750px;\n  margin: 2rem auto;\n  padding: 2.5rem;\n}\n.setting-row {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.85rem;\n  width: 100%;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.15);\n  padding-bottom: 1.5rem;\n}\n.setting-row:last-child {\n  border-bottom: none;\n  padding-bottom: 0;\n}\n.setting-label {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.options-group {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  width: 100%;\n}\n.lang-select {\n  padding: 0.75rem 1.5rem;\n  font-size: 1.1em;\n  cursor: pointer;\n  width: 80%;\n  max-width: 350px;\n  text-align: center;\n  border-radius: 14px;\n  outline: none;\n  font-weight: 700;\n}\n.lang-select option {\n  background-color: #2d2823;\n  color: #ffd166;\n  font-weight: bold;\n}\nbody.theme-light .lang-select option {\n  background-color: #fffaf0;\n  color: #5a3505;\n}\nbody.theme-contrast .lang-select option {\n  background-color: #000000;\n  color: #ffff00;\n}\n.active-opt {\n  background: #ffd166 !important;\n  color: #1a1612 !important;\n  transform: scale(1.05);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5) !important;\n}\nbody.theme-light .active-opt {\n  background: #9c5c14 !important;\n  color: #ffffff !important;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5) !important;\n}\nbody.theme-contrast .active-opt {\n  background: #ffff00 !important;\n  color: #000000 !important;\n  border: 2px solid #ffff00 !important;\n  box-shadow: none !important;\n}\ninput[type=range] {\n  width: 80%;\n  max-width: 350px;\n}\n/*# sourceMappingURL=settings.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
@@ -37182,7 +37668,6 @@ var DevSettingsComponent = class _DevSettingsComponent {
 })();
 
 // src/app/pages/closet/closet.component.ts
-var _forTrack02 = ($index, $item) => $item.id;
 function ClosetComponent_Conditional_8_For_2_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 7);
@@ -37214,9 +37699,9 @@ function ClosetComponent_Conditional_8_For_2_Conditional_7_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const skin_r2 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(3);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1("", skin_r2.cost, " DGC");
+    \u0275\u0275textInterpolate((ctx_r2.tools.closet[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.closet[ctx_r2.tools.lang].inShop) || "In Shop");
   }
 }
 function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
@@ -37241,9 +37726,9 @@ function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
     \u0275\u0275classMapInterpolate1("shop-card ", ctx_r2.tools.themeColor, "");
     \u0275\u0275classProp("selected-cheems", ctx_r2.tools.selectedCheems === skin_r2.id);
     \u0275\u0275advance();
-    \u0275\u0275property("src", ctx_r2.tools.isCheemsUnlocked(skin_r2.id) ? "img/cheems/" + skin_r2.img : "img/cheems/locked-cheems.png", \u0275\u0275sanitizeUrl)("alt", skin_r2.id);
+    \u0275\u0275property("src", ctx_r2.tools.isCheemsUnlocked(skin_r2.id) ? ctx_r2.tools.getCheemsImg(skin_r2.id) : "img/cheems/locked-cheems.png", \u0275\u0275sanitizeUrl)("alt", skin_r2.id);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r2.tools.lang === "es" ? skin_r2.nameEs : skin_r2.nameEn);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getCheemsName(skin_r2));
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r2.tools.selectedCheems === skin_r2.id ? 5 : ctx_r2.tools.isCheemsUnlocked(skin_r2.id) ? 6 : 7);
   }
@@ -37251,7 +37736,7 @@ function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
 function ClosetComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_8_For_2_Template, 8, 9, "div", 3, _forTrack02);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_8_For_2_Template, 8, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -37291,9 +37776,9 @@ function ClosetComponent_Conditional_9_For_2_Conditional_7_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const sound_r5 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(3);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1("", sound_r5.cost, " DGC");
+    \u0275\u0275textInterpolate((ctx_r2.tools.closet[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.closet[ctx_r2.tools.lang].inShop) || "In Shop");
   }
 }
 function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
@@ -37318,9 +37803,9 @@ function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
     \u0275\u0275classMapInterpolate1("shop-card ", ctx_r2.tools.themeColor, "");
     \u0275\u0275classProp("selected-cheems", ctx_r2.tools.selectedSound === sound_r5.id);
     \u0275\u0275advance();
-    \u0275\u0275property("src", ctx_r2.tools.isSoundUnlocked(sound_r5.id) ? "img/icons/sound-svgrepo-com.svg" : "img/icons/black-sound-svgrepo-com.svg", \u0275\u0275sanitizeUrl)("alt", sound_r5.name);
+    \u0275\u0275property("src", ctx_r2.tools.isSoundUnlocked(sound_r5.id) ? "img/icons/sound-svgrepo-com.svg" : "img/icons/black-sound-svgrepo-com.svg", \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getSoundName(sound_r5));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(sound_r5.name);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getSoundName(sound_r5));
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r2.tools.selectedSound === sound_r5.id ? 5 : ctx_r2.tools.isSoundUnlocked(sound_r5.id) ? 6 : 7);
   }
@@ -37328,7 +37813,7 @@ function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
 function ClosetComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_9_For_2_Template, 8, 9, "div", 3, _forTrack02);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_9_For_2_Template, 8, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -37343,7 +37828,8 @@ function ClosetComponent_Conditional_10_For_2_Conditional_1_Template(rf, ctx) {
   }
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275property("alt", track_r7.name);
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_2_Template(rf, ctx) {
@@ -37352,7 +37838,8 @@ function ClosetComponent_Conditional_10_For_2_Conditional_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275property("alt", track_r7.name);
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_3_Template(rf, ctx) {
@@ -37361,7 +37848,8 @@ function ClosetComponent_Conditional_10_For_2_Conditional_3_Template(rf, ctx) {
   }
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275property("alt", track_r7.name);
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
@@ -37395,9 +37883,9 @@ function ClosetComponent_Conditional_10_For_2_Conditional_9_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const track_r7 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(3);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1("", track_r7.cost, " DGC");
+    \u0275\u0275textInterpolate((ctx_r2.tools.closet[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.closet[ctx_r2.tools.lang].inShop) || "In Shop");
   }
 }
 function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
@@ -37424,7 +37912,7 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r2.tools.isMusicUnlocked(track_r7.id) ? 1 : track_r7.id === 0 ? 2 : 3);
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate(track_r7.name);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getMusicName(track_r7));
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r2.tools.selectedMusic === track_r7.id ? 7 : ctx_r2.tools.isMusicUnlocked(track_r7.id) ? 8 : 9);
   }
@@ -37432,7 +37920,7 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
 function ClosetComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_10_For_2_Template, 10, 8, "div", 3, _forTrack02);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_10_For_2_Template, 10, 8, "div", 3, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -37537,21 +38025,21 @@ var ClosetComponent = class _ClosetComponent {
 
     @if (activeTab === 'cheems') {
         <div class="shop-grid">
-            @for (skin of tools.cheemsSkins; track skin.id) {
+            @for (skin of tools.cheemsSkins; track $index) {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedCheems === skin.id"
                      (click)="onSelectCheems(skin)">
-                    <img [src]="tools.isCheemsUnlocked(skin.id) ? 'img/cheems/' + skin.img : 'img/cheems/locked-cheems.png'"
+                    <img [src]="tools.isCheemsUnlocked(skin.id) ? tools.getCheemsImg(skin.id) : 'img/cheems/locked-cheems.png'"
                          class="item-img"
                          [alt]="skin.id">
                     <div class="item-info">
-                        <span class="item-name">{{tools.lang === 'es' ? skin.nameEs : skin.nameEn}}</span>
+                        <span class="item-name">{{tools.getCheemsName(skin)}}</span>
                         @if (tools.selectedCheems === skin.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else if (tools.isCheemsUnlocked(skin.id)) {
                             <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         } @else {
-                            <span class="status-badge cost-badge">{{skin.cost}} DGC</span>
+                            <span class="status-badge cost-badge">{{tools.closet[tools.lang]?.inShop || 'In Shop'}}</span>
                         }
                     </div>
                 </div>
@@ -37561,21 +38049,21 @@ var ClosetComponent = class _ClosetComponent {
 
     @if (activeTab === 'sounds') {
         <div class="shop-grid">
-            @for (sound of tools.soundEffects; track sound.id) {
+            @for (sound of tools.soundEffects; track $index) {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedSound === sound.id"
                      (click)="onSelectSound(sound)">
                     <img [src]="tools.isSoundUnlocked(sound.id) ? 'img/icons/sound-svgrepo-com.svg' : 'img/icons/black-sound-svgrepo-com.svg'"
                          class="item-icon"
-                         [alt]="sound.name">
+                         [alt]="tools.getSoundName(sound)">
                     <div class="item-info">
-                        <span class="item-name">{{sound.name}}</span>
+                        <span class="item-name">{{tools.getSoundName(sound)}}</span>
                         @if (tools.selectedSound === sound.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else if (tools.isSoundUnlocked(sound.id)) {
                             <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         } @else {
-                            <span class="status-badge cost-badge">{{sound.cost}} DGC</span>
+                            <span class="status-badge cost-badge">{{tools.closet[tools.lang]?.inShop || 'In Shop'}}</span>
                         }
                     </div>
                 </div>
@@ -37585,25 +38073,25 @@ var ClosetComponent = class _ClosetComponent {
 
     @if (activeTab === 'music') {
         <div class="shop-grid">
-            @for (track of tools.musicTracks; track track.id) {
+            @for (track of tools.musicTracks; track $index) {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedMusic === track.id"
                      (click)="onSelectMusic(track)">
                     @if (!tools.isMusicUnlocked(track.id)) {
-                        <img src="img/icons/black-music-svgrepo-com.svg" class="item-icon" [alt]="track.name">
+                        <img src="img/icons/black-music-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else if (track.id === 0) {
-                        <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="track.name">
+                        <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else {
-                        <img src="img/icons/music-svgrepo-com.svg" class="item-icon" [alt]="track.name">
+                        <img src="img/icons/music-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     }
                     <div class="item-info">
-                        <span class="item-name">{{track.name}}</span>
+                        <span class="item-name">{{tools.getMusicName(track)}}</span>
                         @if (tools.selectedMusic === track.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else if (tools.isMusicUnlocked(track.id)) {
                             <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         } @else {
-                            <span class="status-badge cost-badge">{{track.cost}} DGC</span>
+                            <span class="status-badge cost-badge">{{tools.closet[tools.lang]?.inShop || 'In Shop'}}</span>
                         }
                     </div>
                 </div>
@@ -37740,6 +38228,1052 @@ var P404Component = class _P404Component {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(P404Component, { className: "P404Component", filePath: "src/app/pages/p404/p404.component.ts", lineNumber: 10 });
 })();
 
+// src/app/pages/offline/offline.component.ts
+var _forTrack03 = ($index, $item) => $item.id;
+function OfflineComponent_For_11_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 13);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" \u2713 ", ctx_r0.tools.offline[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.offline[ctx_r0.tools.lang].downloaded, " ");
+  }
+}
+function OfflineComponent_For_11_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 14);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const cat_r2 = \u0275\u0275nextContext().$implicit;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" \u23F3 ", ctx_r0.downloadProgress[cat_r2.id], "% ");
+  }
+}
+function OfflineComponent_For_11_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 16);
+    \u0275\u0275listener("click", function OfflineComponent_For_11_Conditional_12_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const cat_r2 = \u0275\u0275nextContext().$implicit;
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.downloadCategory(cat_r2));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMapInterpolate1("status-tick download-btn ", ctx_r0.tools.themeColor, "");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" \u2B07 ", ctx_r0.tools.offline[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.offline[ctx_r0.tools.lang].download, " ");
+  }
+}
+function OfflineComponent_For_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "div", 7)(2, "div", 8)(3, "span", 9);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "span", 10);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 11);
+    \u0275\u0275text(8);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(9, "div", 12);
+    \u0275\u0275template(10, OfflineComponent_For_11_Conditional_10_Template, 2, 1, "span", 13)(11, OfflineComponent_For_11_Conditional_11_Template, 2, 1, "span", 14)(12, OfflineComponent_For_11_Conditional_12_Template, 2, 4, "button", 15);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const cat_r2 = ctx.$implicit;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275classMapInterpolate1("category-card ", ctx_r0.tools.themeColor, "");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(ctx_r0.tools.offline[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.offline[ctx_r0.tools.lang][cat_r2.titleKey]);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(cat_r2.sizeLabel);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.tools.offline[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.offline[ctx_r0.tools.lang][cat_r2.descKey]);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.cachedStatus[cat_r2.id] ? 10 : ctx_r0.downloadingStatus[cat_r2.id] ? 11 : 12);
+  }
+}
+var OfflineComponent = class _OfflineComponent {
+  tools = inject(ToolsService);
+  cachedStatus = {
+    essentials: false,
+    sfx: false,
+    music: false
+  };
+  downloadingStatus = {
+    essentials: false,
+    sfx: false,
+    music: false
+  };
+  downloadProgress = {
+    essentials: 0,
+    sfx: 0,
+    music: 0
+  };
+  isDownloadingAll = false;
+  ngOnInit() {
+    this.tools.setTitle("offline");
+    this.tools.actPage = "offline";
+    this.checkAllCached();
+  }
+  checkAllCached() {
+    return __async(this, null, function* () {
+      for (const cat of this.tools.offlineCategories) {
+        this.cachedStatus[cat.id] = yield this.tools.checkCategoryCached(cat);
+      }
+    });
+  }
+  downloadCategory(cat) {
+    return __async(this, null, function* () {
+      if (this.downloadingStatus[cat.id] || this.cachedStatus[cat.id])
+        return;
+      this.downloadingStatus[cat.id] = true;
+      this.downloadProgress[cat.id] = 0;
+      const success = yield this.tools.cacheCategory(cat, (progress) => {
+        this.downloadProgress[cat.id] = progress;
+      });
+      this.downloadingStatus[cat.id] = false;
+      if (success) {
+        this.cachedStatus[cat.id] = true;
+        this.tools.showToast(this.tools.offline[this.tools.lang]?.successToast || "Downloaded successfully!");
+        this.tools.playSound();
+      } else {
+        this.tools.showToast(this.tools.offline[this.tools.lang]?.errorToast || "Error downloading resources.");
+      }
+    });
+  }
+  downloadAll() {
+    return __async(this, null, function* () {
+      if (this.isDownloadingAll)
+        return;
+      this.isDownloadingAll = true;
+      for (const cat of this.tools.offlineCategories) {
+        if (!this.cachedStatus[cat.id]) {
+          yield this.downloadCategory(cat);
+        }
+      }
+      this.isDownloadingAll = false;
+    });
+  }
+  static \u0275fac = function OfflineComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _OfflineComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _OfflineComponent, selectors: [["app-offline"]], decls: 12, vars: 10, consts: [[1, "container"], [1, "header-section"], [1, "offline-title"], [1, "offline-subtitle"], [3, "click", "disabled"], [1, "categories-list"], [3, "class"], [1, "cat-info"], [1, "cat-title-row"], [1, "cat-title"], [1, "size-badge"], [1, "cat-desc"], [1, "cat-action"], ["title", "Downloaded", 1, "status-tick", "downloaded-tick"], [1, "status-tick", "downloading-tick"], ["title", "Download", 3, "class"], ["title", "Download", 3, "click"]], template: function OfflineComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1)(3, "h2", 2);
+      \u0275\u0275text(4);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(5, "p", 3);
+      \u0275\u0275text(6);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(7, "button", 4);
+      \u0275\u0275listener("click", function OfflineComponent_Template_button_click_7_listener() {
+        return ctx.downloadAll();
+      });
+      \u0275\u0275text(8);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(9, "div", 5);
+      \u0275\u0275repeaterCreate(10, OfflineComponent_For_11_Template, 13, 7, "div", 6, _forTrack03);
+      \u0275\u0275elementEnd()()();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " offline-box");
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate(ctx.tools.offline[ctx.tools.lang] == null ? null : ctx.tools.offline[ctx.tools.lang].title);
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.tools.offline[ctx.tools.lang] == null ? null : ctx.tools.offline[ctx.tools.lang].subtitle);
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, " download-all-btn");
+      \u0275\u0275property("disabled", ctx.isDownloadingAll);
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate1(" \u2B07 ", ctx.tools.offline[ctx.tools.lang] == null ? null : ctx.tools.offline[ctx.tools.lang].downloadAll, " ");
+      \u0275\u0275advance(2);
+      \u0275\u0275repeater(ctx.tools.offlineCategories);
+    }
+  }, styles: ["\n\n.offline-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 2rem;\n  width: 90%;\n  max-width: 800px;\n  margin: 2rem auto;\n  padding: 2.5rem;\n}\n.header-section[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n  gap: 0.85rem;\n  border-bottom: 2px solid rgba(255, 255, 255, 0.15);\n  padding-bottom: 1.5rem;\n}\n.offline-title[_ngcontent-%COMP%] {\n  font-size: 1.8em;\n  font-weight: 900;\n  margin: 0;\n}\n.offline-subtitle[_ngcontent-%COMP%] {\n  font-size: 1em;\n  opacity: 0.9;\n  margin: 0;\n  max-width: 600px;\n}\n.download-all-btn[_ngcontent-%COMP%] {\n  padding: 0.85rem 1.75rem;\n  font-size: 1.1em;\n  font-weight: 900;\n  cursor: pointer;\n  border-radius: 14px;\n  margin-top: 0.5rem;\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n.download-all-btn[_ngcontent-%COMP%]:hover:not([disabled]) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);\n}\n.download-all-btn[disabled][_ngcontent-%COMP%] {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.categories-list[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 1.25rem;\n}\n.category-card[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem 1.5rem;\n  border-radius: 16px;\n  background: rgba(0, 0, 0, 0.25);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  gap: 1rem;\n  transition: transform 0.2s ease;\n}\n.cat-info[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n  flex: 1;\n}\n.cat-title-row[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.75rem;\n  flex-wrap: wrap;\n}\n.cat-title[_ngcontent-%COMP%] {\n  font-size: 1.25em;\n  font-weight: 900;\n}\n.size-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 209, 102, 0.2);\n  color: #ffd166;\n  padding: 0.2rem 0.65rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 800;\n  border: 1px solid rgba(255, 209, 102, 0.4);\n}\nbody.theme-light[_ngcontent-%COMP%]   .size-badge[_ngcontent-%COMP%] {\n  background: rgba(156, 92, 20, 0.15);\n  color: #9c5c14;\n  border-color: rgba(156, 92, 20, 0.3);\n}\nbody.theme-contrast[_ngcontent-%COMP%]   .size-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 1px solid #ffff00;\n}\n.cat-desc[_ngcontent-%COMP%] {\n  font-size: 0.95em;\n  opacity: 0.85;\n}\n.cat-action[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  flex-shrink: 0;\n}\n.status-tick[_ngcontent-%COMP%] {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 900;\n  font-size: 1em;\n}\n.downloaded-tick[_ngcontent-%COMP%] {\n  background: #28a745;\n  color: #ffffff;\n  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);\n}\n.downloading-tick[_ngcontent-%COMP%] {\n  background: #fd7e14;\n  color: #ffffff;\n  box-shadow: 0 4px 12px rgba(253, 126, 20, 0.35);\n}\n.download-btn[_ngcontent-%COMP%] {\n  cursor: pointer;\n  background: #ffd166;\n  color: #1a1612;\n  border: none;\n  transition: transform 0.2s ease, background 0.2s ease;\n}\n.download-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\nbody.theme-light[_ngcontent-%COMP%]   .download-btn[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #ffffff;\n}\nbody.theme-contrast[_ngcontent-%COMP%]   .download-btn[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n}\n@media (max-width: 650px) {\n  .category-card[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: flex-start;\n  }\n  .cat-action[_ngcontent-%COMP%] {\n    width: 100%;\n    justify-content: flex-end;\n    margin-top: 0.5rem;\n  }\n  .status-tick[_ngcontent-%COMP%] {\n    width: 100%;\n  }\n}\n/*# sourceMappingURL=offline.component.css.map */"] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(OfflineComponent, [{
+    type: Component,
+    args: [{ selector: "app-offline", imports: [], template: '<div class="container">\n    <div class="group {{tools.themeColor}} offline-box">\n        <div class="header-section">\n            <h2 class="offline-title">{{tools.offline[tools.lang]?.title}}</h2>\n            <p class="offline-subtitle">{{tools.offline[tools.lang]?.subtitle}}</p>\n            <button class="btn-card {{tools.themeColor}} download-all-btn"\n                    [disabled]="isDownloadingAll"\n                    (click)="downloadAll()">\n                \u2B07 {{tools.offline[tools.lang]?.downloadAll}}\n            </button>\n        </div>\n\n        <div class="categories-list">\n            @for (cat of tools.offlineCategories; track cat.id) {\n                <div class="category-card {{tools.themeColor}}">\n                    <div class="cat-info">\n                        <div class="cat-title-row">\n                            <span class="cat-title">{{tools.offline[tools.lang]?.[cat.titleKey]}}</span>\n                            <span class="size-badge">{{cat.sizeLabel}}</span>\n                        </div>\n                        <div class="cat-desc">{{tools.offline[tools.lang]?.[cat.descKey]}}</div>\n                    </div>\n\n                    <div class="cat-action">\n                        @if (cachedStatus[cat.id]) {\n                            <span class="status-tick downloaded-tick" title="Downloaded">\n                                \u2713 {{tools.offline[tools.lang]?.downloaded}}\n                            </span>\n                        } @else if (downloadingStatus[cat.id]) {\n                            <span class="status-tick downloading-tick">\n                                \u23F3 {{downloadProgress[cat.id]}}%\n                            </span>\n                        } @else {\n                            <button class="status-tick download-btn {{tools.themeColor}}"\n                                    (click)="downloadCategory(cat)"\n                                    title="Download">\n                                \u2B07 {{tools.offline[tools.lang]?.download}}\n                            </button>\n                        }\n                    </div>\n                </div>\n            }\n        </div>\n    </div>\n</div>\n', styles: ["/* src/app/pages/offline/offline.component.css */\n.offline-box {\n  display: flex;\n  flex-direction: column;\n  gap: 2rem;\n  width: 90%;\n  max-width: 800px;\n  margin: 2rem auto;\n  padding: 2.5rem;\n}\n.header-section {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n  gap: 0.85rem;\n  border-bottom: 2px solid rgba(255, 255, 255, 0.15);\n  padding-bottom: 1.5rem;\n}\n.offline-title {\n  font-size: 1.8em;\n  font-weight: 900;\n  margin: 0;\n}\n.offline-subtitle {\n  font-size: 1em;\n  opacity: 0.9;\n  margin: 0;\n  max-width: 600px;\n}\n.download-all-btn {\n  padding: 0.85rem 1.75rem;\n  font-size: 1.1em;\n  font-weight: 900;\n  cursor: pointer;\n  border-radius: 14px;\n  margin-top: 0.5rem;\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n.download-all-btn:hover:not([disabled]) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);\n}\n.download-all-btn[disabled] {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.categories-list {\n  display: flex;\n  flex-direction: column;\n  gap: 1.25rem;\n}\n.category-card {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem 1.5rem;\n  border-radius: 16px;\n  background: rgba(0, 0, 0, 0.25);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  gap: 1rem;\n  transition: transform 0.2s ease;\n}\n.cat-info {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n  flex: 1;\n}\n.cat-title-row {\n  display: flex;\n  align-items: center;\n  gap: 0.75rem;\n  flex-wrap: wrap;\n}\n.cat-title {\n  font-size: 1.25em;\n  font-weight: 900;\n}\n.size-badge {\n  background: rgba(255, 209, 102, 0.2);\n  color: #ffd166;\n  padding: 0.2rem 0.65rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 800;\n  border: 1px solid rgba(255, 209, 102, 0.4);\n}\nbody.theme-light .size-badge {\n  background: rgba(156, 92, 20, 0.15);\n  color: #9c5c14;\n  border-color: rgba(156, 92, 20, 0.3);\n}\nbody.theme-contrast .size-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 1px solid #ffff00;\n}\n.cat-desc {\n  font-size: 0.95em;\n  opacity: 0.85;\n}\n.cat-action {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  flex-shrink: 0;\n}\n.status-tick {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 900;\n  font-size: 1em;\n}\n.downloaded-tick {\n  background: #28a745;\n  color: #ffffff;\n  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);\n}\n.downloading-tick {\n  background: #fd7e14;\n  color: #ffffff;\n  box-shadow: 0 4px 12px rgba(253, 126, 20, 0.35);\n}\n.download-btn {\n  cursor: pointer;\n  background: #ffd166;\n  color: #1a1612;\n  border: none;\n  transition: transform 0.2s ease, background 0.2s ease;\n}\n.download-btn:hover {\n  transform: scale(1.05);\n}\nbody.theme-light .download-btn {\n  background: #9c5c14;\n  color: #ffffff;\n}\nbody.theme-contrast .download-btn {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n}\n@media (max-width: 650px) {\n  .category-card {\n    flex-direction: column;\n    align-items: flex-start;\n  }\n  .cat-action {\n    width: 100%;\n    justify-content: flex-end;\n    margin-top: 0.5rem;\n  }\n  .status-tick {\n    width: 100%;\n  }\n}\n/*# sourceMappingURL=offline.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(OfflineComponent, { className: "OfflineComponent", filePath: "src/app/pages/offline/offline.component.ts", lineNumber: 11 });
+})();
+
+// src/app/pages/shop/shop.component.ts
+var _c0 = (a0) => ({ $implicit: a0 });
+var _forTrack04 = ($index, $item) => $item.id;
+function ShopComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 19);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_7_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-dogecoin"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].dogecoinSection) || "DogeCoins", " ");
+  }
+}
+function ShopComponent_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 20);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_8_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-booster"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].boosterSection) || "Boosters", " ");
+  }
+}
+function ShopComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 21);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_9_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-cheems"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].cheemsSection) || "Cheems Skins", " ");
+  }
+}
+function ShopComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 22);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-sound"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].sfxSection) || "Sound Effects", " ");
+  }
+}
+function ShopComponent_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_11_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-music"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].musicSection) || "Background Music", " ");
+  }
+}
+function ShopComponent_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 11)(1, "div", 24);
+    \u0275\u0275text(2, "\u26A1");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 25)(4, "span", 26);
+    \u0275\u0275text(5);
+    \u0275\u0275elementStart(6, "strong");
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(8, "span", 27);
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].activeBooster) || "Active Booster:", " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2("x", ctx_r2.tools.getActiveMultiplier(), " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].pointsPerClick) || "Points per Click", "");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2(" \u23F3 ", ctx_r2.tools.getBoosterFormattedTime(), " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remaining) || "remaining", " ");
+  }
+}
+function ShopComponent_ng_template_26_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 30);
+  }
+  if (rf & 2) {
+    const item_r8 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275property("src", ctx_r2.getShopCardIcon(item_r8), \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getShopItemName(item_r8));
+  }
+}
+function ShopComponent_ng_template_26_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 31);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r8 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(item_r8.icon);
+  }
+}
+function ShopComponent_ng_template_26_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 32);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r8 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1("x", item_r8.multiplier || 1, "");
+  }
+}
+function ShopComponent_ng_template_26_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 36);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
+  }
+}
+function ShopComponent_ng_template_26_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 39);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r8 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("limit-reached", !ctx_r2.tools.canBuyDailyLimit(item_r8));
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate3(" ", ctx_r2.tools.getRemainingDailyLimit(item_r8), " / ", item_r8.dailyLimit, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remainingToday) || "left today", " ");
+  }
+}
+function ShopComponent_ng_template_26_Conditional_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 40)(1, "span", 41);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "button", 42);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
+  }
+}
+function ShopComponent_ng_template_26_Conditional_14_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 43);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].todaysPrice) || "Today's Price:");
+  }
+}
+function ShopComponent_ng_template_26_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 40);
+    \u0275\u0275template(1, ShopComponent_ng_template_26_Conditional_14_Conditional_1_Template, 2, 1, "span", 43);
+    \u0275\u0275elementStart(2, "span", 44);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(4, "button", 45);
+    \u0275\u0275listener("click", function ShopComponent_ng_template_26_Conditional_14_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r9);
+      const item_r8 = \u0275\u0275nextContext().$implicit;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.buyItem(item_r8));
+    });
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r8 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275conditional(item_r8.type === "dogecoin" ? 1 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("free-cost", ctx_r2.formatItemCost(item_r8) === ((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].free) || "Free"));
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.formatItemCost(item_r8));
+    \u0275\u0275advance();
+    \u0275\u0275property("disabled", !ctx_r2.canBuy(item_r8));
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].buyBtn) || "Buy", " ");
+  }
+}
+function ShopComponent_ng_template_26_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 28)(1, "div", 29);
+    \u0275\u0275template(2, ShopComponent_ng_template_26_Conditional_2_Template, 1, 2, "img", 30)(3, ShopComponent_ng_template_26_Conditional_3_Template, 2, 1, "span", 31)(4, ShopComponent_ng_template_26_Conditional_4_Template, 2, 1, "span", 32);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 33)(6, "h3", 34);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "p", 35);
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(10, ShopComponent_ng_template_26_Conditional_10_Template, 2, 1, "div", 36)(11, ShopComponent_ng_template_26_Conditional_11_Template, 2, 5, "div", 37);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "div", 38);
+    \u0275\u0275template(13, ShopComponent_ng_template_26_Conditional_13_Template, 5, 2)(14, ShopComponent_ng_template_26_Conditional_14_Template, 6, 6);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const item_r8 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("coin-card", item_r8.type === "dogecoin")("booster-card", item_r8.type === "booster")("cheems-card", item_r8.type === "cheems")("sound-card", item_r8.type === "sound")("music-card", item_r8.type === "music");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(item_r8.icon.endsWith(".svg") || item_r8.icon.endsWith(".png") ? 2 : 3);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(item_r8.type === "booster" ? 4 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemName(item_r8));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemDesc(item_r8));
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r8) ? 10 : item_r8.dailyLimit && item_r8.dailyLimit > 0 ? 11 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r8) ? 13 : 14);
+  }
+}
+function ShopComponent_Conditional_28_For_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function ShopComponent_Conditional_28_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShopComponent_Conditional_28_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+  }
+  if (rf & 2) {
+    const item_r10 = ctx.$implicit;
+    \u0275\u0275nextContext(2);
+    const shopCard_r11 = \u0275\u0275reference(27);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r10));
+  }
+}
+function ShopComponent_Conditional_28_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 46)(1, "h2", 47);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "div", 48);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_28_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].dogecoinSection) || "DogeCoins");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.dogecoinItems);
+  }
+}
+function ShopComponent_Conditional_29_For_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function ShopComponent_Conditional_29_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShopComponent_Conditional_29_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+  }
+  if (rf & 2) {
+    const item_r12 = ctx.$implicit;
+    \u0275\u0275nextContext(2);
+    const shopCard_r11 = \u0275\u0275reference(27);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r12));
+  }
+}
+function ShopComponent_Conditional_29_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 50)(1, "h2", 51);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "div", 48);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_29_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].boosterSection) || "Boosters");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.boosterItems);
+  }
+}
+function ShopComponent_Conditional_30_For_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function ShopComponent_Conditional_30_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShopComponent_Conditional_30_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+  }
+  if (rf & 2) {
+    const item_r13 = ctx.$implicit;
+    \u0275\u0275nextContext(2);
+    const shopCard_r11 = \u0275\u0275reference(27);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r13));
+  }
+}
+function ShopComponent_Conditional_30_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 52)(1, "h2", 53);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "div", 48);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_30_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].cheemsSection) || "Cheems Skins");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.cheemsItems);
+  }
+}
+function ShopComponent_Conditional_31_For_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function ShopComponent_Conditional_31_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShopComponent_Conditional_31_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+  }
+  if (rf & 2) {
+    const item_r14 = ctx.$implicit;
+    \u0275\u0275nextContext(2);
+    const shopCard_r11 = \u0275\u0275reference(27);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r14));
+  }
+}
+function ShopComponent_Conditional_31_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 54)(1, "h2", 55);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "div", 48);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_31_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].sfxSection) || "Sound Effects");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.soundItems);
+  }
+}
+function ShopComponent_Conditional_32_For_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function ShopComponent_Conditional_32_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShopComponent_Conditional_32_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+  }
+  if (rf & 2) {
+    const item_r15 = ctx.$implicit;
+    \u0275\u0275nextContext(2);
+    const shopCard_r11 = \u0275\u0275reference(27);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r15));
+  }
+}
+function ShopComponent_Conditional_32_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 56)(1, "h2", 57);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "div", 48);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_32_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].musicSection) || "Background Music");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.musicItems);
+  }
+}
+var ShopComponent = class _ShopComponent {
+  tools = inject(ToolsService);
+  dailyPrice = 100;
+  showScrollTop = false;
+  timerInterval = null;
+  ngOnInit() {
+    this.tools.setTitle("shop");
+    this.tools.actPage = "shop";
+    this.dailyPrice = this.tools.getDailyDogeCoinPrice();
+    if (this.tools.shopItems.length === 0) {
+      this.tools.loadShopItems();
+    }
+    this.timerInterval = setInterval(() => {
+    }, 1e3);
+  }
+  ngOnDestroy() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+  }
+  onWindowScroll() {
+    this.showScrollTop = window.scrollY > 300;
+  }
+  buyItem(item) {
+    if (!this.tools.canBuyDailyLimit(item)) {
+      this.tools.showToast(this.tools.shop[this.tools.lang]?.dailyLimitReached || "Daily limit reached!");
+      return;
+    }
+    if (this.tools.isLifetimeLimitReached(item)) {
+      return;
+    }
+    if (item.type === "dogecoin") {
+      this.tools.buyDogeCoin();
+    } else if (item.type === "booster") {
+      const ptsCost = item.cost || 0;
+      const coinCost = item.costCoins || 0;
+      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost) {
+        const isOverride = this.tools.boosterEndTime !== 0 && this.tools.getBoosterRemainingSeconds() > 0 && this.tools.boosterMultiplier !== item.multiplier;
+        if (isOverride) {
+          const warningTemplate = this.tools.shop[this.tools.lang]?.boosterOverrideWarning || "Warning! You already have an active x{current} booster. Buying a x{new} booster will override your remaining time. Do you want to continue?";
+          const warningMsg = warningTemplate.replace("{current}", String(this.tools.boosterMultiplier)).replace("{new}", String(item.multiplier || 1));
+          if (!confirm(warningMsg)) {
+            return;
+          }
+        }
+        this.tools.points -= ptsCost;
+        this.tools.dogeCoins -= coinCost;
+        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
+        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
+        this.tools.recordDailyPurchase(item.id);
+        this.tools.activateBooster(item.multiplier || 1, item.durationMin || 0);
+      } else {
+        if (this.tools.points < ptsCost) {
+          this.tools.showToast(this.tools.shop[this.tools.lang]?.needMorePoints || "Not enough points!");
+        } else {
+          this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough DogeCoins!");
+        }
+      }
+    } else if (item.type === "cheems" || item.type === "sound" || item.type === "music") {
+      this.tools.buyShopUnlockableItem(item);
+    }
+  }
+  canBuy(item) {
+    if (this.tools.isLifetimeLimitReached(item)) {
+      return false;
+    }
+    if (!this.tools.canBuyDailyLimit(item)) {
+      return false;
+    }
+    const ptsCost = item.type === "dogecoin" ? this.dailyPrice : item.cost || 0;
+    const coinsCost = item.type === "dogecoin" ? 0 : item.costCoins || 0;
+    return this.tools.points >= ptsCost && this.tools.dogeCoins >= coinsCost;
+  }
+  formatItemCost(item) {
+    const ptsCost = item.type === "dogecoin" ? this.dailyPrice : item.cost || 0;
+    const coinsCost = item.type === "dogecoin" ? 0 : item.costCoins || 0;
+    if (ptsCost === 0 && coinsCost === 0) {
+      return this.tools.shop[this.tools.lang]?.free || "Free";
+    }
+    const parts = [];
+    if (ptsCost > 0) {
+      parts.push(`${ptsCost.toLocaleString()} Pts`);
+    }
+    if (coinsCost > 0) {
+      parts.push(`${coinsCost.toLocaleString()} DGC`);
+    }
+    return parts.join(" + ");
+  }
+  get dogecoinItems() {
+    return this.tools.shopItems.filter((i) => i.type === "dogecoin");
+  }
+  get boosterItems() {
+    return this.tools.shopItems.filter((i) => i.type === "booster");
+  }
+  get cheemsItems() {
+    return this.tools.shopItems.filter((i) => i.type === "cheems");
+  }
+  get soundItems() {
+    return this.tools.shopItems.filter((i) => i.type === "sound");
+  }
+  get musicItems() {
+    return this.tools.shopItems.filter((i) => i.type === "music");
+  }
+  scrollToSection(sectionId) {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+  scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    const el = document.getElementById("shop-top");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+  getShopCardIcon(item) {
+    if (this.tools.isLifetimeLimitReached(item)) {
+      return item.icon;
+    }
+    if (item.type === "cheems") {
+      return "img/cheems/locked-cheems.png";
+    }
+    if (item.type === "sound") {
+      return "img/icons/black-sound-svgrepo-com.svg";
+    }
+    if (item.type === "music") {
+      return "img/icons/black-music-svgrepo-com.svg";
+    }
+    return item.icon;
+  }
+  static \u0275fac = function ShopComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _ShopComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ShopComponent, selectors: [["app-shop"]], hostBindings: function ShopComponent_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("scroll", function ShopComponent_scroll_HostBindingHandler() {
+        return ctx.onWindowScroll();
+      }, false, \u0275\u0275resolveWindow);
+    }
+  }, decls: 35, vars: 25, consts: [["shopCard", ""], ["id", "shop-top"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin-min.png", "alt", "DogeCoin", 1, "mini-coin-icon"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      const _r1 = \u0275\u0275getCurrentView();
+      \u0275\u0275elementStart(0, "div", 1)(1, "header", 2)(2, "h1", 3);
+      \u0275\u0275text(3);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(4, "p", 4);
+      \u0275\u0275text(5);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(6, "div", 5);
+      \u0275\u0275template(7, ShopComponent_Conditional_7_Template, 2, 1, "button", 6)(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 8)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 9)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 10);
+      \u0275\u0275elementEnd();
+      \u0275\u0275template(12, ShopComponent_Conditional_12_Template, 10, 5, "div", 11);
+      \u0275\u0275elementStart(13, "div", 12)(14, "div", 13)(15, "span", 14);
+      \u0275\u0275text(16, "Points:");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(17, "span", 15);
+      \u0275\u0275text(18);
+      \u0275\u0275pipe(19, "number");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(20, "div", 13)(21, "span", 14);
+      \u0275\u0275text(22, "DogeCoins:");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(23, "span", 16);
+      \u0275\u0275element(24, "img", 17);
+      \u0275\u0275text(25);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275template(26, ShopComponent_ng_template_26_Template, 15, 16, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(28, ShopComponent_Conditional_28_Template, 6, 1)(29, ShopComponent_Conditional_29_Template, 6, 1)(30, ShopComponent_Conditional_30_Template, 6, 1)(31, ShopComponent_Conditional_31_Template, 6, 1)(32, ShopComponent_Conditional_32_Template, 6, 1);
+      \u0275\u0275elementStart(33, "button", 18);
+      \u0275\u0275listener("click", function ShopComponent_Template_button_click_33_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.scrollToTop());
+      });
+      \u0275\u0275text(34, " \u2191 ");
+      \u0275\u0275elementEnd()();
+    }
+    if (rf & 2) {
+      \u0275\u0275classMapInterpolate1("shop-container ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate((ctx.tools.shop[ctx.tools.lang] == null ? null : ctx.tools.shop[ctx.tools.lang].title) || "Shop");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.tools.shop[ctx.tools.lang] == null ? null : ctx.tools.shop[ctx.tools.lang].subtitle);
+      \u0275\u0275advance(2);
+      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 7 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 8 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 9 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 10 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 11 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.tools.getBoosterRemainingSeconds() > 0 ? 12 : -1);
+      \u0275\u0275advance(6);
+      \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(19, 23, ctx.tools.points), " Pts");
+      \u0275\u0275advance(7);
+      \u0275\u0275textInterpolate1(" ", ctx.tools.dogeCoins, " ");
+      \u0275\u0275advance(3);
+      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 28 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 29 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 30 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 31 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 32 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("back-to-top-btn ", ctx.tools.themeColor, "");
+      \u0275\u0275classProp("visible", ctx.showScrollTop);
+    }
+  }, dependencies: [CommonModule, NgTemplateOutlet, DecimalPipe], styles: ['\n\n.shop-container[_ngcontent-%COMP%] {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn[_ngcontent-%COMP%] {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-dogecoin[_ngcontent-%COMP%] {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster[_ngcontent-%COMP%] {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems[_ngcontent-%COMP%] {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound[_ngcontent-%COMP%] {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music[_ngcontent-%COMP%] {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.section-separator[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator[_ngcontent-%COMP%]::before, \n.section-separator[_ngcontent-%COMP%]::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.dogecoin-title[_ngcontent-%COMP%] {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title[_ngcontent-%COMP%] {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title[_ngcontent-%COMP%] {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title[_ngcontent-%COMP%] {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title[_ngcontent-%COMP%] {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: _ngcontent-%COMP%_boosterPulse 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon[_ngcontent-%COMP%] {\n  font-size: 2.2rem;\n}\n.booster-banner-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label[_ngcontent-%COMP%] {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value[_ngcontent-%COMP%] {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.doge-val[_ngcontent-%COMP%] {\n  color: #ff9900;\n}\n.mini-coin-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card-icon-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.multiplier-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge[_ngcontent-%COMP%] {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible[_ngcontent-%COMP%] {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%]:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title[_ngcontent-%COMP%] {\n    font-size: 2rem;\n  }\n  .booster-banner-content[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar[_ngcontent-%COMP%] {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title[_ngcontent-%COMP%] {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn[_ngcontent-%COMP%] {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light[_ngcontent-%COMP%] {\n  color: #2b1f14;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #059669;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::before, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .multiplier-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */'] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ShopComponent, [{
+    type: Component,
+    args: [{ selector: "app-shop", standalone: true, imports: [CommonModule], template: `<div class="shop-container {{tools.themeColor}}" id="shop-top">
+    <!-- Header -->
+    <header class="shop-header">
+        <h1 class="shop-title">{{tools.shop[tools.lang]?.title || 'Shop'}}</h1>
+        <p class="shop-subtitle">{{tools.shop[tools.lang]?.subtitle}}</p>
+    </header>
+
+    <!-- Section Navigation Buttons -->
+    <div class="shop-nav-bar">
+        @if (dogecoinItems.length > 0) {
+            <button class="shop-nav-btn nav-dogecoin" (click)="scrollToSection('sec-dogecoin')">
+                {{tools.shop[tools.lang]?.dogecoinSection || 'DogeCoins'}}
+            </button>
+        }
+        @if (boosterItems.length > 0) {
+            <button class="shop-nav-btn nav-booster" (click)="scrollToSection('sec-booster')">
+                {{tools.shop[tools.lang]?.boosterSection || 'Boosters'}}
+            </button>
+        }
+        @if (cheemsItems.length > 0) {
+            <button class="shop-nav-btn nav-cheems" (click)="scrollToSection('sec-cheems')">
+                {{tools.shop[tools.lang]?.cheemsSection || 'Cheems Skins'}}
+            </button>
+        }
+        @if (soundItems.length > 0) {
+            <button class="shop-nav-btn nav-sound" (click)="scrollToSection('sec-sound')">
+                {{tools.shop[tools.lang]?.sfxSection || 'Sound Effects'}}
+            </button>
+        }
+        @if (musicItems.length > 0) {
+            <button class="shop-nav-btn nav-music" (click)="scrollToSection('sec-music')">
+                {{tools.shop[tools.lang]?.musicSection || 'Background Music'}}
+            </button>
+        }
+    </div>
+
+    <!-- Active Booster Banner -->
+    @if (tools.getBoosterRemainingSeconds() > 0) {
+        <div class="active-booster-banner">
+            <div class="booster-banner-icon">\u26A1</div>
+            <div class="booster-banner-content">
+                <span class="booster-banner-title">
+                    {{tools.shop[tools.lang]?.activeBooster || 'Active Booster:'}}
+                    <strong>x{{tools.getActiveMultiplier()}} {{tools.shop[tools.lang]?.pointsPerClick || 'Points per Click'}}</strong>
+                </span>
+                <span class="booster-banner-timer">
+                    \u23F3 {{tools.getBoosterFormattedTime()}} {{tools.shop[tools.lang]?.remaining || 'remaining'}}
+                </span>
+            </div>
+        </div>
+    }
+
+    <!-- Current Balance Status Bar -->
+    <div class="shop-balance-bar">
+        <div class="balance-item">
+            <span class="balance-label">Points:</span>
+            <span class="balance-value points-val">{{tools.points | number}} Pts</span>
+        </div>
+        <div class="balance-item">
+            <span class="balance-label">DogeCoins:</span>
+            <span class="balance-value doge-val">
+                <img src="img/dogecoin-min.png" class="mini-coin-icon" alt="DogeCoin">
+                {{tools.dogeCoins}}
+            </span>
+        </div>
+    </div>
+
+    <!-- Reusable Shop Card Template -->
+    <ng-template #shopCard let-item>
+        <div class="shop-card"
+             [class.coin-card]="item.type === 'dogecoin'"
+             [class.booster-card]="item.type === 'booster'"
+             [class.cheems-card]="item.type === 'cheems'"
+             [class.sound-card]="item.type === 'sound'"
+             [class.music-card]="item.type === 'music'">
+            <div class="shop-card-icon-wrapper">
+                @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png')) {
+                    <img [src]="getShopCardIcon(item)" class="shop-card-icon" [alt]="tools.getShopItemName(item)">
+                } @else {
+                    <span class="shop-card-emoji">{{item.icon}}</span>
+                }
+                @if (item.type === 'booster') {
+                    <span class="multiplier-badge">x{{item.multiplier || 1}}</span>
+                }
+            </div>
+
+            <div class="shop-card-info">
+                <h3 class="item-name">{{tools.getShopItemName(item)}}</h3>
+                <p class="item-desc">{{tools.getShopItemDesc(item)}}</p>
+                @if (tools.isLifetimeLimitReached(item)) {
+                    <div class="daily-limit-badge limit-reached">
+                        {{tools.shop[tools.lang]?.purchased || 'Purchased'}}
+                    </div>
+                } @else if (item.dailyLimit && item.dailyLimit > 0) {
+                    <div class="daily-limit-badge" [class.limit-reached]="!tools.canBuyDailyLimit(item)">
+                        {{tools.getRemainingDailyLimit(item)}} / {{item.dailyLimit}} {{tools.shop[tools.lang]?.remainingToday || 'left today'}}
+                    </div>
+                }
+            </div>
+
+            <div class="shop-card-footer">
+                @if (tools.isLifetimeLimitReached(item)) {
+                    <div class="item-cost">
+                        <span class="cost-val free-cost">{{tools.shop[tools.lang]?.purchased || 'Purchased'}}</span>
+                    </div>
+                    <button class="buy-btn" disabled>
+                        {{tools.shop[tools.lang]?.purchased || 'Purchased'}}
+                    </button>
+                } @else {
+                    <div class="item-cost">
+                        @if (item.type === 'dogecoin') {
+                            <span class="cost-label">{{tools.shop[tools.lang]?.todaysPrice || 'Today\\'s Price:'}}</span>
+                        }
+                        <span class="cost-val" [class.free-cost]="formatItemCost(item) === (tools.shop[tools.lang]?.free || 'Free')">{{formatItemCost(item)}}</span>
+                    </div>
+
+                    <button class="buy-btn"
+                            (click)="buyItem(item)"
+                            [disabled]="!canBuy(item)">
+                        {{tools.shop[tools.lang]?.buyBtn || 'Buy'}}
+                    </button>
+                }
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- DogeCoins Section -->
+    @if (dogecoinItems.length > 0) {
+        <div class="section-separator" id="sec-dogecoin">
+            <h2 class="section-title dogecoin-title">{{tools.shop[tools.lang]?.dogecoinSection || 'DogeCoins'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of dogecoinItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Boosters Section -->
+    @if (boosterItems.length > 0) {
+        <div class="section-separator" id="sec-booster">
+            <h2 class="section-title booster-title">{{tools.shop[tools.lang]?.boosterSection || 'Boosters'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of boosterItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Cheems Skins Section -->
+    @if (cheemsItems.length > 0) {
+        <div class="section-separator" id="sec-cheems">
+            <h2 class="section-title cheems-title">{{tools.shop[tools.lang]?.cheemsSection || 'Cheems Skins'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of cheemsItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Sound Effects Section -->
+    @if (soundItems.length > 0) {
+        <div class="section-separator" id="sec-sound">
+            <h2 class="section-title sound-title">{{tools.shop[tools.lang]?.sfxSection || 'Sound Effects'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of soundItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Music Tracks Section -->
+    @if (musicItems.length > 0) {
+        <div class="section-separator" id="sec-music">
+            <h2 class="section-title music-title">{{tools.shop[tools.lang]?.musicSection || 'Background Music'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of musicItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top-btn {{tools.themeColor}}"
+            [class.visible]="showScrollTop"
+            (click)="scrollToTop()"
+            aria-label="Back to top">
+        \u2191
+    </button>
+</div>
+`, styles: ['/* src/app/pages/shop/shop.component.css */\n.shop-container {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-dogecoin {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.section-separator {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator::before,\n.section-separator::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.dogecoin-title {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator:has(.dogecoin-title)::before,\n.section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator:has(.booster-title)::before,\n.section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator:has(.cheems-title)::before,\n.section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator:has(.sound-title)::before,\n.section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator:has(.music-title)::before,\n.section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: boosterPulse 2s infinite ease-in-out;\n}\n@keyframes boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon {\n  font-size: 2.2rem;\n}\n.booster-banner-content {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val {\n  color: #ffd700;\n}\n.doge-val {\n  color: #ff9900;\n}\n.mini-coin-icon {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card-icon-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji {\n  font-size: 3rem;\n}\n.multiplier-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title {\n    font-size: 2rem;\n  }\n  .booster-banner-content {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light {\n  color: #2b1f14;\n}\n.shop-container.theme-light .shop-title {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light .shop-subtitle {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light .shop-nav-bar {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light .shop-nav-btn {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .nav-dogecoin {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .nav-dogecoin:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light .nav-booster {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .nav-booster:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light .nav-cheems {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .nav-cheems:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light .nav-sound {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .nav-sound:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light .nav-music {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .nav-music:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light .section-title {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light .dogecoin-title {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::before,\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .booster-title {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.booster-title)::before,\n.shop-container.theme-light .section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light .cheems-title {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.cheems-title)::before,\n.shop-container.theme-light .section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light .sound-title {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.sound-title)::before,\n.shop-container.theme-light .section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light .music-title {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.music-title)::before,\n.shop-container.theme-light .section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light .shop-balance-bar {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .balance-label {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light .points-val {\n  color: #b35900;\n}\n.shop-container.theme-light .doge-val {\n  color: #d97706;\n}\n.shop-container.theme-light .shop-card {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light .shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light .shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light .shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light .shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light .item-name {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light .item-desc {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light .cost-label {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light .cost-val {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light .shop-card-footer {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .active-booster-banner {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .booster-banner-timer {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light .daily-limit-badge {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light .daily-limit-badge.limit-reached {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light .cost-val.free-cost {\n  color: #059669;\n}\n.shop-container.theme-light .buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light .buy-btn:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light .buy-btn:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .shop-title {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast .shop-subtitle {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-nav-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast .shop-nav-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-nav-btn:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .nav-dogecoin,\n.shop-container.theme-contrast .nav-booster,\n.shop-container.theme-contrast .nav-cheems,\n.shop-container.theme-contrast .nav-sound,\n.shop-container.theme-contrast .nav-music {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .nav-dogecoin:hover,\n.shop-container.theme-contrast .nav-booster:hover,\n.shop-container.theme-contrast .nav-cheems:hover,\n.shop-container.theme-contrast .nav-sound:hover,\n.shop-container.theme-contrast .nav-music:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .section-separator::before,\n.shop-container.theme-contrast .section-separator::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast .section-title {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .dogecoin-title,\n.shop-container.theme-contrast .booster-title,\n.shop-container.theme-contrast .cheems-title,\n.shop-container.theme-contrast .sound-title,\n.shop-container.theme-contrast .music-title {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast .shop-balance-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .balance-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .points-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .doge-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .shop-card {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-card:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .shop-card.coin-card,\n.shop-container.theme-contrast .shop-card.booster-card,\n.shop-container.theme-contrast .shop-card.cheems-card,\n.shop-container.theme-contrast .shop-card.sound-card,\n.shop-container.theme-contrast .shop-card.music-card {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast .shop-card.coin-card:hover,\n.shop-container.theme-contrast .shop-card.booster-card:hover,\n.shop-container.theme-contrast .shop-card.cheems-card:hover,\n.shop-container.theme-contrast .shop-card.sound-card:hover,\n.shop-container.theme-contrast .shop-card.music-card:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .item-name {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .item-desc {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .cost-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .cost-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-card-footer {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast .multiplier-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .active-booster-banner {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast .booster-banner-timer {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge.limit-reached {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast .cost-val.free-cost {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */\n'] }]
+  }], null, { onWindowScroll: [{
+    type: HostListener,
+    args: ["window:scroll"]
+  }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShopComponent, { className: "ShopComponent", filePath: "src/app/pages/shop/shop.component.ts", lineNumber: 13 });
+})();
+
 // src/app/guards/guard.guard.ts
 var developmentGuard = (route, state) => {
   window.location.href = "/CheemsBonkGame/dev/";
@@ -37766,6 +39300,8 @@ var routes = [
   { path: "devSettings", component: DevSettingsComponent, pathMatch: "full" },
   { path: "closet", component: ClosetComponent, pathMatch: "full" },
   { path: "onWork", component: OnworkPageComponent, pathMatch: "full" },
+  { path: "offline", component: OfflineComponent, pathMatch: "full" },
+  { path: "shop", component: ShopComponent, pathMatch: "full" },
   { path: "p404", component: P404Component, pathMatch: "full" },
   { path: "", redirectTo: "game", pathMatch: "full" },
   { path: "dev", component: GameComponent, canActivate: [devGuard] },
@@ -38281,6 +39817,23 @@ function NavbarComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275element(0, "img", 6);
   }
 }
+function NavbarComponent_Conditional_15_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 12);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(2, "span", 13);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate2("\u26A1 x", ctx_r0.tools.boosterMultiplier, " ", (ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].navbar == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].navbar.booster) || "Booster", "");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.tools.getBoosterFormattedTime());
+  }
+}
 function NavbarComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 8)(1, "div", 9)(2, "span", 10);
@@ -38289,17 +39842,14 @@ function NavbarComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275elementStart(4, "span", 11);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 9)(7, "span", 10);
-    \u0275\u0275text(8);
+    \u0275\u0275elementStart(6, "div", 9);
+    \u0275\u0275template(7, NavbarComponent_Conditional_15_Conditional_7_Template, 4, 3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "span", 11);
+    \u0275\u0275elementStart(8, "div", 9)(9, "span", 10);
     \u0275\u0275text(10);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(11, "div", 9)(12, "span", 10);
-    \u0275\u0275text(13);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "span", 11);
-    \u0275\u0275text(15);
+    \u0275\u0275elementStart(11, "span", 11);
+    \u0275\u0275text(12);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -38309,10 +39859,8 @@ function NavbarComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r0.tools.game[ctx_r0.tools.lang].navbar.highScore);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r0.tools.highScore);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r0.tools.game[ctx_r0.tools.lang].navbar.totalScore);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r0.tools.totalScore);
+    \u0275\u0275conditional(ctx_r0.tools.boosterEndTime !== 0 && ctx_r0.tools.getBoosterRemainingSeconds() > 0 ? 7 : -1);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r0.tools.game[ctx_r0.tools.lang].navbar.actScore);
     \u0275\u0275advance(2);
@@ -38321,13 +39869,23 @@ function NavbarComponent_Conditional_15_Template(rf, ctx) {
 }
 var NavbarComponent = class _NavbarComponent {
   tools = inject(ToolsService);
+  timerInterval = null;
+  ngOnInit() {
+    this.timerInterval = setInterval(() => {
+    }, 1e3);
+  }
+  ngOnDestroy() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+  }
   onDogeCoinClick() {
     this.tools.registerDevClick();
   }
   static \u0275fac = function NavbarComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _NavbarComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], decls: 16, vars: 21, consts: [[1, "counters-group"], [1, "text", "count-badge"], ["src", "img/dogecoin-min.png", "title", "DogeCoins", "alt", "DogeCoins", 1, "icon", "logo-coin", 3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "title", "Puntos", "alt", "Puntos", 1, "icon", "logo-coin", "pts-icon"], [1, "text", "nav-action", 3, "click"], ["src", "img/icons/front-page-svgrepo-com.svg", "alt", "Back", "title", "Back", 1, "icon", "nav-icon"], ["src", "img/icons/menu-svgrepo-com.svg", "alt", "Menu", "title", "Menu", 1, "icon", "nav-icon"], ["id", "upper-container", 3, "class"], ["id", "upper-container"], [1, "score-box"], [1, "score-label"], [1, "score-value"]], template: function NavbarComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], decls: 16, vars: 21, consts: [[1, "counters-group"], [1, "text", "count-badge"], ["src", "img/dogecoin-min.png", "title", "DogeCoins", "alt", "DogeCoins", 1, "icon", "logo-coin", 3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "title", "Puntos", "alt", "Puntos", 1, "icon", "logo-coin", "pts-icon"], [1, "text", "nav-action", 3, "click"], ["src", "img/icons/front-page-svgrepo-com.svg", "alt", "Back", "title", "Back", 1, "icon", "nav-icon"], ["src", "img/icons/menu-svgrepo-com.svg", "alt", "Menu", "title", "Menu", 1, "icon", "nav-icon"], ["id", "upper-container", 3, "class"], ["id", "upper-container"], [1, "score-box"], [1, "score-label"], [1, "score-value"], [1, "score-label", "booster-nav-label"], [1, "score-value", "booster-nav-value"]], template: function NavbarComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "nav")(1, "div", 0)(2, "span", 1)(3, "img", 2);
       \u0275\u0275listener("click", function NavbarComponent_Template_img_click_3_listener() {
@@ -38351,7 +39909,7 @@ var NavbarComponent = class _NavbarComponent {
       });
       \u0275\u0275template(13, NavbarComponent_Conditional_13_Template, 1, 0, "img", 5)(14, NavbarComponent_Conditional_14_Template, 1, 0, "img", 6);
       \u0275\u0275elementEnd()();
-      \u0275\u0275template(15, NavbarComponent_Conditional_15_Template, 16, 10, "div", 7);
+      \u0275\u0275template(15, NavbarComponent_Conditional_15_Template, 13, 9, "div", 7);
     }
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
@@ -38372,12 +39930,62 @@ var NavbarComponent = class _NavbarComponent {
       \u0275\u0275advance(2);
       \u0275\u0275conditional(ctx.tools.actPage === "game" ? 15 : -1);
     }
-  }, styles: ["\n\nnav[_ngcontent-%COMP%] {\n  width: 100%;\n  min-height: 70px;\n  padding: 0.5rem 1.5rem;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 900;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);\n  z-index: 100;\n  position: relative;\n  transition: background-color 0.3s ease, border-color 0.3s ease;\n  gap: 0.5rem;\n}\n.counters-group[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.65rem;\n  flex-wrap: wrap;\n}\n.text[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.count-badge[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.35);\n  padding: 0.35rem 0.85rem;\n  border-radius: 50px;\n  border: 1px solid rgba(255, 255, 255, 0.15);\n}\n.logo-coin[_ngcontent-%COMP%] {\n  height: 36px;\n  width: 36px;\n  cursor: pointer;\n  object-fit: contain;\n}\n.pts-icon[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.6));\n  cursor: default;\n}\n.badge-number[_ngcontent-%COMP%] {\n  font-weight: 900;\n}\n.preventive[_ngcontent-%COMP%] {\n  max-width: 45vw;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.title-text[_ngcontent-%COMP%] {\n  font-weight: 900;\n  letter-spacing: 0.5px;\n}\n.nav-action[_ngcontent-%COMP%] {\n  cursor: pointer;\n  padding: 0.4rem;\n  border-radius: 50%;\n  background: rgba(0, 0, 0, 0.15);\n  transition: background-color 0.2s ease, transform 0.2s ease;\n  flex-shrink: 0;\n}\n.nav-action[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 0, 0, 0.35);\n  transform: scale(1.1);\n}\n.nav-icon[_ngcontent-%COMP%] {\n  height: 34px;\n  width: 34px;\n}\n.upper-container[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.75rem 2rem;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  font-weight: 900;\n  border-bottom: 2px solid rgba(0, 0, 0, 0.2);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transition: background-color 0.3s ease;\n}\n.score-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.2rem;\n}\n.score-label[_ngcontent-%COMP%] {\n  font-size: 0.8em;\n  opacity: 0.85;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  font-weight: 900;\n}\nnav.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(55, 45, 35) 0%,\n      rgb(35, 28, 22) 100%);\n  border-bottom: 2px solid rgb(25, 20, 15);\n}\nnav.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(240, 220, 185) 0%,\n      rgb(220, 195, 150) 100%);\n  border-bottom: 2px solid rgb(180, 150, 110);\n}\nnav.theme-contrast[_ngcontent-%COMP%] {\n  background-color: #000000;\n  border-bottom: 2px solid #ffffff;\n}\n.upper-container.theme-dark[_ngcontent-%COMP%] {\n  background: rgba(45, 38, 30, 0.9);\n  color: #ffd166;\n}\n.upper-container.theme-light[_ngcontent-%COMP%] {\n  background: rgba(235, 215, 175, 0.9);\n  color: #9c5c14;\n}\n.upper-container.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-bottom: 2px solid #ffffff;\n}\n@media (max-width: 600px) {\n  nav[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.75rem;\n  }\n  .counters-group[_ngcontent-%COMP%] {\n    gap: 0.35rem;\n  }\n  .count-badge[_ngcontent-%COMP%] {\n    padding: 0.25rem 0.6rem;\n  }\n  .logo-coin[_ngcontent-%COMP%] {\n    height: 28px;\n    width: 28px;\n  }\n  .upper-container[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.5rem;\n  }\n  .score-label[_ngcontent-%COMP%] {\n    font-size: 0.7em;\n  }\n  .score-value[_ngcontent-%COMP%] {\n    font-size: 1.1em;\n  }\n}\n/*# sourceMappingURL=navbar.component.css.map */"] });
+  }, styles: ["\n\nnav[_ngcontent-%COMP%] {\n  width: 100%;\n  min-height: 70px;\n  padding: 0.5rem 1.5rem;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 900;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);\n  z-index: 10000;\n  position: sticky;\n  top: 0;\n  left: 0;\n  backdrop-filter: blur(15px);\n  -webkit-backdrop-filter: blur(15px);\n  transition: background-color 0.3s ease, border-color 0.3s ease;\n  gap: 0.5rem;\n}\n.counters-group[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.65rem;\n  flex-wrap: wrap;\n  z-index: 10;\n}\n.text[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.count-badge[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.35);\n  padding: 0.35rem 0.85rem;\n  border-radius: 50px;\n  border: 1px solid rgba(255, 255, 255, 0.15);\n}\n.logo-coin[_ngcontent-%COMP%] {\n  height: 36px;\n  width: 36px;\n  cursor: pointer;\n  object-fit: contain;\n}\n.pts-icon[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.6));\n  cursor: default;\n}\n.badge-number[_ngcontent-%COMP%] {\n  font-weight: 900;\n}\n.preventive[_ngcontent-%COMP%] {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n  max-width: 45vw;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  pointer-events: none;\n  z-index: 5;\n}\n.title-text[_ngcontent-%COMP%] {\n  font-weight: 900;\n  letter-spacing: 0.5px;\n}\n.nav-action[_ngcontent-%COMP%] {\n  cursor: pointer;\n  padding: 0.4rem;\n  border-radius: 50%;\n  background: rgba(0, 0, 0, 0.15);\n  transition: background-color 0.2s ease, transform 0.2s ease;\n  flex-shrink: 0;\n  z-index: 10;\n}\n.nav-action[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 0, 0, 0.35);\n  transform: scale(1.1);\n}\n.nav-icon[_ngcontent-%COMP%] {\n  height: 34px;\n  width: 34px;\n}\n.upper-container[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.75rem 2rem;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  font-weight: 900;\n  border-bottom: 2px solid rgba(0, 0, 0, 0.2);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transition: background-color 0.3s ease;\n}\n.score-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.2rem;\n}\n.score-label[_ngcontent-%COMP%] {\n  font-size: 0.8em;\n  opacity: 0.85;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  font-weight: 900;\n}\nnav.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(55, 45, 35) 0%,\n      rgb(35, 28, 22) 100%);\n  border-bottom: 2px solid rgb(25, 20, 15);\n}\nnav.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(240, 220, 185) 0%,\n      rgb(220, 195, 150) 100%);\n  border-bottom: 2px solid rgb(180, 150, 110);\n}\nnav.theme-contrast[_ngcontent-%COMP%] {\n  background-color: #000000;\n  border-bottom: 2px solid #ffffff;\n}\n.upper-container.theme-dark[_ngcontent-%COMP%] {\n  background: rgba(45, 38, 30, 0.9);\n  color: #ffd166;\n}\n.upper-container.theme-light[_ngcontent-%COMP%] {\n  background: rgba(235, 215, 175, 0.9);\n  color: #9c5c14;\n}\n.upper-container.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-bottom: 2px solid #ffffff;\n}\n.booster-nav-label[_ngcontent-%COMP%] {\n  color: #f59e0b;\n  font-weight: 900;\n  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);\n}\n.booster-nav-value[_ngcontent-%COMP%] {\n  color: #fbbf24;\n  font-weight: 900;\n  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);\n}\n@media (max-width: 600px) {\n  nav[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.75rem;\n  }\n  .counters-group[_ngcontent-%COMP%] {\n    gap: 0.35rem;\n  }\n  .count-badge[_ngcontent-%COMP%] {\n    padding: 0.25rem 0.6rem;\n  }\n  .logo-coin[_ngcontent-%COMP%] {\n    height: 28px;\n    width: 28px;\n  }\n  .upper-container[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.5rem;\n  }\n  .score-label[_ngcontent-%COMP%] {\n    font-size: 0.7em;\n  }\n  .score-value[_ngcontent-%COMP%] {\n    font-size: 1.1em;\n  }\n}\n/*# sourceMappingURL=navbar.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NavbarComponent, [{
     type: Component,
-    args: [{ selector: "app-navbar", imports: [], template: '<nav class="{{tools.themeColor}} {{tools.fontSize}}">\n    <div class="counters-group">\n        <span class="text count-badge">\n            <img src="img/dogecoin-min.png"\n                 (click)="onDogeCoinClick()"\n                 class="icon logo-coin"\n                 title="DogeCoins"\n                 alt="DogeCoins">\n            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.dogeCoins}}</span>\n        </span>\n\n        <span class="text count-badge">\n            <img src="img/icons/trophy-svgrepo-com.svg"\n                 class="icon logo-coin pts-icon"\n                 title="Puntos"\n                 alt="Puntos">\n            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.points}}</span>\n        </span>\n    </div>\n\n    <span class="preventive text color-text {{tools.themeColor}} {{tools.fontSize}} title-text">\n        {{tools.pageName[tools.lang][tools.actPage]}}\n    </span>\n\n    <span class="text nav-action" (click)="tools.redirectBack()">\n        @if (tools.actPage !== "game") {\n            <img src="img/icons/front-page-svgrepo-com.svg" class="icon nav-icon" alt="Back" title="Back">\n        } @else {\n            <img src="img/icons/menu-svgrepo-com.svg" class="icon nav-icon" alt="Menu" title="Menu">\n        }\n    </span>\n</nav>\n\n@if (tools.actPage === "game") {\n    <div class="upper-container {{tools.themeColor}} {{tools.fontSize}}" id="upper-container">\n        <div class="score-box">\n            <span class="score-label">{{tools.game[tools.lang].navbar.highScore}}</span>\n            <span class="score-value">{{tools.highScore}}</span>\n        </div>\n        <div class="score-box">\n            <span class="score-label">{{tools.game[tools.lang].navbar.totalScore}}</span>\n            <span class="score-value">{{tools.totalScore}}</span>\n        </div>\n        <div class="score-box">\n            <span class="score-label">{{tools.game[tools.lang].navbar.actScore}}</span>\n            <span class="score-value">{{tools.actScore}}</span>\n        </div>\n    </div>\n}', styles: ["/* src/app/components/navbar/navbar.component.css */\nnav {\n  width: 100%;\n  min-height: 70px;\n  padding: 0.5rem 1.5rem;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 900;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);\n  z-index: 100;\n  position: relative;\n  transition: background-color 0.3s ease, border-color 0.3s ease;\n  gap: 0.5rem;\n}\n.counters-group {\n  display: flex;\n  align-items: center;\n  gap: 0.65rem;\n  flex-wrap: wrap;\n}\n.text {\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.count-badge {\n  background: rgba(0, 0, 0, 0.35);\n  padding: 0.35rem 0.85rem;\n  border-radius: 50px;\n  border: 1px solid rgba(255, 255, 255, 0.15);\n}\n.logo-coin {\n  height: 36px;\n  width: 36px;\n  cursor: pointer;\n  object-fit: contain;\n}\n.pts-icon {\n  filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.6));\n  cursor: default;\n}\n.badge-number {\n  font-weight: 900;\n}\n.preventive {\n  max-width: 45vw;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.title-text {\n  font-weight: 900;\n  letter-spacing: 0.5px;\n}\n.nav-action {\n  cursor: pointer;\n  padding: 0.4rem;\n  border-radius: 50%;\n  background: rgba(0, 0, 0, 0.15);\n  transition: background-color 0.2s ease, transform 0.2s ease;\n  flex-shrink: 0;\n}\n.nav-action:hover {\n  background: rgba(0, 0, 0, 0.35);\n  transform: scale(1.1);\n}\n.nav-icon {\n  height: 34px;\n  width: 34px;\n}\n.upper-container {\n  width: 100%;\n  padding: 0.75rem 2rem;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  font-weight: 900;\n  border-bottom: 2px solid rgba(0, 0, 0, 0.2);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transition: background-color 0.3s ease;\n}\n.score-box {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.2rem;\n}\n.score-label {\n  font-size: 0.8em;\n  opacity: 0.85;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value {\n  font-size: 1.3em;\n  font-weight: 900;\n}\nnav.theme-dark {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(55, 45, 35) 0%,\n      rgb(35, 28, 22) 100%);\n  border-bottom: 2px solid rgb(25, 20, 15);\n}\nnav.theme-light {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(240, 220, 185) 0%,\n      rgb(220, 195, 150) 100%);\n  border-bottom: 2px solid rgb(180, 150, 110);\n}\nnav.theme-contrast {\n  background-color: #000000;\n  border-bottom: 2px solid #ffffff;\n}\n.upper-container.theme-dark {\n  background: rgba(45, 38, 30, 0.9);\n  color: #ffd166;\n}\n.upper-container.theme-light {\n  background: rgba(235, 215, 175, 0.9);\n  color: #9c5c14;\n}\n.upper-container.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border-bottom: 2px solid #ffffff;\n}\n@media (max-width: 600px) {\n  nav {\n    padding: 0.5rem 0.75rem;\n  }\n  .counters-group {\n    gap: 0.35rem;\n  }\n  .count-badge {\n    padding: 0.25rem 0.6rem;\n  }\n  .logo-coin {\n    height: 28px;\n    width: 28px;\n  }\n  .upper-container {\n    padding: 0.5rem 0.5rem;\n  }\n  .score-label {\n    font-size: 0.7em;\n  }\n  .score-value {\n    font-size: 1.1em;\n  }\n}\n/*# sourceMappingURL=navbar.component.css.map */\n"] }]
+    args: [{ selector: "app-navbar", imports: [], template: `<nav class="{{tools.themeColor}} {{tools.fontSize}}">
+    <div class="counters-group">
+        <span class="text count-badge">
+            <img src="img/dogecoin-min.png"
+                 (click)="onDogeCoinClick()"
+                 class="icon logo-coin"
+                 title="DogeCoins"
+                 alt="DogeCoins">
+            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.dogeCoins}}</span>
+        </span>
+
+        <span class="text count-badge">
+            <img src="img/icons/trophy-svgrepo-com.svg"
+                 class="icon logo-coin pts-icon"
+                 title="Puntos"
+                 alt="Puntos">
+            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.points}}</span>
+        </span>
+    </div>
+
+    <span class="preventive text color-text {{tools.themeColor}} {{tools.fontSize}} title-text">
+        {{tools.pageName[tools.lang][tools.actPage]}}
+    </span>
+
+    <span class="text nav-action" (click)="tools.redirectBack()">
+        @if (tools.actPage !== "game") {
+            <img src="img/icons/front-page-svgrepo-com.svg" class="icon nav-icon" alt="Back" title="Back">
+        } @else {
+            <img src="img/icons/menu-svgrepo-com.svg" class="icon nav-icon" alt="Menu" title="Menu">
+        }
+    </span>
+</nav>
+
+@if (tools.actPage === "game") {
+    <div class="upper-container {{tools.themeColor}} {{tools.fontSize}}" id="upper-container">
+        <div class="score-box">
+            <span class="score-label">{{tools.game[tools.lang].navbar.highScore}}</span>
+            <span class="score-value">{{tools.highScore}}</span>
+        </div>
+        <div class="score-box">
+            @if (tools.boosterEndTime !== 0 && tools.getBoosterRemainingSeconds() > 0) {
+                <span class="score-label booster-nav-label">\u26A1 x{{tools.boosterMultiplier}} {{tools.game[tools.lang]?.navbar?.booster || 'Booster'}}</span>
+                <span class="score-value booster-nav-value">{{tools.getBoosterFormattedTime()}}</span>
+            }
+        </div>
+        <div class="score-box">
+            <span class="score-label">{{tools.game[tools.lang].navbar.actScore}}</span>
+            <span class="score-value">{{tools.actScore}}</span>
+        </div>
+    </div>
+}`, styles: ["/* src/app/components/navbar/navbar.component.css */\nnav {\n  width: 100%;\n  min-height: 70px;\n  padding: 0.5rem 1.5rem;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 900;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);\n  z-index: 10000;\n  position: sticky;\n  top: 0;\n  left: 0;\n  backdrop-filter: blur(15px);\n  -webkit-backdrop-filter: blur(15px);\n  transition: background-color 0.3s ease, border-color 0.3s ease;\n  gap: 0.5rem;\n}\n.counters-group {\n  display: flex;\n  align-items: center;\n  gap: 0.65rem;\n  flex-wrap: wrap;\n  z-index: 10;\n}\n.text {\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.count-badge {\n  background: rgba(0, 0, 0, 0.35);\n  padding: 0.35rem 0.85rem;\n  border-radius: 50px;\n  border: 1px solid rgba(255, 255, 255, 0.15);\n}\n.logo-coin {\n  height: 36px;\n  width: 36px;\n  cursor: pointer;\n  object-fit: contain;\n}\n.pts-icon {\n  filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.6));\n  cursor: default;\n}\n.badge-number {\n  font-weight: 900;\n}\n.preventive {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n  max-width: 45vw;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  pointer-events: none;\n  z-index: 5;\n}\n.title-text {\n  font-weight: 900;\n  letter-spacing: 0.5px;\n}\n.nav-action {\n  cursor: pointer;\n  padding: 0.4rem;\n  border-radius: 50%;\n  background: rgba(0, 0, 0, 0.15);\n  transition: background-color 0.2s ease, transform 0.2s ease;\n  flex-shrink: 0;\n  z-index: 10;\n}\n.nav-action:hover {\n  background: rgba(0, 0, 0, 0.35);\n  transform: scale(1.1);\n}\n.nav-icon {\n  height: 34px;\n  width: 34px;\n}\n.upper-container {\n  width: 100%;\n  padding: 0.75rem 2rem;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  font-weight: 900;\n  border-bottom: 2px solid rgba(0, 0, 0, 0.2);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transition: background-color 0.3s ease;\n}\n.score-box {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.2rem;\n}\n.score-label {\n  font-size: 0.8em;\n  opacity: 0.85;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value {\n  font-size: 1.3em;\n  font-weight: 900;\n}\nnav.theme-dark {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(55, 45, 35) 0%,\n      rgb(35, 28, 22) 100%);\n  border-bottom: 2px solid rgb(25, 20, 15);\n}\nnav.theme-light {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(240, 220, 185) 0%,\n      rgb(220, 195, 150) 100%);\n  border-bottom: 2px solid rgb(180, 150, 110);\n}\nnav.theme-contrast {\n  background-color: #000000;\n  border-bottom: 2px solid #ffffff;\n}\n.upper-container.theme-dark {\n  background: rgba(45, 38, 30, 0.9);\n  color: #ffd166;\n}\n.upper-container.theme-light {\n  background: rgba(235, 215, 175, 0.9);\n  color: #9c5c14;\n}\n.upper-container.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border-bottom: 2px solid #ffffff;\n}\n.booster-nav-label {\n  color: #f59e0b;\n  font-weight: 900;\n  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);\n}\n.booster-nav-value {\n  color: #fbbf24;\n  font-weight: 900;\n  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);\n}\n@media (max-width: 600px) {\n  nav {\n    padding: 0.5rem 0.75rem;\n  }\n  .counters-group {\n    gap: 0.35rem;\n  }\n  .count-badge {\n    padding: 0.25rem 0.6rem;\n  }\n  .logo-coin {\n    height: 28px;\n    width: 28px;\n  }\n  .upper-container {\n    padding: 0.5rem 0.5rem;\n  }\n  .score-label {\n    font-size: 0.7em;\n  }\n  .score-value {\n    font-size: 1.1em;\n  }\n}\n/*# sourceMappingURL=navbar.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
