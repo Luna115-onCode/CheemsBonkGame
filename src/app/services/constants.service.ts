@@ -336,6 +336,7 @@ export interface ShopItem {
   costCoins?: number;
   multiplier?: number;
   durationMin?: number;
+  coinsGiven?: number;
   icon: string;
   dailyLimit?: number;
   oneTimePurchase?: boolean;

@@ -84,7 +84,6 @@ export class ToolsService {
   musicTracks: Array<MusicTrackItem> = MUSIC_TRACKS;
 
   private musicAudio: HTMLAudioElement = new Audio();
-  private soundAudio: HTMLAudioElement = new Audio();
 
   toastMessage: string = "";
   private toastTimer: any = null;
@@ -297,32 +296,56 @@ export class ToolsService {
     localStorage.setItem("CheemsBonkHighScore", JSON.stringify(this.highScore));
   }
 
-  getDailyDogeCoinPrice(): number {
+  getDailyDogeCoinPrice(priceType: number = 1): number {
     const d = new Date();
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const dd = String(d.getDate()).padStart(2, '0');
     const dateNum = Number(`${yyyy}${mm}${dd}`);
     const product = dateNum * Math.PI;
-    const str = product.toString().replace('.', '');
-    const digits = str.slice(8, 11);
+    const str = (product.toString().replace('.', '') + '00000000000000000000').slice(0, 30);
+
+    let digits = "";
+
+    switch (priceType) {
+      case 2:
+        digits = str.slice(1, 4);
+        break;
+      case 3:
+        digits = str.slice(4, 7);
+        break;
+      case 4:
+        digits = str.slice(11, 14);
+        break;
+      case 1:
+      default:
+        digits = str.slice(8, 11);
+        break;
+    }
+
     const price = parseInt(digits, 10);
-    return isNaN(price) ? 100 : price;
+    return (!isNaN(price) && price > 0) ? price : 100;
   }
 
-  buyDogeCoin(): boolean {
-    const cost = this.getDailyDogeCoinPrice();
+  buyDogeCoin(customCost?: number, coinsAmount: number = 1, itemId: string = "dogecoin_daily"): boolean {
+    const cost = customCost !== undefined ? customCost : this.getDailyDogeCoinPrice();
+    const coinsToAdd = (coinsAmount && coinsAmount > 0) ? coinsAmount : 1;
     if (this.points >= cost) {
       this.points -= cost;
-      this.dogeCoins += 1;
+      this.dogeCoins += coinsToAdd;
       localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
       localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
-      this.recordDailyPurchase("dogecoin_daily");
-      this.showToast(this.menu[this.lang].buyDogeCoinSuccess);
+      this.recordDailyPurchase(itemId);
+      let successMsg = this.menu[this.lang]?.buyDogeCoinSuccess || `You bought ${coinsToAdd} DogeCoin(s)!`;
+      if (coinsToAdd !== 1) {
+        successMsg = successMsg.replace('1 DogeCoin', `${coinsToAdd} DogeCoins`);
+      }
+      this.showToast(successMsg);
       this.playSound();
       return true;
     } else {
       this.showToast(this.menu[this.lang].buyDogeCoinFail);
+      this.playSound('sfx_8');
       return false;
     }
   }
@@ -345,8 +368,10 @@ export class ToolsService {
   playSound(customSoundId?: string): void {
     const soundToPlay = customSoundId || this.selectedSound;
     const item = this.soundEffects.find(s => String(s.id) === String(soundToPlay));
+
     let file = "hit.ogg";
     let basePath = "sound/";
+
     if (item) {
       if (item.basePath) basePath = item.basePath;
       if (item.files && item.files.length > 0) {
@@ -356,9 +381,10 @@ export class ToolsService {
         file = item.file;
       }
     }
-    this.soundAudio.src = basePath + file;
-    this.soundAudio.volume = this.effVol / 100;
-    this.soundAudio.play().catch(() => {});
+
+    const sfx = new Audio(basePath + file);
+    sfx.volume = this.effVol / 100;
+    sfx.play().catch(() => {});
   }
 
   playMusic(songId?: string | number): void {
@@ -807,12 +833,51 @@ export class ToolsService {
     try {
       const res = await fetch("shop.json");
       if (res.ok) {
-        this.shopItems = await res.json();
+        const rawItems = await res.json();
+
+        this.shopItems = rawItems.map((item: any) => ({
+          ...item,
+          cost: this.evaluatePriceExpression(item.cost),
+          costCoins: this.evaluatePriceExpression(item.costCoins),
+          coinsGiven: item.coinsGiven !== undefined ? this.evaluatePriceExpression(item.coinsGiven) : undefined,
+          dailyLimit: item.dailyLimit !== undefined ? this.evaluatePriceExpression(item.dailyLimit) : undefined
+        }));
       }
     } catch (err) {
       console.warn("Could not load shop.json", err);
     }
     this.appendUnlockableShopItems();
+  }
+
+  private evaluatePriceExpression(expression: string | number | undefined): number {
+    if (expression === undefined || expression === null) return 0;
+    if (typeof expression === 'number') return Math.max(0, Math.round(expression));
+    if (typeof expression !== 'string') return 0;
+
+    try {
+      let parsedStr = expression;
+
+      parsedStr = parsedStr.replace(/\$\{daily_price_1\}/g, String(this.getDailyDogeCoinPrice(1)));
+      parsedStr = parsedStr.replace(/\$\{daily_price_2\}/g, String(this.getDailyDogeCoinPrice(2)));
+      parsedStr = parsedStr.replace(/\$\{daily_price_3\}/g, String(this.getDailyDogeCoinPrice(3)));
+      parsedStr = parsedStr.replace(/\$\{daily_price_4\}/g, String(this.getDailyDogeCoinPrice(4)));
+
+      parsedStr = parsedStr.replace(/\$\{daily_price\}/g, String(this.getDailyDogeCoinPrice(1)));
+
+      if (/[^0-9\+\-\*\/\%\.\s\(\)]/.test(parsedStr)) {
+        console.warn("Invalid characters in price expression:", parsedStr);
+        return 0;
+      }
+
+      const result = new Function(`return (${parsedStr})`)();
+
+      const num = Number(result);
+      if (isNaN(num)) return 0;
+      return Math.max(0, Math.round(num));
+    } catch (e) {
+      console.warn("Could not evaluate price expression:", expression, e);
+      return 0;
+    }
   }
 
   getActiveMultiplier(): number {

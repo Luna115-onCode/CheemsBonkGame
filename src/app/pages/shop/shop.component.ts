@@ -50,7 +50,8 @@ export class ShopComponent implements OnInit, OnDestroy {
     }
 
     if (item.type === 'dogecoin') {
-      this.tools.buyDogeCoin();
+      const coinsGiven = item.coinsGiven || 1;
+      this.tools.buyDogeCoin(item.cost, coinsGiven, item.id);
     } else if (item.type === 'booster') {
       const ptsCost = item.cost || 0;
       const coinCost = item.costCoins || 0;
@@ -90,14 +91,14 @@ export class ShopComponent implements OnInit, OnDestroy {
     if (!this.tools.canBuyDailyLimit(item)) {
       return false;
     }
-    const ptsCost = item.type === 'dogecoin' ? this.dailyPrice : (item.cost || 0);
-    const coinsCost = item.type === 'dogecoin' ? 0 : (item.costCoins || 0);
+    const ptsCost = item.cost !== undefined ? item.cost : (item.type === 'dogecoin' ? this.dailyPrice : 0);
+    const coinsCost = item.costCoins || 0;
     return this.tools.points >= ptsCost && this.tools.dogeCoins >= coinsCost;
   }
 
   formatItemCost(item: ShopItem): string {
-    const ptsCost = item.type === 'dogecoin' ? this.dailyPrice : (item.cost || 0);
-    const coinsCost = item.type === 'dogecoin' ? 0 : (item.costCoins || 0);
+    const ptsCost = item.cost !== undefined ? item.cost : (item.type === 'dogecoin' ? this.dailyPrice : 0);
+    const coinsCost = item.costCoins || 0;
 
     if (ptsCost === 0 && coinsCost === 0) {
       return this.tools.shop[this.tools.lang]?.free || "Free";
