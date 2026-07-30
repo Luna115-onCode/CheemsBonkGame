@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1785393918490,
+  "timestamp": 1785393978035,
   "index": "/CheemsBonkGame/dev/index.html",
   "assetGroups": [
     {
@@ -131,7 +131,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "/CheemsBonkGame/dev/closet.json": "1b6b66e3629a9d68d3b935b2f7a6f3752d3e86b6",
+    "/CheemsBonkGame/dev/closet.json": "cf2e64195b8ca05fcbffe42489a3dec9a46b658f",
     "/CheemsBonkGame/dev/fonts/Kalam-Regular.ttf": "8780563680372a86968c46c50cba05143654fe49",
     "/CheemsBonkGame/dev/img/capture1.png": "aa06d74cf63a4c0e0655cb2ae1c319569f47577f",
     "/CheemsBonkGame/dev/img/capture2.png": "075c0fc6af45fd7be2325506cd3a28880d543ab3",
