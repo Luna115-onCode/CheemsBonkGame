@@ -400,6 +400,40 @@
     "costCoins": 10,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_block_breaker",
+    "type": "minigame",
+    "targetId": "block_breaker",
+    "nameKey": "shop_minigame_block_breaker_name",
+    "descKey": "shop_minigame_block_breaker_desc",
+    "cost": 100,
+    "costCoins": 0,
+    "costMinigames": 0,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "curr_dgc_to_mg",
+    "type": "currency",
+    "nameKey": "shop_curr_dgc_to_mg_name",
+    "descKey": "shop_curr_dgc_to_mg_desc",
+    "cost": 0,
+    "costCoins": 1,
+    "costMinigames": 0,
+    "minigameCoinsGiven": 10,
+    "icon": "img/icons/play-svgrepo-com.svg"
+  },
+  {
+    "id": "curr_mg_to_dgc",
+    "type": "currency",
+    "nameKey": "shop_curr_mg_to_dgc_name",
+    "descKey": "shop_curr_mg_to_dgc_desc",
+    "cost": 0,
+    "costCoins": 0,
+    "costMinigames": 10,
+    "coinsGiven": 1,
+    "icon": "img/dogecoin-min.png"
   }
 ]
 

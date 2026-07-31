@@ -8,9 +8,33 @@
     "p404": "Error 404",
     "settings": "Settings",
     "offline": "Download Resources",
-    "shop": "Shop"
+    "shop": "Shop",
+    "block_breaker": "Merge Diggers",
+    "minigames": "Minigames"
+  },
+  "minigames": {
+    "title": "Merge Diggers",
+    "playerLevel": "Player Level: ",
+    "lvl": "Lvl ",
+    "trash": "TRASH",
+    "lane1": "▼ Lane 1",
+    "lane2": "▼ Lane 2",
+    "lane3": "▼ Lane 3",
+    "lane4": "▼ Lane 4",
+    "lane5": "▼ Lane 5",
+    "dropTools": "DROP TOOLS!",
+    "digging": "DIGGING...",
+    "buyShovel": "Buy Shovel",
+    "buyPickaxe": "Buy Pickaxe",
+    "levelCleared": "Level Cleared!",
+    "levelClearedDesc": "You successfully broke through to the bedrock.",
+    "nextLevel": "Next Level",
+    "levelFailed": "Level Failed",
+    "levelFailedDesc": "Your tools broke before reaching the bottom.",
+    "tryAgain": "Try Again"
   },
   "menu": {
+    "minigames": "Minigames",
     "settings": "Settings",
     "offline": "Download Resources (Offline Mode)",
     "shop": "Customization Shop",
@@ -172,7 +196,13 @@
     "shop_boost_10x_5m_name": "Booster x10 (5 min)",
     "shop_boost_10x_5m_desc": "Multiply your points by 10 for 5 minutes.",
     "shop_boost_10x_10m_name": "Booster x10 (10 min)",
-    "shop_boost_10x_10m_desc": "Multiply your points by 10 for 10 minutes."
+    "shop_boost_10x_10m_desc": "Multiply your points by 10 for 10 minutes.",
+    "shop_minigame_block_breaker_name": "Merge Diggers",
+    "shop_minigame_block_breaker_desc": "Unlock the digging and tool merging minigame.",
+    "shop_curr_dgc_to_mg_name": "10 Minigame Points",
+    "shop_curr_dgc_to_mg_desc": "Exchange 1 DogeCoin for 10 Minigame Points.",
+    "shop_curr_mg_to_dgc_name": "1 DogeCoin",
+    "shop_curr_mg_to_dgc_desc": "Exchange 10 Minigame Points for 1 DogeCoin."
   },
   "itemsText": {
     "cheems_normal": "Normal Cheems",

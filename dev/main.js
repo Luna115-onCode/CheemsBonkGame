@@ -35628,9 +35628,12 @@ var pageName = {
   p404: "",
   settings: "",
   offline: "",
-  shop: ""
+  shop: "",
+  block_breaker: "",
+  minigames: ""
 };
 var menuText = {
+  minigames: "",
   settings: "",
   offline: "",
   shop: "",
@@ -35642,6 +35645,27 @@ var menuText = {
   buyDogeCoinSub: "",
   buyDogeCoinSuccess: "",
   buyDogeCoinFail: ""
+};
+var minigamesText = {
+  title: "",
+  playerLevel: "",
+  lvl: "",
+  trash: "",
+  lane1: "",
+  lane2: "",
+  lane3: "",
+  lane4: "",
+  lane5: "",
+  dropTools: "",
+  digging: "",
+  buyShovel: "",
+  buyPickaxe: "",
+  levelCleared: "",
+  levelClearedDesc: "",
+  nextLevel: "",
+  levelFailed: "",
+  levelFailedDesc: "",
+  tryAgain: ""
 };
 var optionsText = {
   changeLang: {
@@ -35878,6 +35902,7 @@ var ToolsService = class _ToolsService {
   highScore = 0;
   totalScore = 0;
   dogeCoins = 0;
+  minigameCoins = 50;
   effVol = 100;
   musVol = 50;
   devMenuUnlocked = false;
@@ -35885,6 +35910,7 @@ var ToolsService = class _ToolsService {
   unlockedCheems = {};
   unlockedSounds = {};
   unlockedMusic = {};
+  unlockedMinigames = {};
   game = createLangMap(gameText);
   options = createLangMap(optionsText);
   menu = createLangMap(menuText);
@@ -35894,6 +35920,7 @@ var ToolsService = class _ToolsService {
   p404 = createLangMap(p404Text);
   offline = createLangMap(offlineText);
   shop = {};
+  minigames = createLangMap(minigamesText);
   pageName = createLangMap(pageName);
   offlineCategories = OFFLINE_CATEGORIES;
   shopItemsText = {};
@@ -35989,6 +36016,8 @@ var ToolsService = class _ToolsService {
             this.offline[langCode] = __spreadValues(__spreadValues({}, this.offline[langCode]), data.offline);
           if (data.shop)
             this.shop[langCode] = __spreadValues(__spreadValues({}, this.shop[langCode]), data.shop);
+          if (data.minigames)
+            this.minigames[langCode] = __spreadValues(__spreadValues({}, this.minigames[langCode]), data.minigames);
           if (data.shopItemsText)
             this.shopItemsText[langCode] = __spreadValues(__spreadValues({}, this.shopItemsText[langCode]), data.shopItemsText);
           if (data.itemsText)
@@ -36080,7 +36109,7 @@ var ToolsService = class _ToolsService {
     window.location.reload();
   }
   redirectBack(fromSystem = false) {
-    if (["devSettings", "closet", "settings", "onWork", "offline", "shop"].includes(this.actPage)) {
+    if (["devSettings", "closet", "settings", "onWork", "offline", "shop", "block_breaker", "minigames"].includes(this.actPage)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage)) {
       this.redirect("game");
@@ -36110,6 +36139,26 @@ var ToolsService = class _ToolsService {
     localStorage.setItem("CheemsAppLiMaxCounter", JSON.stringify(this.highScore));
     localStorage.setItem("CheemsBonkTotalScore", JSON.stringify(this.totalScore));
     localStorage.setItem("CheemsBonkHighScore", JSON.stringify(this.highScore));
+  }
+  addMinigameCoins(amount) {
+    this.minigameCoins = Math.floor(this.minigameCoins + amount);
+    localStorage.setItem("CheemsAppLiMinigameCoins", String(this.minigameCoins));
+    document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
+  }
+  spendMinigameCoins(amount) {
+    if (this.minigameCoins >= amount) {
+      this.minigameCoins = Math.floor(this.minigameCoins - amount);
+      localStorage.setItem("CheemsAppLiMinigameCoins", String(this.minigameCoins));
+      document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
+      return true;
+    }
+    return false;
+  }
+  isMinigameUnlocked(id) {
+    if (id === "block_breaker" || id === "block-breaker" || id === "minigames/block-breaker") {
+      return !!this.unlockedMinigames["block_breaker"];
+    }
+    return !!this.unlockedMinigames[id];
   }
   getDailyDogeCoinPrice(priceType = 1) {
     const d = /* @__PURE__ */ new Date();
@@ -36430,6 +36479,10 @@ var ToolsService = class _ToolsService {
     this.totalScore = 999999;
     this.highScore = 999999;
     this.dogeCoins = 999999;
+    this.minigameCoins = 999999;
+    this.unlockedMinigames["block_breaker"] = true;
+    localStorage.setItem("CheemsAppLiMinigame_block_breaker", "true");
+    localStorage.setItem("CheemsAppLiMinigameCoins", "999999");
     this.cheemsSkins.forEach((s) => {
       this.unlockedCheems[s.storageKey] = true;
       localStorage.setItem(s.storageKey, JSON.stringify(true));
@@ -36456,6 +36509,10 @@ var ToolsService = class _ToolsService {
     this.totalScore = 0;
     this.highScore = 0;
     this.dogeCoins = 0;
+    this.minigameCoins = 50;
+    this.unlockedMinigames = {};
+    localStorage.setItem("CheemsAppLiMinigameCoins", "50");
+    localStorage.removeItem("CheemsAppLiMinigame_block_breaker");
     this.selectedCheems = "cheems_normal";
     this.selectedSound = "sfx_1";
     this.selectedMusic = "music_1";
@@ -36546,10 +36603,19 @@ var ToolsService = class _ToolsService {
     this.totalScore = totalScore ? this.parseNumber(totalScore) : 0;
     this.points = savedPoints ? this.parseNumber(savedPoints) : 0;
     this.dogeCoins = dogeCoins ? this.parseNumber(dogeCoins) : 0;
+    let mgCoins = localStorage.getItem("CheemsAppLiMinigameCoins");
+    if (!mgCoins) {
+      const match2 = document.cookie.match(/(^| )CheemsAppLiMinigameCoins=([^;]+)/);
+      if (match2)
+        mgCoins = match2[2];
+    }
+    this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 50;
     this.actScore = 0;
     localStorage.setItem("CheemsAppLiActPoints", "0");
   }
   loadUnlocks() {
+    const mgUnlock = localStorage.getItem("CheemsAppLiMinigame_block_breaker");
+    this.unlockedMinigames["block_breaker"] = mgUnlock ? mgUnlock.replace(/"/g, "") === "true" : false;
     this.cheemsSkins.forEach((s) => {
       const stored = localStorage.getItem(s.storageKey);
       if (s.default) {
@@ -37159,16 +37225,16 @@ var GameComponent = class _GameComponent {
 })();
 
 // src/app/pages/menu/menu.component.ts
-function MenuComponent_Conditional_32_Template(rf, ctx) {
+function MenuComponent_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("click", function MenuComponent_Conditional_32_Template_div_click_0_listener() {
+    \u0275\u0275listener("click", function MenuComponent_Conditional_37_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.tools.redirect("devSettings"));
     });
-    \u0275\u0275element(1, "img", 11);
+    \u0275\u0275element(1, "img", 12);
     \u0275\u0275elementStart(2, "div", 3)(3, "div", 4);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -37194,7 +37260,7 @@ var MenuComponent = class _MenuComponent {
   static \u0275fac = function MenuComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MenuComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 33, vars: 28, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/link-svgrepo-com.svg", "alt", "Offline Mode", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], [3, "class"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Dev Settings", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 38, vars: 32, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/link-svgrepo-com.svg", "alt", "Offline Mode", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], [3, "class"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Dev Settings", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_2_listener() {
@@ -37206,7 +37272,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(7, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_7_listener() {
-        return ctx.tools.redirect("closet");
+        return ctx.tools.redirect("minigames");
       });
       \u0275\u0275element(8, "img", 5);
       \u0275\u0275elementStart(9, "div", 3)(10, "div", 4);
@@ -37214,7 +37280,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(12, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_12_listener() {
-        return ctx.tools.redirect("settings");
+        return ctx.tools.redirect("closet");
       });
       \u0275\u0275element(13, "img", 6);
       \u0275\u0275elementStart(14, "div", 3)(15, "div", 4);
@@ -37222,7 +37288,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(17, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_17_listener() {
-        return ctx.tools.redirect("offline");
+        return ctx.tools.redirect("settings");
       });
       \u0275\u0275element(18, "img", 7);
       \u0275\u0275elementStart(19, "div", 3)(20, "div", 4);
@@ -37230,7 +37296,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(22, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_22_listener() {
-        return ctx.tools.redirect("onWork");
+        return ctx.tools.redirect("offline");
       });
       \u0275\u0275element(23, "img", 8);
       \u0275\u0275elementStart(24, "div", 3)(25, "div", 4);
@@ -37244,7 +37310,15 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementStart(29, "div", 3)(30, "div", 4);
       \u0275\u0275text(31);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(32, MenuComponent_Conditional_32_Template, 5, 4, "div", 10);
+      \u0275\u0275elementStart(32, "div", 1);
+      \u0275\u0275listener("click", function MenuComponent_Template_div_click_32_listener() {
+        return ctx.tools.redirect("onWork");
+      });
+      \u0275\u0275element(33, "img", 10);
+      \u0275\u0275elementStart(34, "div", 3)(35, "div", 4);
+      \u0275\u0275text(36);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275template(37, MenuComponent_Conditional_37_Template, 5, 4, "div", 11);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -37254,6 +37328,10 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275classMapInterpolate1("menu-card dogecoin-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(4);
       \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].shop);
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].minigames || "Minigames");
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(4);
@@ -37275,7 +37353,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275advance(4);
       \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].licenses);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.tools.devMenuUnlocked ? 32 : -1);
+      \u0275\u0275conditional(ctx.tools.devMenuUnlocked ? 37 : -1);
     }
   }, styles: ["\n\n.menu-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));\n  gap: 1.25rem;\n  width: 95%;\n  max-width: 900px;\n  margin: 2rem auto;\n  padding: 2rem;\n}\n.menu-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  gap: 1rem;\n  padding: 1.15rem;\n  border-radius: 16px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid transparent;\n}\n.menu-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);\n}\n.menu-card[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.98);\n}\n.menu-icon[_ngcontent-%COMP%] {\n  width: 44px;\n  height: 44px;\n  object-fit: contain;\n  flex-shrink: 0;\n}\n.coin-glow[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.7));\n}\n.card-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.card-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.card-sub[_ngcontent-%COMP%] {\n  font-size: 0.85em;\n  opacity: 0.8;\n}\n.menu-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(80, 68, 55, 0.85),\n      rgba(50, 42, 33, 0.95));\n  border: 1px solid rgba(255, 209, 102, 0.25);\n  color: rgb(245, 235, 220);\n}\n.menu-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.9),\n      rgba(240, 225, 195, 0.95));\n  border: 1px solid rgba(156, 92, 20, 0.3);\n  color: rgb(70, 45, 20);\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dogecoin-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(120, 95, 40, 0.9),\n      rgba(75, 55, 20, 0.95));\n  border-color: #ffd166;\n}\n.dogecoin-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 225, 160, 0.95),\n      rgba(245, 205, 130, 0.95));\n  border-color: #9c5c14;\n}\n.dogecoin-card.theme-contrast[_ngcontent-%COMP%] {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dev-card[_ngcontent-%COMP%] {\n  border-style: dashed !important;\n}\n@media (max-width: 600px) {\n  .menu-grid[_ngcontent-%COMP%] {\n    grid-template-columns: 1fr;\n    padding: 1.25rem;\n  }\n}\n/*# sourceMappingURL=menu.component.css.map */"] });
 };
@@ -37289,6 +37367,14 @@ var MenuComponent = class _MenuComponent {
             <img src="img/icons/trophy-svgrepo-com.svg" class="menu-icon coin-glow" alt="Shop">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].shop}}</div>
+            </div>
+        </div>
+
+        <!-- Minigames Card -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('minigames')">
+            <img src="img/icons/play-svgrepo-com.svg" class="menu-icon" alt="Minigames">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].minigames || 'Minigames'}}</div>
             </div>
         </div>
 
@@ -37746,18 +37832,6 @@ function ClosetComponent_Conditional_8_For_2_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
   }
 }
-function ClosetComponent_Conditional_8_For_2_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 9);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate((ctx_r2.tools.closet[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.closet[ctx_r2.tools.lang].inShop) || "In Shop");
-  }
-}
 function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -37771,7 +37845,7 @@ function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
     \u0275\u0275elementStart(2, "div", 5)(3, "span", 6);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, ClosetComponent_Conditional_8_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_8_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_8_For_2_Conditional_7_Template, 2, 1, "span", 9);
+    \u0275\u0275template(5, ClosetComponent_Conditional_8_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_8_For_2_Conditional_6_Template, 2, 1, "span", 8);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -37780,23 +37854,23 @@ function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
     \u0275\u0275classMapInterpolate1("shop-card ", ctx_r2.tools.themeColor, "");
     \u0275\u0275classProp("selected-cheems", ctx_r2.tools.selectedCheems === skin_r2.id);
     \u0275\u0275advance();
-    \u0275\u0275property("src", ctx_r2.tools.isCheemsUnlocked(skin_r2.id) ? ctx_r2.tools.getCheemsImg(skin_r2.id) : "img/cheems/locked-cheems.png", \u0275\u0275sanitizeUrl)("alt", skin_r2.id);
+    \u0275\u0275property("src", ctx_r2.tools.getCheemsImg(skin_r2.id), \u0275\u0275sanitizeUrl)("alt", skin_r2.id);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r2.tools.getCheemsName(skin_r2));
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.tools.selectedCheems === skin_r2.id ? 5 : ctx_r2.tools.isCheemsUnlocked(skin_r2.id) ? 6 : 7);
+    \u0275\u0275conditional(ctx_r2.tools.selectedCheems === skin_r2.id ? 5 : 6);
   }
 }
 function ClosetComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_8_For_2_Template, 8, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_8_For_2_Template, 7, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r2.tools.cheemsSkins);
+    \u0275\u0275repeater(ctx_r2.unlockedCheemsSkins);
   }
 }
 function ClosetComponent_Conditional_9_For_2_Conditional_5_Template(rf, ctx) {
@@ -37823,18 +37897,6 @@ function ClosetComponent_Conditional_9_For_2_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
   }
 }
-function ClosetComponent_Conditional_9_For_2_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 9);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate((ctx_r2.tools.closet[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.closet[ctx_r2.tools.lang].inShop) || "In Shop");
-  }
-}
 function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
@@ -37844,11 +37906,11 @@ function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectSound(sound_r5));
     });
-    \u0275\u0275element(1, "img", 10);
+    \u0275\u0275element(1, "img", 9);
     \u0275\u0275elementStart(2, "div", 5)(3, "span", 6);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, ClosetComponent_Conditional_9_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_9_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_9_For_2_Conditional_7_Template, 2, 1, "span", 9);
+    \u0275\u0275template(5, ClosetComponent_Conditional_9_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_9_For_2_Conditional_6_Template, 2, 1, "span", 8);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -37857,28 +37919,28 @@ function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
     \u0275\u0275classMapInterpolate1("shop-card ", ctx_r2.tools.themeColor, "");
     \u0275\u0275classProp("selected-cheems", ctx_r2.tools.selectedSound === sound_r5.id);
     \u0275\u0275advance();
-    \u0275\u0275property("src", ctx_r2.tools.isSoundUnlocked(sound_r5.id) ? "img/icons/sound-svgrepo-com.svg" : "img/icons/black-sound-svgrepo-com.svg", \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getSoundName(sound_r5));
+    \u0275\u0275property("alt", ctx_r2.tools.getSoundName(sound_r5));
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r2.tools.getSoundName(sound_r5));
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.tools.selectedSound === sound_r5.id ? 5 : ctx_r2.tools.isSoundUnlocked(sound_r5.id) ? 6 : 7);
+    \u0275\u0275conditional(ctx_r2.tools.selectedSound === sound_r5.id ? 5 : 6);
   }
 }
 function ClosetComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_9_For_2_Template, 8, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_9_For_2_Template, 7, 8, "div", 3, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r2.tools.soundEffects);
+    \u0275\u0275repeater(ctx_r2.unlockedSoundEffects);
   }
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 11);
+    \u0275\u0275element(0, "img", 10);
   }
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
@@ -37888,7 +37950,7 @@ function ClosetComponent_Conditional_10_For_2_Conditional_1_Template(rf, ctx) {
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 12);
+    \u0275\u0275element(0, "img", 11);
   }
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
@@ -37896,17 +37958,7 @@ function ClosetComponent_Conditional_10_For_2_Conditional_2_Template(rf, ctx) {
     \u0275\u0275property("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "img", 13);
-  }
-  if (rf & 2) {
-    const track_r7 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("alt", ctx_r2.tools.getMusicName(track_r7));
-  }
-}
-function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
+function ClosetComponent_Conditional_10_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 7);
     \u0275\u0275text(1);
@@ -37918,7 +37970,7 @@ function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_8_Template(rf, ctx) {
+function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 8);
     \u0275\u0275text(1);
@@ -37930,18 +37982,6 @@ function ClosetComponent_Conditional_10_For_2_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 9);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate((ctx_r2.tools.closet[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.closet[ctx_r2.tools.lang].inShop) || "In Shop");
-  }
-}
 function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
@@ -37951,11 +37991,11 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectMusic(track_r7));
     });
-    \u0275\u0275template(1, ClosetComponent_Conditional_10_For_2_Conditional_1_Template, 1, 1, "img", 11)(2, ClosetComponent_Conditional_10_For_2_Conditional_2_Template, 1, 1, "img", 12)(3, ClosetComponent_Conditional_10_For_2_Conditional_3_Template, 1, 1, "img", 13);
-    \u0275\u0275elementStart(4, "div", 5)(5, "span", 6);
-    \u0275\u0275text(6);
+    \u0275\u0275template(1, ClosetComponent_Conditional_10_For_2_Conditional_1_Template, 1, 1, "img", 10)(2, ClosetComponent_Conditional_10_For_2_Conditional_2_Template, 1, 1, "img", 11);
+    \u0275\u0275elementStart(3, "div", 5)(4, "span", 6);
+    \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(7, ClosetComponent_Conditional_10_For_2_Conditional_7_Template, 2, 1, "span", 7)(8, ClosetComponent_Conditional_10_For_2_Conditional_8_Template, 2, 1, "span", 8)(9, ClosetComponent_Conditional_10_For_2_Conditional_9_Template, 2, 1, "span", 9);
+    \u0275\u0275template(6, ClosetComponent_Conditional_10_For_2_Conditional_6_Template, 2, 1, "span", 7)(7, ClosetComponent_Conditional_10_For_2_Conditional_7_Template, 2, 1, "span", 8);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -37964,23 +38004,23 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
     \u0275\u0275classMapInterpolate1("shop-card ", ctx_r2.tools.themeColor, "");
     \u0275\u0275classProp("selected-cheems", ctx_r2.tools.selectedMusic === track_r7.id);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r2.tools.isMusicUnlocked(track_r7.id) ? 1 : track_r7.id === 0 ? 2 : 3);
-    \u0275\u0275advance(5);
+    \u0275\u0275conditional(track_r7.id === 0 ? 1 : 2);
+    \u0275\u0275advance(4);
     \u0275\u0275textInterpolate(ctx_r2.tools.getMusicName(track_r7));
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.tools.selectedMusic === track_r7.id ? 7 : ctx_r2.tools.isMusicUnlocked(track_r7.id) ? 8 : 9);
+    \u0275\u0275conditional(ctx_r2.tools.selectedMusic === track_r7.id ? 6 : 7);
   }
 }
 function ClosetComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_10_For_2_Template, 10, 8, "div", 3, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_10_For_2_Template, 8, 8, "div", 3, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275repeater(ctx_r2.tools.musicTracks);
+    \u0275\u0275repeater(ctx_r2.unlockedMusicTracks);
   }
 }
 var ClosetComponent = class _ClosetComponent {
@@ -37992,6 +38032,15 @@ var ClosetComponent = class _ClosetComponent {
   }
   setTab(tab) {
     this.activeTab = tab;
+  }
+  get unlockedCheemsSkins() {
+    return this.tools.cheemsSkins.filter((skin) => this.tools.isCheemsUnlocked(skin.id));
+  }
+  get unlockedSoundEffects() {
+    return this.tools.soundEffects.filter((sound) => this.tools.isSoundUnlocked(sound.id));
+  }
+  get unlockedMusicTracks() {
+    return this.tools.musicTracks.filter((track) => this.tools.isMusicUnlocked(track.id));
   }
   onSelectCheems(skin) {
     this.tools.buyOrSelectCheems(skin);
@@ -38005,7 +38054,7 @@ var ClosetComponent = class _ClosetComponent {
   static \u0275fac = function ClosetComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ClosetComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 11, vars: 27, consts: [[1, "container"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], [1, "status-badge", "cost-badge"], [1, "item-icon", 3, "src", "alt"], ["src", "img/icons/black-music-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/music-svgrepo-com.svg", 1, "item-icon", 3, "alt"]], template: function ClosetComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 11, vars: 27, consts: [[1, "container"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], ["src", "img/icons/sound-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/music-svgrepo-com.svg", 1, "item-icon", 3, "alt"]], template: function ClosetComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "button", 1);
       \u0275\u0275listener("click", function ClosetComponent_Template_button_click_2_listener() {
@@ -38079,21 +38128,19 @@ var ClosetComponent = class _ClosetComponent {
 
     @if (activeTab === 'cheems') {
         <div class="shop-grid">
-            @for (skin of tools.cheemsSkins; track $index) {
+            @for (skin of unlockedCheemsSkins; track $index) {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedCheems === skin.id"
                      (click)="onSelectCheems(skin)">
-                    <img [src]="tools.isCheemsUnlocked(skin.id) ? tools.getCheemsImg(skin.id) : 'img/cheems/locked-cheems.png'"
+                    <img [src]="tools.getCheemsImg(skin.id)"
                          class="item-img"
                          [alt]="skin.id">
                     <div class="item-info">
                         <span class="item-name">{{tools.getCheemsName(skin)}}</span>
                         @if (tools.selectedCheems === skin.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
-                        } @else if (tools.isCheemsUnlocked(skin.id)) {
-                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         } @else {
-                            <span class="status-badge cost-badge">{{tools.closet[tools.lang]?.inShop || 'In Shop'}}</span>
+                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         }
                     </div>
                 </div>
@@ -38103,21 +38150,19 @@ var ClosetComponent = class _ClosetComponent {
 
     @if (activeTab === 'sounds') {
         <div class="shop-grid">
-            @for (sound of tools.soundEffects; track $index) {
+            @for (sound of unlockedSoundEffects; track $index) {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedSound === sound.id"
                      (click)="onSelectSound(sound)">
-                    <img [src]="tools.isSoundUnlocked(sound.id) ? 'img/icons/sound-svgrepo-com.svg' : 'img/icons/black-sound-svgrepo-com.svg'"
+                    <img src="img/icons/sound-svgrepo-com.svg"
                          class="item-icon"
                          [alt]="tools.getSoundName(sound)">
                     <div class="item-info">
                         <span class="item-name">{{tools.getSoundName(sound)}}</span>
                         @if (tools.selectedSound === sound.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
-                        } @else if (tools.isSoundUnlocked(sound.id)) {
-                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         } @else {
-                            <span class="status-badge cost-badge">{{tools.closet[tools.lang]?.inShop || 'In Shop'}}</span>
+                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         }
                     </div>
                 </div>
@@ -38127,13 +38172,11 @@ var ClosetComponent = class _ClosetComponent {
 
     @if (activeTab === 'music') {
         <div class="shop-grid">
-            @for (track of tools.musicTracks; track $index) {
+            @for (track of unlockedMusicTracks; track $index) {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedMusic === track.id"
                      (click)="onSelectMusic(track)">
-                    @if (!tools.isMusicUnlocked(track.id)) {
-                        <img src="img/icons/black-music-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
-                    } @else if (track.id === 0) {
+                    @if (track.id === 0) {
                         <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else {
                         <img src="img/icons/music-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
@@ -38142,10 +38185,8 @@ var ClosetComponent = class _ClosetComponent {
                         <span class="item-name">{{tools.getMusicName(track)}}</span>
                         @if (tools.selectedMusic === track.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
-                        } @else if (tools.isMusicUnlocked(track.id)) {
-                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         } @else {
-                            <span class="status-badge cost-badge">{{tools.closet[tools.lang]?.inShop || 'In Shop'}}</span>
+                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
                         }
                     </div>
                 </div>
@@ -38474,7 +38515,7 @@ var _forTrack04 = ($index, $item) => $item.id;
 function ShopComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 19);
+    \u0275\u0275elementStart(0, "button", 20);
     \u0275\u0275listener("click", function ShopComponent_Conditional_7_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -38486,15 +38527,33 @@ function ShopComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].dogecoinSection) || "DogeCoins", " ");
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].currencySection) || "Currency", " ");
   }
 }
 function ShopComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 20);
+    \u0275\u0275elementStart(0, "button", 21);
     \u0275\u0275listener("click", function ShopComponent_Conditional_8_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-minigame"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].minigamesSection) || "Minigames", " ");
+  }
+}
+function ShopComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 21);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_9_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-booster"));
     });
@@ -38507,12 +38566,12 @@ function ShopComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].boosterSection) || "Boosters", " ");
   }
 }
-function ShopComponent_Conditional_9_Template(rf, ctx) {
+function ShopComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 21);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_9_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r5);
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 22);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r6);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-cheems"));
     });
@@ -38525,12 +38584,12 @@ function ShopComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].cheemsSection) || "Cheems Skins", " ");
   }
 }
-function ShopComponent_Conditional_10_Template(rf, ctx) {
+function ShopComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 22);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r6);
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_11_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-sound"));
     });
@@ -38543,12 +38602,12 @@ function ShopComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].sfxSection) || "Sound Effects", " ");
   }
 }
-function ShopComponent_Conditional_11_Template(rf, ctx) {
+function ShopComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_11_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r7);
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 24);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_12_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-music"));
     });
@@ -38561,17 +38620,17 @@ function ShopComponent_Conditional_11_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].musicSection) || "Background Music", " ");
   }
 }
-function ShopComponent_Conditional_12_Template(rf, ctx) {
+function ShopComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "div", 24);
+    \u0275\u0275elementStart(0, "div", 11)(1, "div", 25);
     \u0275\u0275text(2, "\u26A1");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 25)(4, "span", 26);
+    \u0275\u0275elementStart(3, "div", 26)(4, "span", 27);
     \u0275\u0275text(5);
     \u0275\u0275elementStart(6, "strong");
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "span", 27);
+    \u0275\u0275elementStart(8, "span", 28);
     \u0275\u0275text(9);
     \u0275\u0275elementEnd()()();
   }
@@ -38585,43 +38644,43 @@ function ShopComponent_Conditional_12_Template(rf, ctx) {
     \u0275\u0275textInterpolate2(" \u23F3 ", ctx_r2.tools.getBoosterFormattedTime(), " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remaining) || "remaining", " ");
   }
 }
-function ShopComponent_ng_template_26_Conditional_2_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 30);
+    \u0275\u0275element(0, "img", 31);
   }
   if (rf & 2) {
-    const item_r8 = \u0275\u0275nextContext().$implicit;
+    const item_r9 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275property("src", ctx_r2.getShopCardIcon(item_r8), \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getShopItemName(item_r8));
+    \u0275\u0275property("src", ctx_r2.getShopCardIcon(item_r9), \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getShopItemName(item_r9));
   }
 }
-function ShopComponent_ng_template_26_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 31);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const item_r8 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(item_r8.icon);
-  }
-}
-function ShopComponent_ng_template_26_Conditional_4_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 32);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r8 = \u0275\u0275nextContext().$implicit;
+    const item_r9 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1("x", item_r8.multiplier || 1, "");
+    \u0275\u0275textInterpolate(item_r9.icon);
   }
 }
-function ShopComponent_ng_template_26_Conditional_10_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 36);
+    \u0275\u0275elementStart(0, "span", 33);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r9 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1("x", item_r9.multiplier || 1, "");
+  }
+}
+function ShopComponent_ng_template_33_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 37);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -38631,26 +38690,26 @@ function ShopComponent_ng_template_26_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
   }
 }
-function ShopComponent_ng_template_26_Conditional_11_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 39);
+    \u0275\u0275elementStart(0, "div", 40);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r8 = \u0275\u0275nextContext().$implicit;
+    const item_r9 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("limit-reached", !ctx_r2.tools.canBuyDailyLimit(item_r8));
+    \u0275\u0275classProp("limit-reached", !ctx_r2.tools.canBuyDailyLimit(item_r9));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate3(" ", ctx_r2.tools.getRemainingDailyLimit(item_r8), " / ", item_r8.dailyLimit, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remainingToday) || "left today", " ");
+    \u0275\u0275textInterpolate3(" ", ctx_r2.tools.getRemainingDailyLimit(item_r9), " / ", item_r9.dailyLimit, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remainingToday) || "left today", " ");
   }
 }
-function ShopComponent_ng_template_26_Conditional_13_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 40)(1, "span", 41);
+    \u0275\u0275elementStart(0, "div", 41)(1, "span", 42);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "button", 42);
+    \u0275\u0275elementStart(3, "button", 43);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
   }
@@ -38662,9 +38721,9 @@ function ShopComponent_ng_template_26_Conditional_13_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
   }
 }
-function ShopComponent_ng_template_26_Conditional_14_Conditional_1_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_14_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 43);
+    \u0275\u0275elementStart(0, "span", 44);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -38674,130 +38733,163 @@ function ShopComponent_ng_template_26_Conditional_14_Conditional_1_Template(rf, 
     \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].todaysPrice) || "Today's Price:");
   }
 }
-function ShopComponent_ng_template_26_Conditional_14_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 40);
-    \u0275\u0275template(1, ShopComponent_ng_template_26_Conditional_14_Conditional_1_Template, 2, 1, "span", 43);
-    \u0275\u0275elementStart(2, "span", 44);
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 41);
+    \u0275\u0275template(1, ShopComponent_ng_template_33_Conditional_14_Conditional_1_Template, 2, 1, "span", 44);
+    \u0275\u0275elementStart(2, "span", 45);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "button", 45);
-    \u0275\u0275listener("click", function ShopComponent_ng_template_26_Conditional_14_Template_button_click_4_listener() {
-      \u0275\u0275restoreView(_r9);
-      const item_r8 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275elementStart(4, "button", 46);
+    \u0275\u0275listener("click", function ShopComponent_ng_template_33_Conditional_14_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r10);
+      const item_r9 = \u0275\u0275nextContext().$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.buyItem(item_r8));
+      return \u0275\u0275resetView(ctx_r2.buyItem(item_r9));
     });
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r8 = \u0275\u0275nextContext().$implicit;
+    const item_r9 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275conditional(item_r8.type === "dogecoin" ? 1 : -1);
+    \u0275\u0275conditional(item_r9.type === "dogecoin" ? 1 : -1);
     \u0275\u0275advance();
-    \u0275\u0275classProp("free-cost", ctx_r2.formatItemCost(item_r8) === ((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].free) || "Free"));
+    \u0275\u0275classProp("free-cost", ctx_r2.formatItemCost(item_r9) === ((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].free) || "Free"));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.formatItemCost(item_r8));
+    \u0275\u0275textInterpolate(ctx_r2.formatItemCost(item_r9));
     \u0275\u0275advance();
-    \u0275\u0275property("disabled", !ctx_r2.canBuy(item_r8));
+    \u0275\u0275property("disabled", !ctx_r2.canBuy(item_r9));
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].buyBtn) || "Buy", " ");
   }
 }
-function ShopComponent_ng_template_26_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 28)(1, "div", 29);
-    \u0275\u0275template(2, ShopComponent_ng_template_26_Conditional_2_Template, 1, 2, "img", 30)(3, ShopComponent_ng_template_26_Conditional_3_Template, 2, 1, "span", 31)(4, ShopComponent_ng_template_26_Conditional_4_Template, 2, 1, "span", 32);
+    \u0275\u0275elementStart(0, "div", 29)(1, "div", 30);
+    \u0275\u0275template(2, ShopComponent_ng_template_33_Conditional_2_Template, 1, 2, "img", 31)(3, ShopComponent_ng_template_33_Conditional_3_Template, 2, 1, "span", 32)(4, ShopComponent_ng_template_33_Conditional_4_Template, 2, 1, "span", 33);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 33)(6, "h3", 34);
+    \u0275\u0275elementStart(5, "div", 34)(6, "h3", 35);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "p", 35);
+    \u0275\u0275elementStart(8, "p", 36);
     \u0275\u0275text(9);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(10, ShopComponent_ng_template_26_Conditional_10_Template, 2, 1, "div", 36)(11, ShopComponent_ng_template_26_Conditional_11_Template, 2, 5, "div", 37);
+    \u0275\u0275template(10, ShopComponent_ng_template_33_Conditional_10_Template, 2, 1, "div", 37)(11, ShopComponent_ng_template_33_Conditional_11_Template, 2, 5, "div", 38);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "div", 38);
-    \u0275\u0275template(13, ShopComponent_ng_template_26_Conditional_13_Template, 5, 2)(14, ShopComponent_ng_template_26_Conditional_14_Template, 6, 6);
+    \u0275\u0275elementStart(12, "div", 39);
+    \u0275\u0275template(13, ShopComponent_ng_template_33_Conditional_13_Template, 5, 2)(14, ShopComponent_ng_template_33_Conditional_14_Template, 6, 6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r8 = ctx.$implicit;
+    const item_r9 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("coin-card", item_r8.type === "dogecoin")("booster-card", item_r8.type === "booster")("cheems-card", item_r8.type === "cheems")("sound-card", item_r8.type === "sound")("music-card", item_r8.type === "music");
+    \u0275\u0275classProp("coin-card", item_r9.type === "dogecoin")("booster-card", item_r9.type === "booster")("cheems-card", item_r9.type === "cheems")("sound-card", item_r9.type === "sound")("music-card", item_r9.type === "music")("currency-dgc-to-mg-card", item_r9.id === "curr_dgc_to_mg")("currency-mg-to-dgc-card", item_r9.id === "curr_mg_to_dgc");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(item_r8.icon.endsWith(".svg") || item_r8.icon.endsWith(".png") ? 2 : 3);
+    \u0275\u0275conditional(item_r9.icon.endsWith(".svg") || item_r9.icon.endsWith(".png") ? 2 : 3);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(item_r8.type === "booster" ? 4 : -1);
+    \u0275\u0275conditional(item_r9.type === "booster" ? 4 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemName(item_r8));
+    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemName(item_r9));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemDesc(item_r8));
+    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemDesc(item_r9));
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r8) ? 10 : item_r8.dailyLimit && item_r8.dailyLimit > 0 ? 11 : -1);
+    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r9) ? 10 : item_r9.dailyLimit && item_r9.dailyLimit > 0 ? 11 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r8) ? 13 : 14);
+    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r9) ? 13 : 14);
   }
 }
-function ShopComponent_Conditional_28_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_35_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_28_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_35_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_28_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+    \u0275\u0275template(0, ShopComponent_Conditional_35_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
   }
   if (rf & 2) {
-    const item_r10 = ctx.$implicit;
+    const item_r11 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r11 = \u0275\u0275reference(27);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r10));
+    const shopCard_r12 = \u0275\u0275reference(34);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r11));
   }
 }
-function ShopComponent_Conditional_28_Template(rf, ctx) {
+function ShopComponent_Conditional_35_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 46)(1, "h2", 47);
+    \u0275\u0275elementStart(0, "div", 47)(1, "h2", 48);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 48);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_28_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementStart(3, "div", 49);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_35_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].dogecoinSection) || "DogeCoins");
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].currencySection) || "Currency");
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r2.dogecoinItems);
   }
 }
-function ShopComponent_Conditional_29_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_36_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_29_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_36_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_29_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+    \u0275\u0275template(0, ShopComponent_Conditional_36_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
   }
   if (rf & 2) {
-    const item_r12 = ctx.$implicit;
+    const item_r13 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r11 = \u0275\u0275reference(27);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r12));
+    const shopCard_r12 = \u0275\u0275reference(34);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r13));
   }
 }
-function ShopComponent_Conditional_29_Template(rf, ctx) {
+function ShopComponent_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 50)(1, "h2", 51);
+    \u0275\u0275elementStart(0, "div", 51)(1, "h2", 52);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 48);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_29_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementStart(3, "div", 49);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].minigamesSection) || "Minigames");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.minigameItems);
+  }
+}
+function ShopComponent_Conditional_37_For_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function ShopComponent_Conditional_37_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShopComponent_Conditional_37_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
+  }
+  if (rf & 2) {
+    const item_r14 = ctx.$implicit;
+    \u0275\u0275nextContext(2);
+    const shopCard_r12 = \u0275\u0275reference(34);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r14));
+  }
+}
+function ShopComponent_Conditional_37_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 53)(1, "h2", 54);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "div", 49);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -38808,29 +38900,29 @@ function ShopComponent_Conditional_29_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.boosterItems);
   }
 }
-function ShopComponent_Conditional_30_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_38_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_30_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_38_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_30_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+    \u0275\u0275template(0, ShopComponent_Conditional_38_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
   }
   if (rf & 2) {
-    const item_r13 = ctx.$implicit;
+    const item_r15 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r11 = \u0275\u0275reference(27);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r13));
+    const shopCard_r12 = \u0275\u0275reference(34);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r15));
   }
 }
-function ShopComponent_Conditional_30_Template(rf, ctx) {
+function ShopComponent_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 52)(1, "h2", 53);
+    \u0275\u0275elementStart(0, "div", 55)(1, "h2", 56);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 48);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_30_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementStart(3, "div", 49);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -38841,29 +38933,29 @@ function ShopComponent_Conditional_30_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.cheemsItems);
   }
 }
-function ShopComponent_Conditional_31_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_39_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_31_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_39_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_31_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+    \u0275\u0275template(0, ShopComponent_Conditional_39_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
   }
   if (rf & 2) {
-    const item_r14 = ctx.$implicit;
+    const item_r16 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r11 = \u0275\u0275reference(27);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r14));
+    const shopCard_r12 = \u0275\u0275reference(34);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r16));
   }
 }
-function ShopComponent_Conditional_31_Template(rf, ctx) {
+function ShopComponent_Conditional_39_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 54)(1, "h2", 55);
+    \u0275\u0275elementStart(0, "div", 57)(1, "h2", 58);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 48);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_31_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementStart(3, "div", 49);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -38874,29 +38966,29 @@ function ShopComponent_Conditional_31_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.soundItems);
   }
 }
-function ShopComponent_Conditional_32_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_40_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_32_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_40_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_32_For_5_ng_container_0_Template, 1, 0, "ng-container", 49);
+    \u0275\u0275template(0, ShopComponent_Conditional_40_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
   }
   if (rf & 2) {
-    const item_r15 = ctx.$implicit;
+    const item_r17 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r11 = \u0275\u0275reference(27);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r11)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r15));
+    const shopCard_r12 = \u0275\u0275reference(34);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r17));
   }
 }
-function ShopComponent_Conditional_32_Template(rf, ctx) {
+function ShopComponent_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 56)(1, "h2", 57);
+    \u0275\u0275elementStart(0, "div", 59)(1, "h2", 60);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 48);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_32_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275elementStart(3, "div", 49);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -38941,6 +39033,51 @@ var ShopComponent = class _ShopComponent {
     if (item.type === "dogecoin") {
       const coinsGiven = item.coinsGiven || 1;
       this.tools.buyDogeCoin(item.cost, coinsGiven, item.id);
+    } else if (item.type === "currency") {
+      const ptsCost = item.cost || 0;
+      const coinCost = item.costCoins || 0;
+      const mgCost = item.costMinigames || 0;
+      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost && this.tools.minigameCoins >= mgCost) {
+        this.tools.points -= ptsCost;
+        this.tools.dogeCoins -= coinCost;
+        this.tools.minigameCoins -= mgCost;
+        if (item.coinsGiven) {
+          this.tools.dogeCoins += item.coinsGiven;
+        }
+        if (item.minigameCoinsGiven) {
+          this.tools.addMinigameCoins(item.minigameCoinsGiven);
+        }
+        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
+        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
+        localStorage.setItem("CheemsAppLiMinigameCoins", JSON.stringify(this.tools.minigameCoins));
+        this.tools.recordDailyPurchase(item.id);
+        this.tools.showToast(this.tools.closet[this.tools.lang]?.purchased || "Purchased!");
+        this.tools.playSound("sfx_4");
+      } else {
+        this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough currency!");
+      }
+    } else if (item.type === "minigame") {
+      const ptsCost = item.cost || 0;
+      const coinCost = item.costCoins || 0;
+      const mgCost = item.costMinigames || 0;
+      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost && this.tools.minigameCoins >= mgCost) {
+        this.tools.points -= ptsCost;
+        this.tools.dogeCoins -= coinCost;
+        this.tools.minigameCoins -= mgCost;
+        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
+        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
+        localStorage.setItem("CheemsAppLiMinigameCoins", JSON.stringify(this.tools.minigameCoins));
+        const target = String(item.targetId || item.id);
+        this.tools.unlockedMinigames[target] = true;
+        this.tools.unlockedMinigames["block_breaker"] = true;
+        localStorage.setItem("CheemsAppLiMinigame_block_breaker", "true");
+        localStorage.setItem("CheemsAppLiMinigame_" + target, "true");
+        this.tools.recordLifetimePurchase(item.id);
+        this.tools.showToast(this.tools.closet[this.tools.lang]?.purchased || "Purchased!");
+        this.tools.playSound("sfx_4");
+      } else {
+        this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough currency!");
+      }
     } else if (item.type === "booster") {
       const ptsCost = item.cost || 0;
       const coinCost = item.costCoins || 0;
@@ -38979,12 +39116,14 @@ var ShopComponent = class _ShopComponent {
     }
     const ptsCost = item.cost !== void 0 ? item.cost : item.type === "dogecoin" ? this.dailyPrice : 0;
     const coinsCost = item.costCoins || 0;
-    return this.tools.points >= ptsCost && this.tools.dogeCoins >= coinsCost;
+    const mgCost = item.costMinigames || 0;
+    return this.tools.points >= ptsCost && this.tools.dogeCoins >= coinsCost && this.tools.minigameCoins >= mgCost;
   }
   formatItemCost(item) {
     const ptsCost = item.cost !== void 0 ? item.cost : item.type === "dogecoin" ? this.dailyPrice : 0;
     const coinsCost = item.costCoins || 0;
-    if (ptsCost === 0 && coinsCost === 0) {
+    const mgCost = item.costMinigames || 0;
+    if (ptsCost === 0 && coinsCost === 0 && mgCost === 0) {
       return this.tools.shop[this.tools.lang]?.free || "Free";
     }
     const parts = [];
@@ -38994,10 +39133,16 @@ var ShopComponent = class _ShopComponent {
     if (coinsCost > 0) {
       parts.push(`${coinsCost.toLocaleString()} DGC`);
     }
+    if (mgCost > 0) {
+      parts.push(`${mgCost.toLocaleString()} MG`);
+    }
     return parts.join(" + ");
   }
   get dogecoinItems() {
-    return this.tools.shopItems.filter((i) => i.type === "dogecoin");
+    return this.tools.shopItems.filter((i) => i.type === "dogecoin" || i.type === "currency");
+  }
+  get minigameItems() {
+    return this.tools.shopItems.filter((i) => i.type === "minigame");
   }
   get boosterItems() {
     return this.tools.shopItems.filter((i) => i.type === "booster");
@@ -39048,7 +39193,7 @@ var ShopComponent = class _ShopComponent {
         return ctx.onWindowScroll();
       }, false, \u0275\u0275resolveWindow);
     }
-  }, decls: 35, vars: 25, consts: [["shopCard", ""], ["id", "shop-top"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin-min.png", "alt", "DogeCoin", 1, "mini-coin-icon"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
+  }, decls: 43, vars: 30, consts: [["shopCard", ""], ["id", "shop-top"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin-min.png", "alt", "DogeCoin", 1, "mini-coin-icon"], [1, "balance-value"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-minigame", 1, "section-separator"], [1, "section-title", "minigame-title"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "div", 1)(1, "header", 2)(2, "h1", 3);
@@ -39058,30 +39203,37 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275text(5);
       \u0275\u0275elementEnd()();
       \u0275\u0275elementStart(6, "div", 5);
-      \u0275\u0275template(7, ShopComponent_Conditional_7_Template, 2, 1, "button", 6)(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 8)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 9)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 10);
+      \u0275\u0275template(7, ShopComponent_Conditional_7_Template, 2, 1, "button", 6)(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 7)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 8)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 9)(12, ShopComponent_Conditional_12_Template, 2, 1, "button", 10);
       \u0275\u0275elementEnd();
-      \u0275\u0275template(12, ShopComponent_Conditional_12_Template, 10, 5, "div", 11);
-      \u0275\u0275elementStart(13, "div", 12)(14, "div", 13)(15, "span", 14);
-      \u0275\u0275text(16, "Points:");
+      \u0275\u0275template(13, ShopComponent_Conditional_13_Template, 10, 5, "div", 11);
+      \u0275\u0275elementStart(14, "div", 12)(15, "div", 13)(16, "span", 14);
+      \u0275\u0275text(17, "Points:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(17, "span", 15);
-      \u0275\u0275text(18);
-      \u0275\u0275pipe(19, "number");
+      \u0275\u0275elementStart(18, "span", 15);
+      \u0275\u0275text(19);
+      \u0275\u0275pipe(20, "number");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(20, "div", 13)(21, "span", 14);
-      \u0275\u0275text(22, "DogeCoins:");
+      \u0275\u0275elementStart(21, "div", 13)(22, "span", 14);
+      \u0275\u0275text(23, "DogeCoins:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(23, "span", 16);
-      \u0275\u0275element(24, "img", 17);
-      \u0275\u0275text(25);
+      \u0275\u0275elementStart(24, "span", 16);
+      \u0275\u0275element(25, "img", 17);
+      \u0275\u0275text(26);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(27, "div", 13)(28, "span", 14);
+      \u0275\u0275text(29, "Minigame Pts:");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(30, "span", 18);
+      \u0275\u0275text(31);
+      \u0275\u0275pipe(32, "number");
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(26, ShopComponent_ng_template_26_Template, 15, 16, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(28, ShopComponent_Conditional_28_Template, 6, 1)(29, ShopComponent_Conditional_29_Template, 6, 1)(30, ShopComponent_Conditional_30_Template, 6, 1)(31, ShopComponent_Conditional_31_Template, 6, 1)(32, ShopComponent_Conditional_32_Template, 6, 1);
-      \u0275\u0275elementStart(33, "button", 18);
-      \u0275\u0275listener("click", function ShopComponent_Template_button_click_33_listener() {
+      \u0275\u0275template(33, ShopComponent_ng_template_33_Template, 15, 20, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(35, ShopComponent_Conditional_35_Template, 6, 1)(36, ShopComponent_Conditional_36_Template, 6, 1)(37, ShopComponent_Conditional_37_Template, 6, 1)(38, ShopComponent_Conditional_38_Template, 6, 1)(39, ShopComponent_Conditional_39_Template, 6, 1)(40, ShopComponent_Conditional_40_Template, 6, 1);
+      \u0275\u0275elementStart(41, "button", 19);
+      \u0275\u0275listener("click", function ShopComponent_Template_button_click_41_listener() {
         \u0275\u0275restoreView(_r1);
         return \u0275\u0275resetView(ctx.scrollToTop());
       });
-      \u0275\u0275text(34, " \u2191 ");
+      \u0275\u0275text(42, " \u2191 ");
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -39093,34 +39245,40 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275advance(2);
       \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 7 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 8 : -1);
+      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 8 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 9 : -1);
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 9 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 10 : -1);
+      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 10 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 11 : -1);
+      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 11 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.tools.getBoosterRemainingSeconds() > 0 ? 12 : -1);
+      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 12 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.tools.getBoosterRemainingSeconds() > 0 ? 13 : -1);
       \u0275\u0275advance(6);
-      \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(19, 23, ctx.tools.points), " Pts");
+      \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(20, 26, ctx.tools.points), " Pts");
       \u0275\u0275advance(7);
       \u0275\u0275textInterpolate1(" ", ctx.tools.dogeCoins, " ");
-      \u0275\u0275advance(3);
-      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 28 : -1);
+      \u0275\u0275advance(5);
+      \u0275\u0275textInterpolate1("\u{1F3AE} ", \u0275\u0275pipeBind1(32, 28, ctx.tools.minigameCoins), "");
+      \u0275\u0275advance(4);
+      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 35 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 29 : -1);
+      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 36 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 30 : -1);
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 37 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 31 : -1);
+      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 38 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 32 : -1);
+      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 39 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 40 : -1);
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("back-to-top-btn ", ctx.tools.themeColor, "");
       \u0275\u0275classProp("visible", ctx.showScrollTop);
     }
-  }, dependencies: [CommonModule, NgTemplateOutlet, DecimalPipe], styles: ['\n\n.shop-container[_ngcontent-%COMP%] {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn[_ngcontent-%COMP%] {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-dogecoin[_ngcontent-%COMP%] {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster[_ngcontent-%COMP%] {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems[_ngcontent-%COMP%] {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound[_ngcontent-%COMP%] {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music[_ngcontent-%COMP%] {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.section-separator[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator[_ngcontent-%COMP%]::before, \n.section-separator[_ngcontent-%COMP%]::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.dogecoin-title[_ngcontent-%COMP%] {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title[_ngcontent-%COMP%] {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title[_ngcontent-%COMP%] {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title[_ngcontent-%COMP%] {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title[_ngcontent-%COMP%] {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: _ngcontent-%COMP%_boosterPulse 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon[_ngcontent-%COMP%] {\n  font-size: 2.2rem;\n}\n.booster-banner-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label[_ngcontent-%COMP%] {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value[_ngcontent-%COMP%] {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.doge-val[_ngcontent-%COMP%] {\n  color: #ff9900;\n}\n.mini-coin-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card-icon-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.multiplier-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge[_ngcontent-%COMP%] {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible[_ngcontent-%COMP%] {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%]:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title[_ngcontent-%COMP%] {\n    font-size: 2rem;\n  }\n  .booster-banner-content[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar[_ngcontent-%COMP%] {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title[_ngcontent-%COMP%] {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn[_ngcontent-%COMP%] {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light[_ngcontent-%COMP%] {\n  color: #2b1f14;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #059669;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::before, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .multiplier-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */'] });
+  }, dependencies: [CommonModule, NgTemplateOutlet, DecimalPipe], styles: ['\n\n.shop-container[_ngcontent-%COMP%] {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn[_ngcontent-%COMP%] {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-dogecoin[_ngcontent-%COMP%] {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster[_ngcontent-%COMP%] {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems[_ngcontent-%COMP%] {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound[_ngcontent-%COMP%] {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music[_ngcontent-%COMP%] {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames[_ngcontent-%COMP%] {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator[_ngcontent-%COMP%]::before, \n.section-separator[_ngcontent-%COMP%]::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.dogecoin-title[_ngcontent-%COMP%] {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title[_ngcontent-%COMP%] {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title[_ngcontent-%COMP%] {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title[_ngcontent-%COMP%] {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title[_ngcontent-%COMP%] {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: _ngcontent-%COMP%_boosterPulse 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon[_ngcontent-%COMP%] {\n  font-size: 2.2rem;\n}\n.booster-banner-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label[_ngcontent-%COMP%] {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value[_ngcontent-%COMP%] {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.doge-val[_ngcontent-%COMP%] {\n  color: #ff9900;\n}\n.mini-coin-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.multiplier-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge[_ngcontent-%COMP%] {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible[_ngcontent-%COMP%] {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%]:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title[_ngcontent-%COMP%] {\n    font-size: 2rem;\n  }\n  .booster-banner-content[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar[_ngcontent-%COMP%] {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title[_ngcontent-%COMP%] {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn[_ngcontent-%COMP%] {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light[_ngcontent-%COMP%] {\n  color: #2b1f14;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #059669;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::before, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .multiplier-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ShopComponent, [{
@@ -39136,7 +39294,12 @@ var ShopComponent = class _ShopComponent {
     <div class="shop-nav-bar">
         @if (dogecoinItems.length > 0) {
             <button class="shop-nav-btn nav-dogecoin" (click)="scrollToSection('sec-dogecoin')">
-                {{tools.shop[tools.lang]?.dogecoinSection || 'DogeCoins'}}
+                {{tools.shop[tools.lang]?.currencySection || 'Currency'}}
+            </button>
+        }
+        @if (minigameItems.length > 0) {
+            <button class="shop-nav-btn nav-booster" (click)="scrollToSection('sec-minigame')">
+                {{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}
             </button>
         }
         @if (boosterItems.length > 0) {
@@ -39190,6 +39353,10 @@ var ShopComponent = class _ShopComponent {
                 {{tools.dogeCoins}}
             </span>
         </div>
+        <div class="balance-item">
+            <span class="balance-label">Minigame Pts:</span>
+            <span class="balance-value">\u{1F3AE} {{tools.minigameCoins | number}}</span>
+        </div>
     </div>
 
     <!-- Reusable Shop Card Template -->
@@ -39199,7 +39366,9 @@ var ShopComponent = class _ShopComponent {
              [class.booster-card]="item.type === 'booster'"
              [class.cheems-card]="item.type === 'cheems'"
              [class.sound-card]="item.type === 'sound'"
-             [class.music-card]="item.type === 'music'">
+             [class.music-card]="item.type === 'music'"
+             [class.currency-dgc-to-mg-card]="item.id === 'curr_dgc_to_mg'"
+             [class.currency-mg-to-dgc-card]="item.id === 'curr_mg_to_dgc'">
             <div class="shop-card-icon-wrapper">
                 @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png')) {
                     <img [src]="getShopCardIcon(item)" class="shop-card-icon" [alt]="tools.getShopItemName(item)">
@@ -39251,13 +39420,25 @@ var ShopComponent = class _ShopComponent {
         </div>
     </ng-template>
 
-    <!-- DogeCoins Section -->
+    <!-- Currency Section -->
     @if (dogecoinItems.length > 0) {
         <div class="section-separator" id="sec-dogecoin">
-            <h2 class="section-title dogecoin-title">{{tools.shop[tools.lang]?.dogecoinSection || 'DogeCoins'}}</h2>
+            <h2 class="section-title dogecoin-title">{{tools.shop[tools.lang]?.currencySection || 'Currency'}}</h2>
         </div>
         <div class="shop-grid">
             @for (item of dogecoinItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Minigames Section -->
+    @if (minigameItems.length > 0) {
+        <div class="section-separator" id="sec-minigame">
+            <h2 class="section-title minigame-title">{{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of minigameItems; track item.id) {
                 <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
             }
         </div>
@@ -39319,7 +39500,7 @@ var ShopComponent = class _ShopComponent {
         \u2191
     </button>
 </div>
-`, styles: ['/* src/app/pages/shop/shop.component.css */\n.shop-container {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-dogecoin {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.section-separator {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator::before,\n.section-separator::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.dogecoin-title {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator:has(.dogecoin-title)::before,\n.section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator:has(.booster-title)::before,\n.section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator:has(.cheems-title)::before,\n.section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator:has(.sound-title)::before,\n.section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator:has(.music-title)::before,\n.section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: boosterPulse 2s infinite ease-in-out;\n}\n@keyframes boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon {\n  font-size: 2.2rem;\n}\n.booster-banner-content {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val {\n  color: #ffd700;\n}\n.doge-val {\n  color: #ff9900;\n}\n.mini-coin-icon {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card-icon-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji {\n  font-size: 3rem;\n}\n.multiplier-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title {\n    font-size: 2rem;\n  }\n  .booster-banner-content {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light {\n  color: #2b1f14;\n}\n.shop-container.theme-light .shop-title {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light .shop-subtitle {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light .shop-nav-bar {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light .shop-nav-btn {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .nav-dogecoin {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .nav-dogecoin:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light .nav-booster {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .nav-booster:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light .nav-cheems {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .nav-cheems:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light .nav-sound {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .nav-sound:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light .nav-music {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .nav-music:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light .section-title {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light .dogecoin-title {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::before,\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .booster-title {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.booster-title)::before,\n.shop-container.theme-light .section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light .cheems-title {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.cheems-title)::before,\n.shop-container.theme-light .section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light .sound-title {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.sound-title)::before,\n.shop-container.theme-light .section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light .music-title {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.music-title)::before,\n.shop-container.theme-light .section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light .shop-balance-bar {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .balance-label {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light .points-val {\n  color: #b35900;\n}\n.shop-container.theme-light .doge-val {\n  color: #d97706;\n}\n.shop-container.theme-light .shop-card {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light .shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light .shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light .shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light .shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light .item-name {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light .item-desc {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light .cost-label {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light .cost-val {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light .shop-card-footer {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .active-booster-banner {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .booster-banner-timer {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light .daily-limit-badge {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light .daily-limit-badge.limit-reached {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light .cost-val.free-cost {\n  color: #059669;\n}\n.shop-container.theme-light .buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light .buy-btn:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light .buy-btn:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .shop-title {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast .shop-subtitle {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-nav-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast .shop-nav-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-nav-btn:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .nav-dogecoin,\n.shop-container.theme-contrast .nav-booster,\n.shop-container.theme-contrast .nav-cheems,\n.shop-container.theme-contrast .nav-sound,\n.shop-container.theme-contrast .nav-music {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .nav-dogecoin:hover,\n.shop-container.theme-contrast .nav-booster:hover,\n.shop-container.theme-contrast .nav-cheems:hover,\n.shop-container.theme-contrast .nav-sound:hover,\n.shop-container.theme-contrast .nav-music:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .section-separator::before,\n.shop-container.theme-contrast .section-separator::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast .section-title {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .dogecoin-title,\n.shop-container.theme-contrast .booster-title,\n.shop-container.theme-contrast .cheems-title,\n.shop-container.theme-contrast .sound-title,\n.shop-container.theme-contrast .music-title {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast .shop-balance-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .balance-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .points-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .doge-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .shop-card {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-card:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .shop-card.coin-card,\n.shop-container.theme-contrast .shop-card.booster-card,\n.shop-container.theme-contrast .shop-card.cheems-card,\n.shop-container.theme-contrast .shop-card.sound-card,\n.shop-container.theme-contrast .shop-card.music-card {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast .shop-card.coin-card:hover,\n.shop-container.theme-contrast .shop-card.booster-card:hover,\n.shop-container.theme-contrast .shop-card.cheems-card:hover,\n.shop-container.theme-contrast .shop-card.sound-card:hover,\n.shop-container.theme-contrast .shop-card.music-card:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .item-name {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .item-desc {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .cost-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .cost-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-card-footer {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast .multiplier-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .active-booster-banner {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast .booster-banner-timer {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge.limit-reached {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast .cost-val.free-cost {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */\n'] }]
+`, styles: ['/* src/app/pages/shop/shop.component.css */\n.shop-container {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-dogecoin {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator::before,\n.section-separator::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.dogecoin-title {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator:has(.dogecoin-title)::before,\n.section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator:has(.booster-title)::before,\n.section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator:has(.cheems-title)::before,\n.section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator:has(.sound-title)::before,\n.section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator:has(.music-title)::before,\n.section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: boosterPulse 2s infinite ease-in-out;\n}\n@keyframes boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon {\n  font-size: 2.2rem;\n}\n.booster-banner-content {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val {\n  color: #ffd700;\n}\n.doge-val {\n  color: #ff9900;\n}\n.mini-coin-icon {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card .item-name {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card .item-name {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji {\n  font-size: 3rem;\n}\n.multiplier-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title {\n    font-size: 2rem;\n  }\n  .booster-banner-content {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light {\n  color: #2b1f14;\n}\n.shop-container.theme-light .shop-title {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light .shop-subtitle {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light .shop-nav-bar {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light .shop-nav-btn {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .nav-dogecoin {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .nav-dogecoin:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light .nav-booster {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .nav-booster:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light .nav-cheems {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .nav-cheems:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light .nav-sound {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .nav-sound:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light .nav-music {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .nav-music:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light .section-title {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light .dogecoin-title {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::before,\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .booster-title {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.booster-title)::before,\n.shop-container.theme-light .section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light .cheems-title {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.cheems-title)::before,\n.shop-container.theme-light .section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light .sound-title {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.sound-title)::before,\n.shop-container.theme-light .section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light .music-title {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.music-title)::before,\n.shop-container.theme-light .section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light .shop-balance-bar {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .balance-label {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light .points-val {\n  color: #b35900;\n}\n.shop-container.theme-light .doge-val {\n  color: #d97706;\n}\n.shop-container.theme-light .shop-card {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light .shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light .shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light .shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light .shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light .item-name {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light .item-desc {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light .cost-label {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light .cost-val {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light .shop-card-footer {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .active-booster-banner {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .booster-banner-timer {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light .daily-limit-badge {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light .daily-limit-badge.limit-reached {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light .cost-val.free-cost {\n  color: #059669;\n}\n.shop-container.theme-light .buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light .buy-btn:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light .buy-btn:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .shop-title {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast .shop-subtitle {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-nav-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast .shop-nav-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-nav-btn:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .nav-dogecoin,\n.shop-container.theme-contrast .nav-booster,\n.shop-container.theme-contrast .nav-cheems,\n.shop-container.theme-contrast .nav-sound,\n.shop-container.theme-contrast .nav-music {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .nav-dogecoin:hover,\n.shop-container.theme-contrast .nav-booster:hover,\n.shop-container.theme-contrast .nav-cheems:hover,\n.shop-container.theme-contrast .nav-sound:hover,\n.shop-container.theme-contrast .nav-music:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .section-separator::before,\n.shop-container.theme-contrast .section-separator::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast .section-title {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .dogecoin-title,\n.shop-container.theme-contrast .booster-title,\n.shop-container.theme-contrast .cheems-title,\n.shop-container.theme-contrast .sound-title,\n.shop-container.theme-contrast .music-title {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast .shop-balance-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .balance-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .points-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .doge-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .shop-card {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-card:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .shop-card.coin-card,\n.shop-container.theme-contrast .shop-card.booster-card,\n.shop-container.theme-contrast .shop-card.cheems-card,\n.shop-container.theme-contrast .shop-card.sound-card,\n.shop-container.theme-contrast .shop-card.music-card {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast .shop-card.coin-card:hover,\n.shop-container.theme-contrast .shop-card.booster-card:hover,\n.shop-container.theme-contrast .shop-card.cheems-card:hover,\n.shop-container.theme-contrast .shop-card.sound-card:hover,\n.shop-container.theme-contrast .shop-card.music-card:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .item-name {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .item-desc {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .cost-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .cost-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-card-footer {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast .multiplier-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .active-booster-banner {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast .booster-banner-timer {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge.limit-reached {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast .cost-val.free-cost {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */\n'] }]
   }], null, { onWindowScroll: [{
     type: HostListener,
     args: ["window:scroll"]
@@ -39329,21 +39510,1269 @@ var ShopComponent = class _ShopComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ShopComponent, { className: "ShopComponent", filePath: "src/app/pages/shop/shop.component.ts", lineNumber: 13 });
 })();
 
+// src/app/games/block_breaker/block_breaker.component.ts
+function BlockBreakerComponent_For_29_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 20);
+    \u0275\u0275listener("click", function BlockBreakerComponent_For_29_Template_button_click_0_listener() {
+      const toolKey_r2 = \u0275\u0275restoreView(_r1).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.buyTool(toolKey_r2));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementStart(2, "span");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(4, ") ");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const toolKey_r2 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275property("disabled", ctx_r2.isBuyToolDisabled(toolKey_r2));
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r2.getToolBuyLabel(toolKey_r2), " (\u{1FA99} ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r2.currentCost[toolKey_r2]);
+  }
+}
+function BlockBreakerComponent_For_47_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 23);
+    \u0275\u0275listener("dragstart", function BlockBreakerComponent_For_47_Conditional_1_Template_div_dragstart_0_listener($event) {
+      \u0275\u0275restoreView(_r6);
+      const $index_r5 = \u0275\u0275nextContext().$index;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.onDragStart($event, $index_r5));
+    })("dragend", function BlockBreakerComponent_For_47_Conditional_1_Template_div_dragend_0_listener($event) {
+      \u0275\u0275restoreView(_r6);
+      const $index_r5 = \u0275\u0275nextContext().$index;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.onDragEnd($event, $index_r5));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275element(2, "br");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r7 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("background-image", "url('" + ctx_r2.getToolImage(item_r7) + "')");
+    \u0275\u0275property("draggable", ctx_r2.gameState === "MERGE");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" Lv", item_r7.level, "");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1("", ctx_r2.getToolDamage(item_r7), " DMG ");
+  }
+}
+function BlockBreakerComponent_For_47_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 21);
+    \u0275\u0275listener("click", function BlockBreakerComponent_For_47_Template_div_click_0_listener() {
+      const $index_r5 = \u0275\u0275restoreView(_r4).$index;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.clickSlot($index_r5));
+    })("dragover", function BlockBreakerComponent_For_47_Template_div_dragover_0_listener($event) {
+      const $index_r5 = \u0275\u0275restoreView(_r4).$index;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.onDragOver($event, $index_r5));
+    })("dragleave", function BlockBreakerComponent_For_47_Template_div_dragleave_0_listener($event) {
+      const $index_r5 = \u0275\u0275restoreView(_r4).$index;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.onDragLeave($event, $index_r5));
+    })("drop", function BlockBreakerComponent_For_47_Template_div_drop_0_listener($event) {
+      const $index_r5 = \u0275\u0275restoreView(_r4).$index;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.onDrop($event, $index_r5));
+    });
+    \u0275\u0275template(1, BlockBreakerComponent_For_47_Conditional_1_Template, 4, 5, "div", 22);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r7 = ctx.$implicit;
+    const $index_r5 = ctx.$index;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("selected", ctx_r2.selectedSlotIndex === $index_r5)("drag-over", ctx_r2.isDragOver[$index_r5]);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(item_r7 ? 1 : -1);
+  }
+}
+function BlockBreakerComponent_Conditional_51_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 19)(1, "div")(2, "h3");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p");
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 24)(7, "button", 25);
+    \u0275\u0275listener("click", function BlockBreakerComponent_Conditional_51_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r8);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.confirmSellLevel());
+    });
+    \u0275\u0275text(8);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(9, "button", 26);
+    \u0275\u0275listener("click", function BlockBreakerComponent_Conditional_51_Template_button_click_9_listener() {
+      \u0275\u0275restoreView(_r8);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.closeSellLevelConfirm());
+    });
+    \u0275\u0275text(10);
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275classMapInterpolate1("confirm-modal ", ctx_r2.tools.themeColor, "");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1("\u2B50 ", (ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].sellLevel) || "Sell Level", "");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2("", (ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].confirmSellLevelMsg) || "Do you want to reset your level to Level 1 and get", " +", ctx_r2.playerLevel * 20, " \u{1F3AE}?");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate2("", (ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].yes) || "Yes", " (+", ctx_r2.playerLevel * 20, " \u{1F3AE})");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].no) || "No");
+  }
+}
+var BlockBreakerComponent = class _BlockBreakerComponent {
+  tools = inject(ToolsService);
+  ngZone = inject(NgZone);
+  cdr = inject(ChangeDetectorRef);
+  cols = 5;
+  rows = 2;
+  laneWidth = 84;
+  assetPath = "games/block_breaker/assets/";
+  toolTypes = {
+    "shovel": [
+      { level: 1, name: "Wood", src: "items/wood_shovel.png", damage: 1, maxHits: 5, price: 5 },
+      { level: 2, name: "Stone", src: "items/stone_shovel.png", damage: 4, maxHits: 12, price: 12 },
+      { level: 3, name: "Iron", src: "items/iron_shovel.png", damage: 15, maxHits: 25, price: 28 },
+      { level: 4, name: "Gold", src: "items/gold_shovel.png", damage: 60, maxHits: 6, price: 65 },
+      { level: 5, name: "Diamond", src: "items/diamond_shovel.png", damage: 150, maxHits: 75, price: 150 },
+      { level: 6, name: "Netherite", src: "items/netherite_shovel.png", damage: 500, maxHits: 150, price: 350 }
+    ],
+    "pickaxe": [
+      { level: 1, name: "Wood", src: "items/wood_pickaxe.png", damage: 1, maxHits: 5, price: 5 },
+      { level: 2, name: "Stone", src: "items/stone_pickaxe.png", damage: 4, maxHits: 12, price: 12 },
+      { level: 3, name: "Iron", src: "items/iron_pickaxe.png", damage: 15, maxHits: 25, price: 28 },
+      { level: 4, name: "Gold", src: "items/gold_pickaxe.png", damage: 60, maxHits: 6, price: 65 },
+      { level: 5, name: "Diamond", src: "items/diamond_pickaxe.png", damage: 150, maxHits: 75, price: 150 },
+      { level: 6, name: "Netherite", src: "items/netherite_pickaxe.png", damage: 500, maxHits: 150, price: 350 }
+    ]
+  };
+  blockRegistry = {
+    "air": { hp: 0, solid: false, src: null, desired_tools: [] },
+    "dirt": { hp: 5, solid: true, src: "blocks/dirt.png", desired_tools: ["shovel"] },
+    "grass": { hp: 6, solid: true, src: "blocks/grass_side_carried.png", desired_tools: ["shovel"] },
+    "gravel": { hp: 12, solid: true, src: "blocks/gravel.png", desired_tools: ["shovel"] },
+    "stone": { hp: 25, solid: true, src: "blocks/stone.png", desired_tools: ["pickaxe"] },
+    "diorite": { hp: 30, solid: true, src: "blocks/stone_diorite.png", desired_tools: ["pickaxe"] },
+    "granite": { hp: 30, solid: true, src: "blocks/stone_granite.png", desired_tools: ["pickaxe"] },
+    "andesite": { hp: 30, solid: true, src: "blocks/stone_andesite.png", desired_tools: ["pickaxe"] },
+    "cobblestone": { hp: 40, solid: true, src: "blocks/cobblestone.png", desired_tools: ["pickaxe"] },
+    "deepslate": { hp: 100, solid: true, src: "blocks/deepslate.png", desired_tools: ["pickaxe"] },
+    "cobbled_deepslate": { hp: 120, solid: true, src: "blocks/cobbled_deepslate.png", desired_tools: ["pickaxe"] },
+    "bedrock": { hp: Infinity, solid: true, unbreakable: true, src: "blocks/bedrock.png", desired_tools: [] },
+    "chest_50": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 50, desired_tools: [] },
+    "chest_100": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 100, desired_tools: [] },
+    "chest_250": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 250, desired_tools: [] },
+    "chest_500": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 500, desired_tools: [] },
+    "chest_1000": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 1e3, desired_tools: [] }
+  };
+  gameState = "MERGE";
+  playerLevel = 1;
+  selectedSlotIndex = null;
+  get coins() {
+    return this.tools.minigameCoins;
+  }
+  set coins(val) {
+    this.tools.minigameCoins = Math.floor(val);
+    localStorage.setItem("CheemsAppLiMinigameCoins", String(Math.floor(val)));
+    document.cookie = `CheemsAppLiMinigameCoins=${Math.floor(val)}; path=/; max-age=31536000`;
+  }
+  currentCost = { "shovel": 10, "pickaxe": 10 };
+  grid = new Array(this.cols * this.rows).fill(null);
+  isDragOver = new Array(this.cols * this.rows).fill(false);
+  isTrashDragOver = false;
+  allLevelDefs = [];
+  currentLevelData = null;
+  digBlocks = [];
+  activeTools = [];
+  particles = [];
+  bedrockHit = false;
+  overlayHidden = true;
+  overlaySuccess = false;
+  overlayDanger = false;
+  overlayTitleText = this.tools.minigames[this.tools.lang]?.title || "Title";
+  overlayDescText = "Description goes here";
+  overlayBtnText = "Continue";
+  actionBtnText = this.tools.minigames[this.tools.lang]?.dropTools || "DROP TOOLS!";
+  showLevelUpModal = false;
+  canvas;
+  ctx;
+  animationFrameId = null;
+  ngOnInit() {
+    this.tools.setTitle("block_breaker");
+    this.tools.actPage = "block_breaker";
+    this.loadLevel();
+    this.loadGrid();
+    this.loadCosts();
+  }
+  loadDefinitions() {
+    return __async(this, null, function* () {
+      try {
+        let resItems = yield fetch("games/block_breaker/definitions/items.json");
+        if (!resItems.ok)
+          resItems = yield fetch("/games/block_breaker/definitions/items.json");
+        if (resItems.ok) {
+          this.toolTypes = yield resItems.json();
+          Object.keys(this.toolTypes).forEach((key) => {
+            if (!this.currentCost[key]) {
+              this.currentCost[key] = 10;
+            }
+          });
+        }
+      } catch (e) {
+        console.warn("Could not load items.json", e);
+      }
+      try {
+        let resBlocks = yield fetch("games/block_breaker/definitions/blocks.json");
+        if (!resBlocks.ok)
+          resBlocks = yield fetch("/games/block_breaker/definitions/blocks.json");
+        if (resBlocks.ok) {
+          const rawBlocks = yield resBlocks.json();
+          this.blockRegistry = {};
+          Object.keys(rawBlocks).forEach((k) => {
+            this.blockRegistry[k] = __spreadProps(__spreadValues({}, rawBlocks[k]), {
+              hp: rawBlocks[k].hp === null ? Infinity : rawBlocks[k].hp
+            });
+          });
+        }
+      } catch (e) {
+        console.warn("Could not load blocks.json", e);
+      }
+      this.preloadImages();
+    });
+  }
+  ngAfterViewInit() {
+    this.canvas = document.getElementById("dig-canvas");
+    if (this.canvas) {
+      this.ctx = this.canvas.getContext("2d");
+      this.laneWidth = this.canvas.width / this.cols;
+    }
+    this.initGame();
+  }
+  ngOnDestroy() {
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+  }
+  preloadImages() {
+    Object.keys(this.toolTypes).forEach((type) => {
+      this.toolTypes[type].forEach((t) => {
+        t.img = new Image();
+        t.img.src = this.assetPath + t.src;
+        t.img.onload = () => {
+          if (this.gameState === "MERGE") {
+            this.drawCanvasStatic();
+          }
+        };
+      });
+    });
+    Object.values(this.blockRegistry).forEach((b) => {
+      if (b.src) {
+        b.img = new Image();
+        b.img.src = this.assetPath + b.src;
+        b.img.onload = () => {
+          if (this.gameState === "MERGE") {
+            this.drawCanvasStatic();
+          }
+        };
+      }
+    });
+  }
+  fetchLevels() {
+    return __async(this, null, function* () {
+      try {
+        let response = yield fetch("games/block_breaker/definitions/level.json");
+        if (!response.ok) {
+          response = yield fetch("/games/block_breaker/definitions/level.json");
+        }
+        if (response.ok) {
+          const data = yield response.json();
+          if (data && Array.isArray(data.levels)) {
+            return data.levels;
+          }
+        }
+        throw new Error("Failed to load level.json");
+      } catch (e) {
+        console.warn("Could not fetch level.json, using fallback level system:", e);
+        return [
+          {
+            "id": "starter_level",
+            "background_color": "#87CEEB",
+            "min_level": 1,
+            "max_level": 2,
+            "random_pools": {
+              "rand_surface": ["dirt", "grass", "air"],
+              "rand_mid": ["stone", "coal_ore", "copper_ore", "iron_ore"],
+              "rand_deep": ["deepslate", "deepslate_iron_ore", "deepslate_diamond_ore"],
+              "rand_treasure": ["chest_100", "chest_250", "chest_500"]
+            },
+            "map": [
+              ["rand_surface", "air", "rand_surface", "air", "rand_surface"],
+              ["dirt", "dirt", "stone", "dirt", "dirt"],
+              ["stone", "stone", "stone", "stone", "stone"],
+              ["rand_mid", "rand_mid", "air", "rand_mid", "rand_mid"],
+              ["stone", "stone", "stone", "stone", "stone"],
+              ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+              ["stone", "stone", "barrel_50", "stone", "stone"],
+              ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+              ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+              ["rand_deep", "copper_chest_inventory_front", "rand_deep", "rand_deep", "rand_deep"],
+              ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+              ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+              ["air", "air", "air", "air", "air"],
+              ["rand_treasure", "chest_250", "rand_treasure", "chest_250", "rand_treasure"],
+              ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+            ]
+          }
+        ];
+      }
+    });
+  }
+  pickEligibleLevel() {
+    if (!this.allLevelDefs || this.allLevelDefs.length === 0)
+      return;
+    let eligible = this.allLevelDefs.filter((l) => {
+      if (l.max_level === void 0 || l.max_level === null || l.max_level === 0) {
+        return true;
+      }
+      return this.playerLevel <= l.max_level;
+    });
+    if (eligible.length === 0)
+      eligible = this.allLevelDefs;
+    this.currentLevelData = eligible[Math.floor(Math.random() * eligible.length)];
+  }
+  initGame() {
+    return __async(this, null, function* () {
+      yield this.loadDefinitions();
+      this.allLevelDefs = yield this.fetchLevels();
+      this.pickEligibleLevel();
+      this.buildLevel();
+      setTimeout(() => {
+        this.drawCanvasStatic();
+        this.cdr.detectChanges();
+      }, 200);
+    });
+  }
+  buildLevel() {
+    this.digBlocks = [];
+    if (!this.currentLevelData || !this.currentLevelData.map)
+      return;
+    const blockHeight = 40;
+    const startY = 100;
+    const requiredHeight = Math.max(480, startY + this.currentLevelData.map.length * blockHeight + 20);
+    if (this.canvas && this.canvas.height !== requiredHeight) {
+      this.canvas.height = requiredHeight;
+    }
+    const bgColor = this.currentLevelData?.background_color || this.currentLevelData?.backgroundColor || "#87CEEB";
+    if (this.canvas) {
+      this.canvas.style.backgroundColor = bgColor;
+    }
+    for (let r = 0; r < this.currentLevelData.map.length; r++) {
+      const row = this.currentLevelData.map[r];
+      for (let c = 0; c < row.length; c++) {
+        let blockId = row[c];
+        if (this.currentLevelData.random_pools && this.currentLevelData.random_pools[blockId]) {
+          const pool = this.currentLevelData.random_pools[blockId];
+          blockId = pool[Math.floor(Math.random() * pool.length)];
+        }
+        const def = this.blockRegistry[blockId];
+        if (def && def.solid) {
+          this.digBlocks.push({
+            col: c,
+            x: c * this.laneWidth,
+            y: startY + r * blockHeight,
+            w: this.laneWidth,
+            h: blockHeight,
+            hp: def.hp,
+            maxHp: def.hp,
+            img: def.img,
+            prize: def.prize || 0,
+            unbreakable: def.unbreakable || false,
+            desired_tools: def.desired_tools || []
+          });
+        }
+      }
+    }
+  }
+  getFloorCoins() {
+    return Math.floor(this.coins);
+  }
+  getToolKeys() {
+    return Object.keys(this.toolTypes);
+  }
+  isBuyToolDisabled(toolKey) {
+    const cost = this.currentCost[toolKey] || 10;
+    return this.coins < cost || !this.grid.includes(null) || this.gameState !== "MERGE";
+  }
+  getToolBuyLabel(toolKey) {
+    const langObj = this.tools.minigames[this.tools.lang];
+    if (toolKey === "shovel" && langObj?.buyShovel)
+      return langObj.buyShovel;
+    if (toolKey === "pickaxe" && langObj?.buyPickaxe)
+      return langObj.buyPickaxe;
+    const buyWord = langObj?.buy || "Buy";
+    return `${buyWord} ${toolKey.charAt(0).toUpperCase() + toolKey.slice(1)}`;
+  }
+  isActionDisabled() {
+    return this.gameState !== "MERGE" || !this.grid.some((t) => t !== null);
+  }
+  getToolImage(item) {
+    const toolData = this.toolTypes[item.type][item.level - 1];
+    return this.assetPath + toolData.src;
+  }
+  getToolDamage(item) {
+    const toolData = this.toolTypes[item.type][item.level - 1];
+    return toolData.damage;
+  }
+  buyTool(type) {
+    const cost = this.currentCost[type] || 10;
+    if (this.coins >= cost && this.gameState === "MERGE") {
+      const emptyIndex = this.grid.indexOf(null);
+      if (emptyIndex !== -1) {
+        this.coins -= cost;
+        this.currentCost[type] = Math.floor(cost * 1.15);
+        this.grid[emptyIndex] = { type, level: 1 };
+        this.tools.playSound("sfx_1");
+        this.saveGrid();
+        this.saveCosts();
+      } else {
+        this.tools.showToast("Grid is full!");
+        this.tools.playSound("sfx_8");
+      }
+    } else {
+      this.tools.showToast(this.tools.minigames[this.tools.lang]?.notEnoughMinigameCoins || "Not enough Minigame Points!");
+      this.tools.playSound("sfx_8");
+    }
+  }
+  clickSlot(index) {
+    if (this.gameState !== "MERGE")
+      return;
+    const clickedObj = this.grid[index];
+    if (this.selectedSlotIndex === null) {
+      if (clickedObj !== null) {
+        this.selectedSlotIndex = index;
+        this.tools.playSound("sfx_1");
+      }
+      return;
+    }
+    const fromIndex = this.selectedSlotIndex;
+    if (fromIndex === index) {
+      this.selectedSlotIndex = null;
+      return;
+    }
+    const fromObj = this.grid[fromIndex];
+    const toObj = this.grid[index];
+    if (!fromObj) {
+      this.selectedSlotIndex = null;
+      return;
+    }
+    if (toObj === null) {
+      this.grid[index] = fromObj;
+      this.grid[fromIndex] = null;
+      this.tools.playSound("sfx_1");
+    } else if (fromObj.type === toObj.type && fromObj.level === toObj.level && fromObj.level < (this.toolTypes[fromObj.type]?.length || 0)) {
+      this.grid[index] = { type: fromObj.type, level: fromObj.level + 1 };
+      this.grid[fromIndex] = null;
+      this.tools.playSound("sfx_4");
+    } else {
+      this.grid[index] = fromObj;
+      this.grid[fromIndex] = toObj;
+      this.tools.playSound("sfx_1");
+    }
+    this.selectedSlotIndex = null;
+    this.saveGrid();
+  }
+  getToolPrice(item) {
+    const toolData = this.toolTypes[item.type]?.[item.level - 1];
+    return toolData?.price || item.level * 5;
+  }
+  sellSelectedTool() {
+    if (this.selectedSlotIndex !== null && this.gameState === "MERGE") {
+      this.sellToolAtIndex(this.selectedSlotIndex);
+      this.selectedSlotIndex = null;
+    }
+  }
+  sellToolAtIndex(index) {
+    const item = this.grid[index];
+    if (item) {
+      const price = this.getToolPrice(item);
+      this.grid[index] = null;
+      this.coins += price;
+      this.tools.playSound("sfx_4");
+      this.tools.showToast(`Sold ${item.type} Lv${item.level} for +${price} \u{1F3AE}`);
+      this.saveGrid();
+    }
+  }
+  onDragOver(e, index) {
+    e.preventDefault();
+    if (this.gameState === "MERGE") {
+      this.isDragOver[index] = true;
+    }
+  }
+  onDragLeave(e, index) {
+    this.isDragOver[index] = false;
+  }
+  onDragStart(e, index) {
+    if (e.dataTransfer) {
+      e.dataTransfer.setData("text/plain", String(index));
+    }
+  }
+  onDragEnd(e, index) {
+    this.isDragOver[index] = false;
+  }
+  onDrop(e, index) {
+    e.preventDefault();
+    this.isDragOver[index] = false;
+    if (this.gameState !== "MERGE")
+      return;
+    const fromIndexStr = e.dataTransfer?.getData("text/plain");
+    if (!fromIndexStr)
+      return;
+    const fromIndex = parseInt(fromIndexStr, 10);
+    const toIndex = index;
+    if (fromIndex === toIndex || isNaN(fromIndex) || fromIndex < 0 || fromIndex >= this.grid.length)
+      return;
+    const fromObj = this.grid[fromIndex];
+    const toObj = this.grid[toIndex];
+    if (!fromObj)
+      return;
+    if (toObj === null) {
+      this.grid[toIndex] = fromObj;
+      this.grid[fromIndex] = null;
+    } else if (fromObj.type === toObj.type && fromObj.level === toObj.level && fromObj.level < (this.toolTypes[fromObj.type]?.length || 0)) {
+      this.grid[toIndex] = { type: fromObj.type, level: fromObj.level + 1 };
+      this.grid[fromIndex] = null;
+      this.tools.playSound("sfx_4");
+    } else {
+      this.grid[toIndex] = fromObj;
+      this.grid[fromIndex] = toObj;
+    }
+    this.tools.playSound("sfx_1");
+    this.saveGrid();
+  }
+  allowDrop(e) {
+    e.preventDefault();
+    if (this.gameState === "MERGE") {
+      this.isTrashDragOver = true;
+    }
+  }
+  leaveTrash(e) {
+    this.isTrashDragOver = false;
+  }
+  dropTrash(e) {
+    e.preventDefault();
+    this.isTrashDragOver = false;
+    if (this.gameState !== "MERGE")
+      return;
+    const fromIndexStr = e.dataTransfer?.getData("text/plain");
+    if (!fromIndexStr)
+      return;
+    const fromIndex = parseInt(fromIndexStr, 10);
+    if (!isNaN(fromIndex) && fromIndex >= 0 && fromIndex < this.grid.length) {
+      this.sellToolAtIndex(fromIndex);
+    }
+  }
+  spawnParticles(x, y, color = "#ffffff") {
+    for (let i = 0; i < 8; i++) {
+      this.particles.push({
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 8,
+        vy: (Math.random() - 0.5) * 8,
+        life: 1,
+        color
+      });
+    }
+  }
+  startDigging() {
+    if (this.gameState !== "MERGE" || !this.grid.some((t) => t !== null))
+      return;
+    this.gameState = "DIG";
+    this.bedrockHit = false;
+    this.actionBtnText = this.tools.minigames[this.tools.lang]?.digging || "DIGGING...";
+    this.activeTools = [];
+    for (let i = 0; i < this.grid.length; i++) {
+      if (this.grid[i] !== null) {
+        const col = i % this.cols;
+        const toolObj = this.grid[i];
+        const typeData = this.toolTypes[toolObj.type][toolObj.level - 1];
+        let toolImg = typeData.img;
+        if (!toolImg) {
+          toolImg = new Image();
+          toolImg.src = this.assetPath + typeData.src;
+          typeData.img = toolImg;
+        }
+        this.activeTools.push({
+          col,
+          type: toolObj.type,
+          x: col * this.laneWidth + this.laneWidth / 2,
+          y: Math.floor(i / this.cols) * -50 - 20,
+          vx: 0,
+          vy: 0,
+          radius: 14,
+          level: toolObj.level,
+          img: toolImg,
+          damage: typeData.damage,
+          hitsRemaining: typeData.maxHits,
+          maxHits: typeData.maxHits,
+          rotation: 0
+        });
+      }
+    }
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+    }
+    this.ngZone.runOutsideAngular(() => {
+      this.animationFrameId = requestAnimationFrame(() => this.digLoop());
+    });
+  }
+  digLoop() {
+    if (this.gameState !== "DIG" || !this.ctx || !this.canvas)
+      return;
+    const bgColor = this.currentLevelData?.background_color || this.currentLevelData?.backgroundColor || "#87CEEB";
+    this.ctx.fillStyle = bgColor;
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    for (const b of this.digBlocks) {
+      if (b.img && b.img.complete && b.img.naturalWidth !== 0) {
+        this.ctx.drawImage(b.img, b.x, b.y, b.w, b.h);
+      } else {
+        this.ctx.fillStyle = b.unbreakable ? "#222" : "#555";
+        this.ctx.fillRect(b.x, b.y, b.w, b.h);
+      }
+      this.ctx.strokeStyle = "rgba(0,0,0,0.5)";
+      this.ctx.lineWidth = 1;
+      this.ctx.strokeRect(b.x, b.y, b.w, b.h);
+      if (!b.unbreakable) {
+        this.ctx.font = "bold 16px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeStyle = "#000";
+        this.ctx.strokeText(String(Math.ceil(b.hp)), b.x + b.w / 2, b.y + b.h / 2);
+        this.ctx.fillStyle = "#fff";
+        this.ctx.fillText(String(Math.ceil(b.hp)), b.x + b.w / 2, b.y + b.h / 2);
+      }
+    }
+    let toolsActive = false;
+    for (let i = this.activeTools.length - 1; i >= 0; i--) {
+      const t = this.activeTools[i];
+      t.x += t.vx;
+      t.y += t.vy;
+      t.vy += 0.25;
+      t.rotation += 0.1;
+      if (t.x - t.radius < 0) {
+        t.x = t.radius;
+        t.vx *= -0.7;
+      } else if (t.x + t.radius > this.canvas.width) {
+        t.x = this.canvas.width - t.radius;
+        t.vx *= -0.7;
+      }
+      let hitBlock = false;
+      for (const targetBlock of this.digBlocks) {
+        if (t.x + t.radius > targetBlock.x && t.x - t.radius < targetBlock.x + targetBlock.w && t.y + t.radius > targetBlock.y && t.y - t.radius < targetBlock.y + targetBlock.h) {
+          hitBlock = true;
+          this.tools.playSound("sfx_1");
+          const overlapLeft = t.x + t.radius - targetBlock.x;
+          const overlapRight = targetBlock.x + targetBlock.w - (t.x - t.radius);
+          const overlapTop = t.y + t.radius - targetBlock.y;
+          const overlapBottom = targetBlock.y + targetBlock.h - (t.y - t.radius);
+          const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom);
+          if (minOverlap === overlapLeft || minOverlap === overlapRight) {
+            t.vx *= -0.8;
+          } else {
+            t.vy *= -0.8;
+          }
+          if (!targetBlock.unbreakable) {
+            targetBlock.hp -= t.damage;
+            const hasPreferred = targetBlock.desired_tools && targetBlock.desired_tools.length > 0;
+            const isPreferredTool = hasPreferred ? targetBlock.desired_tools.includes(t.type) : true;
+            t.hitsRemaining -= isPreferredTool ? 1 : 2;
+            this.spawnParticles(t.x, t.y, "#8B4513");
+            if (targetBlock.hp <= 0) {
+              if (targetBlock.prize > 0) {
+                this.coins += targetBlock.prize;
+              } else {
+                this.coins += targetBlock.maxHp * 0.5;
+              }
+              this.digBlocks = this.digBlocks.filter((b) => b !== targetBlock);
+            }
+          } else {
+            this.spawnParticles(t.x, t.y, "#333333");
+            t.hitsRemaining = 0;
+            if (targetBlock.hp === Infinity) {
+              this.bedrockHit = true;
+            }
+          }
+          if (t.hitsRemaining <= 0) {
+            this.spawnParticles(t.x, t.y, "#ff0000");
+            this.activeTools.splice(i, 1);
+            continue;
+          }
+        }
+      }
+      const renderSize = 40;
+      this.ctx.save();
+      this.ctx.translate(t.x, t.y);
+      this.ctx.rotate(t.rotation);
+      if (t.img && t.img.complete && t.img.naturalWidth !== 0) {
+        this.ctx.drawImage(t.img, -renderSize / 2, -renderSize / 2, renderSize, renderSize);
+      } else {
+        this.ctx.fillStyle = t.type === "shovel" ? "#8B4513" : "#708090";
+        this.ctx.beginPath();
+        this.ctx.arc(0, 0, renderSize / 2, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillStyle = "#ffffff";
+        this.ctx.font = "bold 12px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.fillText(`L${t.level}`, 0, 0);
+      }
+      this.ctx.restore();
+      this.ctx.beginPath();
+      this.ctx.arc(t.x, t.y, renderSize / 2 + 2, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (t.hitsRemaining / t.maxHits));
+      this.ctx.strokeStyle = "#0f0";
+      this.ctx.lineWidth = 3;
+      this.ctx.stroke();
+      toolsActive = true;
+    }
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 0.05;
+      if (p.life <= 0) {
+        this.particles.splice(i, 1);
+        continue;
+      }
+      this.ctx.globalAlpha = p.life;
+      this.ctx.fillStyle = p.color;
+      this.ctx.fillRect(p.x, p.y, 4, 4);
+      this.ctx.globalAlpha = 1;
+    }
+    if (toolsActive || this.particles.length > 0) {
+      this.animationFrameId = requestAnimationFrame(() => this.digLoop());
+    } else {
+      this.ngZone.run(() => {
+        this.endDigging();
+        this.cdr.detectChanges();
+      });
+    }
+  }
+  endDigging() {
+    this.overlayHidden = false;
+    if (this.bedrockHit) {
+      this.overlayTitleText = this.tools.minigames[this.tools.lang]?.levelCleared || "Level Cleared!";
+      this.overlayDescText = this.tools.minigames[this.tools.lang]?.levelClearedDesc || "You successfully broke through to the bedrock.";
+      this.overlayBtnText = this.tools.minigames[this.tools.lang]?.nextLevel || "Next Level";
+      this.overlaySuccess = true;
+      this.overlayDanger = false;
+      this.playerLevel++;
+      this.saveLevel();
+    } else {
+      this.overlayTitleText = this.tools.minigames[this.tools.lang]?.levelFailed || "Level Failed";
+      this.overlayDescText = this.tools.minigames[this.tools.lang]?.levelFailedDesc || "Your tools broke before reaching the bottom.";
+      this.overlayBtnText = this.tools.minigames[this.tools.lang]?.tryAgain || "Try Again";
+      this.overlaySuccess = false;
+      this.overlayDanger = true;
+    }
+  }
+  closeOverlay() {
+    this.overlayHidden = true;
+    this.pickEligibleLevel();
+    this.buildLevel();
+    this.drawCanvasStatic();
+    this.gameState = "MERGE";
+    this.actionBtnText = this.tools.minigames[this.tools.lang]?.dropTools || "DROP TOOLS!";
+  }
+  drawCanvasStatic() {
+    if (!this.ctx || !this.canvas)
+      return;
+    const bgColor = this.currentLevelData?.background_color || this.currentLevelData?.backgroundColor || "#87CEEB";
+    this.ctx.fillStyle = bgColor;
+    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    for (const b of this.digBlocks) {
+      if (b.img && b.img.complete) {
+        this.ctx.drawImage(b.img, b.x, b.y, b.w, b.h);
+      } else {
+        this.ctx.fillStyle = b.unbreakable ? "#222" : "#555";
+        this.ctx.fillRect(b.x, b.y, b.w, b.h);
+      }
+      this.ctx.strokeStyle = "rgba(0,0,0,0.5)";
+      this.ctx.lineWidth = 1;
+      this.ctx.strokeRect(b.x, b.y, b.w, b.h);
+      if (!b.unbreakable) {
+        this.ctx.font = "bold 16px Arial";
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeStyle = "#000";
+        this.ctx.strokeText(String(Math.ceil(b.hp)), b.x + b.w / 2, b.y + b.h / 2);
+        this.ctx.fillStyle = "#fff";
+        this.ctx.fillText(String(Math.ceil(b.hp)), b.x + b.w / 2, b.y + b.h / 2);
+      }
+    }
+  }
+  loadLevel() {
+    let savedLevel = localStorage.getItem("CheemsAppLiMinigame_PlayerLevel");
+    if (!savedLevel) {
+      const match2 = document.cookie.match(/(^| )CheemsAppLiMinigame_PlayerLevel=([^;]+)/);
+      if (match2)
+        savedLevel = match2[2];
+    }
+    if (savedLevel) {
+      this.playerLevel = Math.max(1, +savedLevel || 1);
+    }
+  }
+  saveLevel() {
+    localStorage.setItem("CheemsAppLiMinigame_PlayerLevel", String(this.playerLevel));
+    document.cookie = `CheemsAppLiMinigame_PlayerLevel=${this.playerLevel}; path=/; max-age=31536000`;
+  }
+  loadGrid() {
+    try {
+      let saved = localStorage.getItem("CheemsAppLiMinigame_Grid");
+      if (!saved) {
+        const match2 = document.cookie.match(/(^| )CheemsAppLiMinigame_Grid=([^;]+)/);
+        if (match2)
+          saved = decodeURIComponent(match2[2]);
+      }
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === this.cols * this.rows) {
+          this.grid = parsed;
+        }
+      }
+    } catch (e) {
+      console.warn("Could not load grid from storage", e);
+    }
+  }
+  saveGrid() {
+    const jsonStr = JSON.stringify(this.grid);
+    localStorage.setItem("CheemsAppLiMinigame_Grid", jsonStr);
+    document.cookie = `CheemsAppLiMinigame_Grid=${encodeURIComponent(jsonStr)}; path=/; max-age=31536000`;
+  }
+  loadCosts() {
+    try {
+      let saved = localStorage.getItem("CheemsAppLiMinigame_Costs");
+      if (!saved) {
+        const match2 = document.cookie.match(/(^| )CheemsAppLiMinigame_Costs=([^;]+)/);
+        if (match2)
+          saved = decodeURIComponent(match2[2]);
+      }
+      if (saved) {
+        this.currentCost = __spreadValues(__spreadValues({}, this.currentCost), JSON.parse(saved));
+      }
+    } catch (e) {
+    }
+  }
+  saveCosts() {
+    const jsonStr = JSON.stringify(this.currentCost);
+    localStorage.setItem("CheemsAppLiMinigame_Costs", jsonStr);
+    document.cookie = `CheemsAppLiMinigame_Costs=${encodeURIComponent(jsonStr)}; path=/; max-age=31536000`;
+  }
+  openSellLevelConfirm() {
+    if (this.playerLevel <= 1) {
+      this.tools.showToast("You need to be at least Level 2 to sell your level!");
+      this.tools.playSound("sfx_8");
+      return;
+    }
+    this.showLevelUpModal = true;
+  }
+  closeSellLevelConfirm() {
+    this.showLevelUpModal = false;
+  }
+  confirmSellLevel() {
+    if (this.playerLevel > 1) {
+      const reward = this.playerLevel * 20;
+      this.tools.addMinigameCoins(reward);
+      this.playerLevel = 1;
+      this.saveLevel();
+      this.pickEligibleLevel();
+      this.buildLevel();
+      this.drawCanvasStatic();
+      this.tools.showToast(`Sold level for +${reward} \u{1F3AE}!`);
+      this.tools.playSound("sfx_4");
+      this.showLevelUpModal = false;
+    }
+  }
+  static \u0275fac = function BlockBreakerComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BlockBreakerComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlockBreakerComponent, selectors: [["app-block-breaker"]], decls: 52, vars: 35, consts: [[1, "level-title"], ["id", "game-container"], ["id", "resultOverlay", 1, "overlay"], ["id", "overlayTitle"], ["id", "overlayDesc"], ["id", "overlayBtn", 3, "click"], [1, "ui-header"], [1, "stats-display"], [1, "stat-box", "coins"], [1, "stat-box", "lvl"], [1, "lvl-up-btn", 3, "click", "disabled"], [1, "buy-controls"], [1, "buy-btn", 3, "disabled"], ["id", "trash-can", 1, "trash-slot", 3, "click", "drop", "dragover", "dragleave"], [1, "lane-markers"], ["id", "merge-grid"], [1, "grid-slot", 3, "selected", "drag-over"], ["id", "actionBtn", 2, "width", "420px", "max-width", "100%", "padding", "15px", "font-size", "1.2em", 3, "click", "disabled"], ["id", "dig-canvas", "width", "420", "height", "480"], [1, "modal-overlay"], [1, "buy-btn", 3, "click", "disabled"], [1, "grid-slot", 3, "click", "dragover", "dragleave", "drop"], [1, "tool", 3, "backgroundImage", "draggable"], [1, "tool", 3, "dragstart", "dragend", "draggable"], [1, "modal-buttons"], [1, "confirm-btn", "yes-btn", 3, "click"], [1, "confirm-btn", "no-btn", 3, "click"]], template: function BlockBreakerComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div")(1, "h1");
+      \u0275\u0275text(2);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(3, "div", 0);
+      \u0275\u0275text(4);
+      \u0275\u0275elementStart(5, "span");
+      \u0275\u0275text(6);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(7, "div", 1)(8, "div", 2)(9, "h2", 3);
+      \u0275\u0275text(10);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(11, "p", 4);
+      \u0275\u0275text(12);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(13, "button", 5);
+      \u0275\u0275listener("click", function BlockBreakerComponent_Template_button_click_13_listener() {
+        return ctx.closeOverlay();
+      });
+      \u0275\u0275text(14);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(15, "div", 6)(16, "div", 7)(17, "div", 8);
+      \u0275\u0275text(18, "\u{1FA99} ");
+      \u0275\u0275elementStart(19, "span");
+      \u0275\u0275text(20);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(21, "div", 9);
+      \u0275\u0275text(22);
+      \u0275\u0275elementStart(23, "span");
+      \u0275\u0275text(24);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(25, "button", 10);
+      \u0275\u0275listener("click", function BlockBreakerComponent_Template_button_click_25_listener() {
+        return ctx.openSellLevelConfirm();
+      });
+      \u0275\u0275text(26);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(27, "div", 11);
+      \u0275\u0275repeaterCreate(28, BlockBreakerComponent_For_29_Template, 5, 3, "button", 12, \u0275\u0275repeaterTrackByIdentity);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(30, "div", 13);
+      \u0275\u0275listener("click", function BlockBreakerComponent_Template_div_click_30_listener() {
+        return ctx.sellSelectedTool();
+      })("drop", function BlockBreakerComponent_Template_div_drop_30_listener($event) {
+        return ctx.dropTrash($event);
+      })("dragover", function BlockBreakerComponent_Template_div_dragover_30_listener($event) {
+        return ctx.allowDrop($event);
+      })("dragleave", function BlockBreakerComponent_Template_div_dragleave_30_listener($event) {
+        return ctx.leaveTrash($event);
+      });
+      \u0275\u0275text(31, " \u{1F5D1}\uFE0F");
+      \u0275\u0275element(32, "br");
+      \u0275\u0275text(33);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(34, "div", 14)(35, "span");
+      \u0275\u0275text(36);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(37, "span");
+      \u0275\u0275text(38);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(39, "span");
+      \u0275\u0275text(40);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(41, "span");
+      \u0275\u0275text(42);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(43, "span");
+      \u0275\u0275text(44);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(45, "div", 15);
+      \u0275\u0275repeaterCreate(46, BlockBreakerComponent_For_47_Template, 2, 5, "div", 16, \u0275\u0275repeaterTrackByIndex);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(48, "button", 17);
+      \u0275\u0275listener("click", function BlockBreakerComponent_Template_button_click_48_listener() {
+        return ctx.startDigging();
+      });
+      \u0275\u0275text(49);
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(50, "canvas", 18);
+      \u0275\u0275template(51, BlockBreakerComponent_Conditional_51_Template, 11, 9, "div", 19);
+      \u0275\u0275elementEnd()();
+    }
+    if (rf & 2) {
+      \u0275\u0275classMapInterpolate2("block-breaker-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].title) || "Merge Diggers");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].playerLevel) || "Player Level: ");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.playerLevel);
+      \u0275\u0275advance(2);
+      \u0275\u0275classProp("hidden", ctx.overlayHidden)("success", ctx.overlaySuccess)("danger", ctx.overlayDanger);
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.overlayTitleText);
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.overlayDescText);
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.overlayBtnText);
+      \u0275\u0275advance(6);
+      \u0275\u0275textInterpolate(ctx.getFloorCoins());
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate1("\u2B50 ", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lvl) || "Lvl ", "");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.playerLevel);
+      \u0275\u0275advance();
+      \u0275\u0275property("disabled", ctx.playerLevel <= 1);
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate2(" \u2B50 ", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].sellLevel) || "Sell Level", " (+", ctx.playerLevel * 20, " \u{1F3AE}) ");
+      \u0275\u0275advance(2);
+      \u0275\u0275repeater(ctx.getToolKeys());
+      \u0275\u0275advance(2);
+      \u0275\u0275classProp("drag-over", ctx.isTrashDragOver)("highlight", ctx.selectedSlotIndex !== null);
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].sell) || "SELL / TRASH", " ");
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane1) || "\u25BC Lane 1");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane2) || "\u25BC Lane 2");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane3) || "\u25BC Lane 3");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane4) || "\u25BC Lane 4");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane5) || "\u25BC Lane 5");
+      \u0275\u0275advance(2);
+      \u0275\u0275repeater(ctx.grid);
+      \u0275\u0275advance(2);
+      \u0275\u0275property("disabled", ctx.isActionDisabled());
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate1(" ", ctx.actionBtnText, " ");
+      \u0275\u0275advance(2);
+      \u0275\u0275conditional(ctx.showLevelUpModal ? 51 : -1);
+    }
+  }, styles: ['\n\n[_ngcontent-%COMP%]:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper[_ngcontent-%COMP%] {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1[_ngcontent-%COMP%] {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title[_ngcontent-%COMP%] {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container[_ngcontent-%COMP%] {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n}\n.ui-header[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins[_ngcontent-%COMP%] {\n  color: #FFD700;\n}\n.lvl[_ngcontent-%COMP%] {\n  color: #00FFFF;\n}\n.buy-controls[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton[_ngcontent-%COMP%] {\n  background: var(--accent);\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  background: #45a049;\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\nbutton[_ngcontent-%COMP%]:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background: #2196F3;\n}\n.buy-btn[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.trash-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over[_ngcontent-%COMP%] {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight[_ngcontent-%COMP%] {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(5, 80px);\n  grid-template-rows: repeat(2, 80px);\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 430px;\n  max-width: 100%;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers[_ngcontent-%COMP%] {\n  display: flex;\n  width: 430px;\n  max-width: 100%;\n  justify-content: space-around;\n  color: #888;\n  font-size: 0.85em;\n  margin-bottom: 2px;\n}\n.grid-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected[_ngcontent-%COMP%] {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over[_ngcontent-%COMP%] {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool[_ngcontent-%COMP%] {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool[_ngcontent-%COMP%]:active {\n  cursor: grabbing;\n}\n#dig-canvas[_ngcontent-%COMP%] {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 420px;\n  height: auto;\n  min-height: 480px;\n  max-width: 100%;\n  display: block;\n}\n.overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\n.overlay[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.lvl-up-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal[_ngcontent-%COMP%] {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn[_ngcontent-%COMP%] {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn[_ngcontent-%COMP%] {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn[_ngcontent-%COMP%]:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn[_ngcontent-%COMP%] {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn[_ngcontent-%COMP%]:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */'] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BlockBreakerComponent, [{
+    type: Component,
+    args: [{ selector: "app-block-breaker", imports: [], template: `<div class="block-breaker-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+    <h1>{{tools.minigames[tools.lang]?.title || 'Merge Diggers'}}</h1>
+    <div class="level-title">{{tools.minigames[tools.lang]?.playerLevel || 'Player Level: '}}<span>{{ playerLevel }}</span></div>
+    
+    <div id="game-container">
+        <!-- Win / Loss Screen -->
+        <div id="resultOverlay"
+             class="overlay"
+             [class.hidden]="overlayHidden"
+             [class.success]="overlaySuccess"
+             [class.danger]="overlayDanger">
+            <h2 id="overlayTitle">{{overlayTitleText}}</h2>
+            <p id="overlayDesc">{{overlayDescText}}</p>
+            <button (click)="closeOverlay()" id="overlayBtn">{{overlayBtnText}}</button>
+        </div>
+
+        <div class="ui-header">
+            <div class="stats-display">
+                <div class="stat-box coins">\u{1FA99} <span>{{ getFloorCoins() }}</span></div>
+                <div class="stat-box lvl">\u2B50 {{tools.minigames[tools.lang]?.lvl || 'Lvl '}}<span>{{ playerLevel }}</span></div>
+                <button class="lvl-up-btn" (click)="openSellLevelConfirm()" [disabled]="playerLevel <= 1">
+                    \u2B50 {{tools.minigames[tools.lang]?.sellLevel || 'Sell Level'}} (+{{ playerLevel * 20 }} \u{1F3AE})
+                </button>
+            </div>
+            
+            <div class="buy-controls">
+                @for (toolKey of getToolKeys(); track toolKey) {
+                    <button class="buy-btn"
+                            [disabled]="isBuyToolDisabled(toolKey)"
+                            (click)="buyTool(toolKey)">
+                        {{ getToolBuyLabel(toolKey) }} (\u{1FA99} <span>{{ currentCost[toolKey] }}</span>)
+                    </button>
+                }
+            </div>
+
+            <!-- Trash Can -->
+            <div id="trash-can"
+                 class="trash-slot"
+                 [class.drag-over]="isTrashDragOver"
+                 [class.highlight]="selectedSlotIndex !== null"
+                 (click)="sellSelectedTool()"
+                 (drop)="dropTrash($event)"
+                 (dragover)="allowDrop($event)"
+                 (dragleave)="leaveTrash($event)">
+                \u{1F5D1}\uFE0F<br>{{tools.minigames[tools.lang]?.sell || 'SELL / TRASH'}}
+            </div>
+        </div>
+
+        <div class="lane-markers">
+            <span>{{tools.minigames[tools.lang]?.lane1 || '\u25BC Lane 1'}}</span><span>{{tools.minigames[tools.lang]?.lane2 || '\u25BC Lane 2'}}</span><span>{{tools.minigames[tools.lang]?.lane3 || '\u25BC Lane 3'}}</span><span>{{tools.minigames[tools.lang]?.lane4 || '\u25BC Lane 4'}}</span><span>{{tools.minigames[tools.lang]?.lane5 || '\u25BC Lane 5'}}</span>
+        </div>
+        
+        <div id="merge-grid">
+            @for (item of grid; track $index) {
+                <div class="grid-slot"
+                     [class.selected]="selectedSlotIndex === $index"
+                     [class.drag-over]="isDragOver[$index]"
+                     (click)="clickSlot($index)"
+                     (dragover)="onDragOver($event, $index)"
+                     (dragleave)="onDragLeave($event, $index)"
+                     (drop)="onDrop($event, $index)">
+                    @if (item) {
+                        <div class="tool"
+                             [style.backgroundImage]="'url(\\'' + getToolImage(item) + '\\')'"
+                             [draggable]="gameState === 'MERGE'"
+                             (dragstart)="onDragStart($event, $index)"
+                             (dragend)="onDragEnd($event, $index)">
+                            Lv{{item.level}}<br>{{getToolDamage(item)}} DMG
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <button id="actionBtn"
+                [disabled]="isActionDisabled()"
+                (click)="startDigging()"
+                style="width: 420px; max-width: 100%; padding: 15px; font-size: 1.2em;">
+            {{ actionBtnText }}
+        </button>
+
+        <canvas id="dig-canvas" width="420" height="480"></canvas>
+
+        @if (showLevelUpModal) {
+            <div class="modal-overlay">
+                <div class="confirm-modal {{tools.themeColor}}">
+                    <h3>\u2B50 {{tools.minigames[tools.lang]?.sellLevel || 'Sell Level'}}</h3>
+                    <p>{{tools.minigames[tools.lang]?.confirmSellLevelMsg || 'Do you want to reset your level to Level 1 and get'}} +{{ playerLevel * 20 }} \u{1F3AE}?</p>
+                    <div class="modal-buttons">
+                        <button class="confirm-btn yes-btn" (click)="confirmSellLevel()">{{tools.minigames[tools.lang]?.yes || 'Yes'}} (+{{ playerLevel * 20 }} \u{1F3AE})</button>
+                        <button class="confirm-btn no-btn" (click)="closeSellLevelConfirm()">{{tools.minigames[tools.lang]?.no || 'No'}}</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+`, styles: ['/* src/app/games/block_breaker/block_breaker.component.css */\n:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1 {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n}\n.ui-header {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins {\n  color: #FFD700;\n}\n.lvl {\n  color: #00FFFF;\n}\n.buy-controls {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton {\n  background: var(--accent);\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton:hover {\n  background: #45a049;\n}\nbutton:active {\n  transform: scale(0.95);\n}\nbutton:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn {\n  background: #2196F3;\n}\n.buy-btn:hover {\n  background: #1976D2;\n}\n.trash-slot {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid {\n  display: grid;\n  grid-template-columns: repeat(5, 80px);\n  grid-template-rows: repeat(2, 80px);\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 430px;\n  max-width: 100%;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers {\n  display: flex;\n  width: 430px;\n  max-width: 100%;\n  justify-content: space-around;\n  color: #888;\n  font-size: 0.85em;\n  margin-bottom: 2px;\n}\n.grid-slot {\n  width: 80px;\n  height: 80px;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool:active {\n  cursor: grabbing;\n}\n#dig-canvas {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 420px;\n  height: auto;\n  min-height: 480px;\n  max-width: 100%;\n  display: block;\n}\n.overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden {\n  display: none !important;\n}\n.overlay h2 {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay p {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success h2 {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger h2 {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay button {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay button:hover {\n  background: #1976D2;\n}\n.lvl-up-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal h3 {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal p {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */\n'] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BlockBreakerComponent, { className: "BlockBreakerComponent", filePath: "src/app/games/block_breaker/block_breaker.component.ts", lineNumber: 54 });
+})();
+
+// src/app/pages/minigames/minigames.component.ts
+function MinigamesComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1("\u{1F512} ", (ctx_r0.tools.closet[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.closet[ctx_r0.tools.lang].locked) || "Locked", "");
+  }
+}
+var MinigamesComponent = class _MinigamesComponent {
+  tools = inject(ToolsService);
+  ngOnInit() {
+    this.tools.setTitle("minigames");
+    this.tools.actPage = "minigames";
+  }
+  openMinigame(id) {
+    if (this.tools.isMinigameUnlocked(id)) {
+      this.tools.redirect("minigames/" + id);
+    } else {
+      this.tools.showToast(this.tools.minigames[this.tools.lang]?.buyMinigameInShop || "Unlock this Minigame in the Shop first!");
+      this.tools.playSound("sfx_8");
+    }
+  }
+  static \u0275fac = function MinigamesComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _MinigamesComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MinigamesComponent, selectors: [["app-minigames"]], decls: 8, vars: 9, consts: [[1, "container"], [3, "click"], ["alt", "Merge Diggers", 1, "menu-icon", "coin-glow", 3, "src"], [1, "card-content"], [1, "card-title"], [1, "card-sub"]], template: function MinigamesComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1);
+      \u0275\u0275listener("click", function MinigamesComponent_Template_div_click_2_listener() {
+        return ctx.openMinigame("block-breaker");
+      });
+      \u0275\u0275element(3, "img", 2);
+      \u0275\u0275elementStart(4, "div", 3)(5, "div", 4);
+      \u0275\u0275text(6);
+      \u0275\u0275elementEnd();
+      \u0275\u0275template(7, MinigamesComponent_Conditional_7_Template, 2, 1, "div", 5);
+      \u0275\u0275elementEnd()()()();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " menu-grid");
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
+      \u0275\u0275advance();
+      \u0275\u0275property("src", ctx.tools.isMinigameUnlocked("block_breaker") ? "img/icons/play-svgrepo-com.svg" : "img/icons/lock-keyhole-minimalistic-svgrepo-com.svg", \u0275\u0275sanitizeUrl);
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].title) || "Merge Diggers");
+      \u0275\u0275advance();
+      \u0275\u0275conditional(!ctx.tools.isMinigameUnlocked("block_breaker") ? 7 : -1);
+    }
+  }, styles: ["\n\n.menu-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));\n  gap: 1.25rem;\n  width: 95%;\n  max-width: 900px;\n  margin: 2rem auto;\n  padding: 2rem;\n}\n.menu-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  gap: 1rem;\n  padding: 1.15rem;\n  border-radius: 16px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid transparent;\n}\n.menu-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);\n}\n.menu-card[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.98);\n}\n.menu-icon[_ngcontent-%COMP%] {\n  width: 44px;\n  height: 44px;\n  object-fit: contain;\n  flex-shrink: 0;\n}\n.coin-glow[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.7));\n}\n.card-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.card-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.menu-card.theme-dark[_ngcontent-%COMP%] {\n  background: rgba(30, 30, 40, 0.7);\n  color: #ffffff;\n  border-color: rgba(255, 255, 255, 0.08);\n}\n.menu-card.theme-light[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  color: #2b2d42;\n  border-color: rgba(0, 0, 0, 0.08);\n}\n.menu-card.theme-doge[_ngcontent-%COMP%] {\n  background: rgba(60, 40, 15, 0.75);\n  color: #fff8e7;\n  border-color: rgba(255, 215, 0, 0.2);\n}\n.menu-card.theme-red[_ngcontent-%COMP%] {\n  background: rgba(50, 15, 20, 0.75);\n  color: #ffe6e8;\n  border-color: rgba(255, 100, 100, 0.2);\n}\n/*# sourceMappingURL=minigames.component.css.map */"] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MinigamesComponent, [{
+    type: Component,
+    args: [{ selector: "app-minigames", imports: [], template: `<div class="container">
+    <div class="group {{tools.themeColor}} menu-grid">
+        <!-- Merge Diggers Minigame Card -->
+        <div class="menu-card {{tools.themeColor}}" (click)="openMinigame('block-breaker')">
+            <img [src]="tools.isMinigameUnlocked('block_breaker') ? 'img/icons/play-svgrepo-com.svg' : 'img/icons/lock-keyhole-minimalistic-svgrepo-com.svg'"
+                 class="menu-icon coin-glow"
+                 alt="Merge Diggers">
+            <div class="card-content">
+                <div class="card-title">{{tools.minigames[tools.lang]?.title || 'Merge Diggers'}}</div>
+                @if (!tools.isMinigameUnlocked('block_breaker')) {
+                    <div class="card-sub">\u{1F512} {{tools.closet[tools.lang]?.locked || 'Locked'}}</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+`, styles: ["/* src/app/pages/minigames/minigames.component.css */\n.menu-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));\n  gap: 1.25rem;\n  width: 95%;\n  max-width: 900px;\n  margin: 2rem auto;\n  padding: 2rem;\n}\n.menu-card {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  gap: 1rem;\n  padding: 1.15rem;\n  border-radius: 16px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid transparent;\n}\n.menu-card:hover {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);\n}\n.menu-card:active {\n  transform: translateY(1px) scale(0.98);\n}\n.menu-icon {\n  width: 44px;\n  height: 44px;\n  object-fit: contain;\n  flex-shrink: 0;\n}\n.coin-glow {\n  filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.7));\n}\n.card-content {\n  display: flex;\n  flex-direction: column;\n}\n.card-title {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.menu-card.theme-dark {\n  background: rgba(30, 30, 40, 0.7);\n  color: #ffffff;\n  border-color: rgba(255, 255, 255, 0.08);\n}\n.menu-card.theme-light {\n  background: rgba(255, 255, 255, 0.85);\n  color: #2b2d42;\n  border-color: rgba(0, 0, 0, 0.08);\n}\n.menu-card.theme-doge {\n  background: rgba(60, 40, 15, 0.75);\n  color: #fff8e7;\n  border-color: rgba(255, 215, 0, 0.2);\n}\n.menu-card.theme-red {\n  background: rgba(50, 15, 20, 0.75);\n  color: #ffe6e8;\n  border-color: rgba(255, 100, 100, 0.2);\n}\n/*# sourceMappingURL=minigames.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MinigamesComponent, { className: "MinigamesComponent", filePath: "src/app/pages/minigames/minigames.component.ts", lineNumber: 10 });
+})();
+
 // src/app/guards/guard.guard.ts
+function getSubPath(url, prefixes) {
+  for (const prefix of prefixes) {
+    const regex = new RegExp(`^\\/${prefix}(\\/|$)`);
+    if (regex.test(url)) {
+      const remaining = url.replace(regex, "");
+      return remaining ? remaining : "";
+    }
+  }
+  return "";
+}
 var developmentGuard = (route, state) => {
-  window.location.href = "/CheemsBonkGame/dev/";
+  const sub = getSubPath(state.url, ["development", "dev"]);
+  window.location.href = "/CheemsBonkGame/dev/" + sub;
   return false;
 };
 var devGuard = (route, state) => {
-  window.location.href = "/CheemsBonkGame/dev/";
+  const sub = getSubPath(state.url, ["dev", "development"]);
+  window.location.href = "/CheemsBonkGame/dev/" + sub;
   return false;
 };
 var testingGuard = (route, state) => {
-  window.location.href = "/CheemsBonkGame/test/";
+  const sub = getSubPath(state.url, ["test"]);
+  window.location.href = "/CheemsBonkGame/test/" + sub;
   return false;
 };
 var appGuard = (route, state) => {
-  window.location.href = "/CheemsBonkGame/app/";
+  const sub = getSubPath(state.url, ["app"]);
+  window.location.href = "/CheemsBonkGame/app/" + sub;
   return false;
 };
 
@@ -39357,12 +40786,18 @@ var routes = [
   { path: "onWork", component: OnworkPageComponent, pathMatch: "full" },
   { path: "offline", component: OfflineComponent, pathMatch: "full" },
   { path: "shop", component: ShopComponent, pathMatch: "full" },
+  { path: "minigames", component: MinigamesComponent, pathMatch: "full" },
+  { path: "minigames/block-breaker", component: BlockBreakerComponent, pathMatch: "full" },
   { path: "p404", component: P404Component, pathMatch: "full" },
   { path: "", redirectTo: "game", pathMatch: "full" },
   { path: "dev", component: GameComponent, canActivate: [devGuard] },
+  { path: "dev/**", component: GameComponent, canActivate: [devGuard] },
   { path: "development", component: GameComponent, canActivate: [developmentGuard] },
+  { path: "development/**", component: GameComponent, canActivate: [developmentGuard] },
   { path: "test", component: GameComponent, canActivate: [testingGuard] },
+  { path: "test/**", component: GameComponent, canActivate: [testingGuard] },
   { path: "app", component: GameComponent, canActivate: [appGuard] },
+  { path: "app/**", component: GameComponent, canActivate: [appGuard] },
   { path: "**", redirectTo: "p404" }
 ];
 
