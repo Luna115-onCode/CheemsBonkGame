@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Diggers - Progression Update</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --grid-bg: #2d2d2d;
+            --accent: #4CAF50;
+            --text: #ffffff;
+            --col-width: 80px;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+        }
+
+        h1 { margin: 0 0 5px 0; color: var(--accent); text-align: center; }
+        .level-title { margin: 0 0 15px 0; color: #aaa; font-size: 1.2em; }
+
+        #game-container {
+            background: var(--panel-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 500px;
+            position: relative; /* For the overlay */
+        }
+
+        .ui-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-display {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .stat-box {
+            font-size: 1.2em;
+            font-weight: bold;
+            background: #333;
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 2px solid #555;
+            white-space: nowrap;
+        }
+
+        .coins { color: #FFD700; }
+        .lvl { color: #00FFFF; }
+
+        .buy-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        button:hover { background: #45a049; }
+        button:active { transform: scale(0.95); }
+        button:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; }
+        .buy-btn { background: #2196F3; }
+        .buy-btn:hover { background: #1976D2; }
+
+        .trash-slot {
+            width: 80px;
+            height: 80px;
+            background: #4a1919;
+            border-radius: 8px;
+            border: 2px dashed #ff4444;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: #ffaaaa;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .trash-slot.drag-over {
+            background: #8b2222;
+            border-color: #ff8888;
+        }
+
+        #merge-grid {
+            display: grid;
+            grid-template-columns: repeat(5, var(--col-width));
+            grid-template-rows: repeat(2, var(--col-width));
+            gap: 5px;
+            background: var(--grid-bg);
+            padding: 5px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .lane-markers {
+            display: flex;
+            width: 420px;
+            justify-content: space-around;
+            color: #666;
+            font-size: 0.8em;
+            margin-bottom: -10px;
+        }
+
+        .grid-slot {
+            width: 100%;
+            height: 100%;
+            background: #3d3d3d;
+            border-radius: 6px;
+            border: 2px dashed #555;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .grid-slot.drag-over {
+            background: #4d4d4d;
+            border-color: #fff;
+        }
+
+        .tool {
+            width: 85%;
+            height: 85%;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            font-weight: bold;
+            cursor: grab;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            font-size: 0.85em;
+            text-align: center;
+            padding-bottom: 5px;
+            box-sizing: border-box;
+        }
+        
+        .tool:active { cursor: grabbing; }
+
+        #dig-canvas {
+            background-color: #87CEEB;
+            border-radius: 8px;
+            border: 4px solid #333;
+            width: 420px;
+            height: 480px; 
+            display: block;
+        }
+
+        /* End Game Overlay */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .overlay.hidden { display: none !important; }
+        .overlay h2 { font-size: 3em; margin: 0 0 10px 0; text-transform: uppercase; }
+        .overlay p { font-size: 1.2em; color: #ddd; margin-bottom: 30px; }
+        
+        .overlay.success h2 { color: #4CAF50; text-shadow: 0 0 20px rgba(76, 175, 80, 0.5); }
+        .overlay.danger h2 { color: #f44336; text-shadow: 0 0 20px rgba(244, 67, 54, 0.5); }
+        
+        .overlay button {
+            font-size: 1.5em;
+            padding: 15px 40px;
+            border-radius: 30px;
+            background: #2196F3;
+        }
+        .overlay button:hover { background: #1976D2; }
+
+    </style>
+</head>
+<body>
+
+    <h1>Merge Diggers</h1>
+    <div class="level-title">Player Level: <span id="playerLvlTitleUI">1</span></div>
+    
+    <div id="game-container">
+        
+        <!-- Win / Loss Screen -->
+        <div id="resultOverlay" class="overlay hidden">
+            <h2 id="overlayTitle">Title</h2>
+            <p id="overlayDesc">Description goes here</p>
+            <button onclick="closeOverlay()" id="overlayBtn">Continue</button>
+        </div>
+
+        <div class="ui-header">
+            <div class="stats-display">
+                <div class="stat-box coins">🪙 <span id="coinsUI">0</span></div>
+                <div class="stat-box lvl">⭐ Lvl <span id="playerLvlUI">1</span></div>
+            </div>
+            
+            <div class="buy-controls">
+                <button id="buyShovelBtn" class="buy-btn" onclick="buyTool('shovel')">Buy Shovel (🪙 <span id="costShovelUI">10</span>)</button>
+                <button id="buyPickaxeBtn" class="buy-btn" onclick="buyTool('pickaxe')">Buy Pickaxe (🪙 <span id="costPickaxeUI">10</span>)</button>
+            </div>
+
+            <!-- Trash Can -->
+            <div id="trash-can" class="trash-slot" ondrop="dropTrash(event)" ondragover="allowDrop(event)" ondragleave="leaveTrash(event)">
+                🗑️<br>TRASH
+            </div>
+        </div>
+
+        <div class="lane-markers">
+            <span>▼ Lane 1</span><span>▼ Lane 2</span><span>▼ Lane 3</span><span>▼ Lane 4</span><span>▼ Lane 5</span>
+        </div>
+        
+        <div id="merge-grid"></div>
+
+        <button id="actionBtn" onclick="startDigging()" style="width: 420px; padding: 15px; font-size: 1.2em;">DROP TOOLS!</button>
+
+        <canvas id="dig-canvas" width="420" height="480"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('dig-canvas');
+        const ctx = canvas.getContext('2d');
+        const cols = 5;
+        const rows = 2; 
+        const laneWidth = canvas.width / cols;
+        const assetPath = 'public/games/block_breaker/assets/';
+        const levelPath = 'public/games/block_breaker/levels/level.json';
+        
+        const toolTypes = {
+            'shovel': [
+                { level: 1, name: "Wood", src: "items/wood_shovel.png", damage: 1, maxHits: 5 },
+                { level: 2, name: "Stone", src: "items/stone_shovel.png", damage: 4, maxHits: 12 },
+                { level: 3, name: "Iron", src: "items/iron_shovel.png", damage: 15, maxHits: 25 },
+                { level: 4, name: "Gold", src: "items/gold_shovel.png", damage: 60, maxHits: 6 },
+                { level: 5, name: "Diamond", src: "items/diamond_shovel.png", damage: 150, maxHits: 75 },
+                { level: 6, name: "Netherite", src: "items/netherite_shovel.png", damage: 500, maxHits: 150 }
+            ],
+            'pickaxe': [
+                { level: 1, name: "Wood", src: "items/wood_pickaxe.png", damage: 1, maxHits: 5 },
+                { level: 2, name: "Stone", src: "items/stone_pickaxe.png", damage: 4, maxHits: 12 },
+                { level: 3, name: "Iron", src: "items/iron_pickaxe.png", damage: 15, maxHits: 25 },
+                { level: 4, name: "Gold", src: "items/gold_pickaxe.png", damage: 60, maxHits: 6 },
+                { level: 5, name: "Diamond", src: "items/diamond_pickaxe.png", damage: 150, maxHits: 75 },
+                { level: 6, name: "Netherite", src: "items/netherite_pickaxe.png", damage: 500, maxHits: 150 }
+            ]
+        };
+
+        const blockRegistry = {
+            "air": { hp: 0, solid: false, src: null, desired_tools: [], damageMultiplier: 1 },
+            "dirt": { hp: 5, solid: true, src: "blocks/dirt.png", desired_tools: ['shovel'], damageMultiplier: 1 },
+            "grass": { hp: 6, solid: true, src: "blocks/grass_side_carried.png", desired_tools: ['shovel'], damageMultiplier: 1 },
+            "gravel": { hp: 12, solid: true, src: "blocks/gravel.png", desired_tools: ['shovel'], damageMultiplier: 1 },
+            
+            "stone": { hp: 25, solid: true, src: "blocks/stone.png", desired_tools: ['pickaxe'], damageMultiplier: 1.2 },
+            "diorite": { hp: 30, solid: true, src: "blocks/stone_diorite.png", desired_tools: ['pickaxe'], damageMultiplier: 1.2 },
+            "granite": { hp: 30, solid: true, src: "blocks/stone_granite.png", desired_tools: ['pickaxe'], damageMultiplier: 1.2 },
+            "andesite": { hp: 30, solid: true, src: "blocks/stone_andesite.png", desired_tools: ['pickaxe'], damageMultiplier: 1.2 },
+            "cobblestone": { hp: 40, solid: true, src: "blocks/cobblestone.png", desired_tools: ['pickaxe'], damageMultiplier: 1.5 },
+            "deepslate": { hp: 100, solid: true, src: "blocks/deepslate.png", desired_tools: ['pickaxe'], damageMultiplier: 2.0 },
+            "cobbled_deepslate": { hp: 120, solid: true, src: "blocks/cobbled_deepslate.png", desired_tools: ['pickaxe'], damageMultiplier: 2.5 },
+            
+            "bedrock": { hp: Infinity, solid: true, unbreakable: true, src: "blocks/bedrock.png", desired_tools: [], damageMultiplier: 1 },
+            "chest_50": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 50, desired_tools: [], damageMultiplier: 1 },
+            "chest_100": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 100, desired_tools: [], damageMultiplier: 1 },
+            "chest_250": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 250, desired_tools: [], damageMultiplier: 1 },
+            "chest_500": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 500, desired_tools: [], damageMultiplier: 1 },
+            "chest_1000": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 1000, desired_tools: [], damageMultiplier: 1 }
+        };
+
+        Object.keys(toolTypes).forEach(type => {
+            toolTypes[type].forEach(t => { t.img = new Image(); t.img.src = assetPath + t.src; });
+        });
+        
+        Object.values(blockRegistry).forEach(b => {
+            if (b.src) { b.img = new Image(); b.img.src = assetPath + b.src; }
+        });
+
+        // Game State
+        let gameState = 'MERGE'; 
+        let playerLevel = 1;
+        let coins = 50; 
+        let currentCost = { 'shovel': 10, 'pickaxe': 10 };
+        let grid = new Array(cols * rows).fill(null); 
+        
+        let allLevelDefs = [];
+        let currentLevelData = null;
+        let digBlocks = []; 
+        let activeTools = []; 
+        let particles = [];
+        let bedrockHit = false;
+
+        // DOM Elements
+        const gridContainer = document.getElementById('merge-grid');
+        const coinsUI = document.getElementById('coinsUI');
+        const playerLvlUI = document.getElementById('playerLvlUI');
+        const playerLvlTitleUI = document.getElementById('playerLvlTitleUI');
+        const buyShovelBtn = document.getElementById('buyShovelBtn');
+        const buyPickaxeBtn = document.getElementById('buyPickaxeBtn');
+        const costShovelUI = document.getElementById('costShovelUI');
+        const costPickaxeUI = document.getElementById('costPickaxeUI');
+        const actionBtn = document.getElementById('actionBtn');
+        const overlay = document.getElementById('resultOverlay');
+        const overlayTitle = document.getElementById('overlayTitle');
+        const overlayDesc = document.getElementById('overlayDesc');
+        const overlayBtn = document.getElementById('overlayBtn');
+
+        async function fetchLevels() {
+            try {
+                const response = await fetch(levelPath);
+                const data = await response.json();
+                return data.levels;
+            } catch (e) {
+                console.log("Could not fetch level.json, using fallback level system with randoms and max_level.");
+                return [
+                    {
+                        "id": "starter_level",
+                        "max_level": 2, // Only appears on Player Level 1 and 2
+                        "random_pools": {
+                            "rand_surface": ["dirt", "grass", "air"],
+                            "rand_treasure": ["chest_50", "chest_100", "stone"]
+                        },
+                        "map": [
+                            ["rand_surface", "air", "rand_surface", "air", "rand_surface"],
+                            ["stone", "stone", "stone", "stone", "stone"],
+                            ["air", "air", "air", "air", "air"],
+                            ["rand_treasure", "rand_treasure", "rand_treasure", "rand_treasure", "rand_treasure"],
+                            ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+                        ]
+                    },
+                    {
+                        "id": "deep_mine",
+                        "max_level": 0, // Appears at ANY level
+                        "random_pools": {
+                            "rand_hard": ["deepslate", "cobbled_deepslate", "andesite"]
+                        },
+                        "map": [
+                            ["rand_hard", "rand_hard", "rand_hard", "rand_hard", "rand_hard"],
+                            ["air", "air", "chest_250", "air", "air"],
+                            ["rand_hard", "rand_hard", "rand_hard", "rand_hard", "rand_hard"],
+                            ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+                        ]
+                    }
+                ];
+            }
+        }
+
+        function pickEligibleLevel() {
+            let eligible = allLevelDefs.filter(l => l.max_level === undefined || l.max_level === 0 || playerLevel <= l.max_level);
+            if (eligible.length === 0) eligible = allLevelDefs; // Fallback so game never crashes
+            currentLevelData = eligible[Math.floor(Math.random() * eligible.length)];
+        }
+
+        async function initGame() {
+            allLevelDefs = await fetchLevels();
+            pickEligibleLevel();
+            
+            gridContainer.innerHTML = '';
+            for (let i = 0; i < cols * rows; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'grid-slot';
+                slot.dataset.index = i;
+                
+                slot.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if(gameState === 'MERGE') slot.classList.add('drag-over');
+                });
+                slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+                slot.addEventListener('drop', handleDrop);
+
+                gridContainer.appendChild(slot);
+            }
+            
+            renderGrid();
+            buildLevel();
+            setTimeout(drawCanvasStatic, 200); 
+        }
+
+        function buildLevel() {
+            digBlocks = [];
+            const blockHeight = 40;
+            const startY = 100; 
+            
+            for (let r = 0; r < currentLevelData.map.length; r++) {
+                let row = currentLevelData.map[r];
+                for (let c = 0; c < row.length; c++) {
+                    let blockId = row[c];
+                    
+                    // Evaluate Random Pools
+                    if (currentLevelData.random_pools && currentLevelData.random_pools[blockId]) {
+                        let pool = currentLevelData.random_pools[blockId];
+                        blockId = pool[Math.floor(Math.random() * pool.length)];
+                    }
+
+                    let def = blockRegistry[blockId];
+                    
+                    if (def && def.solid) {
+                        digBlocks.push({
+                            col: c,
+                            x: c * laneWidth,
+                            y: startY + r * blockHeight,
+                            w: laneWidth,
+                            h: blockHeight,
+                            hp: def.hp,
+                            maxHp: def.hp,
+                            img: def.img,
+                            prize: def.prize || 0,
+                            unbreakable: def.unbreakable || false,
+                            desired_tools: def.desired_tools,
+                            damageMultiplier: def.damageMultiplier
+                        });
+                    }
+                }
+            }
+        }
+
+        function updateUI() {
+            coinsUI.innerText = Math.floor(coins);
+            playerLvlUI.innerText = playerLevel;
+            playerLvlTitleUI.innerText = playerLevel;
+            
+            costShovelUI.innerText = currentCost['shovel'];
+            costPickaxeUI.innerText = currentCost['pickaxe'];
+            
+            const hasEmptySlot = grid.indexOf(null) !== -1;
+            
+            buyShovelBtn.disabled = (coins < currentCost['shovel'] || !hasEmptySlot || gameState !== 'MERGE');
+            buyPickaxeBtn.disabled = (coins < currentCost['pickaxe'] || !hasEmptySlot || gameState !== 'MERGE');
+            actionBtn.disabled = (gameState !== 'MERGE' || !grid.some(t => t !== null));
+        }
+
+        function renderGrid() {
+            const slots = document.querySelectorAll('.grid-slot');
+            slots.forEach((slot, i) => {
+                slot.innerHTML = '';
+                if (grid[i] !== null) {
+                    const toolObj = grid[i];
+                    const toolData = toolTypes[toolObj.type][toolObj.level - 1];
+                    const toolEl = document.createElement('div');
+                    toolEl.className = 'tool';
+                    
+                    toolEl.style.backgroundImage = `url('${assetPath}${toolData.src}')`;
+                    toolEl.style.backgroundSize = 'contain';
+                    toolEl.style.backgroundRepeat = 'no-repeat';
+                    toolEl.style.backgroundPosition = 'center';
+                    toolEl.innerHTML = `Lv${toolObj.level}<br>${toolData.damage} DMG`;
+                    
+                    toolEl.draggable = (gameState === 'MERGE');
+                    toolEl.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', i);
+                        setTimeout(() => toolEl.style.opacity = '0.5', 0);
+                    });
+                    toolEl.addEventListener('dragend', () => toolEl.style.opacity = '1');
+                    slot.appendChild(toolEl);
+                }
+            });
+            updateUI();
+        }
+
+        function buyTool(type) {
+            if (coins >= currentCost[type] && gameState === 'MERGE') {
+                const emptyIndex = grid.indexOf(null);
+                if (emptyIndex !== -1) {
+                    coins -= currentCost[type];
+                    currentCost[type] = Math.floor(currentCost[type] * 1.15); 
+                    grid[emptyIndex] = { type: type, level: 1 }; 
+                    renderGrid();
+                }
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            if (gameState !== 'MERGE') return;
+
+            const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+            const toIndex = parseInt(this.dataset.index);
+            if (fromIndex === toIndex || isNaN(fromIndex)) return;
+
+            const fromObj = grid[fromIndex];
+            const toObj = grid[toIndex];
+
+            if (toObj === null) {
+                grid[toIndex] = fromObj;
+                grid[fromIndex] = null;
+            } else if (fromObj.type === toObj.type && fromObj.level === toObj.level && fromObj.level < toolTypes[fromObj.type].length) {
+                grid[toIndex] = { type: fromObj.type, level: fromObj.level + 1 };
+                grid[fromIndex] = null;
+            } else {
+                grid[toIndex] = fromObj;
+                grid[fromIndex] = toObj;
+            }
+            renderGrid();
+        }
+
+        // Trash logic
+        function allowDrop(e) {
+            e.preventDefault();
+            if (gameState === 'MERGE') document.getElementById('trash-can').classList.add('drag-over');
+        }
+        function leaveTrash(e) {
+            document.getElementById('trash-can').classList.remove('drag-over');
+        }
+        function dropTrash(e) {
+            e.preventDefault();
+            document.getElementById('trash-can').classList.remove('drag-over');
+            if (gameState !== 'MERGE') return;
+            const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+            if (!isNaN(fromIndex)) {
+                grid[fromIndex] = null; 
+                renderGrid();
+            }
+        }
+
+        function spawnParticles(x, y, color = "#ffffff") {
+            for(let i=0; i<8; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 1.0, color: color
+                });
+            }
+        }
+
+        function startDigging() {
+            if (gameState !== 'MERGE' || !grid.some(t => t !== null)) return;
+            
+            gameState = 'DIG';
+            bedrockHit = false; // Reset the win condition state
+            actionBtn.innerText = "DIGGING...";
+            updateUI();
+            activeTools = [];
+
+            for (let i = 0; i < grid.length; i++) {
+                if (grid[i] !== null) {
+                    let col = i % cols; 
+                    let toolObj = grid[i];
+                    let typeData = toolTypes[toolObj.type][toolObj.level - 1];
+                    
+                    activeTools.push({
+                        col: col, type: toolObj.type,
+                        x: col * laneWidth + (laneWidth/2),
+                        y: (Math.floor(i / cols) * -50) - 20, 
+                        vx: 0, vy: 0, radius: 14,
+                        level: toolObj.level, img: typeData.img,
+                        damage: typeData.damage,
+                        hitsRemaining: typeData.maxHits, maxHits: typeData.maxHits,
+                        rotation: 0
+                    });
+                }
+            }
+            requestAnimationFrame(digLoop);
+        }
+
+        function digLoop() {
+            if (gameState !== 'DIG') return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Blocks
+            for (let b of digBlocks) {
+                if (b.img && b.img.complete) { ctx.drawImage(b.img, b.x, b.y, b.w, b.h); } 
+                else { ctx.fillStyle = b.unbreakable ? "#222" : "#555"; ctx.fillRect(b.x, b.y, b.w, b.h); }
+                ctx.strokeStyle = "rgba(0,0,0,0.5)"; ctx.lineWidth = 1; ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+                if (!b.unbreakable) {
+                    ctx.font = "bold 16px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.lineWidth = 4; ctx.strokeStyle = "#000";
+                    ctx.strokeText(Math.ceil(b.hp), b.x + b.w/2, b.y + b.h/2);
+                    ctx.fillStyle = "#fff"; ctx.fillText(Math.ceil(b.hp), b.x + b.w/2, b.y + b.h/2);
+                }
+            }
+
+            let toolsActive = false;
+
+            // Physics
+            for (let i = activeTools.length - 1; i >= 0; i--) {
+                let t = activeTools[i];
+                t.vy += 0.5; 
+                t.y += t.vy;
+                t.rotation += 0.2; 
+
+                let columnBlocks = digBlocks.filter(b => b.col === t.col).sort((a,b) => a.y - b.y);
+                let targetBlock = columnBlocks.length > 0 ? columnBlocks[0] : null;
+
+                if (targetBlock) {
+                    toolsActive = true;
+                    if (t.y + t.radius >= targetBlock.y && t.vy > 0) {
+                        t.y = targetBlock.y - t.radius; 
+                        t.vy = -8; 
+                        
+                        if (!targetBlock.unbreakable) {
+                            let isDesired = targetBlock.desired_tools.length === 0 || targetBlock.desired_tools.includes(t.type);
+                            t.hitsRemaining -= (isDesired ? 1 : 2);
+                            
+                            let blockMult = targetBlock.damageMultiplier || 1;
+                            let damageToDeal = (t.damage * blockMult) + (isDesired ? t.damage : 0);
+                            
+                            targetBlock.hp -= damageToDeal;
+                            coins += damageToDeal * 0.1; 
+                            spawnParticles(t.x, targetBlock.y); 
+
+                            if (targetBlock.hp <= 0) {
+                                if (targetBlock.prize > 0) {
+                                    coins += targetBlock.prize;
+                                    spawnParticles(t.x, targetBlock.y, "#FFD700"); 
+                                } else {
+                                    coins += targetBlock.maxHp * 0.5; 
+                                }
+                                digBlocks = digBlocks.filter(b => b !== targetBlock);
+                            }
+                        } else {
+                            // Hit bedrock/unbreakable
+                            spawnParticles(t.x, targetBlock.y, "#333333");
+                            t.hitsRemaining = 0; // Instantly break
+                            
+                            // Check if this is the goal block!
+                            if (targetBlock.hp === Infinity) {
+                                bedrockHit = true;
+                            }
+                        }
+
+                        if (t.hitsRemaining <= 0) {
+                            spawnParticles(t.x, t.y, "#ff0000"); 
+                            activeTools.splice(i, 1);
+                            continue;
+                        }
+                    }
+                } else {
+                    if (t.y < canvas.height + 50) toolsActive = true;
+                }
+
+                // Draw Tool
+                let renderSize = 40;
+                ctx.save();
+                ctx.translate(t.x, t.y);
+                ctx.rotate(t.rotation);
+                if (t.img && t.img.complete) {
+                    ctx.drawImage(t.img, -renderSize/2, -renderSize/2, renderSize, renderSize);
+                }
+                ctx.restore();
+                
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, renderSize/2 + 2, -Math.PI/2, (-Math.PI/2) + (Math.PI * 2 * (t.hitsRemaining / t.maxHits)));
+                ctx.strokeStyle = "#0f0"; ctx.lineWidth = 3; ctx.stroke();
+            }
+
+            // Draw Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+                if (p.life <= 0) { particles.splice(i, 1); continue; }
+                ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); ctx.globalAlpha = 1.0;
+            }
+
+            updateUI(); 
+            if (toolsActive || particles.length > 0) { requestAnimationFrame(digLoop); } 
+            else { endDigging(); }
+        }
+
+        function endDigging() {
+            // Check Win / Loss condition
+            overlay.classList.remove('hidden');
+            overlay.className = 'overlay'; // reset classes
+            
+            if (bedrockHit) {
+                overlayTitle.innerText = "Level Cleared!";
+                overlayDesc.innerText = "You successfully broke through to the bedrock.";
+                overlayBtn.innerText = "Next Level";
+                overlay.classList.add('success');
+                playerLevel++; // Increase player level!
+            } else {
+                overlayTitle.innerText = "Level Failed";
+                overlayDesc.innerText = "Your tools broke before reaching the bottom.";
+                overlayBtn.innerText = "Try Again";
+                overlay.classList.add('danger');
+            }
+        }
+
+        function closeOverlay() {
+            overlay.classList.add('hidden');
+            
+            if (bedrockHit) {
+                pickEligibleLevel(); // Get a new level (obeying max_level logic)
+            }
+            
+            // Build the map (generates new random blocks if they exist)
+            buildLevel(); 
+            drawCanvasStatic(); 
+            
+            gameState = 'MERGE';
+            actionBtn.innerText = "DROP TOOLS!";
+            updateUI();
+        }
+
+        function drawCanvasStatic() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let b of digBlocks) {
+                if (b.img && b.img.complete) { ctx.drawImage(b.img, b.x, b.y, b.w, b.h); } 
+                else { ctx.fillStyle = b.unbreakable ? "#222" : "#555"; ctx.fillRect(b.x, b.y, b.w, b.h); }
+                ctx.strokeStyle = "rgba(0,0,0,0.5)"; ctx.lineWidth = 1; ctx.strokeRect(b.x, b.y, b.w, b.h);
+                if (!b.unbreakable) {
+                    ctx.font = "bold 16px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.lineWidth = 4; ctx.strokeStyle = "#000"; ctx.strokeText(Math.ceil(b.hp), b.x + b.w/2, b.y + b.h/2);
+                    ctx.fillStyle = "#fff"; ctx.fillText(Math.ceil(b.hp), b.x + b.w/2, b.y + b.h/2);
+                }
+            }
+        }
+
+        initGame();
+    </script>
+</body>
+</html>

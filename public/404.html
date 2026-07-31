@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cheems Bonk Game - Redirecting</title>
+  <script>
+    (function() {
+      var path = window.location.pathname;
+      if (path.indexOf('/CheemsBonkGame/dev/') === 0 ||
+          path.indexOf('/CheemsBonkGame/test/') === 0 ||
+          path.indexOf('/CheemsBonkGame/app/') === 0 ||
+          path.indexOf('/CheemsBonkGame/development/') === 0) {
+        return;
+      }
+      var sub = path.replace(/^\/CheemsBonkGame\/?/, '');
+      if (/^(dev|development|test|app)(\/|$)/.test(sub)) {
+        window.location.replace('/CheemsBonkGame/' + sub);
+      } else {
+        window.location.replace('/CheemsBonkGame/app/' + sub);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <noscript>
+    <meta http-equiv="refresh" content="0; url=/CheemsBonkGame/app/">
+  </noscript>
+  <p>Redirecting... <a href="/CheemsBonkGame/app/">Click here if not redirected</a>.</p>
+</body>
+</html>

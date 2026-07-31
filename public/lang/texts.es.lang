@@ -8,9 +8,33 @@
     "p404": "Error 404",
     "settings": "Ajustes",
     "offline": "Descarga de recursos",
-    "shop": "Tienda"
+    "shop": "Tienda",
+    "block_breaker": "Merge Diggers",
+    "minigames": "Minijuegos"
+  },
+  "minigames": {
+    "title": "Merge Diggers",
+    "playerLevel": "Nivel de Jugador: ",
+    "lvl": "Nivel ",
+    "trash": "BASURA",
+    "lane1": "▼ Carril 1",
+    "lane2": "▼ Carril 2",
+    "lane3": "▼ Carril 3",
+    "lane4": "▼ Carril 4",
+    "lane5": "▼ Carril 5",
+    "dropTools": "¡SOLTAR HERRAMIENTAS!",
+    "digging": "EXCAVANDO...",
+    "buyShovel": "Comprar pala",
+    "buyPickaxe": "Comprar pico",
+    "levelCleared": "¡Nivel Completado!",
+    "levelClearedDesc": "Has logrado atravesar hasta la roca base.",
+    "nextLevel": "Siguiente Nivel",
+    "levelFailed": "Nivel Fallido",
+    "levelFailedDesc": "Tus herramientas se rompieron antes de llegar al fondo.",
+    "tryAgain": "Intentar de nuevo"
   },
   "menu": {
+    "minigames": "Minijuegos",
     "settings": "Ajustes",
     "offline": "Descarga de recursos (Modo offline)",
     "shop": "Tienda de personalización",
@@ -172,7 +196,13 @@
     "shop_boost_10x_5m_name": "Potenciador x10 (5 min)",
     "shop_boost_10x_5m_desc": "Multiplica tus puntos por 10 durante 5 minutos.",
     "shop_boost_10x_10m_name": "Potenciador x10 (10 min)",
-    "shop_boost_10x_10m_desc": "Multiplica tus puntos por 10 durante 10 minutos."
+    "shop_boost_10x_10m_desc": "Multiplica tus puntos por 10 durante 10 minutos.",
+    "shop_minigame_block_breaker_name": "Merge Diggers",
+    "shop_minigame_block_breaker_desc": "Desbloquea el minijuego de cavar y combinar herramientas.",
+    "shop_curr_dgc_to_mg_name": "10 Puntos de Minijuegos",
+    "shop_curr_dgc_to_mg_desc": "Intercambia 1 DogeCoin por 10 Puntos de Minijuegos.",
+    "shop_curr_mg_to_dgc_name": "1 DogeCoin",
+    "shop_curr_mg_to_dgc_desc": "Intercambia 10 Puntos de Minijuegos por 1 DogeCoin."
   },
   "itemsText": {
     "cheems_normal": "Cheems Normal",

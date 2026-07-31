@@ -1,0 +1,457 @@
+{
+  "levels": [
+    {
+      "id": "starter_level",
+      "background_color": "#87CEEB",
+      "max_level": 2,
+      "random_pools": {
+        "rand_surface": ["dirt", "grass", "air"],
+        "rand_mid": ["stone", "coal_ore", "copper_ore", "iron_ore"],
+        "rand_deep": ["deepslate", "deepslate_iron_ore", "deepslate_diamond_ore"],
+        "rand_chest": ["chest_100", "chest_250", "chest_500"]
+      },
+      "map": [
+        ["rand_surface", "air", "rand_surface", "air", "rand_surface"],
+        ["dirt", "dirt", "stone", "dirt", "dirt"],
+        ["stone", "stone", "stone", "stone", "stone"],
+        ["rand_mid", "rand_mid", "air", "rand_mid", "rand_mid"],
+        ["stone", "stone", "stone", "stone", "stone"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["stone", "stone", "barrel_50", "stone", "stone"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "copper_chest_inventory_front", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_treasure", "chest_250", "rand_treasure", "chest_250", "rand_treasure"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "overworld_plains",
+      "background_color": "#87CEEB",
+      "max_level": 0,
+      "random_pools": {
+        "rand_surface": ["grass", "dirt", "coarse_dirt"],
+        "rand_stone": ["stone", "andesite", "diorite", "granite"],
+        "rand_ores": ["coal_ore", "iron_ore", "copper_ore", "gold_ore"],
+        "rand_deep": ["stone", "deepslate", "diamond_ore", "lapis_ore"],
+        "rand_chest": ["chest_100", "chest_250", "chest_500"]
+      },
+      "map": [
+        ["rand_surface", "rand_surface", "air", "rand_surface", "rand_surface"],
+        ["dirt", "dirt", "dirt", "dirt", "dirt"],
+        ["rand_stone", "rand_stone", "rand_ores", "rand_stone", "rand_stone"],
+        ["rand_stone", "barrel_100", "air", "barrel_100", "rand_stone"],
+        ["rand_stone", "rand_ores", "rand_stone", "rand_ores", "rand_stone"],
+        ["rand_stone", "rand_stone", "rand_stone", "rand_stone", "rand_stone"],
+        ["rand_deep", "rand_deep", "copper_chest_inventory_front", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "air", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "exposed_copper_chest_inventory_front", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_250", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "snow_tundra",
+      "background_color": "#B0E0E6",
+      "max_level": 0,
+      "random_pools": {
+        "rand_snow": ["snow", "ice", "ice_packed"],
+        "rand_sub": ["dirt", "gravel", "stone"],
+        "rand_ice": ["ice", "ice_packed", "stone", "iron_ore"],
+        "rand_deep": ["stone", "deepslate", "gold_ore", "diamond_ore"],
+        "rand_chest": ["chest_250", "chest_500"]
+      },
+      "map": [
+        ["rand_snow", "rand_snow", "snow", "rand_snow", "rand_snow"],
+        ["rand_sub", "rand_sub", "ice", "rand_sub", "rand_sub"],
+        ["rand_ice", "rand_ice", "rand_ice", "rand_ice", "rand_ice"],
+        ["rand_ice", "air", "barrel_100", "air", "rand_ice"],
+        ["rand_ice", "rand_ice", "rand_ice", "rand_ice", "rand_ice"],
+        ["rand_ice", "stone", "stone", "stone", "rand_ice"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "exposed_copper_chest_inventory_front", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "air", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "barrel_250", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_250", "chest_500", "chest_250", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "ice_cavern",
+      "background_color": "#8FD3FE",
+      "max_level": 0,
+      "random_pools": {
+        "rand_top": ["ice_packed", "ice", "snow"],
+        "rand_mid": ["stone", "diorite", "ice_packed", "iron_ore", "lapis_ore"],
+        "rand_deep": ["stone", "deepslate", "diamond_ore", "lapis_ore"],
+        "rand_chest": ["chest_500", "ender_chest_front"]
+      },
+      "map": [
+        ["rand_top", "air", "rand_top", "air", "rand_top"],
+        ["rand_top", "rand_top", "ice_packed", "rand_top", "rand_top"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_mid", "air", "air", "air", "rand_mid"],
+        ["rand_mid", "rand_mid", "barrel_250", "rand_mid", "rand_mid"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "weathered_copper_chest_inventory_front", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "rand_deep", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "barrel_500", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_500", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "deep_cave",
+      "background_color": "#1A1A24",
+      "max_level": 0,
+      "random_pools": {
+        "rand_roof": ["stone", "dripstone_block", "cobblestone"],
+        "rand_cave": ["stone", "andesite", "coal_ore", "iron_ore", "copper_ore"],
+        "rand_deep": ["deepslate", "cobbled_deepslate", "diamond_ore", "redstone_ore"],
+        "rand_chest": ["chest_500", "ender_chest_front"]
+      },
+      "map": [
+        ["rand_roof", "rand_roof", "air", "rand_roof", "rand_roof"],
+        ["rand_cave", "dripstone_block", "air", "dripstone_block", "rand_cave"],
+        ["rand_cave", "rand_cave", "rand_cave", "rand_cave", "rand_cave"],
+        ["rand_cave", "air", "barrel_100", "air", "rand_cave"],
+        ["rand_cave", "rand_cave", "rand_cave", "rand_cave", "rand_cave"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "oxidized_copper_chest_inventory_front", "rand_deep", "oxidized_copper_chest_inventory_front", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "air", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "barrel_250", "rand_deep", "barrel_250", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_500", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "nether_wastes",
+      "background_color": "#4A0E0E",
+      "max_level": 0,
+      "random_pools": {
+        "rand_nether": ["netherrack", "magma", "nether_gold_ore", "quartz_ore"],
+        "rand_soul": ["soul_sand", "soul_soil", "netherrack"],
+        "rand_blackstone": ["blackstone", "gilded_blackstone", "basalt_side", "ancient_debris_side"],
+        "rand_chest": ["chest_500", "ender_chest_front"]
+      },
+      "map": [
+        ["rand_nether", "air", "rand_nether", "air", "rand_nether"],
+        ["rand_nether", "rand_nether", "magma", "rand_nether", "rand_nether"],
+        ["rand_soul", "rand_soul", "rand_nether", "rand_soul", "rand_soul"],
+        ["rand_nether", "barrel_250", "air", "barrel_250", "rand_nether"],
+        ["rand_blackstone", "rand_blackstone", "rand_blackstone", "rand_blackstone", "rand_blackstone"],
+        ["rand_blackstone", "rand_blackstone", "exposed_copper_chest_inventory_front", "rand_blackstone", "rand_blackstone"],
+        ["rand_blackstone", "gilded_blackstone", "rand_blackstone", "gilded_blackstone", "rand_blackstone"],
+        ["rand_blackstone", "rand_blackstone", "rand_blackstone", "rand_blackstone", "rand_blackstone"],
+        ["rand_blackstone", "air", "air", "air", "rand_blackstone"],
+        ["rand_blackstone", "rand_blackstone", "barrel_500", "rand_blackstone", "rand_blackstone"],
+        ["rand_blackstone", "ancient_debris_side", "rand_blackstone", "ancient_debris_side", "rand_blackstone"],
+        ["rand_blackstone", "rand_blackstone", "rand_blackstone", "rand_blackstone", "rand_blackstone"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_blackstone", "chest_500", "rand_chest", "chest_500", "rand_blackstone"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "muddy_swamp",
+      "background_color": "#556B2F",
+      "max_level": 0,
+      "random_pools": {
+        "rand_mud": ["mud", "dirt", "clay"],
+        "rand_roots": ["muddy_mangrove_roots_side", "dirt", "stone"],
+        "rand_mid": ["stone", "coal_ore", "copper_ore", "iron_ore"],
+        "rand_deep": ["stone", "deepslate", "emerald_ore", "diamond_ore"],
+        "rand_chest": ["chest_250", "chest_500"]
+      },
+      "map": [
+        ["rand_mud", "rand_roots", "air", "rand_roots", "rand_mud"],
+        ["rand_mud", "rand_mud", "clay", "rand_mud", "rand_mud"],
+        ["rand_roots", "rand_roots", "rand_roots", "rand_roots", "rand_roots"],
+        ["rand_mid", "barrel_100", "air", "barrel_100", "rand_mid"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_mid", "rand_mid", "copper_chest_inventory_front", "rand_mid", "rand_mid"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "rand_deep", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "barrel_250", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_250", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "podzol_taiga",
+      "background_color": "#6B8E23",
+      "max_level": 0,
+      "random_pools": {
+        "rand_podzol": ["dirt_podzol_side", "coarse_dirt", "grass"],
+        "rand_sub": ["dirt", "stone", "coal_ore", "gravel"],
+        "rand_stone": ["stone", "andesite", "iron_ore", "copper_ore"],
+        "rand_deep": ["deepslate", "deepslate_iron_ore", "deepslate_diamond_ore"],
+        "rand_chest": ["chest_250", "chest_500"]
+      },
+      "map": [
+        ["rand_podzol", "rand_podzol", "air", "rand_podzol", "rand_podzol"],
+        ["rand_sub", "rand_sub", "dirt", "rand_sub", "rand_sub"],
+        ["rand_stone", "rand_stone", "rand_stone", "rand_stone", "rand_stone"],
+        ["rand_stone", "barrel_100", "air", "barrel_100", "rand_stone"],
+        ["rand_stone", "rand_stone", "rand_stone", "rand_stone", "rand_stone"],
+        ["rand_deep", "weathered_copper_chest_inventory_front", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "air", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "barrel_250", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_250", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "desert_archaeology",
+      "background_color": "#EDC9AF",
+      "max_level": 0,
+      "random_pools": {
+        "rand_sand": ["sand", "sandstone_normal", "suspicious_sand"],
+        "rand_sandstone": ["sandstone_normal", "sandstone_carved", "sandstone_smooth", "gold_ore"],
+        "rand_stone": ["stone", "iron_ore", "gold_ore", "emerald_ore"],
+        "rand_deep": ["deepslate", "deepslate_gold_ore", "deepslate_diamond_ore"],
+        "rand_chest": ["chest_500", "ender_chest_front"]
+      },
+      "map": [
+        ["rand_sand", "rand_sand", "air", "rand_sand", "rand_sand"],
+        ["rand_sandstone", "rand_sandstone", "sandstone_carved", "rand_sandstone", "rand_sandstone"],
+        ["rand_sandstone", "rand_sandstone", "rand_sandstone", "rand_sandstone", "rand_sandstone"],
+        ["rand_stone", "barrel_250", "air", "barrel_250", "rand_stone"],
+        ["rand_stone", "rand_stone", "rand_stone", "rand_stone", "rand_stone"],
+        ["rand_deep", "rand_deep", "exposed_copper_chest_inventory_front", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "air", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "barrel_500", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_500", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "deep_dark_sculk",
+      "background_color": "#0A0E17",
+      "max_level": 0,
+      "random_pools": {
+        "rand_sculk": ["deepslate", "sculk_catalyst_top", "sculk_shrieker_bottom"],
+        "rand_deep": ["deepslate", "cobbled_deepslate", "deepslate_diamond_ore", "deepslate_emerald_ore"],
+        "rand_obsidian": ["obsidian", "crying_obsidian", "glowing_obsidian", "deepslate"],
+        "rand_chest": ["chest_500", "ender_chest_front"]
+      },
+      "map": [
+        ["rand_sculk", "air", "rand_sculk", "air", "rand_sculk"],
+        ["rand_sculk", "rand_sculk", "deepslate", "rand_sculk", "rand_sculk"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "barrel_500", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_obsidian", "oxidized_copper_chest_inventory_front", "rand_obsidian", "rand_obsidian", "rand_obsidian"],
+        ["rand_obsidian", "rand_obsidian", "rand_obsidian", "rand_obsidian", "rand_obsidian"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_obsidian", "air", "air", "air", "rand_obsidian"],
+        ["rand_obsidian", "rand_obsidian", "barrel_500", "rand_obsidian", "rand_obsidian"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_obsidian", "rand_obsidian", "rand_obsidian", "rand_obsidian", "rand_obsidian"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_obsidian", "chest_500", "rand_chest", "ender_chest_front", "rand_obsidian"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "amethyst_geode",
+      "background_color": "#2D1E3A",
+      "max_level": 0,
+      "random_pools": {
+        "rand_crust": ["calcite", "stone", "tuff"],
+        "rand_geode": ["amethyst_block", "calcite", "dripstone_block"],
+        "rand_mid": ["stone", "deepslate", "iron_ore", "gold_ore"],
+        "rand_deep": ["deepslate", "amethyst_block", "diamond_ore", "deepslate_diamond_ore"],
+        "rand_chest": ["chest_250", "chest_500"]
+      },
+      "map": [
+        ["rand_crust", "rand_crust", "air", "rand_crust", "rand_crust"],
+        ["rand_crust", "calcite", "calcite", "calcite", "rand_crust"],
+        ["rand_geode", "rand_geode", "amethyst_block", "rand_geode", "rand_geode"],
+        ["rand_geode", "barrel_250", "air", "barrel_250", "rand_geode"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_mid", "copper_chest_inventory_front", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "rand_deep", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "barrel_250", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_250", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "end_dimension",
+      "background_color": "#190E2B",
+      "max_level": 0,
+      "random_pools": {
+        "rand_end": ["end_stone", "obsidian"],
+        "rand_ores": ["end_stone", "crying_obsidian", "glowing_obsidian"],
+        "rand_chest": ["ender_chest_front", "chest_500"]
+      },
+      "map": [
+        ["rand_end", "air", "rand_end", "air", "rand_end"],
+        ["rand_end", "rand_end", "obsidian", "rand_end", "rand_end"],
+        ["rand_end", "rand_end", "rand_end", "rand_end", "rand_end"],
+        ["rand_ores", "air", "barrel_500", "air", "rand_ores"],
+        ["rand_end", "rand_end", "rand_end", "rand_end", "rand_end"],
+        ["rand_ores", "crying_obsidian", "weathered_copper_chest_inventory_front", "crying_obsidian", "rand_ores"],
+        ["rand_end", "rand_end", "rand_end", "rand_end", "rand_end"],
+        ["rand_end", "rand_end", "rand_end", "rand_end", "rand_end"],
+        ["rand_end", "air", "air", "air", "rand_end"],
+        ["rand_ores", "rand_ores", "barrel_500", "rand_ores", "rand_ores"],
+        ["rand_end", "rand_end", "rand_end", "rand_end", "rand_end"],
+        ["rand_end", "obsidian", "obsidian", "obsidian", "rand_end"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_end", "ender_chest_front", "rand_chest", "ender_chest_front", "rand_end"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "crimson_forest",
+      "background_color": "#5A0A0A",
+      "max_level": 0,
+      "random_pools": {
+        "rand_crimson": ["crimson_nylium_side", "netherrack", "nether_wart_block"],
+        "rand_mid": ["netherrack", "magma", "nether_gold_ore"],
+        "rand_deep": ["blackstone", "gilded_blackstone", "ancient_debris_side"],
+        "rand_chest": ["chest_500", "ender_chest_front"]
+      },
+      "map": [
+        ["rand_crimson", "air", "rand_crimson", "air", "rand_crimson"],
+        ["rand_crimson", "rand_crimson", "nether_wart_block", "rand_crimson", "rand_crimson"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_mid", "barrel_250", "air", "barrel_250", "rand_mid"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_deep", "exposed_copper_chest_inventory_front", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "air", "air", "rand_deep"],
+        ["rand_deep", "gilded_blackstone", "barrel_500", "gilded_blackstone", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "ancient_debris_side", "rand_deep", "ancient_debris_side", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_500", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "warped_forest",
+      "background_color": "#0A3A3A",
+      "max_level": 0,
+      "random_pools": {
+        "rand_warped": ["warped_nylium_side", "netherrack"],
+        "rand_mid": ["netherrack", "quartz_ore", "nether_gold_ore"],
+        "rand_deep": ["blackstone", "gilded_blackstone", "basalt_side"],
+        "rand_chest": ["chest_500", "ender_chest_front"]
+      },
+      "map": [
+        ["rand_warped", "air", "rand_warped", "air", "rand_warped"],
+        ["rand_warped", "rand_warped", "warped_nylium_side", "rand_warped", "rand_warped"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_mid", "air", "barrel_250", "air", "rand_mid"],
+        ["rand_mid", "rand_mid", "rand_mid", "rand_mid", "rand_mid"],
+        ["rand_deep", "rand_deep", "oxidized_copper_chest_inventory_front", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "air", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "barrel_500", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_500", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "badlands_mesa",
+      "background_color": "#8B4513",
+      "max_level": 0,
+      "random_pools": {
+        "rand_mesa": ["sand", "sandstone_normal", "coarse_dirt"],
+        "rand_stone": ["stone", "gold_ore", "iron_ore", "copper_ore"],
+        "rand_deep": ["deepslate", "deepslate_gold_ore", "deepslate_diamond_ore"],
+        "rand_chest": ["chest_250", "chest_500"]
+      },
+      "map": [
+        ["rand_mesa", "rand_mesa", "air", "rand_mesa", "rand_mesa"],
+        ["rand_mesa", "rand_mesa", "sandstone_normal", "rand_mesa", "rand_mesa"],
+        ["rand_stone", "rand_stone", "gold_ore", "rand_stone", "rand_stone"],
+        ["rand_stone", "barrel_100", "air", "barrel_100", "rand_stone"],
+        ["rand_stone", "rand_stone", "rand_stone", "rand_stone", "rand_stone"],
+        ["rand_deep", "exposed_copper_chest_inventory_front", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "air", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "barrel_250", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_250", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    },
+    {
+      "id": "lush_cave",
+      "background_color": "#2E4A2E",
+      "max_level": 0,
+      "random_pools": {
+        "rand_top": ["dirt", "clay", "mud"],
+        "rand_moss": ["stone", "clay", "coal_ore", "iron_ore"],
+        "rand_deep": ["deepslate", "amethyst_block", "diamond_ore", "emerald_ore"],
+        "rand_chest": ["chest_250", "chest_500"]
+      },
+      "map": [
+        ["rand_top", "air", "rand_top", "air", "rand_top"],
+        ["rand_top", "clay", "clay", "clay", "rand_top"],
+        ["rand_moss", "rand_moss", "rand_moss", "rand_moss", "rand_moss"],
+        ["rand_moss", "air", "barrel_100", "air", "rand_moss"],
+        ["rand_moss", "rand_moss", "rand_moss", "rand_moss", "rand_moss"],
+        ["rand_deep", "copper_chest_inventory_front", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "air", "air", "air", "rand_deep"],
+        ["rand_deep", "rand_deep", "barrel_250", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["rand_deep", "rand_deep", "rand_deep", "rand_deep", "rand_deep"],
+        ["air", "air", "air", "air", "air"],
+        ["rand_deep", "chest_250", "rand_chest", "chest_500", "rand_deep"],
+        ["bedrock", "bedrock", "bedrock", "bedrock", "bedrock"]
+      ]
+    }
+  ]
+}

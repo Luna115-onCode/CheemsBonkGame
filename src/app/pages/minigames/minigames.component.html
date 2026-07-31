@@ -1,0 +1,16 @@
+<div class="container">
+    <div class="group {{tools.themeColor}} menu-grid">
+        <!-- Merge Diggers Minigame Card -->
+        <div class="menu-card {{tools.themeColor}}" (click)="openMinigame('block-breaker')">
+            <img [src]="tools.isMinigameUnlocked('block_breaker') ? 'img/icons/play-svgrepo-com.svg' : 'img/icons/lock-keyhole-minimalistic-svgrepo-com.svg'"
+                 class="menu-icon coin-glow"
+                 alt="Merge Diggers">
+            <div class="card-content">
+                <div class="card-title">{{tools.minigames[tools.lang]?.title || 'Merge Diggers'}}</div>
+                @if (!tools.isMinigameUnlocked('block_breaker')) {
+                    <div class="card-sub">🔒 {{tools.closet[tools.lang]?.locked || 'Locked'}}</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -9,7 +9,12 @@
     <div class="shop-nav-bar">
         @if (dogecoinItems.length > 0) {
             <button class="shop-nav-btn nav-dogecoin" (click)="scrollToSection('sec-dogecoin')">
-                {{tools.shop[tools.lang]?.dogecoinSection || 'DogeCoins'}}
+                {{tools.shop[tools.lang]?.currencySection || 'Currency'}}
+            </button>
+        }
+        @if (minigameItems.length > 0) {
+            <button class="shop-nav-btn nav-booster" (click)="scrollToSection('sec-minigame')">
+                {{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}
             </button>
         }
         @if (boosterItems.length > 0) {
@@ -63,6 +68,10 @@
                 {{tools.dogeCoins}}
             </span>
         </div>
+        <div class="balance-item">
+            <span class="balance-label">Minigame Pts:</span>
+            <span class="balance-value">🎮 {{tools.minigameCoins | number}}</span>
+        </div>
     </div>
 
     <!-- Reusable Shop Card Template -->
@@ -72,7 +81,9 @@
              [class.booster-card]="item.type === 'booster'"
              [class.cheems-card]="item.type === 'cheems'"
              [class.sound-card]="item.type === 'sound'"
-             [class.music-card]="item.type === 'music'">
+             [class.music-card]="item.type === 'music'"
+             [class.currency-dgc-to-mg-card]="item.id === 'curr_dgc_to_mg'"
+             [class.currency-mg-to-dgc-card]="item.id === 'curr_mg_to_dgc'">
             <div class="shop-card-icon-wrapper">
                 @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png')) {
                     <img [src]="getShopCardIcon(item)" class="shop-card-icon" [alt]="tools.getShopItemName(item)">
@@ -124,13 +135,25 @@
         </div>
     </ng-template>
 
-    <!-- DogeCoins Section -->
+    <!-- Currency Section -->
     @if (dogecoinItems.length > 0) {
         <div class="section-separator" id="sec-dogecoin">
-            <h2 class="section-title dogecoin-title">{{tools.shop[tools.lang]?.dogecoinSection || 'DogeCoins'}}</h2>
+            <h2 class="section-title dogecoin-title">{{tools.shop[tools.lang]?.currencySection || 'Currency'}}</h2>
         </div>
         <div class="shop-grid">
             @for (item of dogecoinItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Minigames Section -->
+    @if (minigameItems.length > 0) {
+        <div class="section-separator" id="sec-minigame">
+            <h2 class="section-title minigame-title">{{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of minigameItems; track item.id) {
                 <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
             }
         </div>

@@ -1,0 +1,18 @@
+{
+  "shovel": [
+    { "level": 1, "name": "Wood Shovel", "src": "items/wood_shovel.png", "damage": 1, "maxHits": 5, "price": 5 },
+    { "level": 2, "name": "Stone Shovel", "src": "items/stone_shovel.png", "damage": 2, "maxHits": 10, "price": 12 },
+    { "level": 3, "name": "Iron Shovel", "src": "items/iron_shovel.png", "damage": 3, "maxHits": 20, "price": 28 },
+    { "level": 4, "name": "Gold Shovel", "src": "items/gold_shovel.png", "damage": 10, "maxHits": 6, "price": 65 },
+    { "level": 5, "name": "Diamond Shovel", "src": "items/diamond_shovel.png", "damage": 5, "maxHits": 30, "price": 150 },
+    { "level": 6, "name": "Netherite Shovel", "src": "items/netherite_shovel.png", "damage": 7, "maxHits": 50, "price": 350 }
+  ],
+  "pickaxe": [
+    { "level": 1, "name": "Wood Pickaxe", "src": "items/wood_pickaxe.png", "damage": 1, "maxHits": 5, "price": 5 },
+    { "level": 2, "name": "Stone Pickaxe", "src": "items/stone_pickaxe.png", "damage": 2, "maxHits": 10, "price": 12 },
+    { "level": 3, "name": "Iron Pickaxe", "src": "items/iron_pickaxe.png", "damage": 3, "maxHits": 20, "price": 28 },
+    { "level": 4, "name": "Gold Pickaxe", "src": "items/gold_pickaxe.png", "damage": 10, "maxHits": 6, "price": 65 },
+    { "level": 5, "name": "Diamond Pickaxe", "src": "items/diamond_pickaxe.png", "damage": 5, "maxHits": 30, "price": 150 },
+    { "level": 6, "name": "Netherite Pickaxe", "src": "items/netherite_pickaxe.png", "damage": 7, "maxHits": 50, "price": 350 }
+  ]
+}

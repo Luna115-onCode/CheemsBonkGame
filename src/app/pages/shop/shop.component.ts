@@ -52,6 +52,51 @@ export class ShopComponent implements OnInit, OnDestroy {
     if (item.type === 'dogecoin') {
       const coinsGiven = item.coinsGiven || 1;
       this.tools.buyDogeCoin(item.cost, coinsGiven, item.id);
+    } else if (item.type === 'currency') {
+      const ptsCost = item.cost || 0;
+      const coinCost = item.costCoins || 0;
+      const mgCost = item.costMinigames || 0;
+      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost && this.tools.minigameCoins >= mgCost) {
+        this.tools.points -= ptsCost;
+        this.tools.dogeCoins -= coinCost;
+        this.tools.minigameCoins -= mgCost;
+        if (item.coinsGiven) {
+          this.tools.dogeCoins += item.coinsGiven;
+        }
+        if (item.minigameCoinsGiven) {
+          this.tools.addMinigameCoins(item.minigameCoinsGiven);
+        }
+        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
+        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
+        localStorage.setItem("CheemsAppLiMinigameCoins", JSON.stringify(this.tools.minigameCoins));
+        this.tools.recordDailyPurchase(item.id);
+        this.tools.showToast(this.tools.closet[this.tools.lang]?.purchased || "Purchased!");
+        this.tools.playSound('sfx_4');
+      } else {
+        this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough currency!");
+      }
+    } else if (item.type === 'minigame') {
+      const ptsCost = item.cost || 0;
+      const coinCost = item.costCoins || 0;
+      const mgCost = item.costMinigames || 0;
+      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost && this.tools.minigameCoins >= mgCost) {
+        this.tools.points -= ptsCost;
+        this.tools.dogeCoins -= coinCost;
+        this.tools.minigameCoins -= mgCost;
+        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
+        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
+        localStorage.setItem("CheemsAppLiMinigameCoins", JSON.stringify(this.tools.minigameCoins));
+        const target = String(item.targetId || item.id);
+        this.tools.unlockedMinigames[target] = true;
+        this.tools.unlockedMinigames['block_breaker'] = true;
+        localStorage.setItem("CheemsAppLiMinigame_block_breaker", "true");
+        localStorage.setItem("CheemsAppLiMinigame_" + target, "true");
+        this.tools.recordLifetimePurchase(item.id);
+        this.tools.showToast(this.tools.closet[this.tools.lang]?.purchased || "Purchased!");
+        this.tools.playSound('sfx_4');
+      } else {
+        this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough currency!");
+      }
     } else if (item.type === 'booster') {
       const ptsCost = item.cost || 0;
       const coinCost = item.costCoins || 0;
@@ -93,14 +138,16 @@ export class ShopComponent implements OnInit, OnDestroy {
     }
     const ptsCost = item.cost !== undefined ? item.cost : (item.type === 'dogecoin' ? this.dailyPrice : 0);
     const coinsCost = item.costCoins || 0;
-    return this.tools.points >= ptsCost && this.tools.dogeCoins >= coinsCost;
+    const mgCost = item.costMinigames || 0;
+    return this.tools.points >= ptsCost && this.tools.dogeCoins >= coinsCost && this.tools.minigameCoins >= mgCost;
   }
 
   formatItemCost(item: ShopItem): string {
     const ptsCost = item.cost !== undefined ? item.cost : (item.type === 'dogecoin' ? this.dailyPrice : 0);
     const coinsCost = item.costCoins || 0;
+    const mgCost = item.costMinigames || 0;
 
-    if (ptsCost === 0 && coinsCost === 0) {
+    if (ptsCost === 0 && coinsCost === 0 && mgCost === 0) {
       return this.tools.shop[this.tools.lang]?.free || "Free";
     }
 
@@ -111,11 +158,18 @@ export class ShopComponent implements OnInit, OnDestroy {
     if (coinsCost > 0) {
       parts.push(`${coinsCost.toLocaleString()} DGC`);
     }
+    if (mgCost > 0) {
+      parts.push(`${mgCost.toLocaleString()} MG`);
+    }
     return parts.join(' + ');
   }
 
   get dogecoinItems(): ShopItem[] {
-    return this.tools.shopItems.filter(i => i.type === 'dogecoin');
+    return this.tools.shopItems.filter(i => i.type === 'dogecoin' || i.type === 'currency');
+  }
+
+  get minigameItems(): ShopItem[] {
+    return this.tools.shopItems.filter(i => i.type === 'minigame');
   }
 
   get boosterItems(): ShopItem[] {

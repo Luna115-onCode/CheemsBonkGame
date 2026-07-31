@@ -111,6 +111,15 @@
     box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);
 }
 
+.nav-minigames {
+    border-color: rgba(255, 140, 0, 0.4);
+    color: #ff8c00;
+}
+.nav-minigames:hover {
+    background: rgba(255, 140, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+}
+
 /* ========================================
    Section Separators / Indicators
    ======================================== */
@@ -363,6 +372,32 @@
 .shop-card.music-card:hover {
     border-color: rgba(180, 120, 255, 0.5);
     box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);
+}
+
+/* DogeCoin to Minigame Points exchange (Silver / Plate style) */
+.shop-card.currency-dgc-to-mg-card {
+    background: linear-gradient(135deg, rgba(220, 225, 230, 0.15), rgba(160, 170, 185, 0.08));
+    border-color: rgba(200, 210, 225, 0.4);
+}
+.shop-card.currency-dgc-to-mg-card:hover {
+    border-color: rgba(230, 240, 255, 0.8);
+    box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);
+}
+.shop-card.currency-dgc-to-mg-card .item-name {
+    color: #e2e8f0;
+}
+
+/* Minigame Points to DogeCoin exchange (Golden style) */
+.shop-card.currency-mg-to-dgc-card {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.18), rgba(255, 140, 0, 0.1));
+    border-color: rgba(255, 215, 0, 0.5);
+}
+.shop-card.currency-mg-to-dgc-card:hover {
+    border-color: rgba(255, 215, 0, 0.85);
+    box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);
+}
+.shop-card.currency-mg-to-dgc-card .item-name {
+    color: #ffd700;
 }
 
 .shop-card-icon-wrapper {

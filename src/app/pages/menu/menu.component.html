@@ -8,6 +8,14 @@
             </div>
         </div>
 
+        <!-- Minigames Card -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('minigames')">
+            <img src="img/icons/play-svgrepo-com.svg" class="menu-icon" alt="Minigames">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].minigames || 'Minigames'}}</div>
+            </div>
+        </div>
+
         <!-- Customization / Closet -->
         <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('closet')">
             <img src="img/icons/personal-svgrepo-com.svg" class="menu-icon" alt="Closet">

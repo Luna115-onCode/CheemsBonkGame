@@ -11,6 +11,7 @@ import {
   devText,
   onWorkText,
   p404Text,
+  minigamesText,
   CHEEMS_SKINS,
   SOUND_EFFECTS,
   MUSIC_TRACKS,
@@ -43,6 +44,7 @@ export class ToolsService {
   highScore: number = 0;
   totalScore: number = 0;
   dogeCoins: number = 0;
+  minigameCoins: number = 50;
 
   effVol: number = 100;
   musVol: number = 50;
@@ -53,6 +55,7 @@ export class ToolsService {
   unlockedCheems: Record<string, boolean> = {};
   unlockedSounds: Record<string, boolean> = {};
   unlockedMusic: Record<string, boolean> = {};
+  unlockedMinigames: Record<string, boolean> = {};
 
   game: any = createLangMap(gameText);
   options: any = createLangMap(optionsText);
@@ -63,6 +66,7 @@ export class ToolsService {
   p404: any = createLangMap(p404Text);
   offline: any = createLangMap(offlineText);
   shop: any = {};
+  minigames: any = createLangMap(minigamesText);
   pageName: any = createLangMap(pageName);
   offlineCategories: Array<OfflineCategory> = OFFLINE_CATEGORIES;
   shopItemsText: Record<string, Record<string, string>> = {};
@@ -159,6 +163,7 @@ export class ToolsService {
         if (data.p404) this.p404[langCode] = { ...this.p404[langCode], ...data.p404 };
         if (data.offline) this.offline[langCode] = { ...this.offline[langCode], ...data.offline };
         if (data.shop) this.shop[langCode] = { ...this.shop[langCode], ...data.shop };
+        if (data.minigames) this.minigames[langCode] = { ...this.minigames[langCode], ...data.minigames };
         if (data.shopItemsText) this.shopItemsText[langCode] = { ...this.shopItemsText[langCode], ...data.shopItemsText };
         if (data.itemsText) this.itemsText[langCode] = { ...this.itemsText[langCode], ...data.itemsText };
       }
@@ -261,11 +266,11 @@ export class ToolsService {
   }
 
   redirectBack(fromSystem: boolean = false): void {
-    if (["devSettings", "closet", "settings", "onWork", "offline", "shop"].includes(this.actPage)) {
+    if (["devSettings", "closet", "settings", "onWork", "offline", "shop", "block_breaker", "minigames"].includes(this.actPage as string)) {
       this.redirect("menu");
-    } else if (["menu", "p404"].includes(this.actPage)) {
+    } else if (["menu", "p404"].includes(this.actPage as string)) {
       this.redirect("game");
-    } else if (["game"].includes(this.actPage)) {
+    } else if (["game"].includes(this.actPage as string)) {
       fromSystem ? this.redirect("game") : this.redirect("menu");
     }
   }
@@ -294,6 +299,29 @@ export class ToolsService {
     localStorage.setItem("CheemsAppLiMaxCounter", JSON.stringify(this.highScore));
     localStorage.setItem("CheemsBonkTotalScore", JSON.stringify(this.totalScore));
     localStorage.setItem("CheemsBonkHighScore", JSON.stringify(this.highScore));
+  }
+
+  addMinigameCoins(amount: number): void {
+    this.minigameCoins = Math.floor(this.minigameCoins + amount);
+    localStorage.setItem("CheemsAppLiMinigameCoins", String(this.minigameCoins));
+    document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
+  }
+
+  spendMinigameCoins(amount: number): boolean {
+    if (this.minigameCoins >= amount) {
+      this.minigameCoins = Math.floor(this.minigameCoins - amount);
+      localStorage.setItem("CheemsAppLiMinigameCoins", String(this.minigameCoins));
+      document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
+      return true;
+    }
+    return false;
+  }
+
+  isMinigameUnlocked(id: string): boolean {
+    if (id === 'block_breaker' || id === 'block-breaker' || id === 'minigames/block-breaker') {
+      return !!this.unlockedMinigames['block_breaker'];
+    }
+    return !!this.unlockedMinigames[id];
   }
 
   getDailyDogeCoinPrice(priceType: number = 1): number {
@@ -600,6 +628,10 @@ export class ToolsService {
     this.totalScore = 999999;
     this.highScore = 999999;
     this.dogeCoins = 999999;
+    this.minigameCoins = 999999;
+    this.unlockedMinigames['block_breaker'] = true;
+    localStorage.setItem("CheemsAppLiMinigame_block_breaker", "true");
+    localStorage.setItem("CheemsAppLiMinigameCoins", "999999");
     this.cheemsSkins.forEach(s => {
       this.unlockedCheems[s.storageKey] = true;
       localStorage.setItem(s.storageKey, JSON.stringify(true));
@@ -627,6 +659,10 @@ export class ToolsService {
     this.totalScore = 0;
     this.highScore = 0;
     this.dogeCoins = 0;
+    this.minigameCoins = 50;
+    this.unlockedMinigames = {};
+    localStorage.setItem("CheemsAppLiMinigameCoins", "50");
+    localStorage.removeItem("CheemsAppLiMinigame_block_breaker");
     this.selectedCheems = "cheems_normal";
     this.selectedSound = "sfx_1";
     this.selectedMusic = "music_1";
@@ -729,11 +765,21 @@ export class ToolsService {
     this.points = savedPoints ? this.parseNumber(savedPoints) : 0;
     this.dogeCoins = dogeCoins ? this.parseNumber(dogeCoins) : 0;
 
+    let mgCoins = localStorage.getItem("CheemsAppLiMinigameCoins");
+    if (!mgCoins) {
+      const match = document.cookie.match(/(^| )CheemsAppLiMinigameCoins=([^;]+)/);
+      if (match) mgCoins = match[2];
+    }
+    this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 50;
+
     this.actScore = 0;
     localStorage.setItem("CheemsAppLiActPoints", "0");
   }
 
   loadUnlocks(): void {
+    const mgUnlock = localStorage.getItem("CheemsAppLiMinigame_block_breaker");
+    this.unlockedMinigames['block_breaker'] = mgUnlock ? mgUnlock.replace(/"/g, '') === 'true' : false;
+
     this.cheemsSkins.forEach(s => {
       const stored = localStorage.getItem(s.storageKey);
       if (s.default) {

@@ -10,6 +10,8 @@ export interface PageName {
   settings: string;
   offline: string;
   shop: string;
+  block_breaker?: string;
+  minigames?: string;
 }
 
 export function createLangMap<T extends object>(base: T): Record<string, T> {
@@ -72,7 +74,7 @@ export const AVAILABLE_LANGUAGES: Array<LanguageItem> = [
 ];
 
 export const showCoins: Array<string> = [
-  "game", "dev-settings", "closet", "menu"
+  "game", "dev-settings", "closet", "menu", "block_breaker", "minigames"
 ];
 
 export const pageName: PageName = {
@@ -84,10 +86,13 @@ export const pageName: PageName = {
   p404: "",
   settings: "",
   offline: "",
-  shop: ""
+  shop: "",
+  block_breaker: "",
+  minigames: ""
 };
 
 export const menuText = {
+  minigames: "",
   settings: "",
   offline: "",
   shop: "",
@@ -99,6 +104,28 @@ export const menuText = {
   buyDogeCoinSub: "",
   buyDogeCoinSuccess: "",
   buyDogeCoinFail: ""
+};
+
+export const minigamesText = {
+  title: "",
+  playerLevel: "",
+  lvl: "",
+  trash: "",
+  lane1: "",
+  lane2: "",
+  lane3: "",
+  lane4: "",
+  lane5: "",
+  dropTools: "",
+  digging: "",
+  buyShovel: "",
+  buyPickaxe: "",
+  levelCleared: "",
+  levelClearedDesc: "",
+  nextLevel: "",
+  levelFailed: "",
+  levelFailedDesc: "",
+  tryAgain: ""
 };
 
 export const optionsText = {
@@ -324,7 +351,7 @@ export const MUSIC_TRACKS: Array<MusicTrackItem> = [];
 
 export interface ShopItem {
   id: string;
-  type: 'dogecoin' | 'booster' | 'cheems' | 'sound' | 'music';
+  type: 'dogecoin' | 'currency' | 'minigame' | 'booster' | 'cheems' | 'sound' | 'music';
   targetId?: string | number;
   nameKey?: string;
   nameEs?: string;
@@ -334,9 +361,11 @@ export interface ShopItem {
   descEn?: string;
   cost: number;
   costCoins?: number;
+  costMinigames?: number;
   multiplier?: number;
   durationMin?: number;
   coinsGiven?: number;
+  minigameCoinsGiven?: number;
   icon: string;
   dailyLimit?: number;
   oneTimePurchase?: boolean;

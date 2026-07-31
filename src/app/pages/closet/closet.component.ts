@@ -21,6 +21,18 @@ export class ClosetComponent implements OnInit {
     this.activeTab = tab;
   }
 
+  get unlockedCheemsSkins(): CheemsSkinItem[] {
+    return this.tools.cheemsSkins.filter(skin => this.tools.isCheemsUnlocked(skin.id));
+  }
+
+  get unlockedSoundEffects(): SoundEffectItem[] {
+    return this.tools.soundEffects.filter(sound => this.tools.isSoundUnlocked(sound.id));
+  }
+
+  get unlockedMusicTracks(): MusicTrackItem[] {
+    return this.tools.musicTracks.filter(track => this.tools.isMusicUnlocked(track.id));
+  }
+
   onSelectCheems(skin: CheemsSkinItem): void {
     this.tools.buyOrSelectCheems(skin);
   }

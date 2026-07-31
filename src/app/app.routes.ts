@@ -8,6 +8,8 @@ import { OnworkPageComponent } from './pages/onwork-page/onwork-page.component';
 import { P404Component } from './pages/p404/p404.component';
 import { OfflineComponent } from './pages/offline/offline.component';
 import { ShopComponent } from './pages/shop/shop.component';
+import { BlockBreakerComponent } from './games/block_breaker/block_breaker.component';
+import { MinigamesComponent } from './pages/minigames/minigames.component';
 import { developmentGuard, devGuard, testingGuard, appGuard } from './guards/guard.guard';
 
 export const routes: Routes = [
@@ -19,11 +21,18 @@ export const routes: Routes = [
     {path: "onWork", component: OnworkPageComponent, pathMatch: "full"},
     {path: "offline", component: OfflineComponent, pathMatch: "full"},
     {path: "shop", component: ShopComponent, pathMatch: "full"},
+    {path: "minigames", component: MinigamesComponent, pathMatch: "full"},
+    {path: "minigames/block-breaker", component: BlockBreakerComponent, pathMatch: "full"},
     {path: "p404", component: P404Component, pathMatch: "full"},
     {path: "", redirectTo: "game", pathMatch: "full"},
     {path: "dev", component: GameComponent, canActivate: [devGuard]},
+    {path: "dev/**", component: GameComponent, canActivate: [devGuard]},
     {path: "development", component: GameComponent, canActivate: [developmentGuard]},
+    {path: "development/**", component: GameComponent, canActivate: [developmentGuard]},
     {path: "test", component: GameComponent, canActivate: [testingGuard]},
+    {path: "test/**", component: GameComponent, canActivate: [testingGuard]},
     {path: "app", component: GameComponent, canActivate: [appGuard]},
+    {path: "app/**", component: GameComponent, canActivate: [appGuard]},
     {path: "**", redirectTo: "p404"}
 ];
+
