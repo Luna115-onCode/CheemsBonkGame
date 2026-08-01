@@ -1,28 +1,28 @@
-<div class="flappy-dunk-wrapper {{tools.themeColor}} {{tools.fontSize}}">
-  <div id="game-container" #gameContainer>
+<div id="game-container" #gameContainer>
     <canvas #canvas></canvas>
-  </div>
+</div>
 
-  <div class="ui-layer">
-    <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.best || 'Best: '}} <span>{{bestScore}}</span></div>
+<div id="ui-layer">
+    <!-- Game Score -->
+    <div class="hud" id="scoreUI" [class.hidden]="gameState === 'START' || gameState === 'GAMEOVER'">
+        {{gamePoints}}
     </div>
-  </div>
+</div>
 
-  @if (gameState === 'START') {
-    <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.flappy_dunk_title || 'Flappy Dunk'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.flappy_dunk_inst || 'Tap to make the ball fly and score through the hoops!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
-    </div>
-  }
+<!-- Menus -->
+<div id="startScreen" class="screen" [class.hidden]="gameState !== 'START'">
+    <h1>{{tools.flappy_dunk[tools.lang]?.title || 'Flappy Dunk'}}</h1>
+    <p [innerHTML]="tools.flappy_dunk[tools.lang]?.instructions || 'Tap to flap.<br>Dunk through the hoops.<br>Don\'t miss!'"></p>
+    <button class="btn" (click)="startGame()">{{tools.flappy_dunk[tools.lang]?.tapToPlay || 'TAP TO PLAY'}}</button>
+</div>
 
-  @if (gameState === 'GAMEOVER') {
-    <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.playAgain || 'Play Again'}}</button>
-    </div>
-  }
+<div id="gameOverScreen" class="screen" [class.hidden]="gameState !== 'GAMEOVER'">
+    <h1 style="color: #ff5252; text-shadow: 0 4px 0 #b71c1c, 0 8px 15px rgba(0,0,0,0.3);">
+        {{tools.flappy_dunk[tools.lang]?.gameOver || 'GAME OVER'}}
+    </h1>
+    <p>
+        {{tools.flappy_dunk[tools.lang]?.scoreLabel || 'Score: '}} 
+        <span id="finalScore" style="color: #e91e63; font-size: 1.5em;">{{gamePoints}}</span>
+    </p>
+    <button class="btn" (click)="initGameState()">{{tools.flappy_dunk[tools.lang]?.playAgain || 'PLAY AGAIN'}}</button>
 </div>

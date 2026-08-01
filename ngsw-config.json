@@ -27,7 +27,8 @@
           "/items/*.json",
           "/lang/*.lang",
           "/sound/**/*",
-          "/img/**/*"
+          "/img/**/*",
+          "/games/**/*"
         ]
       }
     }

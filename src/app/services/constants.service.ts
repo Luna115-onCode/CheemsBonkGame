@@ -21,6 +21,8 @@ export interface PageName {
   spiral_roll?: string;
   stack_colors?: string;
   minigames?: string;
+  stats?: string;
+  licenses?: string;
 }
 
 export function createLangMap<T extends object>(base: T): Record<string, T> {
@@ -106,7 +108,9 @@ export const pageName: PageName = {
   paper_io: "",
   spiral_roll: "",
   stack_colors: "",
-  minigames: ""
+  minigames: "",
+  stats: "",
+  licenses: ""
 };
 
 export const menuText = {
@@ -205,6 +209,15 @@ export const optionsText = {
   importSaveConfirm: ""
 };
 
+export const statsText = {
+  title: "",
+  highScore: "",
+  totalTouches: "",
+  lifetimePoints: "",
+  lifetimeDogeCoins: "",
+  lifetimeMinigameCoins: ""
+};
+
 export const gameText = {
   navbar: {
     highScore: "",
@@ -254,6 +267,25 @@ export const p404Text = {
   backToGame: ""
 };
 
+export const flappy_dunkText = {
+  title: "",
+  instructions: "",
+  tapToPlay: "",
+  gameOver: "",
+  scoreLabel: "",
+  playAgain: ""
+};
+
+export const magic_sortText = {
+  title: "",
+  instructions: "",
+  startGame: "",
+  levelCleared: "",
+  nextLevel: "",
+  levelPrefix: "",
+  restart: ""
+};
+
 export const offlineText = {
   title: "",
   subtitle: "",
@@ -268,11 +300,14 @@ export const offlineText = {
   download: "",
   downloading: "",
   successToast: "",
-  errorToast: ""
+  errorToast: "",
+  checkForUpdates: "",
+  minigamesTitle: "",
+  minigamesDesc: ""
 };
 
 export interface OfflineCategory {
-  id: 'essentials' | 'sfx' | 'music';
+  id: 'essentials' | 'sfx' | 'music' | 'minigames';
   titleKey: string;
   descKey: string;
   sizeLabel: string;
@@ -394,6 +429,15 @@ export const OFFLINE_CATEGORIES: OfflineCategory[] = [
       'sound/music/separation-185196.mp3',
       'sound/music/titanium-170190.mp3',
       'sound/music/trap-future-bass-royalty-free-music-167020.mp3'
+    ]
+  },
+  {
+    id: 'minigames',
+    titleKey: 'minigamesTitle',
+    descKey: 'minigamesDesc',
+    sizeLabel: '~500 KB',
+    urls: [
+      'games/paper_io/data/bots.json'
     ]
   }
 ];

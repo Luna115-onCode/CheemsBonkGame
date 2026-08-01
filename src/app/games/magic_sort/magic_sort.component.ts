@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject, Renderer2, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToolsService } from '../../services/tools.service';
 
@@ -9,11 +9,12 @@ import { ToolsService } from '../../services/tools.service';
   templateUrl: './magic_sort.component.html',
   styleUrl: './magic_sort.component.css'
 })
-export class MagicSortComponent implements OnInit, OnDestroy {
+export class MagicSortComponent implements OnInit, AfterViewInit, OnDestroy {
   tools: ToolsService = inject(ToolsService);
+  private renderer: Renderer2 = inject(Renderer2);
+  private elRef: ElementRef = inject(ElementRef);
 
   gameState: 'START' | 'PLAYING' | 'WIN' = 'START';
-  gamePoints = 0;
   level = 1;
 
   tubes: string[][] = [];
@@ -21,17 +22,53 @@ export class MagicSortComponent implements OnInit, OnDestroy {
   private initialTubesState: string[][] = [];
   private TUBE_CAPACITY = 4;
   private COLORS = [
-    '#FF5252', '#4CAF50', '#2196F3', '#FFEB3B',
-    '#9C27B0', '#FF9800', '#00BCD4', '#E91E63'
+    '#F44336', // Red
+    '#2196F3', // Blue
+    '#4CAF50', // Green
+    '#FFEB3B', // Yellow
+    '#9C27B0', // Purple
+    '#FF9800', // Orange
+    '#00BCD4', // Cyan
+    '#E91E63'  // Pink
   ];
+
+  private stars: any[] = [];
 
   ngOnInit(): void {
     this.tools.setTitle("magic_sort" as any);
     this.tools.actPage = "magic_sort" as any;
   }
 
+  ngAfterViewInit(): void {
+    this.createStars();
+    this.startLevel(); // Set initial UI states
+    this.gameState = 'START';
+  }
+
   ngOnDestroy(): void {
-    this.tools.leaveMinigame('magic_sort', this.gamePoints, this.level);
+    // Remove stars from body/host
+    this.stars.forEach(star => {
+      if (star.parentNode) {
+        this.renderer.removeChild(star.parentNode, star);
+      }
+    });
+    this.tools.leaveMinigame('magic_sort', this.tools.sessionPoints);
+  }
+
+  private createStars(): void {
+    for (let i = 0; i < 50; i++) {
+      let star = this.renderer.createElement('div');
+      this.renderer.addClass(star, 'star');
+      const size = Math.random() * 4 + 1;
+      this.renderer.setStyle(star, 'width', `${size}px`);
+      this.renderer.setStyle(star, 'height', `${size}px`);
+      this.renderer.setStyle(star, 'left', `${Math.random() * 100}vw`);
+      this.renderer.setStyle(star, 'top', `${Math.random() * 100}vh`);
+      this.renderer.setStyle(star, 'animationDuration', `${Math.random() * 2 + 1}s`);
+      this.renderer.setStyle(star, 'animationDelay', `${Math.random() * 2}s`);
+      this.renderer.appendChild(this.elRef.nativeElement, star);
+      this.stars.push(star);
+    }
   }
 
   startLevel(): void {
@@ -41,12 +78,15 @@ export class MagicSortComponent implements OnInit, OnDestroy {
 
   nextLevel(): void {
     this.level++;
+    this.tools.sessionPoints += 10; // Award points for completing the level
+    this.tools.playSound('sfx_3'); // Win sound
     this.startLevel();
   }
 
   restartLevel(): void {
     this.tubes = JSON.parse(JSON.stringify(this.initialTubesState));
     this.selectedTubeIndex = null;
+    this.gameState = 'PLAYING';
   }
 
   onTubeClick(index: number): void {
@@ -63,7 +103,7 @@ export class MagicSortComponent implements OnInit, OnDestroy {
       if (this.canPour(this.selectedTubeIndex, index)) {
         this.pour(this.selectedTubeIndex, index);
         this.selectedTubeIndex = null;
-        this.tools.playSound('sfx_1');
+        this.tools.playSound('sfx_1'); // Pouring sound
         this.checkWinCondition();
       } else {
         if (this.tubes[index].length > 0 && !this.isTubeComplete(index)) {
@@ -71,39 +111,42 @@ export class MagicSortComponent implements OnInit, OnDestroy {
           this.tools.playSound('sfx_1');
         } else {
           this.selectedTubeIndex = null;
-          this.tools.playSound('sfx_8');
+          this.tools.playSound('sfx_8'); // Error sound
         }
       }
     }
   }
 
-  private generateLevel(levelNum: number): void {
-    const numColors = Math.min(3 + Math.floor((levelNum - 1) / 2), this.COLORS.length);
-    const numEmptyTubes = 2;
-    const totalTubes = numColors + numEmptyTubes;
+  private generateLevel(lvl: number): void {
+    const numColors = Math.min(3 + Math.floor(lvl / 3), this.COLORS.length);
+    const numEmpty = 2;
+    const totalTubes = numColors + numEmpty;
 
-    let allBlocks: string[] = [];
+    let colorPool: string[] = [];
     for (let i = 0; i < numColors; i++) {
-      for (let b = 0; b < this.TUBE_CAPACITY; b++) {
-        allBlocks.push(this.COLORS[i]);
+      for (let j = 0; j < this.TUBE_CAPACITY; j++) {
+        colorPool.push(this.COLORS[i]);
       }
     }
 
-    for (let i = allBlocks.length - 1; i > 0; i--) {
+    for (let i = colorPool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [allBlocks[i], allBlocks[j]] = [allBlocks[j], allBlocks[i]];
+      [colorPool[i], colorPool[j]] = [colorPool[j], colorPool[i]];
     }
 
     this.tubes = [];
-    let blockIdx = 0;
-    for (let i = 0; i < totalTubes; i++) {
-      const tube: string[] = [];
-      if (i < numColors) {
-        for (let b = 0; b < this.TUBE_CAPACITY; b++) {
-          tube.push(allBlocks[blockIdx++]);
-        }
+    let poolIndex = 0;
+
+    for (let i = 0; i < numColors; i++) {
+      let tube: string[] = [];
+      for (let j = 0; j < this.TUBE_CAPACITY; j++) {
+        tube.push(colorPool[poolIndex++]);
       }
       this.tubes.push(tube);
+    }
+
+    for (let i = 0; i < numEmpty; i++) {
+      this.tubes.push([]);
     }
 
     this.initialTubesState = JSON.parse(JSON.stringify(this.tubes));
@@ -113,21 +156,21 @@ export class MagicSortComponent implements OnInit, OnDestroy {
   private isTubeComplete(index: number): boolean {
     const tube = this.tubes[index];
     if (tube.length !== this.TUBE_CAPACITY) return false;
-    return tube.every(color => color === tube[0]);
+    const firstColor = tube[0];
+    return tube.every(color => color === firstColor);
   }
 
   private canPour(srcIdx: number, tgtIdx: number): boolean {
     const srcTube = this.tubes[srcIdx];
     const tgtTube = this.tubes[tgtIdx];
 
-    if (srcTube.length === 0) return false;
-    if (tgtTube.length >= this.TUBE_CAPACITY) return false;
-
-    const colorToMove = srcTube[srcTube.length - 1];
+    if (srcTube.length === 0 || tgtTube.length === this.TUBE_CAPACITY) return false;
     if (tgtTube.length === 0) return true;
 
+    const srcTopColor = srcTube[srcTube.length - 1];
     const tgtTopColor = tgtTube[tgtTube.length - 1];
-    return colorToMove === tgtTopColor;
+
+    return srcTopColor === tgtTopColor;
   }
 
   private pour(srcIdx: number, tgtIdx: number): void {
@@ -152,11 +195,10 @@ export class MagicSortComponent implements OnInit, OnDestroy {
 
   private checkWinCondition(): void {
     const isWon = this.tubes.every((t, i) => t.length === 0 || this.isTubeComplete(i));
+    
     if (isWon) {
       setTimeout(() => {
-        this.gamePoints += 25;
         this.gameState = 'WIN';
-        this.tools.playSound('sfx_4');
       }, 300);
     }
   }

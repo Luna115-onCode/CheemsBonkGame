@@ -5,8 +5,8 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { DevSettingsComponent } from './pages/dev-settings/dev-settings.component';
 import { ClosetComponent } from './pages/closet/closet.component';
 import { OnworkPageComponent } from './pages/onwork-page/onwork-page.component';
+import { LicensesComponent } from './pages/licenses/licenses.component';
 import { P404Component } from './pages/p404/p404.component';
-import { OfflineComponent } from './pages/offline/offline.component';
 import { ShopComponent } from './pages/shop/shop.component';
 import { BlockBreakerComponent } from './games/block_breaker/block_breaker.component';
 import { AttackHoleComponent } from './games/attack_hole/attack_hole.component';
@@ -19,6 +19,7 @@ import { PaperIoComponent } from './games/paper_io/paper_io.component';
 import { SpiralRollComponent } from './games/spiral_roll/spiral_roll.component';
 import { StackColorsComponent } from './games/stack_colors/stack_colors.component';
 import { MinigamesComponent } from './pages/minigames/minigames.component';
+import { StatsComponent } from './pages/stats/stats.component';
 import { developmentGuard, devGuard, testingGuard, appGuard } from './guards/guard.guard';
 
 export const routes: Routes = [
@@ -28,8 +29,9 @@ export const routes: Routes = [
     {path: "devSettings", component: DevSettingsComponent, pathMatch: "full"},
     {path: "closet", component: ClosetComponent, pathMatch: "full"},
     {path: "onWork", component: OnworkPageComponent, pathMatch: "full"},
-    {path: "offline", component: OfflineComponent, pathMatch: "full"},
+    {path: "licenses", component: LicensesComponent, pathMatch: "full"},
     {path: "shop", component: ShopComponent, pathMatch: "full"},
+    {path: "stats", component: StatsComponent, pathMatch: "full"},
     {path: "minigames", component: MinigamesComponent, pathMatch: "full"},
     {path: "minigames/block-breaker", component: BlockBreakerComponent, pathMatch: "full"},
     {path: "minigames/block_breaker", component: BlockBreakerComponent, pathMatch: "full"},

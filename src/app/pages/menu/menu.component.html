@@ -32,16 +32,8 @@
             </div>
         </div>
 
-        <!-- Offline Mode / Resource Download -->
-        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('offline')">
-            <img src="img/icons/link-svgrepo-com.svg" class="menu-icon" alt="Offline Mode">
-            <div class="card-content">
-                <div class="card-title">{{tools.menu[tools.lang].offline}}</div>
-            </div>
-        </div>
-
         <!-- Statistics -->
-        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('onWork')">
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('stats')">
             <img src="img/icons/report-svgrepo-com.svg" class="menu-icon" alt="Stats">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].stats}}</div>
@@ -49,7 +41,7 @@
         </div>
 
         <!-- Licenses -->
-        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('onWork')">
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('licenses')">
             <img src="img/icons/the-internet-svgrepo-com.svg" class="menu-icon" alt="Licenses">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].licenses}}</div>

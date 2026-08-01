@@ -12,6 +12,7 @@ import {
   onWorkText,
   p404Text,
   minigamesText,
+  statsText,
   CHEEMS_SKINS,
   SOUND_EFFECTS,
   MUSIC_TRACKS,
@@ -24,7 +25,9 @@ import {
   offlineText,
   OfflineCategory,
   OFFLINE_CATEGORIES,
-  ShopItem
+  ShopItem,
+  flappy_dunkText,
+  magic_sortText
 } from './constants.service';
 
 @Injectable({
@@ -45,6 +48,11 @@ export class ToolsService {
   totalScore: number = 0;
   dogeCoins: number = 0;
   minigameCoins: number = 50;
+  sessionPoints: number = 0;
+  
+  totalPointsEarned: number = 0;
+  totalDogeCoinsEarned: number = 0;
+  totalMinigameCoinsEarned: number = 0;
 
   effVol: number = 100;
   musVol: number = 50;
@@ -67,7 +75,10 @@ export class ToolsService {
   offline: any = createLangMap(offlineText);
   shop: any = {};
   minigames: any = createLangMap(minigamesText);
+  stats: any = createLangMap(statsText);
   pageName: any = createLangMap(pageName);
+  flappy_dunk: any = createLangMap(flappy_dunkText);
+  magic_sort: any = createLangMap(magic_sortText);
   offlineCategories: Array<OfflineCategory> = OFFLINE_CATEGORIES;
   shopItemsText: Record<string, Record<string, string>> = {};
   itemsText: Record<string, Record<string, string>> = {};
@@ -176,6 +187,8 @@ export class ToolsService {
         if (data.offline) this.offline[langCode] = { ...this.offline[langCode], ...data.offline };
         if (data.shop) this.shop[langCode] = { ...this.shop[langCode], ...data.shop };
         if (data.minigames) this.minigames[langCode] = { ...this.minigames[langCode], ...data.minigames };
+        if (data.flappy_dunk) this.flappy_dunk[langCode] = { ...this.flappy_dunk[langCode], ...data.flappy_dunk };
+        if (data.magic_sort) this.magic_sort[langCode] = { ...this.magic_sort[langCode], ...data.magic_sort };
         if (data.shopItemsText) this.shopItemsText[langCode] = { ...this.shopItemsText[langCode], ...data.shopItemsText };
         if (data.itemsText) this.itemsText[langCode] = { ...this.itemsText[langCode], ...data.itemsText };
       }
@@ -281,7 +294,7 @@ export class ToolsService {
     const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
     if (minigamePages.includes(this.actPage as string)) {
       this.redirect("minigames");
-    } else if (["devSettings", "closet", "settings", "onWork", "offline", "shop", "minigames"].includes(this.actPage as string)) {
+    } else if (["devSettings", "closet", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage as string)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage as string)) {
       this.redirect("game");
@@ -301,10 +314,13 @@ export class ToolsService {
   }
 
   updateScore(value: number): void {
-    this.actScore += value;
-    this.points += value;
-    this.totalScore += value;
-    if (this.actScore >= this.highScore) {
+    let finalValue = value * this.boosterMultiplier;
+    this.actScore += finalValue;
+    this.points += finalValue;
+    this.totalScore += finalValue;
+    this.totalPointsEarned += finalValue;
+
+    if (this.actScore > this.highScore) {
       this.highScore = this.actScore;
     }
 
@@ -312,13 +328,16 @@ export class ToolsService {
     localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
     localStorage.setItem("CheemsAppLiTotalCounter", JSON.stringify(this.totalScore));
     localStorage.setItem("CheemsAppLiMaxCounter", JSON.stringify(this.highScore));
+    localStorage.setItem("CheemsAppLiTotalPointsEarned", JSON.stringify(this.totalPointsEarned));
     localStorage.setItem("CheemsBonkTotalScore", JSON.stringify(this.totalScore));
     localStorage.setItem("CheemsBonkHighScore", JSON.stringify(this.highScore));
   }
 
   addMinigameCoins(amount: number): void {
     this.minigameCoins = Math.floor(this.minigameCoins + amount);
+    this.totalMinigameCoinsEarned += amount;
     localStorage.setItem("CheemsAppLiMinigameCoins", String(this.minigameCoins));
+    localStorage.setItem("CheemsAppLiTotalMinigameCoinsEarned", String(this.totalMinigameCoinsEarned));
     document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
   }
 
@@ -413,8 +432,10 @@ export class ToolsService {
     if (this.points >= cost) {
       this.points -= cost;
       this.dogeCoins += coinsToAdd;
+      this.totalDogeCoinsEarned += coinsToAdd;
       localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
       localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
+      localStorage.setItem("CheemsAppLiTotalDogeCoinsEarned", JSON.stringify(this.totalDogeCoinsEarned));
       this.recordDailyPurchase(itemId);
       let successMsg = this.menu[this.lang]?.buyDogeCoinSuccess || `You bought ${coinsToAdd} DogeCoin(s)!`;
       if (coinsToAdd !== 1) {
@@ -715,6 +736,9 @@ export class ToolsService {
     this.highScore = 0;
     this.dogeCoins = 0;
     this.minigameCoins = 50;
+    this.totalPointsEarned = 0;
+    this.totalDogeCoinsEarned = 0;
+    this.totalMinigameCoinsEarned = 0;
     this.unlockedMinigames = {};
     localStorage.setItem("CheemsAppLiMinigameCoins", "50");
     const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors'];
@@ -751,6 +775,9 @@ export class ToolsService {
     localStorage.setItem("CheemsAppLiTotalCounter", "0");
     localStorage.setItem("CheemsAppLiMaxCounter", "0");
     localStorage.setItem("CheemsAppLiDogecoins", "0");
+    localStorage.setItem("CheemsAppLiTotalPointsEarned", "0");
+    localStorage.setItem("CheemsAppLiTotalDogeCoinsEarned", "0");
+    localStorage.setItem("CheemsAppLiTotalMinigameCoinsEarned", "0");
     localStorage.setItem("CheemsAppLiSelCheems", "cheems_normal");
     localStorage.setItem("CheemsAppLiSelSound", "sfx_1");
     localStorage.setItem("CheemsAppLiSelMusic", "music_1");
@@ -823,6 +850,15 @@ export class ToolsService {
     this.totalScore = totalScore ? this.parseNumber(totalScore) : 0;
     this.points = savedPoints ? this.parseNumber(savedPoints) : 0;
     this.dogeCoins = dogeCoins ? this.parseNumber(dogeCoins) : 0;
+
+    const tPoints = localStorage.getItem("CheemsAppLiTotalPointsEarned");
+    this.totalPointsEarned = tPoints ? this.parseNumber(tPoints) : this.totalScore;
+
+    const tDGC = localStorage.getItem("CheemsAppLiTotalDogeCoinsEarned");
+    this.totalDogeCoinsEarned = tDGC ? this.parseNumber(tDGC) : this.dogeCoins;
+
+    const tMG = localStorage.getItem("CheemsAppLiTotalMinigameCoinsEarned");
+    this.totalMinigameCoinsEarned = tMG ? this.parseNumber(tMG) : this.minigameCoins;
 
     let mgCoins = localStorage.getItem("CheemsAppLiMinigameCoins");
     if (!mgCoins) {

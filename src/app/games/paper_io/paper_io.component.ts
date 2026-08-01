@@ -49,7 +49,6 @@ export class PaperIoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   gameState: 'START' | 'PLAYING' | 'GAMEOVER' = 'START';
   gamePoints = 0;
-  sessionPoints = 0;
   leaderboard: Array<{ name: string; pct: string; color: string }> = [];
 
   private GRID_SIZE = 120;
@@ -112,7 +111,7 @@ export class PaperIoComponent implements OnInit, AfterViewInit, OnDestroy {
       canvas.removeEventListener('touchmove', this.onTouchMoveBound);
       canvas.removeEventListener('touchend', this.onTouchEndBound);
     }
-    this.tools.leaveMinigame('paper_io', this.sessionPoints);
+    this.tools.leaveMinigame('paper_io', this.tools.sessionPoints);
   }
 
   async loadData(): Promise<void> {
@@ -364,7 +363,7 @@ export class PaperIoComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (id === 0) {
           this.ngZone.run(() => {
-              this.sessionPoints += this.gamePoints;
+              this.tools.sessionPoints += this.gamePoints;
               this.gameState = 'GAMEOVER';
               this.tools.playSound('sfx_8');
           });
