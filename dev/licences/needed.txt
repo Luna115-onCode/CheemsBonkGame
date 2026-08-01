@@ -1,9 +1,3 @@
-***
-Obfuscator.io:
-Options preset: High
-Seed: 76819637732
-***
-
 SVG ->
 CC0 ->
 License: https://www.svgrepo.com/page/licensing/#CC0

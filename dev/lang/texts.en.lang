@@ -19,7 +19,8 @@
     "paper_io": "Paper.io",
     "spiral_roll": "Spiral Roll",
     "stack_colors": "Stack Colors",
-    "minigames": "Minigames"
+    "minigames": "Minigames",
+    "licenses": "Licenses & Credits"
   },
   "minigames": {
     "title": "Merge Diggers",
@@ -114,6 +115,14 @@
     "importSave": "Import Save",
     "importSaveConfirm": "Importing a save will overwrite all current progress. Proceed?"
   },
+  "stats": {
+    "title": "Statistics",
+    "highScore": "Highest Combo",
+    "totalTouches": "Total Touches",
+    "lifetimePoints": "Lifetime Points Earned",
+    "lifetimeDogeCoins": "Lifetime DogeCoins Earned",
+    "lifetimeMinigameCoins": "Lifetime MG Coins Earned"
+  },
   "game": {
     "navbar": {
       "highScore": "High score",
@@ -161,6 +170,23 @@
     "message": "The page you are looking for does not exist in the Cheems universe.",
     "backToGame": "Back to Game"
   },
+  "flappy_dunk": {
+    "title": "Flappy Dunk",
+    "instructions": "Tap to flap.<br>Dunk through the hoops.<br>Don't miss!",
+    "tapToPlay": "TAP TO PLAY",
+    "gameOver": "GAME OVER",
+    "scoreLabel": "Score: ",
+    "playAgain": "PLAY AGAIN"
+  },
+  "magic_sort": {
+    "title": "Magic Sort",
+    "instructions": "Pour colored liquids between bottles until each is one color!",
+    "startGame": "START GAME",
+    "levelCleared": "MAGIC SORTED!",
+    "nextLevel": "NEXT LEVEL",
+    "levelPrefix": "LEVEL ",
+    "restart": "Restart"
+  },
   "offline": {
     "title": "Download Resources (Offline Mode)",
     "subtitle": "Cache game files on your device so you can play without an internet connection.",
@@ -175,7 +201,10 @@
     "download": "Download",
     "downloading": "Downloading...",
     "successToast": "Resources downloaded and cached successfully!",
-    "errorToast": "Error downloading some resources."
+    "errorToast": "Error downloading some resources.",
+    "checkForUpdates": "Check for Updates",
+    "minigamesTitle": "Minigames",
+    "minigamesDesc": "Assets and data for minigames."
   },
   "shop": {
     "title": "Item & Booster Shop",

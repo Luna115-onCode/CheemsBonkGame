@@ -19,7 +19,8 @@
     "paper_io": "Paper.io",
     "spiral_roll": "Spiral Roll",
     "stack_colors": "Stack Colors",
-    "minigames": "Minijuegos"
+    "minigames": "Minijuegos",
+    "licenses": "Licencias y Créditos"
   },
   "minigames": {
     "title": "Merge Diggers",
@@ -114,6 +115,14 @@
     "importSave": "Importar Partida",
     "importSaveConfirm": "Importar una partida sobrescribirá todo tu progreso actual. ¿Continuar?"
   },
+  "stats": {
+    "title": "Estadísticas",
+    "highScore": "Combo Máximo",
+    "totalTouches": "Toques Totales",
+    "lifetimePoints": "Puntos Obtenidos (Total)",
+    "lifetimeDogeCoins": "DogeCoins Obtenidos (Total)",
+    "lifetimeMinigameCoins": "Monedas MG Obtenidas (Total)"
+  },
   "game": {
     "navbar": {
       "highScore": "Mayor puntaje",
@@ -159,7 +168,24 @@
   "p404": {
     "title": "Error 404",
     "message": "La página que buscas no existe en el universo Cheems.",
-    "backToGame": "Volver al juego"
+    "backToGame": "Volver al Juego"
+  },
+  "flappy_dunk": {
+    "title": "Flappy Dunk",
+    "instructions": "Toca para aletear.<br>Encesta en los aros.<br>¡No falles!",
+    "tapToPlay": "TOCA PARA JUGAR",
+    "gameOver": "FIN DEL JUEGO",
+    "scoreLabel": "Puntos: ",
+    "playAgain": "JUGAR DE NUEVO"
+  },
+  "magic_sort": {
+    "title": "Magic Sort",
+    "instructions": "¡Vierte líquidos de colores entre las botellas hasta que cada una sea de un solo color!",
+    "startGame": "INICIAR JUEGO",
+    "levelCleared": "¡MAGIA ORDENADA!",
+    "nextLevel": "SIGUIENTE NIVEL",
+    "levelPrefix": "NIVEL ",
+    "restart": "Reiniciar"
   },
   "offline": {
     "title": "Descargar recursos (Modo Offline)",
@@ -174,8 +200,11 @@
     "downloaded": "Descargado",
     "download": "Descargar",
     "downloading": "Descargando...",
-    "successToast": "¡Recursos descargados y guardados correctamente!",
-    "errorToast": "Error al descargar algunos recursos."
+    "successToast": "¡Recursos descargados y guardados con éxito!",
+    "errorToast": "Error al descargar algunos recursos.",
+    "checkForUpdates": "Buscar Actualizaciones",
+    "minigamesTitle": "Minijuegos",
+    "minigamesDesc": "Activos y datos para los minijuegos."
   },
   "shop": {
     "title": "Tienda de Objetos y Potenciadores",

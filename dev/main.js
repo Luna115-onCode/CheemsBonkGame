@@ -40517,7 +40517,9 @@ var pageName = {
   paper_io: "",
   spiral_roll: "",
   stack_colors: "",
-  minigames: ""
+  minigames: "",
+  stats: "",
+  licenses: ""
 };
 var menuText = {
   minigames: "",
@@ -40612,6 +40614,14 @@ var optionsText = {
   importSave: "",
   importSaveConfirm: ""
 };
+var statsText = {
+  title: "",
+  highScore: "",
+  totalTouches: "",
+  lifetimePoints: "",
+  lifetimeDogeCoins: "",
+  lifetimeMinigameCoins: ""
+};
 var gameText = {
   navbar: {
     highScore: "",
@@ -40656,6 +40666,23 @@ var p404Text = {
   message: "",
   backToGame: ""
 };
+var flappy_dunkText = {
+  title: "",
+  instructions: "",
+  tapToPlay: "",
+  gameOver: "",
+  scoreLabel: "",
+  playAgain: ""
+};
+var magic_sortText = {
+  title: "",
+  instructions: "",
+  startGame: "",
+  levelCleared: "",
+  nextLevel: "",
+  levelPrefix: "",
+  restart: ""
+};
 var offlineText = {
   title: "",
   subtitle: "",
@@ -40670,7 +40697,10 @@ var offlineText = {
   download: "",
   downloading: "",
   successToast: "",
-  errorToast: ""
+  errorToast: "",
+  checkForUpdates: "",
+  minigamesTitle: "",
+  minigamesDesc: ""
 };
 var OFFLINE_CATEGORIES = [
   {
@@ -40788,6 +40818,15 @@ var OFFLINE_CATEGORIES = [
       "sound/music/titanium-170190.mp3",
       "sound/music/trap-future-bass-royalty-free-music-167020.mp3"
     ]
+  },
+  {
+    id: "minigames",
+    titleKey: "minigamesTitle",
+    descKey: "minigamesDesc",
+    sizeLabel: "~500 KB",
+    urls: [
+      "games/paper_io/data/bots.json"
+    ]
   }
 ];
 var CHEEMS_SKINS = [];
@@ -40827,6 +40866,10 @@ var ToolsService = class _ToolsService {
   totalScore = 0;
   dogeCoins = 0;
   minigameCoins = 50;
+  sessionPoints = 0;
+  totalPointsEarned = 0;
+  totalDogeCoinsEarned = 0;
+  totalMinigameCoinsEarned = 0;
   effVol = 100;
   musVol = 50;
   devMenuUnlocked = false;
@@ -40845,7 +40888,10 @@ var ToolsService = class _ToolsService {
   offline = createLangMap(offlineText);
   shop = {};
   minigames = createLangMap(minigamesText);
+  stats = createLangMap(statsText);
   pageName = createLangMap(pageName);
+  flappy_dunk = createLangMap(flappy_dunkText);
+  magic_sort = createLangMap(magic_sortText);
   offlineCategories = OFFLINE_CATEGORIES;
   shopItemsText = {};
   itemsText = {};
@@ -40954,6 +41000,10 @@ var ToolsService = class _ToolsService {
             this.shop[langCode] = __spreadValues(__spreadValues({}, this.shop[langCode]), data.shop);
           if (data.minigames)
             this.minigames[langCode] = __spreadValues(__spreadValues({}, this.minigames[langCode]), data.minigames);
+          if (data.flappy_dunk)
+            this.flappy_dunk[langCode] = __spreadValues(__spreadValues({}, this.flappy_dunk[langCode]), data.flappy_dunk);
+          if (data.magic_sort)
+            this.magic_sort[langCode] = __spreadValues(__spreadValues({}, this.magic_sort[langCode]), data.magic_sort);
           if (data.shopItemsText)
             this.shopItemsText[langCode] = __spreadValues(__spreadValues({}, this.shopItemsText[langCode]), data.shopItemsText);
           if (data.itemsText)
@@ -41048,7 +41098,7 @@ var ToolsService = class _ToolsService {
     const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
     if (minigamePages.includes(this.actPage)) {
       this.redirect("minigames");
-    } else if (["devSettings", "closet", "settings", "onWork", "offline", "shop", "minigames"].includes(this.actPage)) {
+    } else if (["devSettings", "closet", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage)) {
       this.redirect("game");
@@ -41066,22 +41116,27 @@ var ToolsService = class _ToolsService {
     }, durationMs);
   }
   updateScore(value) {
-    this.actScore += value;
-    this.points += value;
-    this.totalScore += value;
-    if (this.actScore >= this.highScore) {
+    let finalValue = value * this.boosterMultiplier;
+    this.actScore += finalValue;
+    this.points += finalValue;
+    this.totalScore += finalValue;
+    this.totalPointsEarned += finalValue;
+    if (this.actScore > this.highScore) {
       this.highScore = this.actScore;
     }
     localStorage.setItem("CheemsAppLiActPoints", JSON.stringify(this.actScore));
     localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
     localStorage.setItem("CheemsAppLiTotalCounter", JSON.stringify(this.totalScore));
     localStorage.setItem("CheemsAppLiMaxCounter", JSON.stringify(this.highScore));
+    localStorage.setItem("CheemsAppLiTotalPointsEarned", JSON.stringify(this.totalPointsEarned));
     localStorage.setItem("CheemsBonkTotalScore", JSON.stringify(this.totalScore));
     localStorage.setItem("CheemsBonkHighScore", JSON.stringify(this.highScore));
   }
   addMinigameCoins(amount) {
     this.minigameCoins = Math.floor(this.minigameCoins + amount);
+    this.totalMinigameCoinsEarned += amount;
     localStorage.setItem("CheemsAppLiMinigameCoins", String(this.minigameCoins));
+    localStorage.setItem("CheemsAppLiTotalMinigameCoinsEarned", String(this.totalMinigameCoinsEarned));
     document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
   }
   spendMinigameCoins(amount) {
@@ -41169,8 +41224,10 @@ var ToolsService = class _ToolsService {
     if (this.points >= cost) {
       this.points -= cost;
       this.dogeCoins += coinsToAdd;
+      this.totalDogeCoinsEarned += coinsToAdd;
       localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
       localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
+      localStorage.setItem("CheemsAppLiTotalDogeCoinsEarned", JSON.stringify(this.totalDogeCoinsEarned));
       this.recordDailyPurchase(itemId);
       let successMsg = this.menu[this.lang]?.buyDogeCoinSuccess || `You bought ${coinsToAdd} DogeCoin(s)!`;
       if (coinsToAdd !== 1) {
@@ -41489,6 +41546,9 @@ var ToolsService = class _ToolsService {
     this.highScore = 0;
     this.dogeCoins = 0;
     this.minigameCoins = 50;
+    this.totalPointsEarned = 0;
+    this.totalDogeCoinsEarned = 0;
+    this.totalMinigameCoinsEarned = 0;
     this.unlockedMinigames = {};
     localStorage.setItem("CheemsAppLiMinigameCoins", "50");
     const allMinigames = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
@@ -41525,6 +41585,9 @@ var ToolsService = class _ToolsService {
     localStorage.setItem("CheemsAppLiTotalCounter", "0");
     localStorage.setItem("CheemsAppLiMaxCounter", "0");
     localStorage.setItem("CheemsAppLiDogecoins", "0");
+    localStorage.setItem("CheemsAppLiTotalPointsEarned", "0");
+    localStorage.setItem("CheemsAppLiTotalDogeCoinsEarned", "0");
+    localStorage.setItem("CheemsAppLiTotalMinigameCoinsEarned", "0");
     localStorage.setItem("CheemsAppLiSelCheems", "cheems_normal");
     localStorage.setItem("CheemsAppLiSelSound", "sfx_1");
     localStorage.setItem("CheemsAppLiSelMusic", "music_1");
@@ -41586,6 +41649,12 @@ var ToolsService = class _ToolsService {
     this.totalScore = totalScore ? this.parseNumber(totalScore) : 0;
     this.points = savedPoints ? this.parseNumber(savedPoints) : 0;
     this.dogeCoins = dogeCoins ? this.parseNumber(dogeCoins) : 0;
+    const tPoints = localStorage.getItem("CheemsAppLiTotalPointsEarned");
+    this.totalPointsEarned = tPoints ? this.parseNumber(tPoints) : this.totalScore;
+    const tDGC = localStorage.getItem("CheemsAppLiTotalDogeCoinsEarned");
+    this.totalDogeCoinsEarned = tDGC ? this.parseNumber(tDGC) : this.dogeCoins;
+    const tMG = localStorage.getItem("CheemsAppLiTotalMinigameCoinsEarned");
+    this.totalMinigameCoinsEarned = tMG ? this.parseNumber(tMG) : this.minigameCoins;
     let mgCoins = localStorage.getItem("CheemsAppLiMinigameCoins");
     if (!mgCoins) {
       const match2 = document.cookie.match(/(^| )CheemsAppLiMinigameCoins=([^;]+)/);
@@ -42253,16 +42322,16 @@ var GameComponent = class _GameComponent {
 })();
 
 // src/app/pages/menu/menu.component.ts
-function MenuComponent_Conditional_37_Template(rf, ctx) {
+function MenuComponent_Conditional_32_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("click", function MenuComponent_Conditional_37_Template_div_click_0_listener() {
+    \u0275\u0275listener("click", function MenuComponent_Conditional_32_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.tools.redirect("devSettings"));
     });
-    \u0275\u0275element(1, "img", 12);
+    \u0275\u0275element(1, "img", 11);
     \u0275\u0275elementStart(2, "div", 3)(3, "div", 4);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -42288,7 +42357,7 @@ var MenuComponent = class _MenuComponent {
   static \u0275fac = function MenuComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MenuComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 38, vars: 32, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/link-svgrepo-com.svg", "alt", "Offline Mode", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], [3, "class"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Dev Settings", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 33, vars: 28, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], [3, "class"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Dev Settings", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_2_listener() {
@@ -42324,7 +42393,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(22, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_22_listener() {
-        return ctx.tools.redirect("offline");
+        return ctx.tools.redirect("stats");
       });
       \u0275\u0275element(23, "img", 8);
       \u0275\u0275elementStart(24, "div", 3)(25, "div", 4);
@@ -42332,21 +42401,13 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(27, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_27_listener() {
-        return ctx.tools.redirect("onWork");
+        return ctx.tools.redirect("licenses");
       });
       \u0275\u0275element(28, "img", 9);
       \u0275\u0275elementStart(29, "div", 3)(30, "div", 4);
       \u0275\u0275text(31);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(32, "div", 1);
-      \u0275\u0275listener("click", function MenuComponent_Template_div_click_32_listener() {
-        return ctx.tools.redirect("onWork");
-      });
-      \u0275\u0275element(33, "img", 10);
-      \u0275\u0275elementStart(34, "div", 3)(35, "div", 4);
-      \u0275\u0275text(36);
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275template(37, MenuComponent_Conditional_37_Template, 5, 4, "div", 11);
+      \u0275\u0275template(32, MenuComponent_Conditional_32_Template, 5, 4, "div", 10);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -42371,17 +42432,13 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(4);
-      \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].offline);
-      \u0275\u0275advance();
-      \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
-      \u0275\u0275advance(4);
       \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].stats);
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(4);
       \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].licenses);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.tools.devMenuUnlocked ? 37 : -1);
+      \u0275\u0275conditional(ctx.tools.devMenuUnlocked ? 32 : -1);
     }
   }, styles: ["\n\n.menu-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));\n  gap: 1.25rem;\n  width: 95%;\n  max-width: 900px;\n  margin: 2rem auto;\n  padding: 2rem;\n}\n.menu-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  gap: 1rem;\n  padding: 1.15rem;\n  border-radius: 16px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid transparent;\n}\n.menu-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);\n}\n.menu-card[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.98);\n}\n.menu-icon[_ngcontent-%COMP%] {\n  width: 44px;\n  height: 44px;\n  object-fit: contain;\n  flex-shrink: 0;\n}\n.coin-glow[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.7));\n}\n.card-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.card-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.card-sub[_ngcontent-%COMP%] {\n  font-size: 0.85em;\n  opacity: 0.8;\n}\n.menu-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(80, 68, 55, 0.85),\n      rgba(50, 42, 33, 0.95));\n  border: 1px solid rgba(255, 209, 102, 0.25);\n  color: rgb(245, 235, 220);\n}\n.menu-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.9),\n      rgba(240, 225, 195, 0.95));\n  border: 1px solid rgba(156, 92, 20, 0.3);\n  color: rgb(70, 45, 20);\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dogecoin-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(120, 95, 40, 0.9),\n      rgba(75, 55, 20, 0.95));\n  border-color: #ffd166;\n}\n.dogecoin-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 225, 160, 0.95),\n      rgba(245, 205, 130, 0.95));\n  border-color: #9c5c14;\n}\n.dogecoin-card.theme-contrast[_ngcontent-%COMP%] {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dev-card[_ngcontent-%COMP%] {\n  border-style: dashed !important;\n}\n@media (max-width: 600px) {\n  .menu-grid[_ngcontent-%COMP%] {\n    grid-template-columns: 1fr;\n    padding: 1.25rem;\n  }\n}\n/*# sourceMappingURL=menu.component.css.map */"] });
 };
@@ -42422,16 +42479,8 @@ var MenuComponent = class _MenuComponent {
             </div>
         </div>
 
-        <!-- Offline Mode / Resource Download -->
-        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('offline')">
-            <img src="img/icons/link-svgrepo-com.svg" class="menu-icon" alt="Offline Mode">
-            <div class="card-content">
-                <div class="card-title">{{tools.menu[tools.lang].offline}}</div>
-            </div>
-        </div>
-
         <!-- Statistics -->
-        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('onWork')">
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('stats')">
             <img src="img/icons/report-svgrepo-com.svg" class="menu-icon" alt="Stats">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].stats}}</div>
@@ -42439,7 +42488,7 @@ var MenuComponent = class _MenuComponent {
         </div>
 
         <!-- Licenses -->
-        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('onWork')">
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('licenses')">
             <img src="img/icons/the-internet-svgrepo-com.svg" class="menu-icon" alt="Licenses">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].licenses}}</div>
@@ -43472,6 +43521,237 @@ var OnworkPageComponent = class _OnworkPageComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(OnworkPageComponent, { className: "OnworkPageComponent", filePath: "src/app/pages/onwork-page/onwork-page.component.ts", lineNumber: 10 });
 })();
 
+// src/app/pages/licenses/licenses.component.ts
+var LicensesComponent = class _LicensesComponent {
+  tools = inject(ToolsService);
+  ngOnInit() {
+    this.tools.setTitle("licenses");
+    this.tools.actPage = "licenses";
+  }
+  static \u0275fac = function LicensesComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _LicensesComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LicensesComponent, selectors: [["app-licenses"]], decls: 141, vars: 4, consts: [[1, "container"], [1, "licenses-title"], [1, "licenses-content"], ["href", "https://www.svgrepo.com/page/licensing/#CC0", "target", "_blank"], ["href", "https://www.svgrepo.com/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/solar-bold-icons/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/isometric-3d-interface-icons/", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com/es/users/william_king-33448498/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=185196", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=185196", "target", "_blank"], ["href", "https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"]], template: function LicensesComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "h2", 1);
+      \u0275\u0275text(3);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(4, "div", 2)(5, "h3");
+      \u0275\u0275text(6, "SVG & Icons");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(7, "ul")(8, "li")(9, "strong");
+      \u0275\u0275text(10, "CC0 License:");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(11, "a", 3);
+      \u0275\u0275text(12, "SVG Repo Licensing");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(13, "li")(14, "strong");
+      \u0275\u0275text(15, "Page:");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(16, "a", 4);
+      \u0275\u0275text(17, "SVG Repo");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(18, "li")(19, "strong");
+      \u0275\u0275text(20, "Solar Bold Icons:");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(21, "a", 5);
+      \u0275\u0275text(22, "Collection");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(23, "li")(24, "strong");
+      \u0275\u0275text(25, "Isometric 3D Interface Icons:");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(26, "a", 6);
+      \u0275\u0275text(27, "Collection");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(28, "h3");
+      \u0275\u0275text(29, "Music & Sound");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(30, "ul")(31, "li")(32, "strong");
+      \u0275\u0275text(33, "Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(34, "a", 7);
+      \u0275\u0275text(35, "Link");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(36, "li")(37, "strong");
+      \u0275\u0275text(38, "Jack Bootleg");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(39, "a", 8);
+      \u0275\u0275text(40, "Link");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(41, "li")(42, "strong");
+      \u0275\u0275text(43, "Minimalism N. 10, Notre envol II - Rapha\xEBl Novarina [Piano]");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(44, "a", 9);
+      \u0275\u0275text(45, "Link");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(46, "li")(47, "strong");
+      \u0275\u0275text(48, "A Jazz Piano");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(49, " Music by ");
+      \u0275\u0275elementStart(50, "a", 10);
+      \u0275\u0275text(51, "Oleg Kyrylkovv");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(52, " from ");
+      \u0275\u0275elementStart(53, "a", 11);
+      \u0275\u0275text(54, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(55, "li")(56, "strong");
+      \u0275\u0275text(57, "When you smile");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(58, " Music by ");
+      \u0275\u0275elementStart(59, "a", 12);
+      \u0275\u0275text(60, "Aleksey Chistilin");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(61, " from ");
+      \u0275\u0275elementStart(62, "a", 13);
+      \u0275\u0275text(63, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(64, "li")(65, "strong");
+      \u0275\u0275text(66, "Magic Night");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(67, " Music by ");
+      \u0275\u0275elementStart(68, "a", 14);
+      \u0275\u0275text(69, "Keyframe Audio");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(70, " from ");
+      \u0275\u0275elementStart(71, "a", 15);
+      \u0275\u0275text(72, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(73, "li")(74, "strong");
+      \u0275\u0275text(75, "Separation");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(76, " Music by ");
+      \u0275\u0275elementStart(77, "a", 16);
+      \u0275\u0275text(78, "William_King");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(79, " from ");
+      \u0275\u0275elementStart(80, "a", 17);
+      \u0275\u0275text(81, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(82, "li")(83, "strong");
+      \u0275\u0275text(84, "Titanium");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(85, " Music by ");
+      \u0275\u0275elementStart(86, "a", 18);
+      \u0275\u0275text(87, "Alisia");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(88, " from ");
+      \u0275\u0275elementStart(89, "a", 19);
+      \u0275\u0275text(90, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(91, "li")(92, "strong");
+      \u0275\u0275text(93, "Coffe Shop");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(94, " Music by ");
+      \u0275\u0275elementStart(95, "a", 20);
+      \u0275\u0275text(96, "Barnabas");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(97, " from ");
+      \u0275\u0275elementStart(98, "a", 21);
+      \u0275\u0275text(99, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(100, "li")(101, "strong");
+      \u0275\u0275text(102, "Believe me");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(103, " Music by ");
+      \u0275\u0275elementStart(104, "a", 22);
+      \u0275\u0275text(105, "Oleksii Holubiev");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(106, " from ");
+      \u0275\u0275elementStart(107, "a", 23);
+      \u0275\u0275text(108, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(109, "li")(110, "strong");
+      \u0275\u0275text(111, "City Streets (Background version)");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(112, " Music by ");
+      \u0275\u0275elementStart(113, "a", 24);
+      \u0275\u0275text(114, "Nathaniel");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(115, " from ");
+      \u0275\u0275elementStart(116, "a", 25);
+      \u0275\u0275text(117, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(118, "li")(119, "strong");
+      \u0275\u0275text(120, "Trap Future bass (Royalty free music)");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(121, " Music by ");
+      \u0275\u0275elementStart(122, "a", 26);
+      \u0275\u0275text(123, "Nver Avetyan");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(124, " from ");
+      \u0275\u0275elementStart(125, "a", 27);
+      \u0275\u0275text(126, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(127, "li")(128, "strong");
+      \u0275\u0275text(129, "Electro summer positive party");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(130, " Music by ");
+      \u0275\u0275elementStart(131, "a", 28);
+      \u0275\u0275text(132, "Alex_Kizenkov");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(133, " from ");
+      \u0275\u0275elementStart(134, "a", 29);
+      \u0275\u0275text(135, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(136, "li")(137, "strong");
+      \u0275\u0275text(138, "TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(139, "a", 30);
+      \u0275\u0275text(140, "Link");
+      \u0275\u0275elementEnd()()()()()();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " licenses-box");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.pageName[ctx.tools.lang] == null ? null : ctx.tools.pageName[ctx.tools.lang].licenses) || "Licenses");
+    }
+  }, styles: ["\n\n.licenses-box[_ngcontent-%COMP%] {\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);\n  margin: 20px auto;\n  max-width: 800px;\n  height: 70vh;\n  overflow-y: auto;\n}\n.licenses-title[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 20px;\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.licenses-content[_ngcontent-%COMP%] {\n  padding: 0 10px;\n}\n.licenses-content[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin-top: 20px;\n  margin-bottom: 10px;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.2);\n  padding-bottom: 5px;\n}\n.theme-light[_ngcontent-%COMP%]   .licenses-content[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  border-bottom: 1px solid rgba(0, 0, 0, 0.2);\n}\n.licenses-content[_ngcontent-%COMP%]   ul[_ngcontent-%COMP%] {\n  list-style-type: none;\n  padding-left: 0;\n}\n.licenses-content[_ngcontent-%COMP%]   li[_ngcontent-%COMP%] {\n  margin-bottom: 12px;\n  line-height: 1.4;\n  word-break: break-word;\n}\n.licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: #3498db;\n  text-decoration: none;\n}\n.licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:hover {\n  text-decoration: underline;\n}\n.theme-dark[_ngcontent-%COMP%]   .licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: #5dade2;\n}\n.theme-light[_ngcontent-%COMP%]   .licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: #2980b9;\n}\n/*# sourceMappingURL=licenses.component.css.map */"] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LicensesComponent, [{
+    type: Component,
+    args: [{ selector: "app-licenses", imports: [], template: `<div class="container">
+    <div class="group {{tools.themeColor}} licenses-box">
+        <h2 class="licenses-title">{{tools.pageName[tools.lang]?.licenses || 'Licenses'}}</h2>
+        
+        <div class="licenses-content">
+            <h3>SVG & Icons</h3>
+            <ul>
+                <li><strong>CC0 License:</strong> <a href="https://www.svgrepo.com/page/licensing/#CC0" target="_blank">SVG Repo Licensing</a></li>
+                <li><strong>Page:</strong> <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a></li>
+                <li><strong>Solar Bold Icons:</strong> <a href="https://www.svgrepo.com/collection/solar-bold-icons/" target="_blank">Collection</a></li>
+                <li><strong>Isometric 3D Interface Icons:</strong> <a href="https://www.svgrepo.com/collection/isometric-3d-interface-icons/" target="_blank">Collection</a></li>
+            </ul>
+
+            <h3>Music & Sound</h3>
+            <ul>
+                <li><strong>Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]</strong> <a href="https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Link</a></li>
+                <li><strong>Jack Bootleg</strong> <a href="https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Link</a></li>
+                <li><strong>Minimalism N. 10, Notre envol II - Rapha\xEBl Novarina [Piano]</strong> <a href="https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Link</a></li>
+                <li><strong>A Jazz Piano</strong> Music by <a href="https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481" target="_blank">Oleg Kyrylkovv</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481" target="_blank">Pixabay</a></li>
+                <li><strong>When you smile</strong> Music by <a href="https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423" target="_blank">Aleksey Chistilin</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423" target="_blank">Pixabay</a></li>
+                <li><strong>Magic Night</strong> Music by <a href="https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393" target="_blank">Keyframe Audio</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393" target="_blank">Pixabay</a></li>
+                <li><strong>Separation</strong> Music by <a href="https://pixabay.com/es/users/william_king-33448498/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=185196" target="_blank">William_King</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=185196" target="_blank">Pixabay</a></li>
+                <li><strong>Titanium</strong> Music by <a href="https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190" target="_blank">Alisia</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190" target="_blank">Pixabay</a></li>
+                <li><strong>Coffe Shop</strong> Music by <a href="https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585" target="_blank">Barnabas</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585" target="_blank">Pixabay</a></li>
+                <li><strong>Believe me</strong> Music by <a href="https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530" target="_blank">Oleksii Holubiev</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530" target="_blank">Pixabay</a></li>
+                <li><strong>City Streets (Background version)</strong> Music by <a href="https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003" target="_blank">Nathaniel</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003" target="_blank">Pixabay</a></li>
+                <li><strong>Trap Future bass (Royalty free music)</strong> Music by <a href="https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020" target="_blank">Nver Avetyan</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020" target="_blank">Pixabay</a></li>
+                <li><strong>Electro summer positive party</strong> Music by <a href="https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081" target="_blank">Alex_Kizenkov</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081" target="_blank">Pixabay</a></li>
+                <li><strong>TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD</strong> <a href="https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Link</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+`, styles: ["/* src/app/pages/licenses/licenses.component.css */\n.licenses-box {\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);\n  margin: 20px auto;\n  max-width: 800px;\n  height: 70vh;\n  overflow-y: auto;\n}\n.licenses-title {\n  text-align: center;\n  margin-bottom: 20px;\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.licenses-content {\n  padding: 0 10px;\n}\n.licenses-content h3 {\n  margin-top: 20px;\n  margin-bottom: 10px;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.2);\n  padding-bottom: 5px;\n}\n.theme-light .licenses-content h3 {\n  border-bottom: 1px solid rgba(0, 0, 0, 0.2);\n}\n.licenses-content ul {\n  list-style-type: none;\n  padding-left: 0;\n}\n.licenses-content li {\n  margin-bottom: 12px;\n  line-height: 1.4;\n  word-break: break-word;\n}\n.licenses-content a {\n  color: #3498db;\n  text-decoration: none;\n}\n.licenses-content a:hover {\n  text-decoration: underline;\n}\n.theme-dark .licenses-content a {\n  color: #5dade2;\n}\n.theme-light .licenses-content a {\n  color: #2980b9;\n}\n/*# sourceMappingURL=licenses.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(LicensesComponent, { className: "LicensesComponent", filePath: "src/app/pages/licenses/licenses.component.ts", lineNumber: 10 });
+})();
+
 // src/app/pages/p404/p404.component.ts
 var P404Component = class _P404Component {
   tools = inject(ToolsService);
@@ -43533,195 +43813,9 @@ var P404Component = class _P404Component {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(P404Component, { className: "P404Component", filePath: "src/app/pages/p404/p404.component.ts", lineNumber: 10 });
 })();
 
-// src/app/pages/offline/offline.component.ts
-var _forTrack03 = ($index, $item) => $item.id;
-function OfflineComponent_For_11_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 13);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" \u2713 ", ctx_r0.tools.offline[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.offline[ctx_r0.tools.lang].downloaded, " ");
-  }
-}
-function OfflineComponent_For_11_Conditional_11_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 14);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const cat_r2 = \u0275\u0275nextContext().$implicit;
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" \u23F3 ", ctx_r0.downloadProgress[cat_r2.id], "% ");
-  }
-}
-function OfflineComponent_For_11_Conditional_12_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 16);
-    \u0275\u0275listener("click", function OfflineComponent_For_11_Conditional_12_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r3);
-      const cat_r2 = \u0275\u0275nextContext().$implicit;
-      const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.downloadCategory(cat_r2));
-    });
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275classMapInterpolate1("status-tick download-btn ", ctx_r0.tools.themeColor, "");
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" \u2B07 ", ctx_r0.tools.offline[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.offline[ctx_r0.tools.lang].download, " ");
-  }
-}
-function OfflineComponent_For_11_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "div", 7)(2, "div", 8)(3, "span", 9);
-    \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "span", 10);
-    \u0275\u0275text(6);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 11);
-    \u0275\u0275text(8);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "div", 12);
-    \u0275\u0275template(10, OfflineComponent_For_11_Conditional_10_Template, 2, 1, "span", 13)(11, OfflineComponent_For_11_Conditional_11_Template, 2, 1, "span", 14)(12, OfflineComponent_For_11_Conditional_12_Template, 2, 4, "button", 15);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const cat_r2 = ctx.$implicit;
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275classMapInterpolate1("category-card ", ctx_r0.tools.themeColor, "");
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(ctx_r0.tools.offline[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.offline[ctx_r0.tools.lang][cat_r2.titleKey]);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(cat_r2.sizeLabel);
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r0.tools.offline[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.offline[ctx_r0.tools.lang][cat_r2.descKey]);
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r0.cachedStatus[cat_r2.id] ? 10 : ctx_r0.downloadingStatus[cat_r2.id] ? 11 : 12);
-  }
-}
-var OfflineComponent = class _OfflineComponent {
-  tools = inject(ToolsService);
-  cachedStatus = {
-    essentials: false,
-    sfx: false,
-    music: false
-  };
-  downloadingStatus = {
-    essentials: false,
-    sfx: false,
-    music: false
-  };
-  downloadProgress = {
-    essentials: 0,
-    sfx: 0,
-    music: 0
-  };
-  isDownloadingAll = false;
-  ngOnInit() {
-    this.tools.setTitle("offline");
-    this.tools.actPage = "offline";
-    this.checkAllCached();
-  }
-  checkAllCached() {
-    return __async(this, null, function* () {
-      for (const cat of this.tools.offlineCategories) {
-        this.cachedStatus[cat.id] = yield this.tools.checkCategoryCached(cat);
-      }
-    });
-  }
-  downloadCategory(cat) {
-    return __async(this, null, function* () {
-      if (this.downloadingStatus[cat.id] || this.cachedStatus[cat.id])
-        return;
-      this.downloadingStatus[cat.id] = true;
-      this.downloadProgress[cat.id] = 0;
-      const success = yield this.tools.cacheCategory(cat, (progress) => {
-        this.downloadProgress[cat.id] = progress;
-      });
-      this.downloadingStatus[cat.id] = false;
-      if (success) {
-        this.cachedStatus[cat.id] = true;
-        this.tools.showToast(this.tools.offline[this.tools.lang]?.successToast || "Downloaded successfully!");
-        this.tools.playSound();
-      } else {
-        this.tools.showToast(this.tools.offline[this.tools.lang]?.errorToast || "Error downloading resources.");
-      }
-    });
-  }
-  downloadAll() {
-    return __async(this, null, function* () {
-      if (this.isDownloadingAll)
-        return;
-      this.isDownloadingAll = true;
-      for (const cat of this.tools.offlineCategories) {
-        if (!this.cachedStatus[cat.id]) {
-          yield this.downloadCategory(cat);
-        }
-      }
-      this.isDownloadingAll = false;
-    });
-  }
-  static \u0275fac = function OfflineComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _OfflineComponent)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _OfflineComponent, selectors: [["app-offline"]], decls: 12, vars: 10, consts: [[1, "container"], [1, "header-section"], [1, "offline-title"], [1, "offline-subtitle"], [3, "click", "disabled"], [1, "categories-list"], [3, "class"], [1, "cat-info"], [1, "cat-title-row"], [1, "cat-title"], [1, "size-badge"], [1, "cat-desc"], [1, "cat-action"], ["title", "Downloaded", 1, "status-tick", "downloaded-tick"], [1, "status-tick", "downloading-tick"], ["title", "Download", 3, "class"], ["title", "Download", 3, "click"]], template: function OfflineComponent_Template(rf, ctx) {
-    if (rf & 1) {
-      \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1)(3, "h2", 2);
-      \u0275\u0275text(4);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(5, "p", 3);
-      \u0275\u0275text(6);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(7, "button", 4);
-      \u0275\u0275listener("click", function OfflineComponent_Template_button_click_7_listener() {
-        return ctx.downloadAll();
-      });
-      \u0275\u0275text(8);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(9, "div", 5);
-      \u0275\u0275repeaterCreate(10, OfflineComponent_For_11_Template, 13, 7, "div", 6, _forTrack03);
-      \u0275\u0275elementEnd()()();
-    }
-    if (rf & 2) {
-      \u0275\u0275advance();
-      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " offline-box");
-      \u0275\u0275advance(3);
-      \u0275\u0275textInterpolate(ctx.tools.offline[ctx.tools.lang] == null ? null : ctx.tools.offline[ctx.tools.lang].title);
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.tools.offline[ctx.tools.lang] == null ? null : ctx.tools.offline[ctx.tools.lang].subtitle);
-      \u0275\u0275advance();
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, " download-all-btn");
-      \u0275\u0275property("disabled", ctx.isDownloadingAll);
-      \u0275\u0275advance();
-      \u0275\u0275textInterpolate1(" \u2B07 ", ctx.tools.offline[ctx.tools.lang] == null ? null : ctx.tools.offline[ctx.tools.lang].downloadAll, " ");
-      \u0275\u0275advance(2);
-      \u0275\u0275repeater(ctx.tools.offlineCategories);
-    }
-  }, styles: ["\n\n.offline-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 2rem;\n  width: 90%;\n  max-width: 800px;\n  margin: 2rem auto;\n  padding: 2.5rem;\n}\n.header-section[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n  gap: 0.85rem;\n  border-bottom: 2px solid rgba(255, 255, 255, 0.15);\n  padding-bottom: 1.5rem;\n}\n.offline-title[_ngcontent-%COMP%] {\n  font-size: 1.8em;\n  font-weight: 900;\n  margin: 0;\n}\n.offline-subtitle[_ngcontent-%COMP%] {\n  font-size: 1em;\n  opacity: 0.9;\n  margin: 0;\n  max-width: 600px;\n}\n.download-all-btn[_ngcontent-%COMP%] {\n  padding: 0.85rem 1.75rem;\n  font-size: 1.1em;\n  font-weight: 900;\n  cursor: pointer;\n  border-radius: 14px;\n  margin-top: 0.5rem;\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n.download-all-btn[_ngcontent-%COMP%]:hover:not([disabled]) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);\n}\n.download-all-btn[disabled][_ngcontent-%COMP%] {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.categories-list[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 1.25rem;\n}\n.category-card[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem 1.5rem;\n  border-radius: 16px;\n  background: rgba(0, 0, 0, 0.25);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  gap: 1rem;\n  transition: transform 0.2s ease;\n}\n.cat-info[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n  flex: 1;\n}\n.cat-title-row[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.75rem;\n  flex-wrap: wrap;\n}\n.cat-title[_ngcontent-%COMP%] {\n  font-size: 1.25em;\n  font-weight: 900;\n}\n.size-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 209, 102, 0.2);\n  color: #ffd166;\n  padding: 0.2rem 0.65rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 800;\n  border: 1px solid rgba(255, 209, 102, 0.4);\n}\nbody.theme-light[_ngcontent-%COMP%]   .size-badge[_ngcontent-%COMP%] {\n  background: rgba(156, 92, 20, 0.15);\n  color: #9c5c14;\n  border-color: rgba(156, 92, 20, 0.3);\n}\nbody.theme-contrast[_ngcontent-%COMP%]   .size-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 1px solid #ffff00;\n}\n.cat-desc[_ngcontent-%COMP%] {\n  font-size: 0.95em;\n  opacity: 0.85;\n}\n.cat-action[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  flex-shrink: 0;\n}\n.status-tick[_ngcontent-%COMP%] {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 900;\n  font-size: 1em;\n}\n.downloaded-tick[_ngcontent-%COMP%] {\n  background: #28a745;\n  color: #ffffff;\n  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);\n}\n.downloading-tick[_ngcontent-%COMP%] {\n  background: #fd7e14;\n  color: #ffffff;\n  box-shadow: 0 4px 12px rgba(253, 126, 20, 0.35);\n}\n.download-btn[_ngcontent-%COMP%] {\n  cursor: pointer;\n  background: #ffd166;\n  color: #1a1612;\n  border: none;\n  transition: transform 0.2s ease, background 0.2s ease;\n}\n.download-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\nbody.theme-light[_ngcontent-%COMP%]   .download-btn[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #ffffff;\n}\nbody.theme-contrast[_ngcontent-%COMP%]   .download-btn[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n}\n@media (max-width: 650px) {\n  .category-card[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: flex-start;\n  }\n  .cat-action[_ngcontent-%COMP%] {\n    width: 100%;\n    justify-content: flex-end;\n    margin-top: 0.5rem;\n  }\n  .status-tick[_ngcontent-%COMP%] {\n    width: 100%;\n  }\n}\n/*# sourceMappingURL=offline.component.css.map */"] });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(OfflineComponent, [{
-    type: Component,
-    args: [{ selector: "app-offline", imports: [], template: '<div class="container">\n    <div class="group {{tools.themeColor}} offline-box">\n        <div class="header-section">\n            <h2 class="offline-title">{{tools.offline[tools.lang]?.title}}</h2>\n            <p class="offline-subtitle">{{tools.offline[tools.lang]?.subtitle}}</p>\n            <button class="btn-card {{tools.themeColor}} download-all-btn"\n                    [disabled]="isDownloadingAll"\n                    (click)="downloadAll()">\n                \u2B07 {{tools.offline[tools.lang]?.downloadAll}}\n            </button>\n        </div>\n\n        <div class="categories-list">\n            @for (cat of tools.offlineCategories; track cat.id) {\n                <div class="category-card {{tools.themeColor}}">\n                    <div class="cat-info">\n                        <div class="cat-title-row">\n                            <span class="cat-title">{{tools.offline[tools.lang]?.[cat.titleKey]}}</span>\n                            <span class="size-badge">{{cat.sizeLabel}}</span>\n                        </div>\n                        <div class="cat-desc">{{tools.offline[tools.lang]?.[cat.descKey]}}</div>\n                    </div>\n\n                    <div class="cat-action">\n                        @if (cachedStatus[cat.id]) {\n                            <span class="status-tick downloaded-tick" title="Downloaded">\n                                \u2713 {{tools.offline[tools.lang]?.downloaded}}\n                            </span>\n                        } @else if (downloadingStatus[cat.id]) {\n                            <span class="status-tick downloading-tick">\n                                \u23F3 {{downloadProgress[cat.id]}}%\n                            </span>\n                        } @else {\n                            <button class="status-tick download-btn {{tools.themeColor}}"\n                                    (click)="downloadCategory(cat)"\n                                    title="Download">\n                                \u2B07 {{tools.offline[tools.lang]?.download}}\n                            </button>\n                        }\n                    </div>\n                </div>\n            }\n        </div>\n    </div>\n</div>\n', styles: ["/* src/app/pages/offline/offline.component.css */\n.offline-box {\n  display: flex;\n  flex-direction: column;\n  gap: 2rem;\n  width: 90%;\n  max-width: 800px;\n  margin: 2rem auto;\n  padding: 2.5rem;\n}\n.header-section {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n  gap: 0.85rem;\n  border-bottom: 2px solid rgba(255, 255, 255, 0.15);\n  padding-bottom: 1.5rem;\n}\n.offline-title {\n  font-size: 1.8em;\n  font-weight: 900;\n  margin: 0;\n}\n.offline-subtitle {\n  font-size: 1em;\n  opacity: 0.9;\n  margin: 0;\n  max-width: 600px;\n}\n.download-all-btn {\n  padding: 0.85rem 1.75rem;\n  font-size: 1.1em;\n  font-weight: 900;\n  cursor: pointer;\n  border-radius: 14px;\n  margin-top: 0.5rem;\n  transition: transform 0.2s ease, box-shadow 0.2s ease;\n}\n.download-all-btn:hover:not([disabled]) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);\n}\n.download-all-btn[disabled] {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n.categories-list {\n  display: flex;\n  flex-direction: column;\n  gap: 1.25rem;\n}\n.category-card {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem 1.5rem;\n  border-radius: 16px;\n  background: rgba(0, 0, 0, 0.25);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  gap: 1rem;\n  transition: transform 0.2s ease;\n}\n.cat-info {\n  display: flex;\n  flex-direction: column;\n  gap: 0.4rem;\n  flex: 1;\n}\n.cat-title-row {\n  display: flex;\n  align-items: center;\n  gap: 0.75rem;\n  flex-wrap: wrap;\n}\n.cat-title {\n  font-size: 1.25em;\n  font-weight: 900;\n}\n.size-badge {\n  background: rgba(255, 209, 102, 0.2);\n  color: #ffd166;\n  padding: 0.2rem 0.65rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 800;\n  border: 1px solid rgba(255, 209, 102, 0.4);\n}\nbody.theme-light .size-badge {\n  background: rgba(156, 92, 20, 0.15);\n  color: #9c5c14;\n  border-color: rgba(156, 92, 20, 0.3);\n}\nbody.theme-contrast .size-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 1px solid #ffff00;\n}\n.cat-desc {\n  font-size: 0.95em;\n  opacity: 0.85;\n}\n.cat-action {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  flex-shrink: 0;\n}\n.status-tick {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 900;\n  font-size: 1em;\n}\n.downloaded-tick {\n  background: #28a745;\n  color: #ffffff;\n  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.35);\n}\n.downloading-tick {\n  background: #fd7e14;\n  color: #ffffff;\n  box-shadow: 0 4px 12px rgba(253, 126, 20, 0.35);\n}\n.download-btn {\n  cursor: pointer;\n  background: #ffd166;\n  color: #1a1612;\n  border: none;\n  transition: transform 0.2s ease, background 0.2s ease;\n}\n.download-btn:hover {\n  transform: scale(1.05);\n}\nbody.theme-light .download-btn {\n  background: #9c5c14;\n  color: #ffffff;\n}\nbody.theme-contrast .download-btn {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n}\n@media (max-width: 650px) {\n  .category-card {\n    flex-direction: column;\n    align-items: flex-start;\n  }\n  .cat-action {\n    width: 100%;\n    justify-content: flex-end;\n    margin-top: 0.5rem;\n  }\n  .status-tick {\n    width: 100%;\n  }\n}\n/*# sourceMappingURL=offline.component.css.map */\n"] }]
-  }], null, null);
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(OfflineComponent, { className: "OfflineComponent", filePath: "src/app/pages/offline/offline.component.ts", lineNumber: 11 });
-})();
-
 // src/app/pages/shop/shop.component.ts
 var _c0 = (a0) => ({ $implicit: a0 });
-var _forTrack04 = ($index, $item) => $item.id;
+var _forTrack03 = ($index, $item) => $item.id;
 function ShopComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
@@ -44033,7 +44127,7 @@ function ShopComponent_Conditional_35_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_35_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_35_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44066,7 +44160,7 @@ function ShopComponent_Conditional_36_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44099,7 +44193,7 @@ function ShopComponent_Conditional_37_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44132,7 +44226,7 @@ function ShopComponent_Conditional_38_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44165,7 +44259,7 @@ function ShopComponent_Conditional_39_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44198,7 +44292,7 @@ function ShopComponent_Conditional_40_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack04);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -73579,84 +73673,34 @@ var DogeRescueComponent = class _DogeRescueComponent {
 // src/app/games/flappy_dunk/flappy_dunk.component.ts
 var _c04 = ["gameContainer"];
 var _c12 = ["canvas"];
-function FlappyDunkComponent_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 5)(1, "h1");
-    \u0275\u0275text(2);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p");
-    \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 6);
-    \u0275\u0275listener("click", function FlappyDunkComponent_Conditional_15_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.startGame());
-    });
-    \u0275\u0275text(6);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].flappy_dunk_title) || "Flappy Dunk");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].flappy_dunk_inst) || "Tap to make the ball fly and score through the hoops!");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
-  }
-}
-function FlappyDunkComponent_Conditional_16_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 5)(1, "h1");
-    \u0275\u0275text(2);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p");
-    \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 6);
-    \u0275\u0275listener("click", function FlappyDunkComponent_Conditional_16_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.startGame());
-    });
-    \u0275\u0275text(6);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].gameOver) || "Game Over");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].playAgain) || "Play Again");
-  }
-}
 var FlappyDunkComponent = class _FlappyDunkComponent {
   tools = inject(ToolsService);
   ngZone = inject(NgZone);
+  renderer = inject(Renderer2);
   gameContainer;
   canvasRef;
   gameState = "START";
   gamePoints = 0;
-  bestScore = 0;
+  combo = 1;
+  frames = 0;
+  bgOffset = 0;
   ball = {
-    x: 100,
-    y: 300,
-    vx: 0,
+    x: 0,
+    y: 0,
     vy: 0,
     radius: 18,
+    gravity: 0.35,
+    jump: -7.5,
     rotation: 0,
     wingAngle: 0
   };
   hoops = [];
-  gravity = 0.45;
-  jumpForce = -7.5;
-  scrollSpeed = 2.5;
+  particles = [];
+  hoopSpeed = 4;
+  hoopWidth = 110;
+  rimRadius = 6;
   animationFrameId = null;
+  ctx;
   onPointerDownBound = this.onTap.bind(this);
   onKeyDownBound = this.onKeyDown.bind(this);
   onResizeBound = this.onResize.bind(this);
@@ -73665,57 +73709,67 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     this.tools.actPage = "flappy_dunk";
   }
   ngAfterViewInit() {
-    this.initGame();
-  }
-  ngOnDestroy() {
-    this.stopLoop();
-    window.removeEventListener("resize", this.onResizeBound);
-    window.removeEventListener("keydown", this.onKeyDownBound);
-    const canvas = this.canvasRef?.nativeElement;
-    if (canvas) {
-      canvas.removeEventListener("pointerdown", this.onPointerDownBound);
-    }
-    this.tools.leaveMinigame("flappy_dunk", this.gamePoints);
-  }
-  startGame() {
-    this.gamePoints = 0;
-    this.gameState = "PLAYING";
     const canvas = this.canvasRef.nativeElement;
-    this.ball = {
-      x: canvas.width * 0.25,
-      y: canvas.height * 0.5,
-      vx: 0,
-      vy: 0,
-      radius: 18,
-      rotation: 0,
-      wingAngle: 0
-    };
-    this.hoops = [];
-    this.spawnHoop(canvas.width + 150);
-    this.spawnHoop(canvas.width + 450);
-  }
-  initGame() {
-    const canvas = this.canvasRef.nativeElement;
-    const container = this.gameContainer.nativeElement;
-    canvas.width = container.clientWidth || window.innerWidth;
-    canvas.height = container.clientHeight || window.innerHeight;
-    canvas.addEventListener("pointerdown", this.onPointerDownBound);
-    window.addEventListener("keydown", this.onKeyDownBound);
+    this.ctx = canvas.getContext("2d");
+    this.onResize();
     window.addEventListener("resize", this.onResizeBound);
+    document.addEventListener("mousedown", this.onPointerDownBound);
+    document.addEventListener("touchstart", this.onPointerDownBound, { passive: false });
+    window.addEventListener("keydown", this.onKeyDownBound);
+    this.initGameState();
     this.ngZone.runOutsideAngular(() => {
       this.loop();
     });
   }
-  onTap() {
-    if (this.gameState === "START" || this.gameState === "GAMEOVER") {
-      this.ngZone.run(() => this.startGame());
-      return;
+  ngOnDestroy() {
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
     }
-    if (this.gameState === "PLAYING") {
-      this.ball.vy = this.jumpForce;
-      this.ball.wingAngle = -0.5;
-      this.tools.playSound("sfx_1");
-    }
+    window.removeEventListener("resize", this.onResizeBound);
+    window.removeEventListener("keydown", this.onKeyDownBound);
+    document.removeEventListener("mousedown", this.onPointerDownBound);
+    document.removeEventListener("touchstart", this.onPointerDownBound);
+    this.tools.leaveMinigame("flappy_dunk", this.tools.sessionPoints);
+  }
+  onResize() {
+    const canvas = this.canvasRef.nativeElement;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  initGameState() {
+    const canvas = this.canvasRef.nativeElement;
+    this.ball.x = canvas.width * 0.3;
+    this.ball.y = canvas.height / 2;
+    this.ball.vy = 0;
+    this.ball.rotation = 0;
+    this.hoops = [];
+    this.particles = [];
+    this.gamePoints = 0;
+    this.combo = 1;
+    this.frames = 0;
+    this.gameState = "START";
+    this.spawnHoop(canvas.width + 200);
+  }
+  startGame() {
+    this.gameState = "PLAYING";
+    this.flap();
+  }
+  endGame() {
+    this.ngZone.run(() => {
+      this.gameState = "GAMEOVER";
+      this.createExplosion(this.ball.x, this.ball.y, "#e65100");
+    });
+  }
+  onTap(e) {
+    if (e && e.type === "touchstart")
+      e.preventDefault();
+    this.ngZone.run(() => {
+      if (this.gameState === "START") {
+        this.startGame();
+      } else if (this.gameState === "PLAYING") {
+        this.flap();
+      }
+    });
   }
   onKeyDown(e) {
     if (e.code === "Space" || e.key === " ") {
@@ -73723,114 +73777,245 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
       this.onTap();
     }
   }
-  spawnHoop(x) {
+  flap() {
+    if (this.gameState === "PLAYING") {
+      this.ball.vy = this.ball.jump;
+      for (let i = 0; i < 3; i++) {
+        this.particles.push({
+          x: this.ball.x - 15,
+          y: this.ball.y,
+          vx: (Math.random() - 0.5) * 2 - 2,
+          vy: (Math.random() - 0.5) * 2,
+          life: 1,
+          color: "#fff",
+          size: Math.random() * 3 + 2
+        });
+      }
+      this.tools.playSound("sfx_1");
+    }
+  }
+  spawnHoop(xPos) {
     const canvas = this.canvasRef.nativeElement;
-    const minY = 140;
-    const maxY = canvas.height - 140;
-    const y = minY + Math.random() * (maxY - minY);
+    const minY = 200;
+    const maxY = canvas.height - 200;
+    const yPos = Math.random() * (maxY - minY) + minY;
     this.hoops.push({
-      x,
-      y,
-      radius: 45,
+      x: xPos,
+      y: yPos,
+      passed: false,
+      swish: true,
       scored: false,
-      angle: 0
+      color: "#9C27B0"
     });
+  }
+  createExplosion(x, y, color) {
+    for (let i = 0; i < 20; i++) {
+      this.particles.push({
+        x,
+        y,
+        vx: (Math.random() - 0.5) * 10,
+        vy: (Math.random() - 0.5) * 10,
+        life: 1,
+        color,
+        size: Math.random() * 6 + 2
+      });
+    }
+  }
+  showPopup(text, x, y, isSwish) {
+    const el = this.renderer.createElement("div");
+    this.renderer.addClass(el, "swish-text");
+    this.renderer.setProperty(el, "innerText", text);
+    this.renderer.setStyle(el, "left", `${x}px`);
+    this.renderer.setStyle(el, "top", `${y}px`);
+    if (isSwish) {
+      this.renderer.setStyle(el, "color", "#FFEB3B");
+      this.renderer.setStyle(el, "textShadow", "0 2px 10px #FF9800");
+    } else {
+      this.renderer.setStyle(el, "color", "#fff");
+    }
+    const uiLayer = document.getElementById("ui-layer");
+    if (uiLayer) {
+      this.renderer.appendChild(uiLayer, el);
+      setTimeout(() => {
+        if (el.parentNode) {
+          this.renderer.removeChild(el.parentNode, el);
+        }
+      }, 1e3);
+    }
   }
   loop() {
-    this.animationFrameId = requestAnimationFrame(() => this.loop());
-    if (this.gameState === "PLAYING") {
-      const canvas = this.canvasRef.nativeElement;
-      this.ball.vy += this.gravity;
-      this.ball.y += this.ball.vy;
-      this.ball.rotation += 0.05;
-      this.ball.wingAngle *= 0.9;
-      if (this.ball.y - this.ball.radius < 0 || this.ball.y + this.ball.radius > canvas.height) {
-        this.ngZone.run(() => this.gameOver());
-      }
-      for (let i = this.hoops.length - 1; i >= 0; i--) {
-        const h = this.hoops[i];
-        h.x -= this.scrollSpeed;
-        if (!h.scored && Math.abs(this.ball.x - h.x) < 20 && Math.abs(this.ball.y - h.y) < h.radius * 0.7) {
-          h.scored = true;
-          this.ngZone.run(() => {
-            this.gamePoints++;
-            if (this.gamePoints > this.bestScore) {
-              this.bestScore = this.gamePoints;
-            }
-            this.tools.playSound("sfx_4");
-          });
-        }
-        if (h.x + h.radius < 0) {
-          this.hoops.splice(i, 1);
-          const lastX = this.hoops.length > 0 ? this.hoops[this.hoops.length - 1].x : canvas.width;
-          this.spawnHoop(lastX + 320);
-        }
-      }
-    }
+    this.update();
     this.draw();
+    this.animationFrameId = requestAnimationFrame(() => this.loop());
+  }
+  update() {
+    const canvas = this.canvasRef.nativeElement;
+    if (this.gameState === "PLAYING") {
+      this.frames++;
+      this.bgOffset -= 0.5;
+      let prevY = this.ball.y;
+      this.ball.vy += this.ball.gravity;
+      this.ball.y += this.ball.vy;
+      this.ball.rotation += this.ball.vy * 0.05;
+      this.ball.wingAngle = Math.max(-0.5, Math.min(0.5, this.ball.vy * 0.1));
+      if (this.ball.y - this.ball.radius < 0 || this.ball.y + this.ball.radius > canvas.height) {
+        this.endGame();
+      }
+      if (this.hoops.length > 0) {
+        let lastHoop = this.hoops[this.hoops.length - 1];
+        if (lastHoop.x < canvas.width - 350) {
+          this.spawnHoop(canvas.width + 100);
+        }
+      }
+      for (let i = 0; i < this.hoops.length; i++) {
+        let h = this.hoops[i];
+        h.x -= this.hoopSpeed;
+        let leftRim = { x: h.x - this.hoopWidth / 2, y: h.y };
+        let rightRim = { x: h.x + this.hoopWidth / 2, y: h.y };
+        let distL = Math.hypot(this.ball.x - leftRim.x, this.ball.y - leftRim.y);
+        let distR = Math.hypot(this.ball.x - rightRim.x, this.ball.y - rightRim.y);
+        if (distL < this.ball.radius + this.rimRadius || distR < this.ball.radius + this.rimRadius) {
+          this.ball.vy = -Math.abs(this.ball.vy) * 0.7 - 2;
+          h.swish = false;
+          this.createExplosion(distL < distR ? leftRim.x : rightRim.x, h.y, "#fff");
+          this.tools.playSound("sfx_1");
+        }
+        if (!h.scored && prevY <= h.y && this.ball.y > h.y) {
+          if (this.ball.x > leftRim.x && this.ball.x < rightRim.x) {
+            h.scored = true;
+            let pts = 1;
+            if (h.swish) {
+              this.combo++;
+              pts = this.combo;
+              this.ngZone.run(() => {
+                this.showPopup("SWISH! +" + pts, this.ball.x, this.ball.y - 40, true);
+              });
+            } else {
+              this.combo = 1;
+              this.ngZone.run(() => {
+                this.showPopup("+" + pts, this.ball.x, this.ball.y - 40, false);
+              });
+            }
+            this.ngZone.run(() => {
+              this.gamePoints += pts;
+              this.tools.sessionPoints += pts;
+              this.tools.playSound("sfx_1");
+            });
+            const scoreUI = document.getElementById("scoreUI");
+            if (scoreUI) {
+              scoreUI.style.transform = "scale(1.3)";
+              setTimeout(() => {
+                scoreUI.style.transform = "scale(1)";
+              }, 100);
+            }
+            this.createExplosion(this.ball.x, h.y, h.swish ? "#FFEB3B" : "#4CAF50");
+          }
+        }
+        if (!h.scored && h.x < this.ball.x - this.hoopWidth && !h.passed) {
+          h.passed = true;
+          this.endGame();
+        }
+      }
+      if (this.hoops.length > 0 && this.hoops[0].x < -200) {
+        this.hoops.shift();
+      }
+    } else if (this.gameState === "START") {
+      this.ball.y = canvas.height / 2 + Math.sin(Date.now() / 200) * 10;
+      this.ball.wingAngle = Math.sin(Date.now() / 150) * 0.5;
+    }
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      let p = this.particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.2;
+      p.life -= 0.02;
+      if (p.life <= 0)
+        this.particles.splice(i, 1);
+    }
   }
   draw() {
-    const canvas = this.canvasRef?.nativeElement;
-    if (!canvas)
-      return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx)
-      return;
+    const canvas = this.canvasRef.nativeElement;
+    const ctx = this.ctx;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    canvas.style.backgroundPosition = `${this.bgOffset}px 0px, ${this.bgOffset}px 0px, ${this.bgOffset / 2}px 0px, ${this.bgOffset / 2}px 0px`;
     this.hoops.forEach((h) => {
-      ctx.save();
-      ctx.translate(h.x, h.y);
-      ctx.strokeStyle = "#d32f2f";
-      ctx.lineWidth = 6;
       ctx.beginPath();
-      ctx.arc(0, 0, h.radius, 0, Math.PI);
-      ctx.stroke();
-      ctx.strokeStyle = "#fff";
+      ctx.moveTo(h.x - this.hoopWidth / 2, h.y);
+      ctx.lineTo(h.x - this.hoopWidth / 2 + 15, h.y + 70);
+      ctx.lineTo(h.x + this.hoopWidth / 2 - 15, h.y + 70);
+      ctx.lineTo(h.x + this.hoopWidth / 2, h.y);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.fill();
       ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+      ctx.stroke();
       ctx.beginPath();
-      for (let x = -h.radius + 10; x <= h.radius - 10; x += 15) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x * 0.7, 40);
-      }
+      ctx.ellipse(h.x, h.y, this.hoopWidth / 2, 10, 0, Math.PI, 0);
+      ctx.strokeStyle = "#7B1FA2";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(h.x, h.y, this.hoopWidth / 2, 10, 0, 0, Math.PI);
+      ctx.strokeStyle = h.color;
+      ctx.lineWidth = 6;
+      ctx.stroke();
+      ctx.fillStyle = h.color;
+      ctx.beginPath();
+      ctx.arc(h.x - this.hoopWidth / 2, h.y, this.rimRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(h.x + this.hoopWidth / 2, h.y, this.rimRadius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    this.particles.forEach((p) => {
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    if (this.gameState !== "GAMEOVER" || this.particles.length > 0) {
+      ctx.save();
+      ctx.translate(this.ball.x, this.ball.y);
+      ctx.fillStyle = "#fff";
+      ctx.save();
+      ctx.translate(-this.ball.radius, -5);
+      ctx.rotate(this.ball.wingAngle);
+      ctx.beginPath();
+      ctx.ellipse(-10, 0, 15, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      ctx.save();
+      ctx.translate(this.ball.radius, -5);
+      ctx.rotate(-this.ball.wingAngle);
+      ctx.beginPath();
+      ctx.ellipse(10, 0, 15, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      ctx.rotate(this.ball.rotation);
+      ctx.beginPath();
+      ctx.arc(0, 0, this.ball.radius, 0, Math.PI * 2);
+      ctx.fillStyle = "#e65100";
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#333";
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, -this.ball.radius);
+      ctx.lineTo(0, this.ball.radius);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-this.ball.radius, 0);
+      ctx.lineTo(this.ball.radius, 0);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(-this.ball.radius, 0, this.ball.radius * 0.7, -Math.PI / 2, Math.PI / 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(this.ball.radius, 0, this.ball.radius * 0.7, Math.PI / 2, Math.PI * 1.5);
       ctx.stroke();
       ctx.restore();
-    });
-    ctx.save();
-    ctx.translate(this.ball.x, this.ball.y);
-    ctx.rotate(this.ball.rotation);
-    ctx.beginPath();
-    ctx.arc(0, 0, this.ball.radius, 0, Math.PI * 2);
-    ctx.fillStyle = "#e65100";
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "#333";
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(0, -this.ball.radius);
-    ctx.lineTo(0, this.ball.radius);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(-this.ball.radius, 0);
-    ctx.lineTo(this.ball.radius, 0);
-    ctx.stroke();
-    ctx.restore();
-  }
-  gameOver() {
-    this.gameState = "GAMEOVER";
-    this.tools.playSound("sfx_8");
-  }
-  onResize() {
-    const canvas = this.canvasRef?.nativeElement;
-    const container = this.gameContainer?.nativeElement;
-    if (canvas && container) {
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
-    }
-  }
-  stopLoop() {
-    if (this.animationFrameId !== null) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
     }
   }
   static \u0275fac = function FlappyDunkComponent_Factory(__ngFactoryType__) {
@@ -73846,73 +74031,100 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.gameContainer = _t.first);
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.canvasRef = _t.first);
     }
-  }, decls: 17, vars: 10, consts: [["gameContainer", ""], ["canvas", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], [1, "screen"], [1, "btn", 3, "click"]], template: function FlappyDunkComponent_Template(rf, ctx) {
+  }, decls: 22, vars: 14, consts: [["gameContainer", ""], ["canvas", ""], ["id", "game-container"], ["id", "ui-layer"], ["id", "scoreUI", 1, "hud"], ["id", "startScreen", 1, "screen"], [3, "innerHTML"], [1, "btn", 3, "click"], ["id", "gameOverScreen", 1, "screen"], [2, "color", "#ff5252", "text-shadow", "0 4px 0 #b71c1c, 0 8px 15px rgba(0,0,0,0.3)"], ["id", "finalScore", 2, "color", "#e91e63", "font-size", "1.5em"]], template: function FlappyDunkComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div")(1, "div", 2, 0);
-      \u0275\u0275element(3, "canvas", null, 1);
+      const _r1 = \u0275\u0275getCurrentView();
+      \u0275\u0275elementStart(0, "div", 2, 0);
+      \u0275\u0275element(2, "canvas", null, 1);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(5, "div", 3)(6, "div", 4)(7, "div");
-      \u0275\u0275text(8);
-      \u0275\u0275elementStart(9, "span");
-      \u0275\u0275text(10);
+      \u0275\u0275elementStart(4, "div", 3)(5, "div", 4);
+      \u0275\u0275text(6);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(11, "div");
-      \u0275\u0275text(12);
-      \u0275\u0275elementStart(13, "span");
-      \u0275\u0275text(14);
-      \u0275\u0275elementEnd()()()();
-      \u0275\u0275template(15, FlappyDunkComponent_Conditional_15_Template, 7, 3, "div", 5)(16, FlappyDunkComponent_Conditional_16_Template, 7, 4, "div", 5);
+      \u0275\u0275elementStart(7, "div", 5)(8, "h1");
+      \u0275\u0275text(9);
       \u0275\u0275elementEnd();
+      \u0275\u0275element(10, "p", 6);
+      \u0275\u0275elementStart(11, "button", 7);
+      \u0275\u0275listener("click", function FlappyDunkComponent_Template_button_click_11_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.startGame());
+      });
+      \u0275\u0275text(12);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(13, "div", 8)(14, "h1", 9);
+      \u0275\u0275text(15);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(16, "p");
+      \u0275\u0275text(17);
+      \u0275\u0275elementStart(18, "span", 10);
+      \u0275\u0275text(19);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(20, "button", 7);
+      \u0275\u0275listener("click", function FlappyDunkComponent_Template_button_click_20_listener() {
+        \u0275\u0275restoreView(_r1);
+        return \u0275\u0275resetView(ctx.initGameState());
+      });
+      \u0275\u0275text(21);
+      \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
-      \u0275\u0275classMapInterpolate2("flappy-dunk-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
-      \u0275\u0275advance(8);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].score) || "Score: ", " ");
+      \u0275\u0275advance(5);
+      \u0275\u0275classProp("hidden", ctx.gameState === "START" || ctx.gameState === "GAMEOVER");
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate1(" ", ctx.gamePoints, " ");
+      \u0275\u0275advance();
+      \u0275\u0275classProp("hidden", ctx.gameState !== "START");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].title) || "Flappy Dunk");
+      \u0275\u0275advance();
+      \u0275\u0275property("innerHTML", (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].instructions) || "Tap to flap.<br>Dunk through the hoops.<br>Don't miss!", \u0275\u0275sanitizeHtml);
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].tapToPlay) || "TAP TO PLAY");
+      \u0275\u0275advance();
+      \u0275\u0275classProp("hidden", ctx.gameState !== "GAMEOVER");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate1(" ", (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].gameOver) || "GAME OVER", " ");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate1(" ", (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].scoreLabel) || "Score: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.gamePoints);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].best) || "Best: ", " ");
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.bestScore);
-      \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "START" ? 15 : -1);
-      \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "GAMEOVER" ? 16 : -1);
+      \u0275\u0275textInterpolate((ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].playAgain) || "PLAY AGAIN");
     }
-  }, dependencies: [CommonModule], styles: ["\n\n.flappy-dunk-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #f5e4c3;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\ncanvas[_ngcontent-%COMP%] {\n  display: block;\n  background-color: #f5e4c3;\n  background-image:\n    linear-gradient(rgba(0, 0, 0, 0.05) 2px, transparent 2px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.05) 2px,\n      transparent 2px),\n    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.03) 1px,\n      transparent 1px);\n  background-size:\n    100px 100px,\n    100px 100px,\n    20px 20px,\n    20px 20px;\n  background-position:\n    -2px -2px,\n    -2px -2px,\n    -1px -1px,\n    -1px -1px;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  font-size: 1.8em;\n  font-weight: 800;\n  color: #333;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.65);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  color: #f5e4c3;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 14px 38px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #e65100,\n      #ff8f00);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=flappy_dunk.component.css.map */"] });
+  }, dependencies: [CommonModule], styles: ["\n\n[_nghost-%COMP%] {\n  display: block;\n  width: 100vw;\n  height: calc(100vh - 70px);\n  --bg-color: #f5e4c3;\n  background-color: var(--bg-color);\n  overflow: hidden;\n  touch-action: none;\n  -webkit-user-select: none;\n  user-select: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\ncanvas[_ngcontent-%COMP%] {\n  display: block;\n  background-color: var(--bg-color);\n  background-image:\n    linear-gradient(rgba(0, 0, 0, 0.05) 2px, transparent 2px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.05) 2px,\n      transparent 2px),\n    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.03) 1px,\n      transparent 1px);\n  background-size:\n    100px 100px,\n    100px 100px,\n    20px 20px,\n    20px 20px;\n  background-position:\n    -2px -2px,\n    -2px -2px,\n    -1px -1px,\n    -1px -1px;\n}\n#ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 20%;\n  left: 50%;\n  transform: translateX(-50%);\n  font-size: 4em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 0px 4px 0px #ccc, 0px 6px 10px rgba(0, 0, 0, 0.2);\n  transition: transform 0.1s;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(245, 228, 195, 0.85);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\n.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\nh1[_ngcontent-%COMP%] {\n  font-size: 3.5em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  text-shadow: 0 4px 0 #ff4081, 0 8px 15px rgba(0, 0, 0, 0.3);\n  text-align: center;\n}\np[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  color: #555;\n  margin-bottom: 30px;\n  text-align: center;\n  font-weight: bold;\n}\n.btn[_ngcontent-%COMP%] {\n  background: #e91e63;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 0 #880e4f, 0 10px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: translateY(6px);\n  box-shadow: 0 0 0 #880e4f, 0 4px 5px rgba(0, 0, 0, 0.3);\n}\n  .swish-text {\n  position: absolute;\n  color: #FFEB3B;\n  font-size: 2em;\n  font-weight: bold;\n  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n  pointer-events: none;\n  animation: _ngcontent-%COMP%_floatUp 1s ease-out forwards;\n  z-index: 15;\n}\n@keyframes _ngcontent-%COMP%_floatUp {\n  0% {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-50px) scale(1.5);\n  }\n}\n/*# sourceMappingURL=flappy_dunk.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FlappyDunkComponent, [{
     type: Component,
-    args: [{ selector: "app-flappy-dunk", standalone: true, imports: [CommonModule], template: `<div class="flappy-dunk-wrapper {{tools.themeColor}} {{tools.fontSize}}">
-  <div id="game-container" #gameContainer>
+    args: [{ selector: "app-flappy-dunk", standalone: true, imports: [CommonModule], template: `<div id="game-container" #gameContainer>
     <canvas #canvas></canvas>
-  </div>
-
-  <div class="ui-layer">
-    <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.best || 'Best: '}} <span>{{bestScore}}</span></div>
-    </div>
-  </div>
-
-  @if (gameState === 'START') {
-    <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.flappy_dunk_title || 'Flappy Dunk'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.flappy_dunk_inst || 'Tap to make the ball fly and score through the hoops!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
-    </div>
-  }
-
-  @if (gameState === 'GAMEOVER') {
-    <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.playAgain || 'Play Again'}}</button>
-    </div>
-  }
 </div>
-`, styles: ["/* src/app/games/flappy_dunk/flappy_dunk.component.css */\n.flappy-dunk-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #f5e4c3;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\ncanvas {\n  display: block;\n  background-color: #f5e4c3;\n  background-image:\n    linear-gradient(rgba(0, 0, 0, 0.05) 2px, transparent 2px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.05) 2px,\n      transparent 2px),\n    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.03) 1px,\n      transparent 1px);\n  background-size:\n    100px 100px,\n    100px 100px,\n    20px 20px,\n    20px 20px;\n  background-position:\n    -2px -2px,\n    -2px -2px,\n    -1px -1px,\n    -1px -1px;\n}\n.ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  font-size: 1.8em;\n  font-weight: 800;\n  color: #333;\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.65);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);\n}\n.screen p {\n  font-size: 1.3em;\n  color: #f5e4c3;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn {\n  padding: 14px 38px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #e65100,\n      #ff8f00);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=flappy_dunk.component.css.map */\n"] }]
+
+<div id="ui-layer">
+    <!-- Game Score -->
+    <div class="hud" id="scoreUI" [class.hidden]="gameState === 'START' || gameState === 'GAMEOVER'">
+        {{gamePoints}}
+    </div>
+</div>
+
+<!-- Menus -->
+<div id="startScreen" class="screen" [class.hidden]="gameState !== 'START'">
+    <h1>{{tools.flappy_dunk[tools.lang]?.title || 'Flappy Dunk'}}</h1>
+    <p [innerHTML]="tools.flappy_dunk[tools.lang]?.instructions || 'Tap to flap.<br>Dunk through the hoops.<br>Don\\'t miss!'"></p>
+    <button class="btn" (click)="startGame()">{{tools.flappy_dunk[tools.lang]?.tapToPlay || 'TAP TO PLAY'}}</button>
+</div>
+
+<div id="gameOverScreen" class="screen" [class.hidden]="gameState !== 'GAMEOVER'">
+    <h1 style="color: #ff5252; text-shadow: 0 4px 0 #b71c1c, 0 8px 15px rgba(0,0,0,0.3);">
+        {{tools.flappy_dunk[tools.lang]?.gameOver || 'GAME OVER'}}
+    </h1>
+    <p>
+        {{tools.flappy_dunk[tools.lang]?.scoreLabel || 'Score: '}} 
+        <span id="finalScore" style="color: #e91e63; font-size: 1.5em;">{{gamePoints}}</span>
+    </p>
+    <button class="btn" (click)="initGameState()">{{tools.flappy_dunk[tools.lang]?.playAgain || 'PLAY AGAIN'}}</button>
+</div>
+`, styles: ["/* src/app/games/flappy_dunk/flappy_dunk.component.css */\n:host {\n  display: block;\n  width: 100vw;\n  height: calc(100vh - 70px);\n  --bg-color: #f5e4c3;\n  background-color: var(--bg-color);\n  overflow: hidden;\n  touch-action: none;\n  -webkit-user-select: none;\n  user-select: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\ncanvas {\n  display: block;\n  background-color: var(--bg-color);\n  background-image:\n    linear-gradient(rgba(0, 0, 0, 0.05) 2px, transparent 2px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.05) 2px,\n      transparent 2px),\n    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.03) 1px,\n      transparent 1px);\n  background-size:\n    100px 100px,\n    100px 100px,\n    20px 20px,\n    20px 20px;\n  background-position:\n    -2px -2px,\n    -2px -2px,\n    -1px -1px,\n    -1px -1px;\n}\n#ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  position: absolute;\n  top: 20%;\n  left: 50%;\n  transform: translateX(-50%);\n  font-size: 4em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 0px 4px 0px #ccc, 0px 6px 10px rgba(0, 0, 0, 0.2);\n  transition: transform 0.1s;\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(245, 228, 195, 0.85);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\n.hidden {\n  display: none !important;\n}\nh1 {\n  font-size: 3.5em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  text-shadow: 0 4px 0 #ff4081, 0 8px 15px rgba(0, 0, 0, 0.3);\n  text-align: center;\n}\np {\n  font-size: 1.5em;\n  color: #555;\n  margin-bottom: 30px;\n  text-align: center;\n  font-weight: bold;\n}\n.btn {\n  background: #e91e63;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 0 #880e4f, 0 10px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn:active {\n  transform: translateY(6px);\n  box-shadow: 0 0 0 #880e4f, 0 4px 5px rgba(0, 0, 0, 0.3);\n}\n::ng-deep .swish-text {\n  position: absolute;\n  color: #FFEB3B;\n  font-size: 2em;\n  font-weight: bold;\n  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n  pointer-events: none;\n  animation: floatUp 1s ease-out forwards;\n  z-index: 15;\n}\n@keyframes floatUp {\n  0% {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-50px) scale(1.5);\n  }\n}\n/*# sourceMappingURL=flappy_dunk.component.css.map */\n"] }]
   }], null, { gameContainer: [{
     type: ViewChild,
     args: ["gameContainer"]
@@ -73922,7 +74134,7 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FlappyDunkComponent, { className: "FlappyDunkComponent", filePath: "src/app/games/flappy_dunk/flappy_dunk.component.ts", lineNumber: 20 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FlappyDunkComponent, { className: "FlappyDunkComponent", filePath: "src/app/games/flappy_dunk/flappy_dunk.component.ts", lineNumber: 31 });
 })();
 
 // src/app/games/helix_jump/helix_jump.component.ts
@@ -74331,26 +74543,26 @@ var HelixJumpComponent = class _HelixJumpComponent {
 })();
 
 // src/app/games/magic_sort/magic_sort.component.ts
-function MagicSortComponent_For_15_For_3_Template(rf, ctx) {
+function MagicSortComponent_For_11_For_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 10);
+    \u0275\u0275element(0, "div", 14);
   }
   if (rf & 2) {
     const color_r4 = ctx.$implicit;
     \u0275\u0275styleProp("background-color", color_r4);
   }
 }
-function MagicSortComponent_For_15_Template(rf, ctx) {
+function MagicSortComponent_For_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 7);
-    \u0275\u0275listener("click", function MagicSortComponent_For_15_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275listener("click", function MagicSortComponent_For_11_Template_div_click_0_listener() {
       const $index_r2 = \u0275\u0275restoreView(_r1).$index;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.onTubeClick($index_r2));
     });
-    \u0275\u0275elementStart(1, "div", 8);
-    \u0275\u0275repeaterCreate(2, MagicSortComponent_For_15_For_3_Template, 1, 2, "div", 9, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(1, "div", 12);
+    \u0275\u0275repeaterCreate(2, MagicSortComponent_For_11_For_3_Template, 1, 2, "div", 13, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -74362,17 +74574,17 @@ function MagicSortComponent_For_15_Template(rf, ctx) {
     \u0275\u0275repeater(tube_r5);
   }
 }
-function MagicSortComponent_Conditional_16_Template(rf, ctx) {
+function MagicSortComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 6)(1, "h1");
+    \u0275\u0275elementStart(0, "div", 8)(1, "h1");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 11);
-    \u0275\u0275listener("click", function MagicSortComponent_Conditional_16_Template_button_click_5_listener() {
+    \u0275\u0275elementStart(5, "button", 10);
+    \u0275\u0275listener("click", function MagicSortComponent_Conditional_12_Template_button_click_5_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.startLevel());
@@ -74383,66 +74595,73 @@ function MagicSortComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].magic_sort_title) || "Magic Sort");
+    \u0275\u0275textInterpolate((ctx_r2.tools.magic_sort[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.magic_sort[ctx_r2.tools.lang].title) || "Magic Sort");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].magic_sort_inst) || "Pour colored liquids between bottles until each is one color!");
+    \u0275\u0275textInterpolate((ctx_r2.tools.magic_sort[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.magic_sort[ctx_r2.tools.lang].instructions) || "Pour colored liquids between bottles until each is one color!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].startGame) || "Start Game");
-  }
-}
-function MagicSortComponent_Conditional_17_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 6)(1, "h1");
-    \u0275\u0275text(2);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p");
-    \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 11);
-    \u0275\u0275listener("click", function MagicSortComponent_Conditional_17_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r7);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.nextLevel());
-    });
-    \u0275\u0275text(6);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].levelCleared) || "Level Cleared!");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].score) || "Score: ", " ", ctx_r2.gamePoints, "");
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].nextLevel) || "Next Level");
+    \u0275\u0275textInterpolate((ctx_r2.tools.magic_sort[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.magic_sort[ctx_r2.tools.lang].startGame) || "START GAME");
   }
 }
 var MagicSortComponent = class _MagicSortComponent {
   tools = inject(ToolsService);
+  renderer = inject(Renderer2);
+  elRef = inject(ElementRef);
   gameState = "START";
-  gamePoints = 0;
   level = 1;
   tubes = [];
   selectedTubeIndex = null;
   initialTubesState = [];
   TUBE_CAPACITY = 4;
   COLORS = [
-    "#FF5252",
-    "#4CAF50",
+    "#F44336",
+    // Red
     "#2196F3",
+    // Blue
+    "#4CAF50",
+    // Green
     "#FFEB3B",
+    // Yellow
     "#9C27B0",
+    // Purple
     "#FF9800",
+    // Orange
     "#00BCD4",
+    // Cyan
     "#E91E63"
+    // Pink
   ];
+  stars = [];
   ngOnInit() {
     this.tools.setTitle("magic_sort");
     this.tools.actPage = "magic_sort";
   }
+  ngAfterViewInit() {
+    this.createStars();
+    this.startLevel();
+    this.gameState = "START";
+  }
   ngOnDestroy() {
-    this.tools.leaveMinigame("magic_sort", this.gamePoints, this.level);
+    this.stars.forEach((star) => {
+      if (star.parentNode) {
+        this.renderer.removeChild(star.parentNode, star);
+      }
+    });
+    this.tools.leaveMinigame("magic_sort", this.tools.sessionPoints);
+  }
+  createStars() {
+    for (let i = 0; i < 50; i++) {
+      let star = this.renderer.createElement("div");
+      this.renderer.addClass(star, "star");
+      const size = Math.random() * 4 + 1;
+      this.renderer.setStyle(star, "width", `${size}px`);
+      this.renderer.setStyle(star, "height", `${size}px`);
+      this.renderer.setStyle(star, "left", `${Math.random() * 100}vw`);
+      this.renderer.setStyle(star, "top", `${Math.random() * 100}vh`);
+      this.renderer.setStyle(star, "animationDuration", `${Math.random() * 2 + 1}s`);
+      this.renderer.setStyle(star, "animationDelay", `${Math.random() * 2}s`);
+      this.renderer.appendChild(this.elRef.nativeElement, star);
+      this.stars.push(star);
+    }
   }
   startLevel() {
     this.gameState = "PLAYING";
@@ -74450,11 +74669,14 @@ var MagicSortComponent = class _MagicSortComponent {
   }
   nextLevel() {
     this.level++;
+    this.tools.sessionPoints += 10;
+    this.tools.playSound("sfx_3");
     this.startLevel();
   }
   restartLevel() {
     this.tubes = JSON.parse(JSON.stringify(this.initialTubesState));
     this.selectedTubeIndex = null;
+    this.gameState = "PLAYING";
   }
   onTubeClick(index) {
     if (this.gameState !== "PLAYING")
@@ -74483,30 +74705,31 @@ var MagicSortComponent = class _MagicSortComponent {
       }
     }
   }
-  generateLevel(levelNum) {
-    const numColors = Math.min(3 + Math.floor((levelNum - 1) / 2), this.COLORS.length);
-    const numEmptyTubes = 2;
-    const totalTubes = numColors + numEmptyTubes;
-    let allBlocks = [];
+  generateLevel(lvl) {
+    const numColors = Math.min(3 + Math.floor(lvl / 3), this.COLORS.length);
+    const numEmpty = 2;
+    const totalTubes = numColors + numEmpty;
+    let colorPool = [];
     for (let i = 0; i < numColors; i++) {
-      for (let b = 0; b < this.TUBE_CAPACITY; b++) {
-        allBlocks.push(this.COLORS[i]);
+      for (let j = 0; j < this.TUBE_CAPACITY; j++) {
+        colorPool.push(this.COLORS[i]);
       }
     }
-    for (let i = allBlocks.length - 1; i > 0; i--) {
+    for (let i = colorPool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [allBlocks[i], allBlocks[j]] = [allBlocks[j], allBlocks[i]];
+      [colorPool[i], colorPool[j]] = [colorPool[j], colorPool[i]];
     }
     this.tubes = [];
-    let blockIdx = 0;
-    for (let i = 0; i < totalTubes; i++) {
-      const tube = [];
-      if (i < numColors) {
-        for (let b = 0; b < this.TUBE_CAPACITY; b++) {
-          tube.push(allBlocks[blockIdx++]);
-        }
+    let poolIndex = 0;
+    for (let i = 0; i < numColors; i++) {
+      let tube = [];
+      for (let j = 0; j < this.TUBE_CAPACITY; j++) {
+        tube.push(colorPool[poolIndex++]);
       }
       this.tubes.push(tube);
+    }
+    for (let i = 0; i < numEmpty; i++) {
+      this.tubes.push([]);
     }
     this.initialTubesState = JSON.parse(JSON.stringify(this.tubes));
     this.selectedTubeIndex = null;
@@ -74515,20 +74738,19 @@ var MagicSortComponent = class _MagicSortComponent {
     const tube = this.tubes[index];
     if (tube.length !== this.TUBE_CAPACITY)
       return false;
-    return tube.every((color) => color === tube[0]);
+    const firstColor = tube[0];
+    return tube.every((color) => color === firstColor);
   }
   canPour(srcIdx, tgtIdx) {
     const srcTube = this.tubes[srcIdx];
     const tgtTube = this.tubes[tgtIdx];
-    if (srcTube.length === 0)
+    if (srcTube.length === 0 || tgtTube.length === this.TUBE_CAPACITY)
       return false;
-    if (tgtTube.length >= this.TUBE_CAPACITY)
-      return false;
-    const colorToMove = srcTube[srcTube.length - 1];
     if (tgtTube.length === 0)
       return true;
+    const srcTopColor = srcTube[srcTube.length - 1];
     const tgtTopColor = tgtTube[tgtTube.length - 1];
-    return colorToMove === tgtTopColor;
+    return srcTopColor === tgtTopColor;
   }
   pour(srcIdx, tgtIdx) {
     const srcTube = this.tubes[srcIdx];
@@ -74553,102 +74775,102 @@ var MagicSortComponent = class _MagicSortComponent {
     const isWon = this.tubes.every((t, i) => t.length === 0 || this.isTubeComplete(i));
     if (isWon) {
       setTimeout(() => {
-        this.gamePoints += 25;
         this.gameState = "WIN";
-        this.tools.playSound("sfx_4");
       }, 300);
     }
   }
   static \u0275fac = function MagicSortComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MagicSortComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MagicSortComponent, selectors: [["app-magic-sort"]], decls: 18, vars: 10, consts: [[1, "header"], [1, "level-text"], [1, "controls"], [1, "icon-btn", 3, "click"], [1, "game-board"], [1, "tube-container", 3, "selected"], [1, "screen"], [1, "tube-container", 3, "click"], [1, "tube"], [1, "liquid-block", 3, "background-color"], [1, "liquid-block"], [1, "btn", 3, "click"]], template: function MagicSortComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MagicSortComponent, selectors: [["app-magic-sort"]], decls: 18, vars: 8, consts: [[1, "magic-sort-wrapper"], [1, "hud"], [1, "level-text"], ["id", "levelUI"], [1, "controls"], [1, "btn", 3, "click"], ["id", "game-board"], [1, "tube-wrapper", 3, "selected"], [1, "screen"], ["id", "winScreen", 1, "screen"], [1, "btn", "big-btn", 3, "click"], [1, "tube-wrapper", 3, "click"], [1, "tube"], [1, "segment", 3, "background-color"], [1, "segment"]], template: function MagicSortComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div")(1, "div", 0)(2, "div", 1);
+      \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
       \u0275\u0275text(3);
-      \u0275\u0275elementStart(4, "span");
+      \u0275\u0275elementStart(4, "span", 3);
       \u0275\u0275text(5);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(6, "div");
-      \u0275\u0275text(7, "\u{1FA99} ");
-      \u0275\u0275elementStart(8, "span");
-      \u0275\u0275text(9);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(10, "div", 2)(11, "button", 3);
-      \u0275\u0275listener("click", function MagicSortComponent_Template_button_click_11_listener() {
+      \u0275\u0275elementStart(6, "div", 4)(7, "button", 5);
+      \u0275\u0275listener("click", function MagicSortComponent_Template_button_click_7_listener() {
         return ctx.restartLevel();
       });
-      \u0275\u0275text(12);
+      \u0275\u0275text(8);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(13, "div", 4);
-      \u0275\u0275repeaterCreate(14, MagicSortComponent_For_15_Template, 4, 2, "div", 5, \u0275\u0275repeaterTrackByIndex);
+      \u0275\u0275elementStart(9, "div", 6);
+      \u0275\u0275repeaterCreate(10, MagicSortComponent_For_11_Template, 4, 2, "div", 7, \u0275\u0275repeaterTrackByIndex);
       \u0275\u0275elementEnd();
-      \u0275\u0275template(16, MagicSortComponent_Conditional_16_Template, 7, 3, "div", 6)(17, MagicSortComponent_Conditional_17_Template, 7, 4, "div", 6);
+      \u0275\u0275template(12, MagicSortComponent_Conditional_12_Template, 7, 3, "div", 8);
+      \u0275\u0275elementStart(13, "div", 9)(14, "h2");
+      \u0275\u0275text(15);
       \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(16, "button", 10);
+      \u0275\u0275listener("click", function MagicSortComponent_Template_button_click_16_listener() {
+        return ctx.nextLevel();
+      });
+      \u0275\u0275text(17);
+      \u0275\u0275elementEnd()()();
     }
     if (rf & 2) {
-      \u0275\u0275classMapInterpolate2("magic-sort-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(3);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].level) || "Level ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.magic_sort[ctx.tools.lang] == null ? null : ctx.tools.magic_sort[ctx.tools.lang].levelPrefix) || "LEVEL ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.level);
-      \u0275\u0275advance(4);
-      \u0275\u0275textInterpolate(ctx.gamePoints);
       \u0275\u0275advance(3);
-      \u0275\u0275textInterpolate1("\u{1F504} ", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].restart) || "Restart", "");
+      \u0275\u0275textInterpolate((ctx.tools.magic_sort[ctx.tools.lang] == null ? null : ctx.tools.magic_sort[ctx.tools.lang].restart) || "Restart");
       \u0275\u0275advance(2);
       \u0275\u0275repeater(ctx.tubes);
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(ctx.gameState === "START" ? 16 : -1);
+      \u0275\u0275conditional(ctx.gameState === "START" ? 12 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "WIN" ? 17 : -1);
+      \u0275\u0275classProp("hidden", ctx.gameState !== "WIN");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.magic_sort[ctx.tools.lang] == null ? null : ctx.tools.magic_sort[ctx.tools.lang].levelCleared) || "MAGIC SORTED!");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.magic_sort[ctx.tools.lang] == null ? null : ctx.tools.magic_sort[ctx.tools.lang].nextLevel) || "NEXT LEVEL");
     }
-  }, dependencies: [CommonModule], styles: ['\n\n.magic-sort-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  background:\n    radial-gradient(\n      circle at top,\n      #1a0b2e,\n      #3b1763);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: manipulation;\n  overflow: hidden;\n}\n.header[_ngcontent-%COMP%] {\n  width: 100%;\n  max-width: 600px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 20px;\n  box-sizing: border-box;\n  z-index: 10;\n}\n.level-text[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #FFEB3B;\n  text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);\n}\n.controls[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n}\n.icon-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.15);\n  border: 1px solid rgba(255, 255, 255, 0.3);\n  color: white;\n  padding: 8px 15px;\n  border-radius: 8px;\n  cursor: pointer;\n  font-weight: bold;\n  transition: background 0.2s;\n}\n.icon-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 255, 255, 0.3);\n}\n.game-board[_ngcontent-%COMP%] {\n  flex: 1;\n  width: 100%;\n  max-width: 600px;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  align-content: center;\n  gap: 30px;\n  padding: 20px;\n  box-sizing: border-box;\n}\n.tube-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  cursor: pointer;\n  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n.tube-container.selected[_ngcontent-%COMP%] {\n  transform: translateY(-20px);\n}\n.tube[_ngcontent-%COMP%] {\n  width: 60px;\n  height: 200px;\n  background: rgba(255, 255, 255, 0.1);\n  border: 4px solid rgba(255, 255, 255, 0.5);\n  border-top: none;\n  border-radius: 0 0 30px 30px;\n  display: flex;\n  flex-direction: column-reverse;\n  overflow: hidden;\n  position: relative;\n  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.5);\n}\n.tube[_ngcontent-%COMP%]::after {\n  content: "";\n  position: absolute;\n  top: 0;\n  left: 5px;\n  width: 15px;\n  height: 90%;\n  background:\n    linear-gradient(\n      to right,\n      rgba(255, 255, 255, 0.2),\n      transparent);\n  border-radius: 10px;\n  pointer-events: none;\n}\n.liquid-block[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 25%;\n  transition: height 0.3s;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 14px 40px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #FFEB3B,\n      #FBC02D);\n  color: #222;\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=magic_sort.component.css.map */'] });
+  }, dependencies: [CommonModule], styles: ['\n\n[_nghost-%COMP%] {\n  display: block;\n  width: 100vw;\n  height: calc(100vh - 70px);\n  --bg-top: #1a0b2e;\n  --bg-bottom: #3b1763;\n  --tube-bg: rgba(255, 255, 255, 0.1);\n  --tube-border: rgba(255, 255, 255, 0.5);\n  background:\n    radial-gradient(\n      circle at top,\n      var(--bg-top),\n      var(--bg-bottom));\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: manipulation;\n  overflow: hidden;\n}\n.magic-sort-wrapper[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  position: relative;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  width: 100%;\n  max-width: 500px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 20px;\n  box-sizing: border-box;\n  z-index: 10;\n  gap: 15px;\n  flex-wrap: wrap;\n}\nh1[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 2em;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);\n  text-align: center;\n}\n.level-text[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #FFEB3B;\n  text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);\n}\n.controls[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n}\n.btn[_ngcontent-%COMP%] {\n  background: #9C27B0;\n  color: white;\n  border: 2px solid #E1BEE7;\n  padding: 10px 20px;\n  border-radius: 20px;\n  font-size: 1.1em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(156, 39, 176, 0.5);\n  transition: transform 0.1s, background 0.2s;\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n.btn[_ngcontent-%COMP%]:hover {\n  background: #7B1FA2;\n}\n.big-btn[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  padding: 15px 40px;\n}\n#game-board[_ngcontent-%COMP%] {\n  flex: 1;\n  width: 100%;\n  max-width: 500px;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  align-items: center;\n  align-content: center;\n  gap: 15px;\n  padding: 20px;\n  box-sizing: border-box;\n}\n.tube-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 60px;\n  height: 200px;\n  cursor: pointer;\n  transition: transform 0.2s ease-in-out;\n}\n.tube-wrapper.selected[_ngcontent-%COMP%] {\n  transform: translateY(-20px);\n}\n.tube[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  background: var(--tube-bg);\n  border: 3px solid var(--tube-border);\n  border-top: none;\n  border-bottom-left-radius: 30px;\n  border-bottom-right-radius: 30px;\n  display: flex;\n  flex-direction: column-reverse;\n  overflow: hidden;\n  box-sizing: border-box;\n  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.2), 0 10px 20px rgba(0, 0, 0, 0.4);\n}\n.tube[_ngcontent-%COMP%]::before {\n  content: "";\n  position: absolute;\n  top: -5px;\n  left: -5px;\n  right: -5px;\n  height: 10px;\n  border: 3px solid var(--tube-border);\n  border-radius: 10px;\n  background: rgba(255, 255, 255, 0.1);\n}\n.segment[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 25%;\n  transition: height 0.3s ease-in-out;\n  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3);\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(26, 11, 46, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\n.screen[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 3em;\n  color: #FFEB3B;\n  margin-bottom: 20px;\n  text-shadow: 0 0 20px rgba(255, 235, 59, 0.8);\n  text-align: center;\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  color: #ddd;\n  margin-bottom: 30px;\n  text-align: center;\n  font-weight: bold;\n  padding: 0 20px;\n}\n  .star {\n  position: absolute;\n  background: white;\n  border-radius: 50%;\n  animation: _ngcontent-%COMP%_twinkle infinite ease-in-out;\n  z-index: 1;\n  pointer-events: none;\n}\n@keyframes _ngcontent-%COMP%_twinkle {\n  0%, 100% {\n    opacity: 0.2;\n    transform: scale(0.8);\n  }\n  50% {\n    opacity: 1;\n    transform: scale(1.2);\n  }\n}\n/*# sourceMappingURL=magic_sort.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MagicSortComponent, [{
     type: Component,
-    args: [{ selector: "app-magic-sort", standalone: true, imports: [CommonModule], template: `<div class="magic-sort-wrapper {{tools.themeColor}} {{tools.fontSize}}">
-  <div class="header">
-    <div class="level-text">{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
-    <div>\u{1FA99} <span>{{gamePoints}}</span></div>
-    <div class="controls">
-      <button class="icon-btn" (click)="restartLevel()">\u{1F504} {{tools.minigames[tools.lang]?.restart || 'Restart'}}</button>
-    </div>
-  </div>
-
-  <div class="game-board">
-    @for (tube of tubes; track $index) {
-      <div 
-        class="tube-container" 
-        [class.selected]="selectedTubeIndex === $index"
-        (click)="onTubeClick($index)">
-        <div class="tube">
-          @for (color of tube; track $index) {
-            <div class="liquid-block" [style.background-color]="color"></div>
-          }
+    args: [{ selector: "app-magic-sort", standalone: true, imports: [CommonModule], template: `<!-- Background Stars will be appended to this container -->
+<div class="magic-sort-wrapper">
+    <div class="hud">
+        <div class="level-text">{{tools.magic_sort[tools.lang]?.levelPrefix || 'LEVEL '}} <span id="levelUI">{{level}}</span></div>
+        <div class="controls">
+            <button class="btn" (click)="restartLevel()">{{tools.magic_sort[tools.lang]?.restart || 'Restart'}}</button>
         </div>
-      </div>
+    </div>
+
+    <div id="game-board">
+        @for (tube of tubes; track $index) {
+            <div 
+                class="tube-wrapper" 
+                [class.selected]="selectedTubeIndex === $index"
+                (click)="onTubeClick($index)">
+                <div class="tube">
+                    @for (color of tube; track $index) {
+                        <div class="segment" [style.background-color]="color"></div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (gameState === 'START') {
+        <div class="screen">
+            <h1>{{tools.magic_sort[tools.lang]?.title || 'Magic Sort'}}</h1>
+            <p>{{tools.magic_sort[tools.lang]?.instructions || 'Pour colored liquids between bottles until each is one color!'}}</p>
+            <button class="btn big-btn" (click)="startLevel()">{{tools.magic_sort[tools.lang]?.startGame || 'START GAME'}}</button>
+        </div>
     }
-  </div>
 
-  @if (gameState === 'START') {
-    <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.magic_sort_title || 'Magic Sort'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.magic_sort_inst || 'Pour colored liquids between bottles until each is one color!'}}</p>
-      <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+    <!-- Win Screen -->
+    <div id="winScreen" class="screen" [class.hidden]="gameState !== 'WIN'">
+        <h2>{{tools.magic_sort[tools.lang]?.levelCleared || 'MAGIC SORTED!'}}</h2>
+        <button class="btn big-btn" (click)="nextLevel()">{{tools.magic_sort[tools.lang]?.nextLevel || 'NEXT LEVEL'}}</button>
     </div>
-  }
-
-  @if (gameState === 'WIN') {
-    <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
-    </div>
-  }
 </div>
-`, styles: ['/* src/app/games/magic_sort/magic_sort.component.css */\n.magic-sort-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  background:\n    radial-gradient(\n      circle at top,\n      #1a0b2e,\n      #3b1763);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: manipulation;\n  overflow: hidden;\n}\n.header {\n  width: 100%;\n  max-width: 600px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 20px;\n  box-sizing: border-box;\n  z-index: 10;\n}\n.level-text {\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #FFEB3B;\n  text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);\n}\n.controls {\n  display: flex;\n  gap: 15px;\n}\n.icon-btn {\n  background: rgba(255, 255, 255, 0.15);\n  border: 1px solid rgba(255, 255, 255, 0.3);\n  color: white;\n  padding: 8px 15px;\n  border-radius: 8px;\n  cursor: pointer;\n  font-weight: bold;\n  transition: background 0.2s;\n}\n.icon-btn:hover {\n  background: rgba(255, 255, 255, 0.3);\n}\n.game-board {\n  flex: 1;\n  width: 100%;\n  max-width: 600px;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  align-content: center;\n  gap: 30px;\n  padding: 20px;\n  box-sizing: border-box;\n}\n.tube-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  cursor: pointer;\n  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n.tube-container.selected {\n  transform: translateY(-20px);\n}\n.tube {\n  width: 60px;\n  height: 200px;\n  background: rgba(255, 255, 255, 0.1);\n  border: 4px solid rgba(255, 255, 255, 0.5);\n  border-top: none;\n  border-radius: 0 0 30px 30px;\n  display: flex;\n  flex-direction: column-reverse;\n  overflow: hidden;\n  position: relative;\n  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.5);\n}\n.tube::after {\n  content: "";\n  position: absolute;\n  top: 0;\n  left: 5px;\n  width: 15px;\n  height: 90%;\n  background:\n    linear-gradient(\n      to right,\n      rgba(255, 255, 255, 0.2),\n      transparent);\n  border-radius: 10px;\n  pointer-events: none;\n}\n.liquid-block {\n  width: 100%;\n  height: 25%;\n  transition: height 0.3s;\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);\n}\n.screen p {\n  font-size: 1.3em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn {\n  padding: 14px 40px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #FFEB3B,\n      #FBC02D);\n  color: #222;\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=magic_sort.component.css.map */\n'] }]
+`, styles: ['/* src/app/games/magic_sort/magic_sort.component.css */\n:host {\n  display: block;\n  width: 100vw;\n  height: calc(100vh - 70px);\n  --bg-top: #1a0b2e;\n  --bg-bottom: #3b1763;\n  --tube-bg: rgba(255, 255, 255, 0.1);\n  --tube-border: rgba(255, 255, 255, 0.5);\n  background:\n    radial-gradient(\n      circle at top,\n      var(--bg-top),\n      var(--bg-bottom));\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: manipulation;\n  overflow: hidden;\n}\n.magic-sort-wrapper {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  position: relative;\n  z-index: 10;\n}\n.hud {\n  width: 100%;\n  max-width: 500px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  padding: 20px;\n  box-sizing: border-box;\n  z-index: 10;\n  gap: 15px;\n  flex-wrap: wrap;\n}\nh1 {\n  margin: 0;\n  font-size: 2em;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);\n  text-align: center;\n}\n.level-text {\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #FFEB3B;\n  text-shadow: 0 0 10px rgba(255, 235, 59, 0.5);\n}\n.controls {\n  display: flex;\n  gap: 10px;\n}\n.btn {\n  background: #9C27B0;\n  color: white;\n  border: 2px solid #E1BEE7;\n  padding: 10px 20px;\n  border-radius: 20px;\n  font-size: 1.1em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(156, 39, 176, 0.5);\n  transition: transform 0.1s, background 0.2s;\n}\n.btn:active {\n  transform: scale(0.95);\n}\n.btn:hover {\n  background: #7B1FA2;\n}\n.big-btn {\n  font-size: 1.5em;\n  padding: 15px 40px;\n}\n#game-board {\n  flex: 1;\n  width: 100%;\n  max-width: 500px;\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  align-items: center;\n  align-content: center;\n  gap: 15px;\n  padding: 20px;\n  box-sizing: border-box;\n}\n.tube-wrapper {\n  position: relative;\n  width: 60px;\n  height: 200px;\n  cursor: pointer;\n  transition: transform 0.2s ease-in-out;\n}\n.tube-wrapper.selected {\n  transform: translateY(-20px);\n}\n.tube {\n  width: 100%;\n  height: 100%;\n  background: var(--tube-bg);\n  border: 3px solid var(--tube-border);\n  border-top: none;\n  border-bottom-left-radius: 30px;\n  border-bottom-right-radius: 30px;\n  display: flex;\n  flex-direction: column-reverse;\n  overflow: hidden;\n  box-sizing: border-box;\n  box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.2), 0 10px 20px rgba(0, 0, 0, 0.4);\n}\n.tube::before {\n  content: "";\n  position: absolute;\n  top: -5px;\n  left: -5px;\n  right: -5px;\n  height: 10px;\n  border: 3px solid var(--tube-border);\n  border-radius: 10px;\n  background: rgba(255, 255, 255, 0.1);\n}\n.segment {\n  width: 100%;\n  height: 25%;\n  transition: height 0.3s ease-in-out;\n  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.3);\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(26, 11, 46, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.hidden {\n  display: none !important;\n}\n.screen h2 {\n  font-size: 3em;\n  color: #FFEB3B;\n  margin-bottom: 20px;\n  text-shadow: 0 0 20px rgba(255, 235, 59, 0.8);\n  text-align: center;\n}\n.screen p {\n  font-size: 1.5em;\n  color: #ddd;\n  margin-bottom: 30px;\n  text-align: center;\n  font-weight: bold;\n  padding: 0 20px;\n}\n::ng-deep .star {\n  position: absolute;\n  background: white;\n  border-radius: 50%;\n  animation: twinkle infinite ease-in-out;\n  z-index: 1;\n  pointer-events: none;\n}\n@keyframes twinkle {\n  0%, 100% {\n    opacity: 0.2;\n    transform: scale(0.8);\n  }\n  50% {\n    opacity: 1;\n    transform: scale(1.2);\n  }\n}\n/*# sourceMappingURL=magic_sort.component.css.map */\n'] }]
   }], null, null);
 })();
 (() => {
@@ -75106,7 +75328,7 @@ var MobControlComponent = class _MobControlComponent {
 // src/app/games/paper_io/paper_io.component.ts
 var _c07 = ["gameContainer"];
 var _c14 = ["canvas"];
-function PaperIoComponent_Conditional_15_For_2_Template(rf, ctx) {
+function PaperIoComponent_Conditional_11_For_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 8)(1, "span");
     \u0275\u0275text(2);
@@ -75124,10 +75346,10 @@ function PaperIoComponent_Conditional_15_For_2_Template(rf, ctx) {
     \u0275\u0275textInterpolate(entry_r1.pct);
   }
 }
-function PaperIoComponent_Conditional_15_Template(rf, ctx) {
+function PaperIoComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275repeaterCreate(1, PaperIoComponent_Conditional_15_For_2_Template, 5, 4, "div", 7, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, PaperIoComponent_Conditional_11_For_2_Template, 5, 4, "div", 7, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -75136,7 +75358,7 @@ function PaperIoComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r1.leaderboard);
   }
 }
-function PaperIoComponent_Conditional_16_Template(rf, ctx) {
+function PaperIoComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 6)(1, "h1");
@@ -75146,7 +75368,7 @@ function PaperIoComponent_Conditional_16_Template(rf, ctx) {
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "button", 9);
-    \u0275\u0275listener("click", function PaperIoComponent_Conditional_16_Template_button_click_5_listener() {
+    \u0275\u0275listener("click", function PaperIoComponent_Conditional_12_Template_button_click_5_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startGame());
@@ -75164,7 +75386,7 @@ function PaperIoComponent_Conditional_16_Template(rf, ctx) {
     \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
   }
 }
-function PaperIoComponent_Conditional_17_Template(rf, ctx) {
+function PaperIoComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 6)(1, "h1");
@@ -75174,7 +75396,7 @@ function PaperIoComponent_Conditional_17_Template(rf, ctx) {
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "button", 9);
-    \u0275\u0275listener("click", function PaperIoComponent_Conditional_17_Template_button_click_5_listener() {
+    \u0275\u0275listener("click", function PaperIoComponent_Conditional_13_Template_button_click_5_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startGame());
@@ -75199,7 +75421,6 @@ var PaperIoComponent = class _PaperIoComponent {
   canvasRef;
   gameState = "START";
   gamePoints = 0;
-  sessionPoints = 0;
   leaderboard = [];
   GRID_SIZE = 120;
   TILE_SIZE = 25;
@@ -75257,7 +75478,7 @@ var PaperIoComponent = class _PaperIoComponent {
       canvas.removeEventListener("touchmove", this.onTouchMoveBound);
       canvas.removeEventListener("touchend", this.onTouchEndBound);
     }
-    this.tools.leaveMinigame("paper_io", this.sessionPoints);
+    this.tools.leaveMinigame("paper_io", this.tools.sessionPoints);
   }
   loadData() {
     return __async(this, null, function* () {
@@ -75487,7 +75708,7 @@ var PaperIoComponent = class _PaperIoComponent {
     p.scoreCount = 0;
     if (id === 0) {
       this.ngZone.run(() => {
-        this.sessionPoints += this.gamePoints;
+        this.tools.sessionPoints += this.gamePoints;
         this.gameState = "GAMEOVER";
         this.tools.playSound("sfx_8");
       });
@@ -75981,7 +76202,7 @@ var PaperIoComponent = class _PaperIoComponent {
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.gameContainer = _t.first);
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.canvasRef = _t.first);
     }
-  }, decls: 18, vars: 10, consts: [["gameContainer", ""], ["canvas", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], [1, "leaderboard"], [1, "screen"], [1, "lb-entry", 3, "color"], [1, "lb-entry"], [1, "btn", 3, "click"]], template: function PaperIoComponent_Template(rf, ctx) {
+  }, decls: 14, vars: 9, consts: [["gameContainer", ""], ["canvas", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], [1, "leaderboard"], [1, "screen"], [1, "lb-entry", 3, "color"], [1, "lb-entry"], [1, "btn", 3, "click"]], template: function PaperIoComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div")(1, "div", 2, 0);
       \u0275\u0275element(3, "canvas", null, 1);
@@ -75990,15 +76211,10 @@ var PaperIoComponent = class _PaperIoComponent {
       \u0275\u0275text(8);
       \u0275\u0275elementStart(9, "span");
       \u0275\u0275text(10);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(11, "div");
-      \u0275\u0275text(12, "\u{1FA99} ");
-      \u0275\u0275elementStart(13, "span");
-      \u0275\u0275text(14);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(15, PaperIoComponent_Conditional_15_Template, 3, 0, "div", 5);
+      \u0275\u0275template(11, PaperIoComponent_Conditional_11_Template, 3, 0, "div", 5);
       \u0275\u0275elementEnd();
-      \u0275\u0275template(16, PaperIoComponent_Conditional_16_Template, 7, 3, "div", 6)(17, PaperIoComponent_Conditional_17_Template, 7, 4, "div", 6);
+      \u0275\u0275template(12, PaperIoComponent_Conditional_12_Template, 7, 3, "div", 6)(13, PaperIoComponent_Conditional_13_Template, 7, 4, "div", 6);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
@@ -76007,14 +76223,12 @@ var PaperIoComponent = class _PaperIoComponent {
       \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].score) || "Score: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.gamePoints);
-      \u0275\u0275advance(4);
-      \u0275\u0275textInterpolate(ctx.sessionPoints);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "PLAYING" ? 15 : -1);
+      \u0275\u0275conditional(ctx.gameState === "PLAYING" ? 11 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "START" ? 16 : -1);
+      \u0275\u0275conditional(ctx.gameState === "START" ? 12 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "GAMEOVER" ? 17 : -1);
+      \u0275\u0275conditional(ctx.gameState === "GAMEOVER" ? 13 : -1);
     }
   }, dependencies: [CommonModule], styles: ['\n\n.paper-io-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  background-color: #f0f4f8;\n  overflow: hidden;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\ncanvas[_ngcontent-%COMP%] {\n  display: block;\n  width: 100%;\n  height: 100%;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  padding: 15px 25px;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #2c3e50;\n  background:\n    linear-gradient(\n      180deg,\n      rgba(255, 255, 255, 0.7) 0%,\n      transparent 100%);\n}\n.leaderboard[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 70px;\n  right: 20px;\n  background: rgba(255, 255, 255, 0.9);\n  padding: 10px 15px;\n  border-radius: 8px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);\n  pointer-events: auto;\n  min-width: 160px;\n  max-height: 40vh;\n  overflow-y: auto;\n  font-weight: bold;\n  color: #2c3e50;\n}\n.lb-entry[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  margin-bottom: 5px;\n  font-size: 0.95em;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 14px 40px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #2196F3,\n      #1976D2);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=paper_io.component.css.map */'] });
 };
@@ -76029,7 +76243,6 @@ var PaperIoComponent = class _PaperIoComponent {
   <div class="ui-layer">
     <div class="hud">
       <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
-      <div>\u{1FA99} <span>{{sessionPoints}}</span></div>
     </div>
 
     @if (gameState === 'PLAYING') {
@@ -76901,7 +77114,7 @@ var StackColorsComponent = class _StackColorsComponent {
 })();
 
 // src/app/pages/minigames/minigames.component.ts
-var _forTrack05 = ($index, $item) => $item.id;
+var _forTrack04 = ($index, $item) => $item.id;
 function MinigamesComponent_For_3_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 6);
@@ -76974,7 +77187,7 @@ var MinigamesComponent = class _MinigamesComponent {
   static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MinigamesComponent, selectors: [["app-minigames"]], decls: 4, vars: 3, consts: [[1, "container"], [3, "class"], [3, "click"], [1, "menu-icon", "coin-glow", 3, "src", "alt"], [1, "card-content"], [1, "card-title"], [1, "card-sub"]], template: function MinigamesComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div");
-      \u0275\u0275repeaterCreate(2, MinigamesComponent_For_3_Template, 6, 7, "div", 1, _forTrack05);
+      \u0275\u0275repeaterCreate(2, MinigamesComponent_For_3_Template, 6, 7, "div", 1, _forTrack04);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -77010,6 +77223,137 @@ var MinigamesComponent = class _MinigamesComponent {
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MinigamesComponent, { className: "MinigamesComponent", filePath: "src/app/pages/minigames/minigames.component.ts", lineNumber: 16 });
+})();
+
+// src/app/pages/stats/stats.component.ts
+var StatsComponent = class _StatsComponent {
+  tools = inject(ToolsService);
+  ngOnInit() {
+    this.tools.setTitle("stats");
+    this.tools.actPage = "stats";
+  }
+  static \u0275fac = function StatsComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _StatsComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatsComponent, selectors: [["app-stats"]], decls: 30, vars: 29, consts: [[1, "container"], [1, "stats-title"], [1, "stats-grid"], [1, "stat-label"], [1, "stat-value"], [1, "stat-value", "text-gold"], [1, "stat-value", "text-orange"], [1, "stat-value", "text-blue"]], template: function StatsComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "h2", 1);
+      \u0275\u0275text(3);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(4, "div", 2)(5, "div")(6, "div", 3);
+      \u0275\u0275text(7);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(8, "div", 4);
+      \u0275\u0275text(9);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(10, "div")(11, "div", 3);
+      \u0275\u0275text(12);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(13, "div", 4);
+      \u0275\u0275text(14);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(15, "div")(16, "div", 3);
+      \u0275\u0275text(17);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(18, "div", 5);
+      \u0275\u0275text(19);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(20, "div")(21, "div", 3);
+      \u0275\u0275text(22);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(23, "div", 6);
+      \u0275\u0275text(24);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(25, "div")(26, "div", 3);
+      \u0275\u0275text(27);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(28, "div", 7);
+      \u0275\u0275text(29);
+      \u0275\u0275elementEnd()()()()();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " stats-box");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].title) || "Statistics");
+      \u0275\u0275advance(2);
+      \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].highScore) || "Highest Combo");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.tools.highScore);
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].totalTouches) || "Total Touches");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.tools.totalScore);
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].lifetimePoints) || "Lifetime Points");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.tools.totalPointsEarned);
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].lifetimeDogeCoins) || "Lifetime DogeCoins");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.tools.totalDogeCoinsEarned);
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].lifetimeMinigameCoins) || "Lifetime MG Coins");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.tools.totalMinigameCoinsEarned);
+    }
+  }, styles: ["\n\n.stats-box[_ngcontent-%COMP%] {\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);\n  margin: 20px auto;\n  max-width: 600px;\n}\n.stats-title[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 20px;\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.stats-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n  gap: 15px;\n}\n.stat-card[_ngcontent-%COMP%] {\n  padding: 15px;\n  border-radius: 8px;\n  text-align: center;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n.theme-dark[_ngcontent-%COMP%]   .stat-card[_ngcontent-%COMP%] {\n  background-color: rgba(255, 255, 255, 0.05);\n}\n.theme-light[_ngcontent-%COMP%]   .stat-card[_ngcontent-%COMP%] {\n  background-color: rgba(0, 0, 0, 0.05);\n}\n.theme-contrast[_ngcontent-%COMP%]   .stat-card[_ngcontent-%COMP%] {\n  background-color: transparent;\n  border: 1px solid #fff;\n}\n.stat-label[_ngcontent-%COMP%] {\n  font-size: 1rem;\n  opacity: 0.8;\n  margin-bottom: 8px;\n}\n.stat-value[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-weight: bold;\n}\n.text-gold[_ngcontent-%COMP%] {\n  color: #f1c40f;\n}\n.text-orange[_ngcontent-%COMP%] {\n  color: #e67e22;\n}\n.text-blue[_ngcontent-%COMP%] {\n  color: #3498db;\n}\n/*# sourceMappingURL=stats.component.css.map */"] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(StatsComponent, [{
+    type: Component,
+    args: [{ selector: "app-stats", imports: [], template: `<div class="container">
+    <div class="group {{tools.themeColor}} stats-box">
+        <h2 class="stats-title">{{tools.stats[tools.lang]?.title || 'Statistics'}}</h2>
+        
+        <div class="stats-grid">
+            <!-- Highest Combo -->
+            <div class="stat-card {{tools.themeColor}}">
+                <div class="stat-label">{{tools.stats[tools.lang]?.highScore || 'Highest Combo'}}</div>
+                <div class="stat-value">{{tools.highScore}}</div>
+            </div>
+
+            <!-- Total Touches -->
+            <div class="stat-card {{tools.themeColor}}">
+                <div class="stat-label">{{tools.stats[tools.lang]?.totalTouches || 'Total Touches'}}</div>
+                <div class="stat-value">{{tools.totalScore}}</div>
+            </div>
+
+            <!-- Lifetime Points -->
+            <div class="stat-card {{tools.themeColor}}">
+                <div class="stat-label">{{tools.stats[tools.lang]?.lifetimePoints || 'Lifetime Points'}}</div>
+                <div class="stat-value text-gold">{{tools.totalPointsEarned}}</div>
+            </div>
+
+            <!-- Lifetime DogeCoins -->
+            <div class="stat-card {{tools.themeColor}}">
+                <div class="stat-label">{{tools.stats[tools.lang]?.lifetimeDogeCoins || 'Lifetime DogeCoins'}}</div>
+                <div class="stat-value text-orange">{{tools.totalDogeCoinsEarned}}</div>
+            </div>
+
+            <!-- Lifetime Minigame Coins -->
+            <div class="stat-card {{tools.themeColor}}">
+                <div class="stat-label">{{tools.stats[tools.lang]?.lifetimeMinigameCoins || 'Lifetime MG Coins'}}</div>
+                <div class="stat-value text-blue">{{tools.totalMinigameCoinsEarned}}</div>
+            </div>
+        </div>
+    </div>
+</div>
+`, styles: ["/* src/app/pages/stats/stats.component.css */\n.stats-box {\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);\n  margin: 20px auto;\n  max-width: 600px;\n}\n.stats-title {\n  text-align: center;\n  margin-bottom: 20px;\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.stats-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n  gap: 15px;\n}\n.stat-card {\n  padding: 15px;\n  border-radius: 8px;\n  text-align: center;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n.theme-dark .stat-card {\n  background-color: rgba(255, 255, 255, 0.05);\n}\n.theme-light .stat-card {\n  background-color: rgba(0, 0, 0, 0.05);\n}\n.theme-contrast .stat-card {\n  background-color: transparent;\n  border: 1px solid #fff;\n}\n.stat-label {\n  font-size: 1rem;\n  opacity: 0.8;\n  margin-bottom: 8px;\n}\n.stat-value {\n  font-size: 1.5rem;\n  font-weight: bold;\n}\n.text-gold {\n  color: #f1c40f;\n}\n.text-orange {\n  color: #e67e22;\n}\n.text-blue {\n  color: #3498db;\n}\n/*# sourceMappingURL=stats.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(StatsComponent, { className: "StatsComponent", filePath: "src/app/pages/stats/stats.component.ts", lineNumber: 10 });
 })();
 
 // src/app/guards/guard.guard.ts
@@ -77052,8 +77396,9 @@ var routes = [
   { path: "devSettings", component: DevSettingsComponent, pathMatch: "full" },
   { path: "closet", component: ClosetComponent, pathMatch: "full" },
   { path: "onWork", component: OnworkPageComponent, pathMatch: "full" },
-  { path: "offline", component: OfflineComponent, pathMatch: "full" },
+  { path: "licenses", component: LicensesComponent, pathMatch: "full" },
   { path: "shop", component: ShopComponent, pathMatch: "full" },
+  { path: "stats", component: StatsComponent, pathMatch: "full" },
   { path: "minigames", component: MinigamesComponent, pathMatch: "full" },
   { path: "minigames/block-breaker", component: BlockBreakerComponent, pathMatch: "full" },
   { path: "minigames/block_breaker", component: BlockBreakerComponent, pathMatch: "full" },
