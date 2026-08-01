@@ -1,0 +1,39 @@
+<div class="doge-rescue-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+  <div id="game-container" #gameContainer>
+    <canvas #canvas></canvas>
+
+    <div class="ui-layer">
+      <div class="hud">
+        <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+        <div class="timer-box" [style.visibility]="gameState === 'ATTACK' ? 'visible' : 'hidden'">
+          ⏳ {{timerDisplay}}
+        </div>
+        <div>🪙 <span>{{gamePoints}}</span></div>
+      </div>
+    </div>
+
+    @if (gameState === 'START') {
+      <div class="screen">
+        <h1>{{tools.minigames[tools.lang]?.doge_rescue_title || 'Doge Rescue'}}</h1>
+        <p>{{tools.minigames[tools.lang]?.doge_rescue_inst || 'Draw a line to protect Doge from the bees!'}}</p>
+        <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      </div>
+    }
+
+    @if (gameState === 'WIN') {
+      <div class="screen">
+        <h1>{{tools.minigames[tools.lang]?.victory || 'Victory!'}}</h1>
+        <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+        <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+      </div>
+    }
+
+    @if (gameState === 'LOSE') {
+      <div class="screen">
+        <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
+        <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+        <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+      </div>
+    }
+  </div>
+</div>

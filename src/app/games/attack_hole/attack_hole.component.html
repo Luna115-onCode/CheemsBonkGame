@@ -1,0 +1,38 @@
+<div class="attack-hole-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+  <div id="game-container" #gameContainer></div>
+
+  <div class="ui-layer">
+    <div class="hud">
+      <div>🗡️ x<span id="bulletCount">{{bullets}}</span> | 💣 x<span id="bombCount">{{bombs}}</span></div>
+      <div class="timer-container">
+        <span>⏱️</span>
+        <span class="timer-ui">{{timeLeftFormatted}}</span>
+      </div>
+      <div>🪙 <span>{{gamePoints}}</span></div>
+    </div>
+  </div>
+
+  @if (gameState === 'START') {
+    <div class="screen">
+      <h1>{{tools.minigames[tools.lang]?.attack_hole_title || 'Attack Hole'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.attack_hole_inst || 'Move the hole to swallow weapons and defeat the giant boss!'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'WIN') {
+    <div class="screen">
+      <h1>{{tools.minigames[tools.lang]?.victory || 'Victory!'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.playAgain || 'Play Again'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'LOSE') {
+    <div class="screen">
+      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+    </div>
+  }
+</div>

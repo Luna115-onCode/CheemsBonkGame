@@ -23,16 +23,31 @@ export class DevSettingsComponent implements OnInit {
     this.tools.unlockAll();
   }
 
-  addDogeCoins(): void {
-    this.tools.dogeCoins += 100;
+  modifyDogeCoins(amount: number): void {
+    this.tools.dogeCoins += amount;
+    if (this.tools.dogeCoins < 0) this.tools.dogeCoins = 0;
     localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
-    this.tools.showToast(this.tools.dev[this.tools.lang].success);
+    this.tools.showToast(this.tools.dev[this.tools.lang].success || "Success");
     this.tools.playSound('4');
   }
 
-  addPoints(): void {
-    this.tools.updateScore(1000);
-    this.tools.showToast(this.tools.dev[this.tools.lang].success);
+  modifyPoints(amount: number): void {
+    if (amount > 0) {
+      this.tools.updateScore(amount);
+    } else {
+      this.tools.points += amount;
+      if (this.tools.points < 0) this.tools.points = 0;
+      localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
+    }
+    this.tools.showToast(this.tools.dev[this.tools.lang].success || "Success");
+    this.tools.playSound('4');
+  }
+
+  modifyMinigameCoins(amount: number): void {
+    this.tools.minigameCoins += amount;
+    if (this.tools.minigameCoins < 0) this.tools.minigameCoins = 0;
+    localStorage.setItem("CheemsAppLiMinigameCoins", String(this.tools.minigameCoins));
+    this.tools.showToast(this.tools.dev[this.tools.lang].success || "Success");
     this.tools.playSound('4');
   }
 }

@@ -88,8 +88,6 @@ export class ShopComponent implements OnInit, OnDestroy {
         localStorage.setItem("CheemsAppLiMinigameCoins", JSON.stringify(this.tools.minigameCoins));
         const target = String(item.targetId || item.id);
         this.tools.unlockedMinigames[target] = true;
-        this.tools.unlockedMinigames['block_breaker'] = true;
-        localStorage.setItem("CheemsAppLiMinigame_block_breaker", "true");
         localStorage.setItem("CheemsAppLiMinigame_" + target, "true");
         this.tools.recordLifetimePurchase(item.id);
         this.tools.showToast(this.tools.closet[this.tools.lang]?.purchased || "Purchased!");

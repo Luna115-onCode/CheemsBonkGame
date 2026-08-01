@@ -41,4 +41,23 @@ export class SettingsComponent implements OnInit {
   selectFontSize(index: number): void {
     this.tools.setAccessibility(index);
   }
+
+  deleteProgress(): void {
+    if (confirm(this.tools.options[this.tools.lang].deleteProgressConfirm)) {
+      this.tools.resetToZero();
+    }
+  }
+
+  exportSave(): void {
+    this.tools.exportSave();
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      if (confirm(this.tools.options[this.tools.lang].importSaveConfirm)) {
+        this.tools.importSave(file);
+      }
+    }
+  }
 }

@@ -1,0 +1,40 @@
+<div class="magic-sort-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+  <div class="header">
+    <div class="level-text">{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+    <div>🪙 <span>{{gamePoints}}</span></div>
+    <div class="controls">
+      <button class="icon-btn" (click)="restartLevel()">🔄 {{tools.minigames[tools.lang]?.restart || 'Restart'}}</button>
+    </div>
+  </div>
+
+  <div class="game-board">
+    @for (tube of tubes; track $index) {
+      <div 
+        class="tube-container" 
+        [class.selected]="selectedTubeIndex === $index"
+        (click)="onTubeClick($index)">
+        <div class="tube">
+          @for (color of tube; track $index) {
+            <div class="liquid-block" [style.background-color]="color"></div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (gameState === 'START') {
+    <div class="screen">
+      <h1>{{tools.minigames[tools.lang]?.magic_sort_title || 'Magic Sort'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.magic_sort_inst || 'Pour colored liquids between bottles until each is one color!'}}</p>
+      <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'WIN') {
+    <div class="screen">
+      <h1>{{tools.minigames[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+    </div>
+  }
+</div>

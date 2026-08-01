@@ -1,6 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ToolsService } from '../../services/tools.service';
 
+interface MinigameItem {
+  id: string;
+  key: string;
+  defaultTitle: string;
+}
+
 @Component({
   selector: 'app-minigames',
   imports: [],
@@ -9,6 +15,19 @@ import { ToolsService } from '../../services/tools.service';
 })
 export class MinigamesComponent implements OnInit {
   tools: ToolsService = inject(ToolsService);
+
+  gamesList: MinigameItem[] = [
+    { id: 'block_breaker', key: 'title', defaultTitle: 'Merge Diggers' },
+    { id: 'attack_hole', key: 'attack_hole_title', defaultTitle: 'Attack Hole' },
+    { id: 'doge_rescue', key: 'doge_rescue_title', defaultTitle: 'Doge Rescue' },
+    { id: 'flappy_dunk', key: 'flappy_dunk_title', defaultTitle: 'Flappy Dunk' },
+    { id: 'helix_jump', key: 'helix_jump_title', defaultTitle: 'Helix Jump' },
+    { id: 'magic_sort', key: 'magic_sort_title', defaultTitle: 'Magic Sort' },
+    { id: 'mob_control', key: 'mob_control_title', defaultTitle: 'Mob Control' },
+    { id: 'paper_io', key: 'paper_io_title', defaultTitle: 'Paper.io' },
+    { id: 'spiral_roll', key: 'spiral_roll_title', defaultTitle: 'Spiral Roll' },
+    { id: 'stack_colors', key: 'stack_colors_title', defaultTitle: 'Stack Colors' }
+  ];
 
   ngOnInit(): void {
     this.tools.setTitle("minigames");

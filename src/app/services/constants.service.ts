@@ -11,6 +11,15 @@ export interface PageName {
   offline: string;
   shop: string;
   block_breaker?: string;
+  attack_hole?: string;
+  doge_rescue?: string;
+  flappy_dunk?: string;
+  helix_jump?: string;
+  magic_sort?: string;
+  mob_control?: string;
+  paper_io?: string;
+  spiral_roll?: string;
+  stack_colors?: string;
   minigames?: string;
 }
 
@@ -74,7 +83,7 @@ export const AVAILABLE_LANGUAGES: Array<LanguageItem> = [
 ];
 
 export const showCoins: Array<string> = [
-  "game", "dev-settings", "closet", "menu", "block_breaker", "minigames"
+  "game", "dev-settings", "closet", "menu", "block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors", "minigames"
 ];
 
 export const pageName: PageName = {
@@ -88,6 +97,15 @@ export const pageName: PageName = {
   offline: "",
   shop: "",
   block_breaker: "",
+  attack_hole: "",
+  doge_rescue: "",
+  flappy_dunk: "",
+  helix_jump: "",
+  magic_sort: "",
+  mob_control: "",
+  paper_io: "",
+  spiral_roll: "",
+  stack_colors: "",
   minigames: ""
 };
 
@@ -108,6 +126,16 @@ export const menuText = {
 
 export const minigamesText = {
   title: "",
+  block_breaker_title: "",
+  attack_hole_title: "",
+  doge_rescue_title: "",
+  flappy_dunk_title: "",
+  helix_jump_title: "",
+  magic_sort_title: "",
+  mob_control_title: "",
+  paper_io_title: "",
+  spiral_roll_title: "",
+  stack_colors_title: "",
   playerLevel: "",
   lvl: "",
   trash: "",
@@ -125,7 +153,28 @@ export const minigamesText = {
   nextLevel: "",
   levelFailed: "",
   levelFailedDesc: "",
-  tryAgain: ""
+  tryAgain: "",
+  startGame: "",
+  score: "",
+  best: "",
+  time: "",
+  level: "",
+  youWin: "",
+  gameOver: "",
+  playAgain: "",
+  restart: "",
+  victory: "",
+  defeat: "",
+  convertedPointsToast: "",
+  attack_hole_inst: "",
+  doge_rescue_inst: "",
+  flappy_dunk_inst: "",
+  helix_jump_inst: "",
+  magic_sort_inst: "",
+  mob_control_inst: "",
+  paper_io_inst: "",
+  spiral_roll_inst: "",
+  stack_colors_inst: ""
 };
 
 export const optionsText = {
@@ -147,7 +196,13 @@ export const optionsText = {
     normal: "",
     big: "",
     max: ""
-  }
+  },
+  saveManagement: "",
+  deleteProgress: "",
+  deleteProgressConfirm: "",
+  exportSave: "",
+  importSave: "",
+  importSaveConfirm: ""
 };
 
 export const gameText = {

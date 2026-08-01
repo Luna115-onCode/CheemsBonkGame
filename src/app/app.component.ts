@@ -33,7 +33,9 @@ export class AppComponent implements OnInit {
   
   onKeyDown(event: KeyboardEvent): void {
     if (event.key === ' ' || event.code === 'Space' || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) {
-      event.preventDefault();
+      if (event.cancelable) {
+        event.preventDefault();
+      }
     }
   }
 

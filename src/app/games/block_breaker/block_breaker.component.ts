@@ -105,13 +105,12 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   gameState: 'MERGE' | 'DIG' = 'MERGE';
   playerLevel = 1;
   selectedSlotIndex: number | null = null;
+  gamePoints: number = 50;
   get coins(): number {
-    return this.tools.minigameCoins;
+    return this.gamePoints;
   }
   set coins(val: number) {
-    this.tools.minigameCoins = Math.floor(val);
-    localStorage.setItem("CheemsAppLiMinigameCoins", String(Math.floor(val)));
-    document.cookie = `CheemsAppLiMinigameCoins=${Math.floor(val)}; path=/; max-age=31536000`;
+    this.gamePoints = Math.floor(val);
   }
   currentCost: Record<string, number> = { 'shovel': 10, 'pickaxe': 10 };
   grid: Array<ToolItem | null> = new Array(this.cols * this.rows).fill(null);
@@ -141,6 +140,9 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.tools.setTitle("block_breaker" as any);
     this.tools.actPage = "block_breaker" as any;
+    localStorage.removeItem("CheemsAppLiMinigame_PlayerLevel");
+    localStorage.removeItem("CheemsAppLiMinigame_Grid");
+    localStorage.removeItem("CheemsAppLiMinigame_Costs");
     this.loadLevel();
     this.loadGrid();
     this.loadCosts();
@@ -148,8 +150,8 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   async loadDefinitions(): Promise<void> {
     try {
-      let resItems = await fetch('games/block_breaker/definitions/items.json');
-      if (!resItems.ok) resItems = await fetch('/games/block_breaker/definitions/items.json');
+      let resItems = await fetch('games/block_breaker/data/items.json');
+      if (!resItems.ok) resItems = await fetch('/games/block_breaker/data/items.json');
       
       if (resItems.ok) {
         this.toolTypes = await resItems.json();
@@ -164,8 +166,8 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     try {
-      let resBlocks = await fetch('games/block_breaker/definitions/blocks.json');
-      if (!resBlocks.ok) resBlocks = await fetch('/games/block_breaker/definitions/blocks.json');
+      let resBlocks = await fetch('games/block_breaker/data/blocks.json');
+      if (!resBlocks.ok) resBlocks = await fetch('/games/block_breaker/data/blocks.json');
 
       if (resBlocks.ok) {
         const rawBlocks = await resBlocks.json();
@@ -198,6 +200,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
     }
+    this.tools.leaveMinigame('block_breaker', this.coins);
   }
 
   preloadImages(): void {
@@ -228,9 +231,9 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   async fetchLevels(): Promise<any[]> {
     try {
-      let response = await fetch('games/block_breaker/definitions/level.json');
+      let response = await fetch('games/block_breaker/data/level.json');
       if (!response.ok) {
-        response = await fetch('/games/block_breaker/definitions/level.json');
+        response = await fetch('/games/block_breaker/data/level.json');
       }
       if (response.ok) {
         const data = await response.json();
@@ -816,62 +819,23 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadLevel(): void {
-    let savedLevel = localStorage.getItem("CheemsAppLiMinigame_PlayerLevel");
-    if (!savedLevel) {
-      const match = document.cookie.match(/(^| )CheemsAppLiMinigame_PlayerLevel=([^;]+)/);
-      if (match) savedLevel = match[2];
-    }
-    if (savedLevel) {
-      this.playerLevel = Math.max(1, +savedLevel || 1);
-    }
+    this.playerLevel = 1;
   }
 
   saveLevel(): void {
-    localStorage.setItem("CheemsAppLiMinigame_PlayerLevel", String(this.playerLevel));
-    document.cookie = `CheemsAppLiMinigame_PlayerLevel=${this.playerLevel}; path=/; max-age=31536000`;
   }
 
   loadGrid(): void {
-    try {
-      let saved = localStorage.getItem("CheemsAppLiMinigame_Grid");
-      if (!saved) {
-        const match = document.cookie.match(/(^| )CheemsAppLiMinigame_Grid=([^;]+)/);
-        if (match) saved = decodeURIComponent(match[2]);
-      }
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length === this.cols * this.rows) {
-          this.grid = parsed;
-        }
-      }
-    } catch (e) {
-      console.warn("Could not load grid from storage", e);
-    }
+    this.grid = new Array(this.cols * this.rows).fill(null);
   }
 
   saveGrid(): void {
-    const jsonStr = JSON.stringify(this.grid);
-    localStorage.setItem("CheemsAppLiMinigame_Grid", jsonStr);
-    document.cookie = `CheemsAppLiMinigame_Grid=${encodeURIComponent(jsonStr)}; path=/; max-age=31536000`;
   }
 
   loadCosts(): void {
-    try {
-      let saved = localStorage.getItem("CheemsAppLiMinigame_Costs");
-      if (!saved) {
-        const match = document.cookie.match(/(^| )CheemsAppLiMinigame_Costs=([^;]+)/);
-        if (match) saved = decodeURIComponent(match[2]);
-      }
-      if (saved) {
-        this.currentCost = { ...this.currentCost, ...JSON.parse(saved) };
-      }
-    } catch (e) {}
   }
 
   saveCosts(): void {
-    const jsonStr = JSON.stringify(this.currentCost);
-    localStorage.setItem("CheemsAppLiMinigame_Costs", jsonStr);
-    document.cookie = `CheemsAppLiMinigame_Costs=${encodeURIComponent(jsonStr)}; path=/; max-age=31536000`;
   }
 
   openSellLevelConfirm(): void {
@@ -890,13 +854,13 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   confirmSellLevel(): void {
     if (this.playerLevel > 1) {
       const reward = this.playerLevel * 20;
-      this.tools.addMinigameCoins(reward);
+      this.coins += reward;
       this.playerLevel = 1;
       this.saveLevel();
       this.pickEligibleLevel();
       this.buildLevel();
       this.drawCanvasStatic();
-      this.tools.showToast(`Sold level for +${reward} 🎮!`);
+      this.tools.showToast(`Sold level for +${reward} points!`);
       this.tools.playSound('sfx_4');
       this.showLevelUpModal = false;
     }

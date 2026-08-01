@@ -1,0 +1,42 @@
+{
+  "levels": [
+    {
+      "id": "level_1",
+      "duration": 5,
+      "beesCount": 5,
+      "tintLimit": 2000,
+      "brutality": { "maxSpeed": 8, "force": 0.01 },
+      "map": [
+        ["air", "air", "air", "air", "air", "air", "air", "air", "air", "air"],
+        ["air", "air", "bee_nest", "air", "air", "air", "air", "air", "air", "air"],
+        ["air", "air", "air", "air", "air", "air", "air", "air", "air", "air"],
+        ["air", "air", "air", "air", "air", "air", "air", "air", "air", "air"],
+        ["air", "air", "air", "air", "air", "air", "air", "air", "air", "air"],
+        ["air", "air", "air", "air", "doge_spawn", "air", "air", "air", "air", "air"],
+        ["air", "air", "air", "air", "air", "air", "air", "air", "air", "air"],
+        ["air", "air", "air", "air", "air", "air", "air", "air", "air", "air"],
+        ["grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass", "grass"],
+        ["dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt"]
+      ]
+    },
+    {
+      "id": "level_2",
+      "duration": 8,
+      "beesCount": 8,
+      "tintLimit": 1500,
+      "brutality": { "maxSpeed": 10, "force": 0.01 },
+      "map": [
+        ["air", "air", "air", "air", "air", "air", "air", "air", "air", "bee_nest"],
+        ["air", "bee_nest", "air", "air", "air", "air", "air", "air", "air", "air"],
+        ["air", "air", "air", "air", "air", "air", "air", "air", "air", "air"],
+        ["air", "air", "air", "air", "air", "air", "air", "air", "air", "air"],
+        ["grass", "grass", "grass", "air", "air", "air", "air", "grass", "grass", "grass"],
+        ["dirt", "dirt", "dirt", "air", "air", "doge_spawn", "air", "dirt", "dirt", "dirt"],
+        ["dirt", "dirt", "dirt", "grass", "grass", "grass", "grass", "dirt", "dirt", "dirt"],
+        ["dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt"],
+        ["dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt"],
+        ["dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt", "dirt"]
+      ]
+    }
+  ]
+}

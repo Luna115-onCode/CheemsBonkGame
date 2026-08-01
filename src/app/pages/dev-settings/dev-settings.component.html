@@ -2,19 +2,43 @@
     <div class="group {{tools.themeColor}} dev-box">
         <h2 class="dev-title">{{tools.dev[tools.lang].title}}</h2>
 
-        <div class="dev-actions">
-            <button class="btn-card {{tools.themeColor}} dev-btn" (click)="unlockAll()">
-                {{tools.dev[tools.lang].unlockAll}}
-            </button>
-            <button class="btn-card {{tools.themeColor}} dev-btn" (click)="resetToZero()">
-                {{tools.dev[tools.lang].resetToZero}}
-            </button>
-            <button class="btn-card {{tools.themeColor}} dev-btn" (click)="addDogeCoins()">
-                {{tools.dev[tools.lang].giveDogeCoins}}
-            </button>
-            <button class="btn-card {{tools.themeColor}} dev-btn" (click)="addPoints()">
-                {{tools.dev[tools.lang].givePoints}}
-            </button>
+        <div class="dev-actions" style="display: flex; flex-direction: column; gap: 15px;">
+            <!-- Unlock All / Reset -->
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-card {{tools.themeColor}} dev-btn" style="flex: 1" (click)="unlockAll()">
+                    {{tools.dev[tools.lang].unlockAll || 'Unlock All Content'}}
+                </button>
+                <button class="btn-card {{tools.themeColor}} dev-btn" style="flex: 1; color: #ff4a4a;" (click)="resetToZero()">
+                    {{tools.dev[tools.lang].resetToZero || 'Delete Progress'}}
+                </button>
+            </div>
+
+            <!-- DogeCoins -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px;">
+                <span>DogeCoins ({{tools.dogeCoins}})</span>
+                <div>
+                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px; margin-right: 5px;" (click)="modifyDogeCoins(-100)">-100</button>
+                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px;" (click)="modifyDogeCoins(100)">+100</button>
+                </div>
+            </div>
+
+            <!-- Points -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px;">
+                <span>Points ({{tools.points}})</span>
+                <div>
+                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px; margin-right: 5px;" (click)="modifyPoints(-1000)">-1k</button>
+                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px;" (click)="modifyPoints(1000)">+1k</button>
+                </div>
+            </div>
+
+            <!-- MG Coins -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px;">
+                <span>MG Coins ({{tools.minigameCoins}})</span>
+                <div>
+                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px; margin-right: 5px;" (click)="modifyMinigameCoins(-50)">-50</button>
+                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px;" (click)="modifyMinigameCoins(50)">+50</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

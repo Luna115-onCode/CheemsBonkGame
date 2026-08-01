@@ -1,0 +1,28 @@
+<div class="flappy-dunk-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+  <div id="game-container" #gameContainer>
+    <canvas #canvas></canvas>
+  </div>
+
+  <div class="ui-layer">
+    <div class="hud">
+      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.best || 'Best: '}} <span>{{bestScore}}</span></div>
+    </div>
+  </div>
+
+  @if (gameState === 'START') {
+    <div class="screen">
+      <h1>{{tools.minigames[tools.lang]?.flappy_dunk_title || 'Flappy Dunk'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.flappy_dunk_inst || 'Tap to make the ball fly and score through the hoops!'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'GAMEOVER') {
+    <div class="screen">
+      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.playAgain || 'Play Again'}}</button>
+    </div>
+  }
+</div>

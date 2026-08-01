@@ -1,0 +1,36 @@
+<div class="mob-control-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+  <div id="game-container" #gameContainer>
+    <canvas #canvas></canvas>
+
+    <div class="ui-layer">
+      <div class="hud">
+        <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+        <div>🪙 <span>{{gamePoints}}</span></div>
+      </div>
+    </div>
+
+    @if (gameState === 'START') {
+      <div class="screen">
+        <h1>{{tools.minigames[tools.lang]?.mob_control_title || 'Mob Control'}}</h1>
+        <p>{{tools.minigames[tools.lang]?.mob_control_inst || 'Shoot and multiply your mob to overwhelm the enemy!'}}</p>
+        <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      </div>
+    }
+
+    @if (gameState === 'WIN') {
+      <div class="screen">
+        <h1>{{tools.minigames[tools.lang]?.victory || 'Victory!'}}</h1>
+        <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+        <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+      </div>
+    }
+
+    @if (gameState === 'LOSE') {
+      <div class="screen">
+        <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
+        <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+        <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+      </div>
+    }
+  </div>
+</div>

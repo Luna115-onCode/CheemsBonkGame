@@ -83,5 +83,16 @@
                 </button>
             </div>
         </div>
+
+        <!-- Save Management -->
+        <div class="setting-row">
+            <span class="setting-label">{{tools.options[tools.lang].saveManagement}}</span>
+            <div class="options-group">
+                <button class="btn-card theme-btn" style="color: #ff4a4a;" (click)="deleteProgress()">{{tools.options[tools.lang].deleteProgress}}</button>
+                <button class="btn-card theme-btn" (click)="exportSave()">{{tools.options[tools.lang].exportSave}}</button>
+                <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" accept=".dat">
+                <button class="btn-card theme-btn" (click)="fileInput.click()">{{tools.options[tools.lang].importSave}}</button>
+            </div>
+        </div>
     </div>
 </div>

@@ -74,6 +74,18 @@ export class ToolsService {
   shopItems: Array<ShopItem> = [];
   boosterEndTime: number = 0;
   boosterMultiplier: number = 1;
+  minigameConversions: Record<string, { id?: string; name?: string; points: number; mgPoints: number; levelMgPoints?: number }> = {
+    'block_breaker': { points: 100, mgPoints: 10, levelMgPoints: 5 },
+    'attack_hole': { points: 100, mgPoints: 10, levelMgPoints: 5 },
+    'doge_rescue': { points: 10, mgPoints: 10, levelMgPoints: 5 },
+    'flappy_dunk': { points: 10, mgPoints: 10, levelMgPoints: 5 },
+    'helix_jump': { points: 100, mgPoints: 10, levelMgPoints: 5 },
+    'magic_sort': { points: 10, mgPoints: 10, levelMgPoints: 5 },
+    'mob_control': { points: 100, mgPoints: 10, levelMgPoints: 5 },
+    'paper_io': { points: 100, mgPoints: 10, levelMgPoints: 5 },
+    'spiral_roll': { points: 100, mgPoints: 10, levelMgPoints: 5 },
+    'stack_colors': { points: 100, mgPoints: 10, levelMgPoints: 5 }
+  };
   private audioCtx: AudioContext | null = null;
   private musicSource: AudioBufferSourceNode | null = null;
   private musicGain: GainNode | null = null;
@@ -266,7 +278,10 @@ export class ToolsService {
   }
 
   redirectBack(fromSystem: boolean = false): void {
-    if (["devSettings", "closet", "settings", "onWork", "offline", "shop", "block_breaker", "minigames"].includes(this.actPage as string)) {
+    const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
+    if (minigamePages.includes(this.actPage as string)) {
+      this.redirect("minigames");
+    } else if (["devSettings", "closet", "settings", "onWork", "offline", "shop", "minigames"].includes(this.actPage as string)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage as string)) {
       this.redirect("game");
@@ -318,10 +333,47 @@ export class ToolsService {
   }
 
   isMinigameUnlocked(id: string): boolean {
-    if (id === 'block_breaker' || id === 'block-breaker' || id === 'minigames/block-breaker') {
-      return !!this.unlockedMinigames['block_breaker'];
+    const key = id.replace('minigames/', '').replace(/-/g, '_');
+    return !!this.unlockedMinigames[key];
+  }
+
+  async loadMinigamesConfig(): Promise<void> {
+    try {
+      const res = await fetch("minigames.json");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          data.forEach(item => {
+            if (item && item.id) {
+              this.minigameConversions[item.id] = item;
+            }
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Could not load minigames.json", err);
     }
-    return !!this.unlockedMinigames[id];
+  }
+
+  leaveMinigame(gameId: string, gamePoints: number, gameLevel: number = 0): void {
+    if ((!gamePoints || gamePoints <= 0) && (!gameLevel || gameLevel <= 0)) return;
+    const cfg = this.minigameConversions[gameId] || { points: 100, mgPoints: 10, levelMgPoints: 5 };
+    const levelMult = cfg.levelMgPoints || 5;
+    const earnedFromPoints = gamePoints > 0 ? Math.floor((gamePoints / cfg.points) * cfg.mgPoints) : 0;
+    const earnedFromLevel = gameLevel > 0 ? (gameLevel * levelMult) : 0;
+    const totalEarned = earnedFromPoints + earnedFromLevel;
+
+    if (totalEarned > 0) {
+      this.addMinigameCoins(totalEarned);
+      let template = this.minigames[this.lang]?.convertedPointsToast || "Converted {0} game points to +{1} MG Coins!";
+      let msg = template.replace("{0}", String(Math.floor(gamePoints))).replace("{1}", String(totalEarned));
+      if (gameLevel > 0) {
+        msg = msg.replace("game points", "points & level " + gameLevel);
+        msg = msg.replace("puntos del juego", "puntos y nivel " + gameLevel);
+      }
+      this.showToast(msg, 4000);
+      this.playSound("sfx_4");
+    }
   }
 
   getDailyDogeCoinPrice(priceType: number = 1): number {
@@ -629,8 +681,11 @@ export class ToolsService {
     this.highScore = 999999;
     this.dogeCoins = 999999;
     this.minigameCoins = 999999;
-    this.unlockedMinigames['block_breaker'] = true;
-    localStorage.setItem("CheemsAppLiMinigame_block_breaker", "true");
+    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors'];
+    allMinigames.forEach(id => {
+      this.unlockedMinigames[id] = true;
+      localStorage.setItem("CheemsAppLiMinigame_" + id, "true");
+    });
     localStorage.setItem("CheemsAppLiMinigameCoins", "999999");
     this.cheemsSkins.forEach(s => {
       this.unlockedCheems[s.storageKey] = true;
@@ -662,7 +717,10 @@ export class ToolsService {
     this.minigameCoins = 50;
     this.unlockedMinigames = {};
     localStorage.setItem("CheemsAppLiMinigameCoins", "50");
-    localStorage.removeItem("CheemsAppLiMinigame_block_breaker");
+    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors'];
+    allMinigames.forEach(id => {
+      localStorage.removeItem("CheemsAppLiMinigame_" + id);
+    });
     this.selectedCheems = "cheems_normal";
     this.selectedSound = "sfx_1";
     this.selectedMusic = "music_1";
@@ -709,6 +767,7 @@ export class ToolsService {
     this.loadLanguageFile(this.lang);
     this.loadClosetPrices();
     this.loadShopItems();
+    this.loadMinigamesConfig();
     this.loadBoosterState();
     this.setupWindowFocusListeners();
     this.loadCheems();
@@ -777,8 +836,11 @@ export class ToolsService {
   }
 
   loadUnlocks(): void {
-    const mgUnlock = localStorage.getItem("CheemsAppLiMinigame_block_breaker");
-    this.unlockedMinigames['block_breaker'] = mgUnlock ? mgUnlock.replace(/"/g, '') === 'true' : false;
+    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors'];
+    allMinigames.forEach(id => {
+      const stored = localStorage.getItem("CheemsAppLiMinigame_" + id);
+      this.unlockedMinigames[id] = stored ? stored.replace(/"/g, '') === 'true' : false;
+    });
 
     this.cheemsSkins.forEach(s => {
       const stored = localStorage.getItem(s.storageKey);
@@ -1270,5 +1332,54 @@ export class ToolsService {
       return this.itemsText[this.lang][track.nameKey];
     }
     return track.name || String(track.id);
+  }
+
+
+  exportSave(): void {
+    const saveData: Record<string, string> = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.startsWith('CheemsAppLi') || key.startsWith('CheemsBonk'))) {
+        saveData[key] = localStorage.getItem(key) || '';
+      }
+    }
+    const jsonStr = JSON.stringify(saveData);
+    const obfuscated = btoa(encodeURIComponent(jsonStr));
+    
+    const blob = new Blob([obfuscated], { type: 'application/octet-stream' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'cheems_save.dat';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  importSave(file: File): void {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const result = e.target?.result as string;
+        const jsonStr = decodeURIComponent(atob(result));
+        const saveData = JSON.parse(jsonStr);
+        
+        localStorage.clear();
+        
+        for (const key of Object.keys(saveData)) {
+          localStorage.setItem(key, saveData[key]);
+        }
+        
+        this.showToast(this.dev[this.lang].success || "Success");
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      } catch (err) {
+        console.error("Save import failed", err);
+        this.showToast("Import failed! Invalid save file.");
+      }
+    };
+    reader.readAsText(file);
   }
 }

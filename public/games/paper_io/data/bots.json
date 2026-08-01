@@ -1,0 +1,42 @@
+[
+  {
+    "id": "bot_normal",
+    "names": ["Wanderer", "Stroller", "Drifter", "Explorer", "Traveler"],
+    "spawnWithAreaMin": 0.1,
+    "spawnWithAreaMax": 15,
+    "behaviour": "normal",
+    "speed": 1
+  },
+  {
+    "id": "bot_protective",
+    "names": ["Turtle", "Defender", "Guardian", "Shield", "Fortress"],
+    "spawnWithAreaMin": 10,
+    "spawnWithAreaMax": 30,
+    "behaviour": "protective",
+    "speed": 0.85
+  },
+  {
+    "id": "bot_aggresive",
+    "names": ["Hunter", "Predator", "Stalker", "Chaser", "Fighter"],
+    "spawnWithAreaMin": 0.5,
+    "spawnWithAreaMax": 10,
+    "behaviour": "aggresive",
+    "speed": 1.15
+  },
+  {
+    "id": "bot_killer",
+    "names": ["Terminator", "Assassin", "Slayer", "Executioner", "Reaper"],
+    "spawnWithAreaMin": 0.1,
+    "spawnWithAreaMax": 5,
+    "behaviour": "playerKiller",
+    "speed": 1.25
+  },
+  {
+    "id": "bot_chaotic",
+    "names": ["Glitch", "Random", "Chaos", "Jester", "Erratic"],
+    "spawnWithAreaMin": 0.1,
+    "spawnWithAreaMax": 70,
+    "behaviour": "chaotic",
+    "speed": 1.1
+  }
+]
