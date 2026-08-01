@@ -1,0 +1,72 @@
+[
+  {
+    "id": "block_breaker",
+    "name": "Merge Diggers",
+    "points": 100,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  },
+  {
+    "id": "attack_hole",
+    "name": "Attack Hole",
+    "points": 100,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  },
+  {
+    "id": "doge_rescue",
+    "name": "Doge Rescue",
+    "points": 10,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  },
+  {
+    "id": "flappy_dunk",
+    "name": "Flappy Dunk",
+    "points": 10,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  },
+  {
+    "id": "helix_jump",
+    "name": "Helix Jump",
+    "points": 100,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  },
+  {
+    "id": "magic_sort",
+    "name": "Magic Sort",
+    "points": 10,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  },
+  {
+    "id": "mob_control",
+    "name": "Mob Control",
+    "points": 100,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  },
+  {
+    "id": "paper_io",
+    "name": "Paper.io",
+    "points": 100,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  },
+  {
+    "id": "spiral_roll",
+    "name": "Spiral Roll",
+    "points": 100,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  },
+  {
+    "id": "stack_colors",
+    "name": "Stack Colors",
+    "points": 100,
+    "mgPoints": 10,
+    "levelMgPoints": 5
+  }
+]
