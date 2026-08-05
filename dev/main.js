@@ -40577,6 +40577,10 @@ var minigamesText = {
   victory: "",
   defeat: "",
   convertedPointsToast: "",
+  attack_hole_level: "",
+  attack_hole_session_points: "",
+  attack_hole_level_points: "",
+  attack_hole_attack: "",
   attack_hole_inst: "",
   doge_rescue_inst: "",
   flappy_dunk_inst: "",
@@ -40668,7 +40672,8 @@ var p404Text = {
 };
 var flappy_dunkText = {
   title: "",
-  instructions: "",
+  instructions_finite: "",
+  instructions_infinite: "",
   tapToPlay: "",
   gameOver: "",
   scoreLabel: "",
@@ -41257,6 +41262,8 @@ var ToolsService = class _ToolsService {
     }
   }
   playSound(customSoundId) {
+    if (this.isWindowBlurred)
+      return;
     const soundToPlay = customSoundId || this.selectedSound;
     const item = this.soundEffects.find((s) => String(s.id) === String(soundToPlay));
     let file = "hit.ogg";
@@ -44989,7 +44996,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     "chest_1000": { hp: 1, solid: true, src: "blocks/chest_front.png", prize: 1e3, desired_tools: [] }
   };
   gameState = "MERGE";
-  playerLevel = 1;
+  playerLevel = 0;
   selectedSlotIndex = null;
   gamePoints = 50;
   get coins() {
@@ -45455,6 +45462,10 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
   digLoop() {
     if (this.gameState !== "DIG" || !this.ctx || !this.canvas)
       return;
+    if (this.tools.isWindowBlurred) {
+      this.animationFrameId = requestAnimationFrame(() => this.digLoop());
+      return;
+    }
     const bgColor = this.currentLevelData?.background_color || this.currentLevelData?.backgroundColor || "#87CEEB";
     this.ctx.fillStyle = bgColor;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -45639,7 +45650,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     }
   }
   loadLevel() {
-    this.playerLevel = 1;
+    this.playerLevel = 0;
   }
   saveLevel() {
   }
@@ -45667,7 +45678,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     if (this.playerLevel > 1) {
       const reward = this.playerLevel * 20;
       this.coins += reward;
-      this.playerLevel = 1;
+      this.playerLevel = 0;
       this.saveLevel();
       this.pickEligibleLevel();
       this.buildLevel();
@@ -57889,6 +57900,148 @@ var Frustum = class {
     return new this.constructor().copy(this);
   }
 };
+var PointsMaterial = class extends Material {
+  /**
+   * Constructs a new points material.
+   *
+   * @param {Object} [parameters] - An object with one or more properties
+   * defining the material's appearance. Any property of the material
+   * (including any property from inherited materials) can be passed
+   * in here. Color values can be passed any type of value accepted
+   * by {@link Color#set}.
+   */
+  constructor(parameters) {
+    super();
+    this.isPointsMaterial = true;
+    this.type = "PointsMaterial";
+    this.color = new Color(16777215);
+    this.map = null;
+    this.alphaMap = null;
+    this.size = 1;
+    this.sizeAttenuation = true;
+    this.fog = true;
+    this.setValues(parameters);
+  }
+  copy(source) {
+    super.copy(source);
+    this.color.copy(source.color);
+    this.map = source.map;
+    this.alphaMap = source.alphaMap;
+    this.size = source.size;
+    this.sizeAttenuation = source.sizeAttenuation;
+    this.fog = source.fog;
+    return this;
+  }
+};
+var _inverseMatrix = /* @__PURE__ */ new Matrix4();
+var _ray = /* @__PURE__ */ new Ray();
+var _sphere = /* @__PURE__ */ new Sphere();
+var _position$3 = /* @__PURE__ */ new Vector3();
+var Points = class extends Object3D {
+  /**
+   * Constructs a new point cloud.
+   *
+   * @param {BufferGeometry} [geometry] - The points geometry.
+   * @param {Material|Array<Material>} [material] - The points material.
+   */
+  constructor(geometry = new BufferGeometry(), material = new PointsMaterial()) {
+    super();
+    this.isPoints = true;
+    this.type = "Points";
+    this.geometry = geometry;
+    this.material = material;
+    this.morphTargetDictionary = void 0;
+    this.morphTargetInfluences = void 0;
+    this.updateMorphTargets();
+  }
+  copy(source, recursive) {
+    super.copy(source, recursive);
+    this.material = Array.isArray(source.material) ? source.material.slice() : source.material;
+    this.geometry = source.geometry;
+    return this;
+  }
+  /**
+   * Computes intersection points between a casted ray and this point cloud.
+   *
+   * @param {Raycaster} raycaster - The raycaster.
+   * @param {Array<Object>} intersects - The target array that holds the intersection points.
+   */
+  raycast(raycaster, intersects) {
+    const geometry = this.geometry;
+    const matrixWorld = this.matrixWorld;
+    const threshold = raycaster.params.Points.threshold;
+    const drawRange = geometry.drawRange;
+    if (geometry.boundingSphere === null) geometry.computeBoundingSphere();
+    _sphere.copy(geometry.boundingSphere);
+    _sphere.applyMatrix4(matrixWorld);
+    _sphere.radius += threshold;
+    if (raycaster.ray.intersectsSphere(_sphere) === false) return;
+    _inverseMatrix.copy(matrixWorld).invert();
+    _ray.copy(raycaster.ray).applyMatrix4(_inverseMatrix);
+    const localThreshold = threshold / ((this.scale.x + this.scale.y + this.scale.z) / 3);
+    const localThresholdSq = localThreshold * localThreshold;
+    const index = geometry.index;
+    const attributes = geometry.attributes;
+    const positionAttribute = attributes.position;
+    if (index !== null) {
+      const start = Math.max(0, drawRange.start);
+      const end = Math.min(index.count, drawRange.start + drawRange.count);
+      for (let i = start, il = end; i < il; i++) {
+        const a = index.getX(i);
+        _position$3.fromBufferAttribute(positionAttribute, a);
+        testPoint(_position$3, a, localThresholdSq, matrixWorld, raycaster, intersects, this);
+      }
+    } else {
+      const start = Math.max(0, drawRange.start);
+      const end = Math.min(positionAttribute.count, drawRange.start + drawRange.count);
+      for (let i = start, l = end; i < l; i++) {
+        _position$3.fromBufferAttribute(positionAttribute, i);
+        testPoint(_position$3, i, localThresholdSq, matrixWorld, raycaster, intersects, this);
+      }
+    }
+  }
+  /**
+   * Sets the values of {@link Points#morphTargetDictionary} and {@link Points#morphTargetInfluences}
+   * to make sure existing morph targets can influence this 3D object.
+   */
+  updateMorphTargets() {
+    const geometry = this.geometry;
+    const morphAttributes = geometry.morphAttributes;
+    const keys = Object.keys(morphAttributes);
+    if (keys.length > 0) {
+      const morphAttribute = morphAttributes[keys[0]];
+      if (morphAttribute !== void 0) {
+        this.morphTargetInfluences = [];
+        this.morphTargetDictionary = {};
+        for (let m = 0, ml = morphAttribute.length; m < ml; m++) {
+          const name = morphAttribute[m].name || String(m);
+          this.morphTargetInfluences.push(0);
+          this.morphTargetDictionary[name] = m;
+        }
+      }
+    }
+  }
+};
+function testPoint(point, index, localThresholdSq, matrixWorld, raycaster, intersects, object) {
+  const rayPointDistanceSq = _ray.distanceSqToPoint(point);
+  if (rayPointDistanceSq < localThresholdSq) {
+    const intersectPoint = new Vector3();
+    _ray.closestPointToPoint(point, intersectPoint);
+    intersectPoint.applyMatrix4(matrixWorld);
+    const distance = raycaster.ray.origin.distanceTo(intersectPoint);
+    if (distance < raycaster.near || distance > raycaster.far) return;
+    intersects.push({
+      distance,
+      distanceToRay: Math.sqrt(rayPointDistanceSq),
+      point: intersectPoint,
+      index,
+      face: null,
+      faceIndex: null,
+      barycoord: null,
+      object
+    });
+  }
+}
 var CubeTexture = class extends Texture {
   /**
    * Constructs a new cube texture.
@@ -58834,6 +58987,95 @@ var RawShaderMaterial = class extends ShaderMaterial {
     this.type = "RawShaderMaterial";
   }
 };
+var MeshStandardMaterial = class extends Material {
+  /**
+   * Constructs a new mesh standard material.
+   *
+   * @param {Object} [parameters] - An object with one or more properties
+   * defining the material's appearance. Any property of the material
+   * (including any property from inherited materials) can be passed
+   * in here. Color values can be passed any type of value accepted
+   * by {@link Color#set}.
+   */
+  constructor(parameters) {
+    super();
+    this.isMeshStandardMaterial = true;
+    this.type = "MeshStandardMaterial";
+    this.defines = {
+      "STANDARD": ""
+    };
+    this.color = new Color(16777215);
+    this.roughness = 1;
+    this.metalness = 0;
+    this.map = null;
+    this.lightMap = null;
+    this.lightMapIntensity = 1;
+    this.aoMap = null;
+    this.aoMapIntensity = 1;
+    this.emissive = new Color(0);
+    this.emissiveIntensity = 1;
+    this.emissiveMap = null;
+    this.bumpMap = null;
+    this.bumpScale = 1;
+    this.normalMap = null;
+    this.normalMapType = TangentSpaceNormalMap;
+    this.normalScale = new Vector2(1, 1);
+    this.displacementMap = null;
+    this.displacementScale = 1;
+    this.displacementBias = 0;
+    this.roughnessMap = null;
+    this.metalnessMap = null;
+    this.alphaMap = null;
+    this.envMap = null;
+    this.envMapRotation = new Euler();
+    this.envMapIntensity = 1;
+    this.wireframe = false;
+    this.wireframeLinewidth = 1;
+    this.wireframeLinecap = "round";
+    this.wireframeLinejoin = "round";
+    this.flatShading = false;
+    this.fog = true;
+    this.setValues(parameters);
+  }
+  copy(source) {
+    super.copy(source);
+    this.defines = {
+      "STANDARD": ""
+    };
+    this.color.copy(source.color);
+    this.roughness = source.roughness;
+    this.metalness = source.metalness;
+    this.map = source.map;
+    this.lightMap = source.lightMap;
+    this.lightMapIntensity = source.lightMapIntensity;
+    this.aoMap = source.aoMap;
+    this.aoMapIntensity = source.aoMapIntensity;
+    this.emissive.copy(source.emissive);
+    this.emissiveMap = source.emissiveMap;
+    this.emissiveIntensity = source.emissiveIntensity;
+    this.bumpMap = source.bumpMap;
+    this.bumpScale = source.bumpScale;
+    this.normalMap = source.normalMap;
+    this.normalMapType = source.normalMapType;
+    this.normalScale.copy(source.normalScale);
+    this.displacementMap = source.displacementMap;
+    this.displacementScale = source.displacementScale;
+    this.displacementBias = source.displacementBias;
+    this.roughnessMap = source.roughnessMap;
+    this.metalnessMap = source.metalnessMap;
+    this.alphaMap = source.alphaMap;
+    this.envMap = source.envMap;
+    this.envMapRotation.copy(source.envMapRotation);
+    this.envMapIntensity = source.envMapIntensity;
+    this.wireframe = source.wireframe;
+    this.wireframeLinewidth = source.wireframeLinewidth;
+    this.wireframeLinecap = source.wireframeLinecap;
+    this.wireframeLinejoin = source.wireframeLinejoin;
+    this.flatShading = source.flatShading;
+    this.fog = source.fog;
+    return this;
+  }
+};
 var MeshLambertMaterial = class extends Material {
   /**
    * Constructs a new mesh lambert material.
@@ -59753,6 +59995,74 @@ var VectorKeyframeTrack = class extends KeyframeTrack {
   }
 };
 VectorKeyframeTrack.prototype.ValueTypeName = "vector";
+var Cache = {
+  /**
+   * Whether caching is enabled or not.
+   *
+   * @static
+   * @type {boolean}
+   * @default false
+   */
+  enabled: false,
+  /**
+   * A dictionary that holds cached files.
+   *
+   * @static
+   * @type {Object<string,Object>}
+   */
+  files: {},
+  /**
+   * Adds a cache entry with a key to reference the file. If this key already
+   * holds a file, it is overwritten.
+   *
+   * @static
+   * @param {string} key - The key to reference the cached file.
+   * @param {Object} file -  The file to be cached.
+   */
+  add: function(key, file) {
+    if (this.enabled === false) return;
+    if (isBlobURL(key)) return;
+    this.files[key] = file;
+  },
+  /**
+   * Gets the cached value for the given key.
+   *
+   * @static
+   * @param {string} key - The key to reference the cached file.
+   * @return {Object|undefined} The cached file. If the key does not exist `undefined` is returned.
+   */
+  get: function(key) {
+    if (this.enabled === false) return;
+    if (isBlobURL(key)) return;
+    return this.files[key];
+  },
+  /**
+   * Removes the cached file associated with the given key.
+   *
+   * @static
+   * @param {string} key - The key to reference the cached file.
+   */
+  remove: function(key) {
+    delete this.files[key];
+  },
+  /**
+   * Remove all values from the cache.
+   *
+   * @static
+   */
+  clear: function() {
+    this.files = {};
+  }
+};
+function isBlobURL(key) {
+  try {
+    const urlString = key.slice(key.indexOf(":") + 1);
+    const url = new URL(urlString);
+    return url.protocol === "blob:";
+  } catch (e) {
+    return false;
+  }
+}
 var LoadingManager = class {
   /**
    * Constructs a new loading manager.
@@ -59972,6 +60282,129 @@ var Loader = class {
   }
 };
 Loader.DEFAULT_MATERIAL_NAME = "__DEFAULT";
+var _loading = /* @__PURE__ */ new WeakMap();
+var ImageLoader = class extends Loader {
+  /**
+   * Constructs a new image loader.
+   *
+   * @param {LoadingManager} [manager] - The loading manager.
+   */
+  constructor(manager) {
+    super(manager);
+  }
+  /**
+   * Starts loading from the given URL and passes the loaded image
+   * to the `onLoad()` callback. The method also returns a new `Image` object which can
+   * directly be used for texture creation. If you do it this way, the texture
+   * may pop up in your scene once the respective loading process is finished.
+   *
+   * @param {string} url - The path/URL of the file to be loaded. This can also be a data URI.
+   * @param {function(Image)} onLoad - Executed when the loading process has been finished.
+   * @param {onProgressCallback} onProgress - Unsupported in this loader.
+   * @param {onErrorCallback} onError - Executed when errors occur.
+   * @return {Image} The image.
+   */
+  load(url, onLoad, onProgress, onError) {
+    if (this.path !== void 0) url = this.path + url;
+    url = this.manager.resolveURL(url);
+    const scope = this;
+    const cached = Cache.get(`image:${url}`);
+    if (cached !== void 0) {
+      if (cached.complete === true) {
+        scope.manager.itemStart(url);
+        setTimeout(function() {
+          if (onLoad) onLoad(cached);
+          scope.manager.itemEnd(url);
+        }, 0);
+      } else {
+        let arr = _loading.get(cached);
+        if (arr === void 0) {
+          arr = [];
+          _loading.set(cached, arr);
+        }
+        arr.push({
+          onLoad,
+          onError
+        });
+      }
+      return cached;
+    }
+    const image = createElementNS("img");
+    function onImageLoad() {
+      removeEventListeners();
+      if (onLoad) onLoad(this);
+      const callbacks = _loading.get(this) || [];
+      for (let i = 0; i < callbacks.length; i++) {
+        const callback = callbacks[i];
+        if (callback.onLoad) callback.onLoad(this);
+      }
+      _loading.delete(this);
+      scope.manager.itemEnd(url);
+    }
+    function onImageError(event) {
+      removeEventListeners();
+      if (onError) onError(event);
+      Cache.remove(`image:${url}`);
+      const callbacks = _loading.get(this) || [];
+      for (let i = 0; i < callbacks.length; i++) {
+        const callback = callbacks[i];
+        if (callback.onError) callback.onError(event);
+      }
+      _loading.delete(this);
+      scope.manager.itemError(url);
+      scope.manager.itemEnd(url);
+    }
+    function removeEventListeners() {
+      image.removeEventListener("load", onImageLoad, false);
+      image.removeEventListener("error", onImageError, false);
+    }
+    image.addEventListener("load", onImageLoad, false);
+    image.addEventListener("error", onImageError, false);
+    if (url.slice(0, 5) !== "data:") {
+      if (this.crossOrigin !== void 0) image.crossOrigin = this.crossOrigin;
+    }
+    Cache.add(`image:${url}`, image);
+    scope.manager.itemStart(url);
+    image.src = url;
+    return image;
+  }
+};
+var TextureLoader = class extends Loader {
+  /**
+   * Constructs a new texture loader.
+   *
+   * @param {LoadingManager} [manager] - The loading manager.
+   */
+  constructor(manager) {
+    super(manager);
+  }
+  /**
+   * Starts loading from the given URL and pass the fully loaded texture
+   * to the `onLoad()` callback. The method also returns a new texture object which can
+   * directly be used for material creation. If you do it this way, the texture
+   * may pop up in your scene once the respective loading process is finished.
+   *
+   * @param {string} url - The path/URL of the file to be loaded. This can also be a data URI.
+   * @param {function(Texture)} onLoad - Executed when the loading process has been finished.
+   * @param {onProgressCallback} onProgress - Unsupported in this loader.
+   * @param {onErrorCallback} onError - Executed when errors occur.
+   * @return {Texture} The texture.
+   */
+  load(url, onLoad, onProgress, onError) {
+    const texture = new Texture();
+    const loader = new ImageLoader(this.manager);
+    loader.setCrossOrigin(this.crossOrigin);
+    loader.setPath(this.path);
+    loader.load(url, function(image) {
+      texture.image = image;
+      texture.needsUpdate = true;
+      if (onLoad !== void 0) {
+        onLoad(texture);
+      }
+    }, onProgress, onError);
+    return texture;
+  }
+};
 var Light = class extends Object3D {
   /**
    * Constructs a new light.
@@ -72601,18 +73034,36 @@ var WebGLRenderer = class {
 
 // src/app/games/attack_hole/attack_hole.component.ts
 var _c02 = ["gameContainer"];
-function AttackHoleComponent_Conditional_21_Template(rf, ctx) {
+var _forTrack04 = ($index, $item) => $item.id;
+function AttackHoleComponent_For_19_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "h1");
+    \u0275\u0275elementStart(0, "div", 8)(1, "span");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r1 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(item_r1.emojiCounter);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.collectedItems[item_r1.id] || 0, "");
+  }
+}
+function AttackHoleComponent_Conditional_20_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 9)(1, "h1");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 9);
-    \u0275\u0275listener("click", function AttackHoleComponent_Conditional_21_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r1);
+    \u0275\u0275elementStart(5, "button", 12);
+    \u0275\u0275listener("click", function AttackHoleComponent_Conditional_20_Template_button_click_5_listener() {
+      \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startGame());
     });
@@ -72629,18 +73080,56 @@ function AttackHoleComponent_Conditional_21_Template(rf, ctx) {
     \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
   }
 }
+function AttackHoleComponent_Conditional_21_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 10)(1, "div", 13);
+    \u0275\u0275element(2, "div", 14);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 15);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "number");
+    \u0275\u0275pipe(6, "number");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275styleProp("width", ctx_r1.wallCurrentHealth / ctx_r1.wallMaxHealthValue * 100, "%");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2("", \u0275\u0275pipeBind2(5, 4, ctx_r1.wallCurrentHealth, "1.0-0"), " / ", \u0275\u0275pipeBind2(6, 7, ctx_r1.wallMaxHealthValue, "1.0-0"), "");
+  }
+}
 function AttackHoleComponent_Conditional_22_Template(rf, ctx) {
   if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "h1");
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 16);
+    \u0275\u0275listener("click", function AttackHoleComponent_Conditional_22_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.triggerAttack());
+    });
+    \u0275\u0275elementStart(1, "h1", 17);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].attack_hole_attack) || "Attack!");
+  }
+}
+function AttackHoleComponent_Conditional_23_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 9)(1, "h1");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 9);
-    \u0275\u0275listener("click", function AttackHoleComponent_Conditional_22_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r3);
+    \u0275\u0275elementStart(5, "button", 12);
+    \u0275\u0275listener("click", function AttackHoleComponent_Conditional_23_Template_button_click_5_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startGame());
     });
@@ -72657,18 +73146,18 @@ function AttackHoleComponent_Conditional_22_Template(rf, ctx) {
     \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].playAgain) || "Play Again");
   }
 }
-function AttackHoleComponent_Conditional_23_Template(rf, ctx) {
+function AttackHoleComponent_Conditional_24_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "h1");
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 9)(1, "h1");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 9);
-    \u0275\u0275listener("click", function AttackHoleComponent_Conditional_23_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r4);
+    \u0275\u0275elementStart(5, "button", 12);
+    \u0275\u0275listener("click", function AttackHoleComponent_Conditional_24_Template_button_click_5_listener() {
+      \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startGame());
     });
@@ -72691,8 +73180,11 @@ var AttackHoleComponent = class _AttackHoleComponent {
   gameContainer;
   gameState = "START";
   gamePoints = 0;
-  bullets = 0;
-  bombs = 0;
+  // Keeping this for backward compatibility with leaveMinigame
+  levelPoints = 0;
+  sessionPoints = 0;
+  level = 0;
+  collectedItems = {};
   timeLeft = 30;
   timeLeftFormatted = "00:30";
   scene;
@@ -72706,10 +73198,25 @@ var AttackHoleComponent = class _AttackHoleComponent {
   animationFrameId = null;
   timerInterval = null;
   onResizeBound = this.onWindowResize.bind(this);
+  onPointerDownBound = this.onPointerDown.bind(this);
   onPointerMoveBound = this.onPointerMove.bind(this);
+  onPointerUpBound = this.onPointerUp.bind(this);
+  mouseNDC = new Vector2(0, 0);
+  isPointerDown = false;
+  wall;
+  wallCurrentHealth = 1e3;
+  // make public for HTML binding
+  get wallMaxHealthValue() {
+    return 1e3 + this.level * 500;
+  }
+  attackProjectiles = [];
+  activeExplosions = [];
+  itemsConfig = [];
+  modelCache = {};
   ngOnInit() {
     this.tools.setTitle("attack_hole");
     this.tools.actPage = "attack_hole";
+    this.loadModels();
   }
   ngAfterViewInit() {
     this.init3D();
@@ -72720,7 +73227,13 @@ var AttackHoleComponent = class _AttackHoleComponent {
       clearInterval(this.timerInterval);
     }
     window.removeEventListener("resize", this.onResizeBound);
-    window.removeEventListener("pointermove", this.onPointerMoveBound);
+    const container = this.gameContainer?.nativeElement;
+    if (container) {
+      container.removeEventListener("pointerdown", this.onPointerDownBound);
+      window.removeEventListener("pointermove", this.onPointerMoveBound);
+      window.removeEventListener("pointerup", this.onPointerUpBound);
+      window.removeEventListener("pointercancel", this.onPointerUpBound);
+    }
     if (this.renderer) {
       this.renderer.dispose();
       const dom = this.gameContainer?.nativeElement;
@@ -72731,21 +73244,42 @@ var AttackHoleComponent = class _AttackHoleComponent {
     this.tools.leaveMinigame("attack_hole", this.gamePoints);
   }
   startGame() {
+    this.levelPoints = 0;
     this.gamePoints = 0;
-    this.bullets = 0;
-    this.bombs = 0;
+    this.itemsConfig.forEach((item) => {
+      this.collectedItems[item.id] = 0;
+    });
     this.timeLeft = 30;
+    if (this.wall && this.scene) {
+      this.scene.remove(this.wall);
+    }
+    this.attackProjectiles.forEach((p) => this.scene.remove(p.mesh));
+    this.attackProjectiles = [];
+    this.activeExplosions.forEach((expl) => this.scene.remove(expl.particles));
+    this.activeExplosions = [];
+    if (this.hole && this.ring) {
+      this.hole.scale.set(1, 1, 1);
+      this.ring.scale.set(1, 1, 1);
+      this.hole.visible = true;
+      this.ring.visible = true;
+      this.holeRadius = 1.8;
+      if (this.camera) {
+        this.camera.position.set(0, 5, 6);
+      }
+    }
     this.updateTimeFormatted();
     this.gameState = "PLAYING";
     this.resetScene();
     if (this.timerInterval)
       clearInterval(this.timerInterval);
     this.timerInterval = setInterval(() => {
+      if (this.tools.isWindowBlurred)
+        return;
       if (this.gameState === "PLAYING") {
         this.timeLeft--;
         this.updateTimeFormatted();
         if (this.timeLeft <= 0) {
-          this.endGame();
+          this.ngZone.run(() => this.triggerAttackReady());
         }
       }
     }, 1e3);
@@ -72762,8 +73296,8 @@ var AttackHoleComponent = class _AttackHoleComponent {
     this.scene = new Scene();
     this.scene.background = new Color(2236962);
     this.camera = new PerspectiveCamera(60, width / height, 0.1, 1e3);
-    this.camera.position.set(0, 18, 12);
-    this.camera.lookAt(0, 0, 1);
+    this.camera.position.set(0, 5, 6);
+    this.camera.lookAt(0, 0, 0);
     this.renderer = new WebGLRenderer({ antialias: true });
     this.renderer.setSize(width, height);
     this.renderer.shadowMap.enabled = true;
@@ -72774,7 +73308,7 @@ var AttackHoleComponent = class _AttackHoleComponent {
     dirLight.position.set(10, 20, 10);
     dirLight.castShadow = true;
     this.scene.add(dirLight);
-    const groundGeo = new PlaneGeometry(30, 40);
+    const groundGeo = new PlaneGeometry(60, 80);
     const groundMat = new MeshLambertMaterial({ color: 14737632 });
     const ground = new Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
@@ -72793,34 +73327,145 @@ var AttackHoleComponent = class _AttackHoleComponent {
     this.ring.position.y = 0.02;
     this.scene.add(this.ring);
     window.addEventListener("resize", this.onResizeBound);
+    container.addEventListener("pointerdown", this.onPointerDownBound);
     window.addEventListener("pointermove", this.onPointerMoveBound);
+    window.addEventListener("pointerup", this.onPointerUpBound);
+    window.addEventListener("pointercancel", this.onPointerUpBound);
     this.ngZone.runOutsideAngular(() => {
       this.animate();
     });
   }
+  loadModels() {
+    return __async(this, null, function* () {
+      try {
+        const response = yield fetch("games/attack_hole/data/items.json");
+        this.itemsConfig = yield response.json();
+        this.itemsConfig.forEach((item) => {
+          this.collectedItems[item.id] = 0;
+        });
+        const texLoader = new TextureLoader();
+        for (const item of this.itemsConfig) {
+          const texture = yield texLoader.loadAsync(item.texture);
+          texture.magFilter = NearestFilter;
+          texture.minFilter = NearestFilter;
+          const geoResponse = yield fetch(item.model);
+          const geoJson = yield geoResponse.json();
+          const geoData = geoJson["minecraft:geometry"][0];
+          const texW = geoData.description.texture_width;
+          const texH = geoData.description.texture_height;
+          const group = new Group();
+          texture.wrapS = RepeatWrapping;
+          texture.wrapT = RepeatWrapping;
+          const mat = new MeshStandardMaterial({
+            map: texture,
+            transparent: true,
+            alphaTest: 0.1,
+            side: DoubleSide
+          });
+          geoData.bones.forEach((bone) => {
+            bone.cubes.forEach((cube) => {
+              const [cx, cy, cz] = cube.size;
+              const [ox, oy, oz] = cube.origin;
+              const scale = 0.1;
+              const geo = new BoxGeometry(cx * scale, cy * scale, cz * scale);
+              if (cube.uv) {
+                const uvs = geo.attributes["uv"].array;
+                const faceMap = {
+                  0: "east",
+                  1: "west",
+                  2: "up",
+                  3: "down",
+                  4: "south",
+                  5: "north"
+                };
+                for (let i = 0; i < 6; i++) {
+                  const faceName = faceMap[i];
+                  const uvData = cube.uv[faceName];
+                  if (uvData) {
+                    const uvStart = uvData.uv;
+                    const uvSize = uvData.uv_size;
+                    const idx = i * 8;
+                    const u0 = uvStart[0];
+                    const v0 = uvStart[1];
+                    const u1 = u0 + uvSize[0];
+                    const v1 = v0 + uvSize[1];
+                    const webgl_u0 = u0 / texW;
+                    const webgl_u1 = u1 / texW;
+                    const webgl_v0 = 1 - v0 / texH;
+                    const webgl_v1 = 1 - v1 / texH;
+                    uvs[idx + 0] = webgl_u0;
+                    uvs[idx + 1] = webgl_v0;
+                    uvs[idx + 2] = webgl_u1;
+                    uvs[idx + 3] = webgl_v0;
+                    uvs[idx + 4] = webgl_u0;
+                    uvs[idx + 5] = webgl_v1;
+                    uvs[idx + 6] = webgl_u1;
+                    uvs[idx + 7] = webgl_v1;
+                  }
+                }
+              }
+              const mesh = new Mesh(geo, mat);
+              mesh.castShadow = true;
+              mesh.position.set((ox + cx / 2) * scale, (oy + cy / 2) * scale, (oz + cz / 2) * scale);
+              group.add(mesh);
+            });
+          });
+          this.modelCache[item.id] = group;
+        }
+      } catch (e) {
+        console.error("Failed to load models", e);
+      }
+    });
+  }
+  createItem(type) {
+    let itemGroup = new Group();
+    let category = "ammo";
+    let points = 10;
+    const config2 = this.itemsConfig.find((i) => i.id === type);
+    if (config2) {
+      category = config2.category;
+      points = config2.points;
+    }
+    if (this.modelCache[type]) {
+      itemGroup.add(this.modelCache[type].clone());
+    } else {
+      const box = new Mesh(new BoxGeometry(0.5, 0.5, 0.5), new MeshStandardMaterial({ color: 16711680 }));
+      itemGroup.add(box);
+    }
+    return { group: itemGroup, points, category };
+  }
   resetScene() {
     this.items.forEach((item) => this.scene.remove(item));
     this.items = [];
-    const itemColors = [16007990, 5025616, 2201331, 16750592, 10233776];
-    for (let i = 0; i < 35; i++) {
-      const isBomb = Math.random() < 0.25;
-      let mesh;
-      if (isBomb) {
-        const geo = new SphereGeometry(0.6, 16, 16);
-        const mat = new MeshLambertMaterial({ color: 1118481 });
-        mesh = new Mesh(geo, mat);
-        mesh.userData = { type: "bomb", isFalling: false };
+    if (this.itemsConfig.length === 0)
+      return;
+    const ammoItems = this.itemsConfig.filter((i) => i.category === "ammo");
+    const bombItems = this.itemsConfig.filter((i) => i.category === "bomb");
+    for (let i = 0; i < 100; i++) {
+      let type = "";
+      const rand = Math.random();
+      if (rand < 0.25 && bombItems.length > 0) {
+        const r = Math.floor(Math.random() * bombItems.length);
+        type = bombItems[r].id;
+      } else if (ammoItems.length > 0) {
+        const r = Math.floor(Math.random() * ammoItems.length);
+        type = ammoItems[r].id;
       } else {
-        const geo = new BoxGeometry(0.8, 0.4, 1.4);
-        const color = itemColors[Math.floor(Math.random() * itemColors.length)];
-        const mat = new MeshLambertMaterial({ color });
-        mesh = new Mesh(geo, mat);
-        mesh.userData = { type: "bullet", isFalling: false };
+        type = this.itemsConfig[0].id;
       }
-      mesh.position.set((Math.random() - 0.5) * 20, 0.5, (Math.random() - 0.5) * 24 - 2);
-      mesh.castShadow = true;
-      this.scene.add(mesh);
-      this.items.push(mesh);
+      const { group: itemGroup, points, category } = this.createItem(type);
+      if (category === "ammo") {
+        itemGroup.rotation.x = Math.PI / 2;
+        itemGroup.rotation.z = Math.random() * Math.PI * 2;
+        itemGroup.position.y = 0.3;
+      } else {
+        itemGroup.position.y = 0.6;
+      }
+      itemGroup.userData = { category, type, points, isFalling: false };
+      itemGroup.position.x = (Math.random() - 0.5) * 50;
+      itemGroup.position.z = (Math.random() - 0.5) * 70 - 2;
+      this.scene.add(itemGroup);
+      this.items.push(itemGroup);
     }
   }
   onWindowResize() {
@@ -72833,28 +73478,60 @@ var AttackHoleComponent = class _AttackHoleComponent {
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
   }
-  onPointerMove(event) {
-    if (this.gameState !== "PLAYING")
-      return;
+  updateMouseNDC(event) {
     const container = this.gameContainer.nativeElement;
     const rect = container.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width * 2 - 1;
-    const y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-    const vector = new Vector3(x, y, 0.5);
-    vector.unproject(this.camera);
-    const dir = vector.sub(this.camera.position).normalize();
-    const distance = -this.camera.position.y / dir.y;
-    const pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
-    this.targetPosition.x = Math.max(-12, Math.min(12, pos.x));
-    this.targetPosition.z = Math.max(-15, Math.min(15, pos.z));
+    this.mouseNDC.x = (event.clientX - rect.left) / rect.width * 2 - 1;
+    this.mouseNDC.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  }
+  onPointerDown(event) {
+    if (this.gameState === "ATTACK_READY") {
+      this.triggerAttack();
+      return;
+    }
+    if (this.gameState !== "PLAYING")
+      return;
+    this.isPointerDown = true;
+    this.updateMouseNDC(event);
+  }
+  onPointerMove(event) {
+    if (!this.isPointerDown || this.gameState !== "PLAYING")
+      return;
+    this.updateMouseNDC(event);
+  }
+  onPointerUp(event) {
+    this.isPointerDown = false;
   }
   animate() {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
+    if (this.tools.isWindowBlurred)
+      return;
     if (this.gameState === "PLAYING") {
+      if (this.isPointerDown && this.camera) {
+        const vector = new Vector3(this.mouseNDC.x, this.mouseNDC.y, 0.5);
+        vector.unproject(this.camera);
+        const dir = vector.sub(this.camera.position).normalize();
+        const distance = -this.camera.position.y / dir.y;
+        const pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
+        this.targetPosition.x = Math.max(-28, Math.min(28, pos.x));
+        this.targetPosition.z = Math.max(-38, Math.min(38, pos.z));
+      }
       this.hole.position.x += (this.targetPosition.x - this.hole.position.x) * 0.15;
       this.hole.position.z += (this.targetPosition.z - this.hole.position.z) * 0.15;
       this.ring.position.x = this.hole.position.x;
       this.ring.position.z = this.hole.position.z;
+      const targetScale = 1 + this.gamePoints / 800;
+      const currentScale = this.hole.scale.x;
+      const newScale = currentScale + (targetScale - currentScale) * 0.1;
+      this.hole.scale.set(newScale, newScale, 1);
+      this.ring.scale.set(newScale, newScale, 1);
+      this.holeRadius = 1.8 * newScale;
+      const targetCamY = 5 * newScale;
+      const targetCamZOffset = 6 * newScale;
+      this.camera.position.y += (targetCamY - this.camera.position.y) * 0.1;
+      this.camera.position.x += (this.hole.position.x - this.camera.position.x) * 0.1;
+      this.camera.position.z += (this.hole.position.z + targetCamZOffset - this.camera.position.z) * 0.1;
+      this.camera.lookAt(this.hole.position);
       for (let i = this.items.length - 1; i >= 0; i--) {
         const item = this.items[i];
         if (!item.userData["isFalling"]) {
@@ -72863,6 +73540,7 @@ var AttackHoleComponent = class _AttackHoleComponent {
           const distSq = dx * dx + dz * dz;
           if (distSq < (this.holeRadius - 0.5) * (this.holeRadius - 0.5)) {
             item.userData["isFalling"] = true;
+            item.children.forEach((c) => c.castShadow = false);
           }
         } else {
           item.position.y -= 0.15;
@@ -72870,32 +73548,175 @@ var AttackHoleComponent = class _AttackHoleComponent {
           item.position.x += (this.hole.position.x - item.position.x) * 0.2;
           item.position.z += (this.hole.position.z - item.position.z) * 0.2;
           if (item.scale.x < 0.1) {
-            if (item.userData["type"] === "bullet") {
-              this.bullets++;
-              this.gamePoints += 10;
-            } else {
-              this.bombs++;
-              this.gamePoints += 50;
-            }
+            const itemType = item.userData["type"];
+            this.collectedItems[itemType] = (this.collectedItems[itemType] || 0) + 1;
+            this.levelPoints += item.userData["points"];
+            this.gamePoints = this.levelPoints;
             this.scene.remove(item);
             this.items.splice(i, 1);
             if (this.items.length === 0) {
-              this.ngZone.run(() => this.endGame(true));
+              this.ngZone.run(() => this.triggerAttackReady());
             }
           }
         }
       }
       this.ring.rotation.z -= 0.02;
+    } else if (this.gameState === "ATTACKING") {
+      let allHit = true;
+      let damageThisFrame = 0;
+      for (let i = this.attackProjectiles.length - 1; i >= 0; i--) {
+        const proj = this.attackProjectiles[i];
+        if (proj.delay > 0) {
+          proj.delay--;
+          if (proj.delay <= 0) {
+            proj.mesh.visible = true;
+            this.ngZone.run(() => {
+              if (this.collectedItems[proj.type] > 0) {
+                this.collectedItems[proj.type]--;
+              }
+            });
+          }
+          allHit = false;
+        } else if (proj.mesh.position.z > proj.target.z) {
+          proj.mesh.position.z -= 0.5;
+          proj.mesh.rotation.x += 0.2;
+          proj.mesh.rotation.y += 0.2;
+          allHit = false;
+        } else if (proj.damage > 0) {
+          damageThisFrame += proj.damage;
+          proj.damage = 0;
+          proj.mesh.visible = false;
+        }
+      }
+      if (damageThisFrame > 0) {
+        this.ngZone.run(() => {
+          this.wallCurrentHealth = Math.max(0, this.wallCurrentHealth - damageThisFrame);
+        });
+        const healthRatio = this.wallCurrentHealth / this.wallMaxHealthValue;
+        const r = 1;
+        const g = healthRatio;
+        const b = healthRatio;
+        this.wall.material.color.setRGB(r, g, b);
+        if (this.wallCurrentHealth <= 0) {
+          this.ngZone.run(() => {
+            this.triggerWallBreak();
+            this.gameState = "ATTACK_END_DELAY";
+            setTimeout(() => this.ngZone.run(() => this.endLevel(true)), 2500);
+          });
+          return;
+        }
+      }
+      if (allHit && this.wallCurrentHealth > 0) {
+        this.ngZone.run(() => {
+          this.gameState = "ATTACK_END_DELAY";
+          setTimeout(() => this.ngZone.run(() => this.endLevel(false)), 2500);
+        });
+      }
+    }
+    for (const expl of this.activeExplosions) {
+      const positions = expl.particles.geometry.attributes["position"].array;
+      for (let i = 0; i < expl.velocities.length; i++) {
+        positions[i * 3] += expl.velocities[i].x;
+        positions[i * 3 + 1] += expl.velocities[i].y;
+        positions[i * 3 + 2] += expl.velocities[i].z;
+        expl.velocities[i].y -= 0.01;
+      }
+      expl.particles.geometry.attributes["position"].needsUpdate = true;
     }
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
     }
   }
+  triggerAttackReady() {
+    if (this.gameState === "PLAYING") {
+      if (this.timerInterval)
+        clearInterval(this.timerInterval);
+      this.gameState = "ATTACK_READY";
+      this.setupAttackPhase();
+    }
+  }
+  setupAttackPhase() {
+    this.hole.visible = false;
+    this.ring.visible = false;
+    this.items.forEach((item) => item.visible = false);
+    this.camera.position.set(0, 5, 20);
+    this.camera.lookAt(0, 5, 0);
+    this.wallCurrentHealth = this.wallMaxHealthValue;
+    const wallGeo = new BoxGeometry(20, 20, 2);
+    const wallMat = new MeshLambertMaterial({ color: 16777215 });
+    this.wall = new Mesh(wallGeo, wallMat);
+    this.wall.position.set(0, 5, -10);
+    this.scene.add(this.wall);
+  }
+  triggerAttack() {
+    this.gameState = "ATTACKING";
+    this.attackProjectiles = [];
+    let currentDelay = 0;
+    const itemsList = [];
+    Object.keys(this.collectedItems).forEach((type) => {
+      const count = this.collectedItems[type];
+      for (let i = 0; i < count; i++) {
+        itemsList.push({ type, category: type.includes("bomb") ? "bomb" : "ammo" });
+      }
+    });
+    itemsList.sort((a, b) => a.category === "ammo" ? -1 : 1);
+    itemsList.forEach((item) => {
+      const { group, points, category } = this.createItem(item.type);
+      group.position.set((Math.random() - 0.5) * 10, 5 + (Math.random() - 0.5) * 10, 15 + Math.random() * 5);
+      currentDelay += category === "bomb" ? 15 : 5;
+      const delay = currentDelay;
+      group.visible = false;
+      this.scene.add(group);
+      const target = new Vector3((Math.random() - 0.5) * 10, 5 + (Math.random() - 0.5) * 10, -9);
+      this.attackProjectiles.push({ mesh: group, target, damage: points, type: item.type, delay });
+    });
+    if (this.attackProjectiles.length === 0) {
+      this.endLevel(false);
+    }
+  }
+  triggerWallBreak() {
+    this.wall.visible = false;
+    this.spawnExplosion(this.wall.position.clone(), 100, 10, 16711680);
+    this.tools.playSound("sfx_7");
+    for (const proj of this.attackProjectiles) {
+      if (proj.mesh.visible && proj.damage > 0) {
+        proj.mesh.visible = false;
+        proj.damage = 0;
+        this.spawnExplosion(proj.mesh.position.clone(), 20, 2, 16776960);
+      }
+    }
+  }
+  spawnExplosion(position, count, spread, color) {
+    const particleGeo = new BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    const velocities = [];
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = position.x + (Math.random() - 0.5) * spread;
+      positions[i * 3 + 1] = position.y + (Math.random() - 0.5) * spread;
+      positions[i * 3 + 2] = position.z + (Math.random() - 0.5) * (spread * 0.2);
+      velocities.push(new Vector3((Math.random() - 0.5) * 0.5, Math.random() * 0.5, (Math.random() - 0.5) * 0.5));
+    }
+    particleGeo.setAttribute("position", new BufferAttribute(positions, 3));
+    const particleMat = new PointsMaterial({ color, size: 0.5 });
+    const particles = new Points(particleGeo, particleMat);
+    this.scene.add(particles);
+    this.activeExplosions.push({ particles, velocities });
+  }
+  endLevel(won) {
+    this.gameState = won ? "WIN" : "LOSE";
+    if (won) {
+      this.level++;
+      this.sessionPoints += this.levelPoints;
+    } else {
+      this.sessionPoints += this.levelPoints;
+    }
+    this.tools.playSound(won ? "sfx_4" : "sfx_2");
+  }
   endGame(won = false) {
     this.gameState = won ? "WIN" : "LOSE";
     if (this.timerInterval)
       clearInterval(this.timerInterval);
-    this.tools.playSound(won ? "sfx_4" : "sfx_8");
+    this.tools.playSound(won ? "sfx_4" : "sfx_2");
   }
   stopGameLoop() {
     if (this.animationFrameId !== null) {
@@ -72914,51 +73735,55 @@ var AttackHoleComponent = class _AttackHoleComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.gameContainer = _t.first);
     }
-  }, decls: 24, vars: 11, consts: [["gameContainer", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], ["id", "bulletCount"], ["id", "bombCount"], [1, "timer-container"], [1, "timer-ui"], [1, "screen"], [1, "btn", 3, "click"]], template: function AttackHoleComponent_Template(rf, ctx) {
+  }, decls: 25, vars: 13, consts: [["gameContainer", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], [1, "stats-top"], [1, "timer-container"], [1, "timer-ui"], [1, "hud-right"], [1, "ammo-item"], [1, "screen"], [1, "boss-health-container"], [1, "screen", "attack-ready-screen"], [1, "btn", 3, "click"], [1, "boss-health-bar-bg"], [1, "boss-health-bar-fill"], [1, "boss-health-text"], [1, "screen", "attack-ready-screen", 3, "click"], [1, "attack-text", "flashing"]], template: function AttackHoleComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div");
       \u0275\u0275element(1, "div", 1, 0);
-      \u0275\u0275elementStart(3, "div", 2)(4, "div", 3)(5, "div");
-      \u0275\u0275text(6, "\u{1F5E1}\uFE0F x");
-      \u0275\u0275elementStart(7, "span", 4);
-      \u0275\u0275text(8);
+      \u0275\u0275elementStart(3, "div", 2)(4, "div", 3)(5, "div", 4)(6, "div");
+      \u0275\u0275text(7);
       \u0275\u0275elementEnd();
-      \u0275\u0275text(9, " | \u{1F4A3} x");
-      \u0275\u0275elementStart(10, "span", 5);
+      \u0275\u0275elementStart(8, "div");
+      \u0275\u0275text(9);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(10, "div");
       \u0275\u0275text(11);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(12, "div", 6)(13, "span");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(12, "div", 5)(13, "span");
       \u0275\u0275text(14, "\u23F1\uFE0F");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(15, "span", 7);
+      \u0275\u0275elementStart(15, "span", 6);
       \u0275\u0275text(16);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(17, "div");
-      \u0275\u0275text(18, "\u{1FA99} ");
-      \u0275\u0275elementStart(19, "span");
-      \u0275\u0275text(20);
-      \u0275\u0275elementEnd()()()();
-      \u0275\u0275template(21, AttackHoleComponent_Conditional_21_Template, 7, 3, "div", 8)(22, AttackHoleComponent_Conditional_22_Template, 7, 4, "div", 8)(23, AttackHoleComponent_Conditional_23_Template, 7, 4, "div", 8);
+      \u0275\u0275elementStart(17, "div", 7);
+      \u0275\u0275repeaterCreate(18, AttackHoleComponent_For_19_Template, 4, 2, "div", 8, _forTrack04);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275template(20, AttackHoleComponent_Conditional_20_Template, 7, 3, "div", 9)(21, AttackHoleComponent_Conditional_21_Template, 7, 10, "div", 10)(22, AttackHoleComponent_Conditional_22_Template, 3, 1, "div", 11)(23, AttackHoleComponent_Conditional_23_Template, 7, 4, "div", 9)(24, AttackHoleComponent_Conditional_24_Template, 7, 4, "div", 9);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("attack-hole-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
-      \u0275\u0275advance(8);
-      \u0275\u0275textInterpolate(ctx.bullets);
-      \u0275\u0275advance(3);
-      \u0275\u0275textInterpolate(ctx.bombs);
+      \u0275\u0275advance(7);
+      \u0275\u0275textInterpolate(((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].attack_hole_level) || "Level {0}").replace("{0}", ctx.level.toString()));
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].attack_hole_session_points) || "Session: {0}").replace("{0}", ctx.sessionPoints.toString()));
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].attack_hole_level_points) || "Points: {0}").replace("{0}", ctx.levelPoints.toString()));
       \u0275\u0275advance(5);
       \u0275\u0275textInterpolate(ctx.timeLeftFormatted);
-      \u0275\u0275advance(4);
-      \u0275\u0275textInterpolate(ctx.gamePoints);
+      \u0275\u0275advance(2);
+      \u0275\u0275repeater(ctx.itemsConfig);
+      \u0275\u0275advance(2);
+      \u0275\u0275conditional(ctx.gameState === "START" ? 20 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "START" ? 21 : -1);
+      \u0275\u0275conditional(ctx.gameState === "ATTACK_READY" || ctx.gameState === "ATTACKING" || ctx.gameState === "ATTACK_END_DELAY" ? 21 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "WIN" ? 22 : -1);
+      \u0275\u0275conditional(ctx.gameState === "ATTACK_READY" ? 22 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "LOSE" ? 23 : -1);
+      \u0275\u0275conditional(ctx.gameState === "WIN" ? 23 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.gameState === "LOSE" ? 24 : -1);
     }
-  }, dependencies: [CommonModule], styles: ["\n\n.attack-hole-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #222;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 60px;\n  left: 0;\n  width: 100%;\n  height: calc(100% - 60px);\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);\n}\n.timer-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.timer-ui[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  color: #FFEB3B;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.7);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 10px;\n  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);\n  text-align: center;\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n  max-width: 80%;\n  text-align: center;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 15px 40px;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #4CAF50,\n      #2E7D32);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n  background:\n    linear-gradient(\n      135deg,\n      #66BB6A,\n      #388E3C);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\n/*# sourceMappingURL=attack_hole.component.css.map */"] });
+  }, dependencies: [CommonModule, DecimalPipe], styles: ["\n\n.attack-hole-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #222;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 60px;\n  left: 0;\n  width: 100%;\n  height: calc(100% - 60px);\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);\n}\n.hud-right[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 15px;\n  right: 25px;\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  font-size: 1.2em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);\n  align-items: flex-end;\n}\n.ammo-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.stats-top[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.attack-ready-screen[_ngcontent-%COMP%] {\n  background: transparent !important;\n  -webkit-backdrop-filter: none !important;\n  backdrop-filter: none !important;\n}\n.attack-text[_ngcontent-%COMP%] {\n  font-size: 4em !important;\n  color: #FF1744 !important;\n  text-shadow: 0 0 20px #FF1744, 0 0 30px #D50000 !important;\n  pointer-events: none;\n}\n@keyframes _ngcontent-%COMP%_flash {\n  0%, 100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  50% {\n    opacity: 0.5;\n    transform: scale(1.1);\n  }\n}\n.flashing[_ngcontent-%COMP%] {\n  animation: _ngcontent-%COMP%_flash 1s infinite;\n}\n.boss-health-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 70px;\n  left: 50%;\n  transform: translateX(-50%);\n  width: 60%;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  z-index: 15;\n}\n.boss-health-bar-bg[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 25px;\n  background: rgba(0, 0, 0, 0.5);\n  border: 2px solid #fff;\n  border-radius: 15px;\n  overflow: hidden;\n  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);\n}\n.boss-health-bar-fill[_ngcontent-%COMP%] {\n  height: 100%;\n  background:\n    linear-gradient(\n      90deg,\n      #ff1744,\n      #d50000);\n  transition: width 0.2s ease-out;\n}\n.boss-health-text[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);\n  margin-top: 5px;\n}\n.timer-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 15px;\n  left: 50%;\n  transform: translateX(-50%);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  z-index: 10;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);\n}\n.timer-ui[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  color: #FFEB3B;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.7);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 10px;\n  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);\n  text-align: center;\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n  max-width: 80%;\n  text-align: center;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 15px 40px;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #4CAF50,\n      #2E7D32);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n  background:\n    linear-gradient(\n      135deg,\n      #66BB6A,\n      #388E3C);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\n/*# sourceMappingURL=attack_hole.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AttackHoleComponent, [{
@@ -72968,12 +73793,22 @@ var AttackHoleComponent = class _AttackHoleComponent {
 
   <div class="ui-layer">
     <div class="hud">
-      <div>\u{1F5E1}\uFE0F x<span id="bulletCount">{{bullets}}</span> | \u{1F4A3} x<span id="bombCount">{{bombs}}</span></div>
-      <div class="timer-container">
-        <span>\u23F1\uFE0F</span>
-        <span class="timer-ui">{{timeLeftFormatted}}</span>
+      <div class="stats-top">
+        <div>{{ (tools.minigames[tools.lang]?.attack_hole_level || 'Level {0}').replace('{0}', level.toString()) }}</div>
+        <div>{{ (tools.minigames[tools.lang]?.attack_hole_session_points || 'Session: {0}').replace('{0}', sessionPoints.toString()) }}</div>
+        <div>{{ (tools.minigames[tools.lang]?.attack_hole_level_points || 'Points: {0}').replace('{0}', levelPoints.toString()) }}</div>
       </div>
-      <div>\u{1FA99} <span>{{gamePoints}}</span></div>
+    </div>
+    
+    <div class="timer-container">
+      <span>\u23F1\uFE0F</span>
+      <span class="timer-ui">{{timeLeftFormatted}}</span>
+    </div>
+    
+    <div class="hud-right">
+      @for (item of itemsConfig; track item.id) {
+        <div class="ammo-item"><span>{{item.emojiCounter}}</span> {{collectedItems[item.id] || 0}}</div>
+      }
     </div>
   </div>
 
@@ -72982,6 +73817,21 @@ var AttackHoleComponent = class _AttackHoleComponent {
       <h1>{{tools.minigames[tools.lang]?.attack_hole_title || 'Attack Hole'}}</h1>
       <p>{{tools.minigames[tools.lang]?.attack_hole_inst || 'Move the hole to swallow weapons and defeat the giant boss!'}}</p>
       <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'ATTACK_READY' || gameState === 'ATTACKING' || gameState === 'ATTACK_END_DELAY') {
+    <div class="boss-health-container">
+      <div class="boss-health-bar-bg">
+        <div class="boss-health-bar-fill" [style.width.%]="(wallCurrentHealth / wallMaxHealthValue) * 100"></div>
+      </div>
+      <div class="boss-health-text">{{wallCurrentHealth | number:'1.0-0'}} / {{wallMaxHealthValue | number:'1.0-0'}}</div>
+    </div>
+  }
+
+  @if (gameState === 'ATTACK_READY') {
+    <div class="screen attack-ready-screen" (click)="triggerAttack()">
+      <h1 class="attack-text flashing">{{tools.minigames[tools.lang]?.attack_hole_attack || 'Attack!'}}</h1>
     </div>
   }
 
@@ -73001,7 +73851,7 @@ var AttackHoleComponent = class _AttackHoleComponent {
     </div>
   }
 </div>
-`, styles: ["/* src/app/games/attack_hole/attack_hole.component.css */\n.attack-hole-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #222;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.ui-layer {\n  position: absolute;\n  top: 60px;\n  left: 0;\n  width: 100%;\n  height: calc(100% - 60px);\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);\n}\n.timer-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.timer-ui {\n  font-size: 1.3em;\n  color: #FFEB3B;\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.7);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 10px;\n  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);\n  text-align: center;\n}\n.screen p {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n  max-width: 80%;\n  text-align: center;\n}\n.btn {\n  padding: 15px 40px;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #4CAF50,\n      #2E7D32);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n  background:\n    linear-gradient(\n      135deg,\n      #66BB6A,\n      #388E3C);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n.hidden {\n  display: none !important;\n}\n/*# sourceMappingURL=attack_hole.component.css.map */\n"] }]
+`, styles: ["/* src/app/games/attack_hole/attack_hole.component.css */\n.attack-hole-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #222;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.ui-layer {\n  position: absolute;\n  top: 60px;\n  left: 0;\n  width: 100%;\n  height: calc(100% - 60px);\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: flex-start;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);\n}\n.hud-right {\n  position: absolute;\n  top: 15px;\n  right: 25px;\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  font-size: 1.2em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);\n  align-items: flex-end;\n}\n.ammo-item {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.stats-top {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.attack-ready-screen {\n  background: transparent !important;\n  -webkit-backdrop-filter: none !important;\n  backdrop-filter: none !important;\n}\n.attack-text {\n  font-size: 4em !important;\n  color: #FF1744 !important;\n  text-shadow: 0 0 20px #FF1744, 0 0 30px #D50000 !important;\n  pointer-events: none;\n}\n@keyframes flash {\n  0%, 100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  50% {\n    opacity: 0.5;\n    transform: scale(1.1);\n  }\n}\n.flashing {\n  animation: flash 1s infinite;\n}\n.boss-health-container {\n  position: absolute;\n  top: 70px;\n  left: 50%;\n  transform: translateX(-50%);\n  width: 60%;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  z-index: 15;\n}\n.boss-health-bar-bg {\n  width: 100%;\n  height: 25px;\n  background: rgba(0, 0, 0, 0.5);\n  border: 2px solid #fff;\n  border-radius: 15px;\n  overflow: hidden;\n  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);\n}\n.boss-health-bar-fill {\n  height: 100%;\n  background:\n    linear-gradient(\n      90deg,\n      #ff1744,\n      #d50000);\n  transition: width 0.2s ease-out;\n}\n.boss-health-text {\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);\n  margin-top: 5px;\n}\n.timer-container {\n  position: absolute;\n  top: 15px;\n  left: 50%;\n  transform: translateX(-50%);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  z-index: 10;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);\n}\n.timer-ui {\n  font-size: 1.3em;\n  color: #FFEB3B;\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.7);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 10px;\n  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);\n  text-align: center;\n}\n.screen p {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n  max-width: 80%;\n  text-align: center;\n}\n.btn {\n  padding: 15px 40px;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #4CAF50,\n      #2E7D32);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n  background:\n    linear-gradient(\n      135deg,\n      #66BB6A,\n      #388E3C);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n.hidden {\n  display: none !important;\n}\n/*# sourceMappingURL=attack_hole.component.css.map */\n"] }]
   }], null, { gameContainer: [{
     type: ViewChild,
     args: ["gameContainer"]
@@ -73106,7 +73956,7 @@ var DogeRescueComponent = class _DogeRescueComponent {
   canvasRef;
   gameState = "LOADING";
   gamePoints = 0;
-  level = 1;
+  level = 0;
   timerDisplay = 5;
   engine;
   dogeBody = null;
@@ -73395,10 +74245,16 @@ var DogeRescueComponent = class _DogeRescueComponent {
     }
     if (this.beeSpawnTimer)
       clearInterval(this.beeSpawnTimer);
-    this.beeSpawnTimer = setInterval(spawnBees, 500);
+    this.beeSpawnTimer = setInterval(() => {
+      if (this.tools.isWindowBlurred)
+        return;
+      spawnBees();
+    }, 500);
     if (this.attackTimer)
       clearInterval(this.attackTimer);
     this.attackTimer = setInterval(() => {
+      if (this.tools.isWindowBlurred)
+        return;
       if (this.gameState === "ATTACK") {
         this.timerDisplay--;
         if (this.timerDisplay <= 0) {
@@ -73415,6 +74271,8 @@ var DogeRescueComponent = class _DogeRescueComponent {
   }
   loop() {
     this.animationFrameId = requestAnimationFrame(() => this.loop());
+    if (this.tools.isWindowBlurred)
+      return;
     if (this.gameState === "ATTACK") {
       Matter.Engine.update(this.engine, 1e3 / 60);
       if (this.dogeBody) {
@@ -73680,10 +74538,15 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
   gameContainer;
   canvasRef;
   gameState = "START";
+  levels = [];
+  currentLevelIndex = 0;
+  currentLevelConfig = null;
   gamePoints = 0;
+  sessionPoints = 0;
   combo = 1;
   frames = 0;
   bgOffset = 0;
+  bgFigureOffset = 0;
   ball = {
     x: 0,
     y: 0,
@@ -73692,12 +74555,15 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     gravity: 0.35,
     jump: -7.5,
     rotation: 0,
-    wingAngle: 0
+    wingAngle: 0,
+    prevX: 0,
+    prevY: 0
   };
   hoops = [];
   particles = [];
-  hoopSpeed = 4;
-  hoopWidth = 110;
+  finishLine = null;
+  basketsSpawned = 0;
+  basketsPassed = 0;
   rimRadius = 6;
   animationFrameId = null;
   ctx;
@@ -73707,6 +74573,12 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
   ngOnInit() {
     this.tools.setTitle("flappy_dunk");
     this.tools.actPage = "flappy_dunk";
+    this.sessionPoints = 0;
+    this.currentLevelIndex = 0;
+    fetch("games/flappy_dunk/data/levels.json").then((res) => res.json()).then((data) => {
+      this.levels = data;
+      this.loadLevel(this.currentLevelIndex);
+    }).catch((err) => console.error("Could not load levels.json", err));
   }
   ngAfterViewInit() {
     const canvas = this.canvasRef.nativeElement;
@@ -73716,7 +74588,6 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     document.addEventListener("mousedown", this.onPointerDownBound);
     document.addEventListener("touchstart", this.onPointerDownBound, { passive: false });
     window.addEventListener("keydown", this.onKeyDownBound);
-    this.initGameState();
     this.ngZone.runOutsideAngular(() => {
       this.loop();
     });
@@ -73729,21 +74600,37 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     window.removeEventListener("keydown", this.onKeyDownBound);
     document.removeEventListener("mousedown", this.onPointerDownBound);
     document.removeEventListener("touchstart", this.onPointerDownBound);
-    this.tools.leaveMinigame("flappy_dunk", this.tools.sessionPoints);
+    this.tools.leaveMinigame("flappy_dunk", this.sessionPoints);
   }
   onResize() {
+    if (!this.canvasRef)
+      return;
     const canvas = this.canvasRef.nativeElement;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
+  loadLevel(index) {
+    if (this.levels.length === 0)
+      return;
+    this.currentLevelIndex = index;
+    const randomIndex = Math.floor(Math.random() * this.levels.length);
+    this.currentLevelConfig = this.levels[randomIndex];
+    this.initGameState();
+  }
   initGameState() {
+    if (!this.canvasRef || !this.currentLevelConfig)
+      return;
     const canvas = this.canvasRef.nativeElement;
     this.ball.x = canvas.width * 0.3;
     this.ball.y = canvas.height / 2;
     this.ball.vy = 0;
     this.ball.rotation = 0;
+    this.ball.radius = this.currentLevelConfig.ballSize;
     this.hoops = [];
     this.particles = [];
+    this.finishLine = null;
+    this.basketsSpawned = 0;
+    this.basketsPassed = 0;
     this.gamePoints = 0;
     this.combo = 1;
     this.frames = 0;
@@ -73754,10 +74641,23 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     this.gameState = "PLAYING";
     this.flap();
   }
+  winLevel() {
+    this.ngZone.run(() => {
+      this.gameState = "LEVEL_CLEAR";
+      this.currentLevelIndex++;
+      this.createExplosion(this.ball.x, this.ball.y, "#4CAF50");
+      this.tools.playSound("sfx_4");
+    });
+  }
   endGame() {
     this.ngZone.run(() => {
-      this.gameState = "GAMEOVER";
-      this.createExplosion(this.ball.x, this.ball.y, "#e65100");
+      if (this.currentLevelConfig?.baskestsCount === 0 && this.basketsPassed >= 1) {
+        this.winLevel();
+      } else {
+        this.gameState = "GAMEOVER";
+        this.createExplosion(this.ball.x, this.ball.y, "#e65100");
+        this.tools.playSound("sfx_3");
+      }
     });
   }
   onTap(e) {
@@ -73768,12 +74668,20 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
         this.startGame();
       } else if (this.gameState === "PLAYING") {
         this.flap();
+      } else if (this.gameState === "LEVEL_CLEAR" || this.gameState === "GAMEOVER") {
+        if (this.gameState === "LEVEL_CLEAR") {
+          this.loadLevel(this.currentLevelIndex);
+        } else {
+          this.loadLevel(this.currentLevelIndex);
+        }
       }
     });
   }
   onKeyDown(e) {
     if (e.code === "Space" || e.key === " ") {
-      e.preventDefault();
+      if (e.cancelable) {
+        e.preventDefault();
+      }
       this.onTap();
     }
   }
@@ -73795,18 +74703,40 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     }
   }
   spawnHoop(xPos) {
+    if (!this.currentLevelConfig)
+      return;
+    const config2 = this.currentLevelConfig;
+    if (config2.baskestsCount > 0 && this.basketsSpawned >= config2.baskestsCount) {
+      if (!this.finishLine) {
+        this.finishLine = { x: xPos, passed: false };
+      }
+      return;
+    }
     const canvas = this.canvasRef.nativeElement;
     const minY = 200;
     const maxY = canvas.height - 200;
     const yPos = Math.random() * (maxY - minY) + minY;
+    let rotation = 0;
+    if (config2.basketInclinationGrades > 0) {
+      const maxRad = config2.basketInclinationGrades * (Math.PI / 180);
+      if (config2.basketInclinationType === "aligned") {
+        rotation = maxRad;
+      } else if (config2.basketInclinationType === "serpent") {
+        rotation = this.basketsSpawned % 2 === 0 ? maxRad : -maxRad;
+      } else if (config2.basketInclinationType === "random") {
+        rotation = Math.random() * 2 * maxRad - maxRad;
+      }
+    }
     this.hoops.push({
       x: xPos,
       y: yPos,
       passed: false,
       swish: true,
       scored: false,
-      color: "#9C27B0"
+      color: config2.basketColor,
+      rotation
     });
+    this.basketsSpawned++;
   }
   createExplosion(x, y, color) {
     for (let i = 0; i < 20; i++) {
@@ -73844,16 +74774,24 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     }
   }
   loop() {
+    if (this.tools.isWindowBlurred) {
+      this.animationFrameId = requestAnimationFrame(() => this.loop());
+      return;
+    }
     this.update();
     this.draw();
     this.animationFrameId = requestAnimationFrame(() => this.loop());
   }
   update() {
+    if (!this.canvasRef || !this.currentLevelConfig)
+      return;
     const canvas = this.canvasRef.nativeElement;
+    const config2 = this.currentLevelConfig;
     if (this.gameState === "PLAYING") {
       this.frames++;
-      this.bgOffset -= 0.5;
-      let prevY = this.ball.y;
+      this.bgOffset -= config2.levelSpeed * 0.1;
+      this.ball.prevX = this.ball.x;
+      this.ball.prevY = this.ball.y;
       this.ball.vy += this.ball.gravity;
       this.ball.y += this.ball.vy;
       this.ball.rotation += this.ball.vy * 0.05;
@@ -73861,28 +74799,47 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
       if (this.ball.y - this.ball.radius < 0 || this.ball.y + this.ball.radius > canvas.height) {
         this.endGame();
       }
-      if (this.hoops.length > 0) {
-        let lastHoop = this.hoops[this.hoops.length - 1];
-        if (lastHoop.x < canvas.width - 350) {
-          this.spawnHoop(canvas.width + 100);
+      if (this.finishLine) {
+        this.finishLine.x -= config2.levelSpeed;
+        if (this.ball.x > this.finishLine.x && !this.finishLine.passed) {
+          this.finishLine.passed = true;
+          this.winLevel();
+        }
+      } else {
+        if (this.hoops.length > 0) {
+          let lastHoop = this.hoops[this.hoops.length - 1];
+          let sep = config2.basketSize * config2.basketSeparation;
+          if (canvas.width - lastHoop.x >= sep) {
+            this.spawnHoop(canvas.width + 100);
+          }
         }
       }
       for (let i = 0; i < this.hoops.length; i++) {
         let h = this.hoops[i];
-        h.x -= this.hoopSpeed;
-        let leftRim = { x: h.x - this.hoopWidth / 2, y: h.y };
-        let rightRim = { x: h.x + this.hoopWidth / 2, y: h.y };
-        let distL = Math.hypot(this.ball.x - leftRim.x, this.ball.y - leftRim.y);
-        let distR = Math.hypot(this.ball.x - rightRim.x, this.ball.y - rightRim.y);
+        h.x -= config2.levelSpeed;
+        let rotLeftX = h.x + -config2.basketSize / 2 * Math.cos(h.rotation);
+        let rotLeftY = h.y + -config2.basketSize / 2 * Math.sin(h.rotation);
+        let rotRightX = h.x + config2.basketSize / 2 * Math.cos(h.rotation);
+        let rotRightY = h.y + config2.basketSize / 2 * Math.sin(h.rotation);
+        let distL = Math.hypot(this.ball.x - rotLeftX, this.ball.y - rotLeftY);
+        let distR = Math.hypot(this.ball.x - rotRightX, this.ball.y - rotRightY);
         if (distL < this.ball.radius + this.rimRadius || distR < this.ball.radius + this.rimRadius) {
           this.ball.vy = -Math.abs(this.ball.vy) * 0.7 - 2;
           h.swish = false;
-          this.createExplosion(distL < distR ? leftRim.x : rightRim.x, h.y, "#fff");
+          this.createExplosion(distL < distR ? rotLeftX : rotRightX, distL < distR ? rotLeftY : rotRightY, "#fff");
           this.tools.playSound("sfx_1");
         }
-        if (!h.scored && prevY <= h.y && this.ball.y > h.y) {
-          if (this.ball.x > leftRim.x && this.ball.x < rightRim.x) {
+        let dxPrev = this.ball.prevX - h.x;
+        let dyPrev = this.ball.prevY - h.y;
+        let localPrevY = h.y + (dxPrev * Math.sin(-h.rotation) + dyPrev * Math.cos(-h.rotation));
+        let dxCurr = this.ball.x - h.x;
+        let dyCurr = this.ball.y - h.y;
+        let localCurrX = h.x + (dxCurr * Math.cos(-h.rotation) - dyCurr * Math.sin(-h.rotation));
+        let localCurrY = h.y + (dxCurr * Math.sin(-h.rotation) + dyCurr * Math.cos(-h.rotation));
+        if (!h.scored && localPrevY <= h.y && localCurrY > h.y) {
+          if (localCurrX > h.x - config2.basketSize / 2 && localCurrX < h.x + config2.basketSize / 2) {
             h.scored = true;
+            this.basketsPassed++;
             let pts = 1;
             if (h.swish) {
               this.combo++;
@@ -73898,7 +74855,7 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
             }
             this.ngZone.run(() => {
               this.gamePoints += pts;
-              this.tools.sessionPoints += pts;
+              this.sessionPoints += pts;
               this.tools.playSound("sfx_1");
             });
             const scoreUI = document.getElementById("scoreUI");
@@ -73911,12 +74868,12 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
             this.createExplosion(this.ball.x, h.y, h.swish ? "#FFEB3B" : "#4CAF50");
           }
         }
-        if (!h.scored && h.x < this.ball.x - this.hoopWidth && !h.passed) {
+        if (!h.scored && h.x < this.ball.x - config2.basketSize && !h.passed) {
           h.passed = true;
           this.endGame();
         }
       }
-      if (this.hoops.length > 0 && this.hoops[0].x < -200) {
+      if (this.hoops.length > 0 && this.hoops[0].x < -300) {
         this.hoops.shift();
       }
     } else if (this.gameState === "START") {
@@ -73933,39 +74890,126 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
         this.particles.splice(i, 1);
     }
   }
+  drawBgFigures(ctx, canvas, config2) {
+    if (!config2.bgFigure || config2.bgFigure === "none")
+      return;
+    ctx.save();
+    ctx.fillStyle = "rgba(255,255,255,0.02)";
+    ctx.strokeStyle = "rgba(255,255,255,0.05)";
+    ctx.lineWidth = 2;
+    const parallaxOffset = this.bgOffset * 0.5;
+    const spacing = 100;
+    for (let x = parallaxOffset % spacing - spacing; x < canvas.width + spacing; x += spacing) {
+      for (let y = 0; y < canvas.height; y += spacing) {
+        ctx.save();
+        ctx.translate(x + spacing / 2, y + spacing / 2);
+        ctx.beginPath();
+        let size = 40;
+        if (config2.bgFigure === "squares") {
+          ctx.rect(-size / 2, -size / 2, size, size);
+        } else if (config2.bgFigure === "triangles") {
+          ctx.moveTo(0, -size / 2);
+          ctx.lineTo(size / 2, size / 2);
+          ctx.lineTo(-size / 2, size / 2);
+          ctx.closePath();
+        } else if (config2.bgFigure === "diamonds") {
+          ctx.moveTo(0, -size / 2);
+          ctx.lineTo(size / 2, 0);
+          ctx.lineTo(0, size / 2);
+          ctx.lineTo(-size / 2, 0);
+          ctx.closePath();
+        } else if (config2.bgFigure === "pentagons") {
+          for (let j = 0; j < 5; j++) {
+            ctx.lineTo(size / 2 * Math.cos(j * 2 * Math.PI / 5 - Math.PI / 2), size / 2 * Math.sin(j * 2 * Math.PI / 5 - Math.PI / 2));
+          }
+          ctx.closePath();
+        } else if (config2.bgFigure === "hexagons") {
+          for (let j = 0; j < 6; j++) {
+            ctx.lineTo(size / 2 * Math.cos(j * 2 * Math.PI / 6), size / 2 * Math.sin(j * 2 * Math.PI / 6));
+          }
+          ctx.closePath();
+        } else if (config2.bgFigure === "stars") {
+          for (let j = 0; j < 10; j++) {
+            let r = j % 2 === 0 ? size / 2 : size / 4;
+            ctx.lineTo(r * Math.cos(j * Math.PI / 5 - Math.PI / 2), r * Math.sin(j * Math.PI / 5 - Math.PI / 2));
+          }
+          ctx.closePath();
+        }
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+    ctx.restore();
+  }
   draw() {
+    if (!this.canvasRef || !this.currentLevelConfig)
+      return;
     const canvas = this.canvasRef.nativeElement;
     const ctx = this.ctx;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    canvas.style.backgroundPosition = `${this.bgOffset}px 0px, ${this.bgOffset}px 0px, ${this.bgOffset / 2}px 0px, ${this.bgOffset / 2}px 0px`;
+    const config2 = this.currentLevelConfig;
+    ctx.fillStyle = config2.bgColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    this.drawBgFigures(ctx, canvas, config2);
+    ctx.save();
+    ctx.beginPath();
+    for (let x = this.bgOffset % 100; x < canvas.width; x += 100) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, canvas.height);
+    }
+    for (let y = 0; y < canvas.height; y += 100) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+    }
+    ctx.strokeStyle = config2.bgLinesColor;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+    if (this.finishLine) {
+      ctx.save();
+      ctx.translate(this.finishLine.x, 0);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+      ctx.fillRect(-20, 0, 40, canvas.height);
+      for (let yy = 0; yy < canvas.height; yy += 40) {
+        ctx.fillStyle = yy / 40 % 2 === 0 ? "#000" : "#fff";
+        ctx.fillRect(-10, yy, 10, 20);
+        ctx.fillStyle = yy / 40 % 2 === 0 ? "#fff" : "#000";
+        ctx.fillRect(0, yy, 10, 20);
+      }
+      ctx.restore();
+    }
     this.hoops.forEach((h) => {
+      ctx.save();
+      ctx.translate(h.x, h.y);
+      ctx.rotate(h.rotation);
       ctx.beginPath();
-      ctx.moveTo(h.x - this.hoopWidth / 2, h.y);
-      ctx.lineTo(h.x - this.hoopWidth / 2 + 15, h.y + 70);
-      ctx.lineTo(h.x + this.hoopWidth / 2 - 15, h.y + 70);
-      ctx.lineTo(h.x + this.hoopWidth / 2, h.y);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+      ctx.moveTo(-config2.basketSize / 2, 0);
+      ctx.lineTo(-config2.basketSize / 2 + 15, 70);
+      ctx.lineTo(config2.basketSize / 2 - 15, 70);
+      ctx.lineTo(config2.basketSize / 2, 0);
+      ctx.fillStyle = config2.basketNetColor;
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+      ctx.strokeStyle = config2.basketNetColor;
       ctx.stroke();
       ctx.beginPath();
-      ctx.ellipse(h.x, h.y, this.hoopWidth / 2, 10, 0, Math.PI, 0);
-      ctx.strokeStyle = "#7B1FA2";
+      ctx.ellipse(0, 0, config2.basketSize / 2, 10, 0, Math.PI, 0);
+      ctx.strokeStyle = config2.basketColor;
       ctx.lineWidth = 4;
       ctx.stroke();
       ctx.beginPath();
-      ctx.ellipse(h.x, h.y, this.hoopWidth / 2, 10, 0, 0, Math.PI);
-      ctx.strokeStyle = h.color;
+      ctx.ellipse(0, 0, config2.basketSize / 2, 10, 0, 0, Math.PI);
+      ctx.strokeStyle = config2.basketColor;
       ctx.lineWidth = 6;
       ctx.stroke();
-      ctx.fillStyle = h.color;
+      ctx.fillStyle = config2.basketColor;
       ctx.beginPath();
-      ctx.arc(h.x - this.hoopWidth / 2, h.y, this.rimRadius, 0, Math.PI * 2);
+      ctx.arc(-config2.basketSize / 2, 0, this.rimRadius, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(h.x + this.hoopWidth / 2, h.y, this.rimRadius, 0, Math.PI * 2);
+      ctx.arc(config2.basketSize / 2, 0, this.rimRadius, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore();
     });
     this.particles.forEach((p) => {
       ctx.globalAlpha = p.life;
@@ -73978,7 +75022,7 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     if (this.gameState !== "GAMEOVER" || this.particles.length > 0) {
       ctx.save();
       ctx.translate(this.ball.x, this.ball.y);
-      ctx.fillStyle = "#fff";
+      ctx.fillStyle = config2.ballWingsColor;
       ctx.save();
       ctx.translate(-this.ball.radius, -5);
       ctx.rotate(this.ball.wingAngle);
@@ -73996,10 +75040,10 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
       ctx.rotate(this.ball.rotation);
       ctx.beginPath();
       ctx.arc(0, 0, this.ball.radius, 0, Math.PI * 2);
-      ctx.fillStyle = "#e65100";
+      ctx.fillStyle = config2.ballColor;
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = "#333";
+      ctx.strokeStyle = config2.ballLinesColor;
       ctx.stroke();
       ctx.beginPath();
       ctx.moveTo(0, -this.ball.radius);
@@ -74031,44 +75075,59 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.gameContainer = _t.first);
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.canvasRef = _t.first);
     }
-  }, decls: 22, vars: 14, consts: [["gameContainer", ""], ["canvas", ""], ["id", "game-container"], ["id", "ui-layer"], ["id", "scoreUI", 1, "hud"], ["id", "startScreen", 1, "screen"], [3, "innerHTML"], [1, "btn", 3, "click"], ["id", "gameOverScreen", 1, "screen"], [2, "color", "#ff5252", "text-shadow", "0 4px 0 #b71c1c, 0 8px 15px rgba(0,0,0,0.3)"], ["id", "finalScore", 2, "color", "#e91e63", "font-size", "1.5em"]], template: function FlappyDunkComponent_Template(rf, ctx) {
+  }, decls: 29, vars: 21, consts: [["gameContainer", ""], ["canvas", ""], ["id", "game-container"], ["id", "ui-layer"], [1, "top-hud"], [1, "hud-item"], ["id", "scoreUI", 1, "hud"], ["id", "startScreen", 1, "screen"], [3, "innerHTML"], [1, "btn", 3, "click"], ["id", "gameOverScreen", 1, "screen"], ["id", "finalScore", 2, "color", "#e91e63", "font-size", "1.5em"]], template: function FlappyDunkComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "div", 2, 0);
       \u0275\u0275element(2, "canvas", null, 1);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(4, "div", 3)(5, "div", 4);
-      \u0275\u0275text(6);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(7, "div", 5)(8, "h1");
+      \u0275\u0275elementStart(4, "div", 3)(5, "div", 4)(6, "div", 5);
+      \u0275\u0275text(7);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(8, "div", 5);
       \u0275\u0275text(9);
       \u0275\u0275elementEnd();
-      \u0275\u0275element(10, "p", 6);
-      \u0275\u0275elementStart(11, "button", 7);
-      \u0275\u0275listener("click", function FlappyDunkComponent_Template_button_click_11_listener() {
+      \u0275\u0275elementStart(10, "div", 5);
+      \u0275\u0275text(11);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(12, "div", 6);
+      \u0275\u0275text(13);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(14, "div", 7)(15, "h1");
+      \u0275\u0275text(16);
+      \u0275\u0275elementEnd();
+      \u0275\u0275element(17, "p", 8);
+      \u0275\u0275elementStart(18, "button", 9);
+      \u0275\u0275listener("click", function FlappyDunkComponent_Template_button_click_18_listener() {
         \u0275\u0275restoreView(_r1);
         return \u0275\u0275resetView(ctx.startGame());
       });
-      \u0275\u0275text(12);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(13, "div", 8)(14, "h1", 9);
-      \u0275\u0275text(15);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(16, "p");
-      \u0275\u0275text(17);
-      \u0275\u0275elementStart(18, "span", 10);
       \u0275\u0275text(19);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(20, "button", 7);
-      \u0275\u0275listener("click", function FlappyDunkComponent_Template_button_click_20_listener() {
+      \u0275\u0275elementStart(20, "div", 10)(21, "h1");
+      \u0275\u0275text(22);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(23, "p");
+      \u0275\u0275text(24);
+      \u0275\u0275elementStart(25, "span", 11);
+      \u0275\u0275text(26);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(27, "button", 9);
+      \u0275\u0275listener("click", function FlappyDunkComponent_Template_button_click_27_listener() {
         \u0275\u0275restoreView(_r1);
         return \u0275\u0275resetView(ctx.initGameState());
       });
-      \u0275\u0275text(21);
+      \u0275\u0275text(28);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
-      \u0275\u0275advance(5);
+      \u0275\u0275advance(7);
+      \u0275\u0275textInterpolate1("Level: ", ctx.currentLevelIndex + 1, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate1("Score: ", ctx.gamePoints, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate1("Session: ", ctx.sessionPoints, "");
+      \u0275\u0275advance();
       \u0275\u0275classProp("hidden", ctx.gameState === "START" || ctx.gameState === "GAMEOVER");
       \u0275\u0275advance();
       \u0275\u0275textInterpolate1(" ", ctx.gamePoints, " ");
@@ -74077,21 +75136,23 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate((ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].title) || "Flappy Dunk");
       \u0275\u0275advance();
-      \u0275\u0275property("innerHTML", (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].instructions) || "Tap to flap.<br>Dunk through the hoops.<br>Don't miss!", \u0275\u0275sanitizeHtml);
+      \u0275\u0275property("innerHTML", (ctx.currentLevelConfig == null ? null : ctx.currentLevelConfig.baskestsCount) === 0 ? (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].instructions_infinite) || "Dunk through the hoops until you lose." : (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].instructions_finite) || "Dunk through the hoops until you reach the end.", \u0275\u0275sanitizeHtml);
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate((ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].tapToPlay) || "TAP TO PLAY");
       \u0275\u0275advance();
-      \u0275\u0275classProp("hidden", ctx.gameState !== "GAMEOVER");
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1(" ", (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].gameOver) || "GAME OVER", " ");
+      \u0275\u0275classProp("hidden", ctx.gameState !== "GAMEOVER" && ctx.gameState !== "LEVEL_CLEAR");
+      \u0275\u0275advance();
+      \u0275\u0275styleProp("color", ctx.gameState === "LEVEL_CLEAR" ? "#4CAF50" : "#ff5252")("text-shadow", ctx.gameState === "LEVEL_CLEAR" ? "0 4px 0 #1B5E20, 0 8px 15px rgba(0,0,0,0.3)" : "0 4px 0 #b71c1c, 0 8px 15px rgba(0,0,0,0.3)");
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate1(" ", ctx.gameState === "LEVEL_CLEAR" ? "LEVEL CLEARED!" : (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].gameOver) || "GAME OVER", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate1(" ", (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].scoreLabel) || "Score: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.gamePoints);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate((ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].playAgain) || "PLAY AGAIN");
+      \u0275\u0275textInterpolate(ctx.gameState === "LEVEL_CLEAR" ? "NEXT LEVEL" : (ctx.tools.flappy_dunk[ctx.tools.lang] == null ? null : ctx.tools.flappy_dunk[ctx.tools.lang].playAgain) || "PLAY AGAIN");
     }
-  }, dependencies: [CommonModule], styles: ["\n\n[_nghost-%COMP%] {\n  display: block;\n  width: 100vw;\n  height: calc(100vh - 70px);\n  --bg-color: #f5e4c3;\n  background-color: var(--bg-color);\n  overflow: hidden;\n  touch-action: none;\n  -webkit-user-select: none;\n  user-select: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\ncanvas[_ngcontent-%COMP%] {\n  display: block;\n  background-color: var(--bg-color);\n  background-image:\n    linear-gradient(rgba(0, 0, 0, 0.05) 2px, transparent 2px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.05) 2px,\n      transparent 2px),\n    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.03) 1px,\n      transparent 1px);\n  background-size:\n    100px 100px,\n    100px 100px,\n    20px 20px,\n    20px 20px;\n  background-position:\n    -2px -2px,\n    -2px -2px,\n    -1px -1px,\n    -1px -1px;\n}\n#ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 20%;\n  left: 50%;\n  transform: translateX(-50%);\n  font-size: 4em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 0px 4px 0px #ccc, 0px 6px 10px rgba(0, 0, 0, 0.2);\n  transition: transform 0.1s;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(245, 228, 195, 0.85);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\n.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\nh1[_ngcontent-%COMP%] {\n  font-size: 3.5em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  text-shadow: 0 4px 0 #ff4081, 0 8px 15px rgba(0, 0, 0, 0.3);\n  text-align: center;\n}\np[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  color: #555;\n  margin-bottom: 30px;\n  text-align: center;\n  font-weight: bold;\n}\n.btn[_ngcontent-%COMP%] {\n  background: #e91e63;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 0 #880e4f, 0 10px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: translateY(6px);\n  box-shadow: 0 0 0 #880e4f, 0 4px 5px rgba(0, 0, 0, 0.3);\n}\n  .swish-text {\n  position: absolute;\n  color: #FFEB3B;\n  font-size: 2em;\n  font-weight: bold;\n  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n  pointer-events: none;\n  animation: _ngcontent-%COMP%_floatUp 1s ease-out forwards;\n  z-index: 15;\n}\n@keyframes _ngcontent-%COMP%_floatUp {\n  0% {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-50px) scale(1.5);\n  }\n}\n/*# sourceMappingURL=flappy_dunk.component.css.map */"] });
+  }, dependencies: [CommonModule], styles: ["\n\n[_nghost-%COMP%] {\n  position: relative;\n  display: block;\n  width: 100vw;\n  height: calc(100vh - 70px);\n  --bg-color: #f5e4c3;\n  background-color: var(--bg-color);\n  overflow: hidden;\n  touch-action: none;\n  -webkit-user-select: none;\n  user-select: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\ncanvas[_ngcontent-%COMP%] {\n  display: block;\n  background-color: var(--bg-color);\n}\n#ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 30;\n}\n.hud[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 20%;\n  left: 50%;\n  transform: translateX(-50%);\n  font-size: 4em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 0px 4px 0px #ccc, 0px 6px 10px rgba(0, 0, 0, 0.2);\n  transition: transform 0.1s;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(245, 228, 195, 0.85);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\n.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\nh1[_ngcontent-%COMP%] {\n  font-size: 3.5em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  text-shadow: 0 4px 0 #ff4081, 0 8px 15px rgba(0, 0, 0, 0.3);\n  text-align: center;\n}\np[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  color: #555;\n  margin-bottom: 30px;\n  text-align: center;\n  font-weight: bold;\n}\n.btn[_ngcontent-%COMP%] {\n  background: #e91e63;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 0 #880e4f, 0 10px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: translateY(6px);\n  box-shadow: 0 0 0 #880e4f, 0 4px 5px rgba(0, 0, 0, 0.3);\n}\n  .swish-text {\n  position: absolute;\n  color: #FFEB3B;\n  font-size: 2em;\n  font-weight: bold;\n  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n  pointer-events: none;\n  animation: _ngcontent-%COMP%_floatUp 1s ease-out forwards;\n  z-index: 15;\n}\n@keyframes _ngcontent-%COMP%_floatUp {\n  0% {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-50px) scale(1.5);\n  }\n}\n.top-hud[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 20px;\n  left: 20px;\n  right: 20px;\n  display: flex;\n  justify-content: space-between;\n  z-index: 30;\n  pointer-events: none;\n}\n.hud-item[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 5px 15px;\n  border-radius: 20px;\n  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);\n}\n/*# sourceMappingURL=flappy_dunk.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FlappyDunkComponent, [{
@@ -74101,7 +75162,14 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
 </div>
 
 <div id="ui-layer">
-    <!-- Game Score -->
+    <!-- Top HUD -->
+    <div class="top-hud">
+        <div class="hud-item">Level: {{currentLevelIndex + 1}}</div>
+        <div class="hud-item">Score: {{gamePoints}}</div>
+        <div class="hud-item">Session: {{sessionPoints}}</div>
+    </div>
+
+    <!-- Game Score (Center) -->
     <div class="hud" id="scoreUI" [class.hidden]="gameState === 'START' || gameState === 'GAMEOVER'">
         {{gamePoints}}
     </div>
@@ -74110,21 +75178,23 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
 <!-- Menus -->
 <div id="startScreen" class="screen" [class.hidden]="gameState !== 'START'">
     <h1>{{tools.flappy_dunk[tools.lang]?.title || 'Flappy Dunk'}}</h1>
-    <p [innerHTML]="tools.flappy_dunk[tools.lang]?.instructions || 'Tap to flap.<br>Dunk through the hoops.<br>Don\\'t miss!'"></p>
+    <p [innerHTML]="currentLevelConfig?.baskestsCount === 0 ? 
+        (tools.flappy_dunk[tools.lang]?.instructions_infinite || 'Dunk through the hoops until you lose.') : 
+        (tools.flappy_dunk[tools.lang]?.instructions_finite || 'Dunk through the hoops until you reach the end.')"></p>
     <button class="btn" (click)="startGame()">{{tools.flappy_dunk[tools.lang]?.tapToPlay || 'TAP TO PLAY'}}</button>
 </div>
 
-<div id="gameOverScreen" class="screen" [class.hidden]="gameState !== 'GAMEOVER'">
-    <h1 style="color: #ff5252; text-shadow: 0 4px 0 #b71c1c, 0 8px 15px rgba(0,0,0,0.3);">
-        {{tools.flappy_dunk[tools.lang]?.gameOver || 'GAME OVER'}}
+<div id="gameOverScreen" class="screen" [class.hidden]="gameState !== 'GAMEOVER' && gameState !== 'LEVEL_CLEAR'">
+    <h1 [style.color]="gameState === 'LEVEL_CLEAR' ? '#4CAF50' : '#ff5252'" [style.textShadow]="gameState === 'LEVEL_CLEAR' ? '0 4px 0 #1B5E20, 0 8px 15px rgba(0,0,0,0.3)' : '0 4px 0 #b71c1c, 0 8px 15px rgba(0,0,0,0.3)'">
+        {{gameState === 'LEVEL_CLEAR' ? 'LEVEL CLEARED!' : (tools.flappy_dunk[tools.lang]?.gameOver || 'GAME OVER')}}
     </h1>
     <p>
         {{tools.flappy_dunk[tools.lang]?.scoreLabel || 'Score: '}} 
         <span id="finalScore" style="color: #e91e63; font-size: 1.5em;">{{gamePoints}}</span>
     </p>
-    <button class="btn" (click)="initGameState()">{{tools.flappy_dunk[tools.lang]?.playAgain || 'PLAY AGAIN'}}</button>
+    <button class="btn" (click)="initGameState()">{{gameState === 'LEVEL_CLEAR' ? 'NEXT LEVEL' : (tools.flappy_dunk[tools.lang]?.playAgain || 'PLAY AGAIN')}}</button>
 </div>
-`, styles: ["/* src/app/games/flappy_dunk/flappy_dunk.component.css */\n:host {\n  display: block;\n  width: 100vw;\n  height: calc(100vh - 70px);\n  --bg-color: #f5e4c3;\n  background-color: var(--bg-color);\n  overflow: hidden;\n  touch-action: none;\n  -webkit-user-select: none;\n  user-select: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\ncanvas {\n  display: block;\n  background-color: var(--bg-color);\n  background-image:\n    linear-gradient(rgba(0, 0, 0, 0.05) 2px, transparent 2px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.05) 2px,\n      transparent 2px),\n    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),\n    linear-gradient(\n      90deg,\n      rgba(0, 0, 0, 0.03) 1px,\n      transparent 1px);\n  background-size:\n    100px 100px,\n    100px 100px,\n    20px 20px,\n    20px 20px;\n  background-position:\n    -2px -2px,\n    -2px -2px,\n    -1px -1px,\n    -1px -1px;\n}\n#ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  position: absolute;\n  top: 20%;\n  left: 50%;\n  transform: translateX(-50%);\n  font-size: 4em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 0px 4px 0px #ccc, 0px 6px 10px rgba(0, 0, 0, 0.2);\n  transition: transform 0.1s;\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(245, 228, 195, 0.85);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\n.hidden {\n  display: none !important;\n}\nh1 {\n  font-size: 3.5em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  text-shadow: 0 4px 0 #ff4081, 0 8px 15px rgba(0, 0, 0, 0.3);\n  text-align: center;\n}\np {\n  font-size: 1.5em;\n  color: #555;\n  margin-bottom: 30px;\n  text-align: center;\n  font-weight: bold;\n}\n.btn {\n  background: #e91e63;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 0 #880e4f, 0 10px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn:active {\n  transform: translateY(6px);\n  box-shadow: 0 0 0 #880e4f, 0 4px 5px rgba(0, 0, 0, 0.3);\n}\n::ng-deep .swish-text {\n  position: absolute;\n  color: #FFEB3B;\n  font-size: 2em;\n  font-weight: bold;\n  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n  pointer-events: none;\n  animation: floatUp 1s ease-out forwards;\n  z-index: 15;\n}\n@keyframes floatUp {\n  0% {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-50px) scale(1.5);\n  }\n}\n/*# sourceMappingURL=flappy_dunk.component.css.map */\n"] }]
+`, styles: ["/* src/app/games/flappy_dunk/flappy_dunk.component.css */\n:host {\n  position: relative;\n  display: block;\n  width: 100vw;\n  height: calc(100vh - 70px);\n  --bg-color: #f5e4c3;\n  background-color: var(--bg-color);\n  overflow: hidden;\n  touch-action: none;\n  -webkit-user-select: none;\n  user-select: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n}\ncanvas {\n  display: block;\n  background-color: var(--bg-color);\n}\n#ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 30;\n}\n.hud {\n  position: absolute;\n  top: 20%;\n  left: 50%;\n  transform: translateX(-50%);\n  font-size: 4em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 0px 4px 0px #ccc, 0px 6px 10px rgba(0, 0, 0, 0.2);\n  transition: transform 0.1s;\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(245, 228, 195, 0.85);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\n.hidden {\n  display: none !important;\n}\nh1 {\n  font-size: 3.5em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  text-shadow: 0 4px 0 #ff4081, 0 8px 15px rgba(0, 0, 0, 0.3);\n  text-align: center;\n}\np {\n  font-size: 1.5em;\n  color: #555;\n  margin-bottom: 30px;\n  text-align: center;\n  font-weight: bold;\n}\n.btn {\n  background: #e91e63;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 0 #880e4f, 0 10px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s, box-shadow 0.1s;\n}\n.btn:active {\n  transform: translateY(6px);\n  box-shadow: 0 0 0 #880e4f, 0 4px 5px rgba(0, 0, 0, 0.3);\n}\n::ng-deep .swish-text {\n  position: absolute;\n  color: #FFEB3B;\n  font-size: 2em;\n  font-weight: bold;\n  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n  pointer-events: none;\n  animation: floatUp 1s ease-out forwards;\n  z-index: 15;\n}\n@keyframes floatUp {\n  0% {\n    opacity: 1;\n    transform: translateY(0) scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: translateY(-50px) scale(1.5);\n  }\n}\n.top-hud {\n  position: absolute;\n  top: 20px;\n  left: 20px;\n  right: 20px;\n  display: flex;\n  justify-content: space-between;\n  z-index: 30;\n  pointer-events: none;\n}\n.hud-item {\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 5px 15px;\n  border-radius: 20px;\n  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);\n}\n/*# sourceMappingURL=flappy_dunk.component.css.map */\n"] }]
   }], null, { gameContainer: [{
     type: ViewChild,
     args: ["gameContainer"]
@@ -74134,14 +75204,30 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FlappyDunkComponent, { className: "FlappyDunkComponent", filePath: "src/app/games/flappy_dunk/flappy_dunk.component.ts", lineNumber: 31 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FlappyDunkComponent, { className: "FlappyDunkComponent", filePath: "src/app/games/flappy_dunk/flappy_dunk.component.ts", lineNumber: 56 });
 })();
 
 // src/app/games/helix_jump/helix_jump.component.ts
 var _c05 = ["gameContainer"];
 function HelixJumpComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div");
+    \u0275\u0275text(1);
+    \u0275\u0275elementStart(2, "span");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1("", (ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].time) || "Time: ", " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.timeLeft);
+  }
+}
+function HelixJumpComponent_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 4)(1, "h1");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
@@ -74149,25 +75235,25 @@ function HelixJumpComponent_Conditional_13_Template(rf, ctx) {
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "button", 5);
-    \u0275\u0275listener("click", function HelixJumpComponent_Conditional_13_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.startGame());
+    \u0275\u0275listener("click", function HelixJumpComponent_Conditional_14_Template_button_click_5_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.startGame());
     });
     \u0275\u0275text(6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].helix_jump_title) || "Helix Jump");
+    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].helix_jump_title) || "Helix Jump");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].helix_jump_inst) || "Rotate the tower to drop the bouncing ball to the bottom!");
+    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].helix_jump_inst) || "Rotate the tower to drop the bouncing ball to the bottom!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
+    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].startGame) || "Start Game");
   }
 }
-function HelixJumpComponent_Conditional_14_Template(rf, ctx) {
+function HelixJumpComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 4)(1, "h1");
@@ -74177,25 +75263,25 @@ function HelixJumpComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "button", 5);
-    \u0275\u0275listener("click", function HelixJumpComponent_Conditional_14_Template_button_click_5_listener() {
+    \u0275\u0275listener("click", function HelixJumpComponent_Conditional_15_Template_button_click_5_listener() {
       \u0275\u0275restoreView(_r3);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.nextLevel());
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.nextLevel());
     });
     \u0275\u0275text(6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].levelCleared) || "Level Cleared!");
+    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].levelCleared) || "Level Cleared!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].score) || "Score: ", " ", ctx_r0.levelPoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].nextLevel) || "Next Level");
+    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].nextLevel) || "Next Level");
   }
 }
-function HelixJumpComponent_Conditional_15_Template(rf, ctx) {
+function HelixJumpComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 4)(1, "h1");
@@ -74205,22 +75291,22 @@ function HelixJumpComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "button", 5);
-    \u0275\u0275listener("click", function HelixJumpComponent_Conditional_15_Template_button_click_5_listener() {
+    \u0275\u0275listener("click", function HelixJumpComponent_Conditional_16_Template_button_click_5_listener() {
       \u0275\u0275restoreView(_r4);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.startGame());
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.startGame());
     });
     \u0275\u0275text(6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
+    const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].gameOver) || "Game Over");
+    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].gameOver) || "Game Over");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].score) || "Score: ", " ", ctx_r0.levelPoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].tryAgain) || "Try Again");
+    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].tryAgain) || "Try Again");
   }
 }
 var HelixJumpComponent = class _HelixJumpComponent {
@@ -74229,12 +75315,20 @@ var HelixJumpComponent = class _HelixJumpComponent {
   gameContainer;
   gameState = "START";
   gamePoints = 0;
-  level = 1;
+  levelPoints = 0;
+  level = 0;
+  levelsConfig = [];
+  currentLevelConfig = null;
+  timeLeft = 0;
+  timerInterval = null;
   scene;
   camera;
   renderer;
   towerGroup;
   ball;
+  pillar;
+  explosionParticles = null;
+  explosionVelocities = [];
   ballVy = 0;
   gravity = -0.015;
   bounceVelocity = 0.28;
@@ -74242,6 +75336,9 @@ var HelixJumpComponent = class _HelixJumpComponent {
   platformThickness = 0.4;
   currentPlatformIndex = 0;
   platformsData = [];
+  consecutiveHoles = 0;
+  chargeTrail = [];
+  breakingWedges = [];
   isDragging = false;
   previousMouseX = 0;
   animationFrameId = null;
@@ -74254,12 +75351,26 @@ var HelixJumpComponent = class _HelixJumpComponent {
   ngOnInit() {
     this.tools.setTitle("helix_jump");
     this.tools.actPage = "helix_jump";
+    this.fetchLevels();
+  }
+  fetchLevels() {
+    return __async(this, null, function* () {
+      try {
+        const response = yield fetch("/games/helix_jump/data/levels.json");
+        if (response.ok) {
+          this.levelsConfig = yield response.json();
+        }
+      } catch (e) {
+        console.error("Failed to load levels.json", e);
+      }
+    });
   }
   ngAfterViewInit() {
     this.init3D();
   }
   ngOnDestroy() {
     this.stopLoop();
+    this.stopTimer();
     window.removeEventListener("resize", this.onResizeBound);
     window.removeEventListener("pointerup", this.onPointerUpBound);
     if (this.renderer) {
@@ -74272,15 +75383,42 @@ var HelixJumpComponent = class _HelixJumpComponent {
     this.tools.leaveMinigame("helix_jump", this.gamePoints, this.level);
   }
   startGame() {
-    this.gamePoints = 0;
-    this.level = 1;
     this.gameState = "PLAYING";
+    this.levelPoints = 0;
     this.resetLevel();
   }
   nextLevel() {
     this.level++;
+    this.levelPoints = 0;
     this.gameState = "PLAYING";
     this.resetLevel();
+  }
+  startTimer() {
+    this.stopTimer();
+    if (this.currentLevelConfig && this.currentLevelConfig.time > 0) {
+      this.ngZone.run(() => {
+        this.timeLeft = this.currentLevelConfig.time;
+      });
+      this.timerInterval = setInterval(() => {
+        if (this.tools.isWindowBlurred)
+          return;
+        this.ngZone.run(() => {
+          this.timeLeft--;
+          if (this.timeLeft <= 0) {
+            this.stopTimer();
+            this.triggerExplosion();
+          }
+        });
+      }, 1e3);
+    } else {
+      this.timeLeft = 0;
+    }
+  }
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
   }
   init3D() {
     const container = this.gameContainer.nativeElement;
@@ -74303,11 +75441,11 @@ var HelixJumpComponent = class _HelixJumpComponent {
     this.scene.add(dirLight);
     this.towerGroup = new Group();
     this.scene.add(this.towerGroup);
-    const pillarGeo = new CylinderGeometry(1.2, 1.2, 80, 32);
+    const pillarGeo = new CylinderGeometry(1.2, 1.2, 150, 32);
     const pillarMat = new MeshLambertMaterial({ color: 13684944 });
-    const pillar = new Mesh(pillarGeo, pillarMat);
-    pillar.position.y = -20;
-    this.towerGroup.add(pillar);
+    this.pillar = new Mesh(pillarGeo, pillarMat);
+    this.pillar.position.y = -50;
+    this.towerGroup.add(this.pillar);
     const ballGeo = new SphereGeometry(this.ballRadius, 32, 32);
     const ballMat = new MeshLambertMaterial({ color: 16728193 });
     this.ball = new Mesh(ballGeo, ballMat);
@@ -74322,42 +75460,148 @@ var HelixJumpComponent = class _HelixJumpComponent {
     });
   }
   resetLevel() {
+    if (this.explosionParticles) {
+      this.scene.remove(this.explosionParticles);
+      this.explosionParticles.geometry.dispose();
+      this.explosionParticles.material.dispose();
+      this.explosionParticles = null;
+    }
+    this.consecutiveHoles = 0;
+    this.chargeTrail.forEach((p) => {
+      this.scene.remove(p);
+      p.geometry.dispose();
+      p.material.dispose();
+    });
+    this.chargeTrail = [];
+    this.breakingWedges.forEach((w) => {
+      this.scene.remove(w.mesh);
+      w.mesh.geometry.dispose();
+      w.mesh.material.dispose();
+    });
+    this.breakingWedges = [];
+    if (this.levelsConfig && this.levelsConfig.length > 0) {
+      this.currentLevelConfig = this.levelsConfig[Math.floor(Math.random() * this.levelsConfig.length)];
+    } else {
+      this.currentLevelConfig = {
+        floors: 6 + this.level * 2,
+        safeFloorPercentage: 60,
+        holeSizePercentage: 15,
+        numberOfHoles: 1,
+        holesSorting: "random",
+        distanceBetweenFloors: 3.5,
+        time: 30,
+        tubeColor: "rgba(208, 208, 208, 1)",
+        backgroundColor: "rgba(236, 236, 236, 1)",
+        floorColor: "rgba(0, 230, 118, 1)",
+        floorKillerColor: "rgba(211, 47, 47, 1)",
+        ballColor: "rgba(255, 64, 129, 1)"
+      };
+    }
+    this.scene.background = new Color(this.currentLevelConfig.backgroundColor);
+    this.pillar.material.color = new Color(this.currentLevelConfig.tubeColor);
+    this.ball.material.color = new Color(this.currentLevelConfig.ballColor);
     this.platformsData.forEach((p) => this.towerGroup.remove(p.group));
     this.platformsData = [];
     this.currentPlatformIndex = 0;
+    this.ball.visible = true;
     this.ball.position.set(0, 8, 2.5);
     this.ballVy = 0;
     this.towerGroup.rotation.y = 0;
-    const numPlatforms = 6 + this.level * 2;
-    const startY = 6;
-    const gapY = 3.5;
+    const numPlatforms = this.currentLevelConfig.floors;
+    const gapY = this.currentLevelConfig.distanceBetweenFloors || 3.5;
+    this.platformThickness = Math.min(0.4, gapY * 0.8);
+    const tubeHeight = Math.max(150, numPlatforms * gapY + 50);
+    this.pillar.scale.set(1, tubeHeight / 150, 1);
+    this.pillar.position.y = 30 - tubeHeight / 2;
+    let previousRotationOffset = Math.random() * Math.PI * 2;
+    let holesSorting = this.currentLevelConfig.holesSorting || "random";
+    let alignDrift = Math.random() < 0.33 ? 0 : Math.random() < 0.5 ? -1 : 1;
     for (let i = 0; i < numPlatforms; i++) {
-      const y = startY - i * gapY;
+      const y = 6 - i * gapY;
       const group = new Group();
       group.position.y = y;
       const isLast = i === numPlatforms - 1;
-      const numSlices = 12;
-      const missingSlices = isLast ? 0 : 3;
-      const dangerChance = isLast ? 0 : 0.25;
-      let startAngle = 0;
+      const numSlices = 36;
+      let safePercent = this.currentLevelConfig.safeFloorPercentage || 60;
+      let holePercent = this.currentLevelConfig.holeSizePercentage || 15;
+      if (isLast) {
+        safePercent = 100;
+        holePercent = 0;
+      }
+      const holeSlicesTotal = Math.floor(numSlices * (holePercent / 100));
+      const minHoleSize = 3;
+      let holes = isLast ? 0 : this.currentLevelConfig.numberOfHoles;
+      let holeSize = holes > 0 ? Math.max(1, Math.floor(holeSlicesTotal / holes)) : 0;
+      let rotationOffset = 0;
+      if (holesSorting !== "random") {
+        if (i === 0) {
+          rotationOffset = previousRotationOffset;
+        } else if (holesSorting === "oposite") {
+          rotationOffset = previousRotationOffset + Math.PI;
+        } else if (holesSorting === "aligned") {
+          rotationOffset = previousRotationOffset + alignDrift * 0.08;
+        } else if (holesSorting === "serpent") {
+          let serpentDrift = Math.random() < 0.5 ? -0.08 : 0.08;
+          rotationOffset = previousRotationOffset + serpentDrift;
+        }
+        group.rotation.y = rotationOffset;
+        previousRotationOffset = rotationOffset;
+      }
+      const holeStartIndices = [];
+      if (holes > 0) {
+        const interval = Math.floor(numSlices / holes);
+        for (let h = 0; h < holes; h++) {
+          if (holesSorting === "random") {
+            let start = h * interval + Math.floor(Math.random() * (interval - holeSize + 1));
+            holeStartIndices.push(start);
+          } else {
+            let start = h * interval;
+            holeStartIndices.push(start);
+          }
+        }
+      }
       const sliceAngle = Math.PI * 2 / numSlices;
-      const missingStart = Math.floor(Math.random() * numSlices);
+      let startAngle = 0;
+      const dangerPercent = Math.max(0, 100 - safePercent - holePercent);
+      let dangerSlices = Math.floor(numSlices * (dangerPercent / 100));
+      if (isLast || i === 0)
+        dangerSlices = 0;
+      let nonHoleCount = numSlices - holes * holeSize;
+      let dangerArray = new Array(nonHoleCount).fill(false);
+      for (let d = 0; d < dangerSlices; d++) {
+        if (d < dangerArray.length)
+          dangerArray[d] = true;
+      }
+      for (let j = dangerArray.length - 1; j > 0; j--) {
+        const k = Math.floor(Math.random() * (j + 1));
+        [dangerArray[j], dangerArray[k]] = [dangerArray[k], dangerArray[j]];
+      }
       for (let s = 0; s < numSlices; s++) {
-        if (!isLast && s >= missingStart && s < missingStart + missingSlices) {
+        let isHole = false;
+        for (let startIdx of holeStartIndices) {
+          if (s >= startIdx && s < startIdx + holeSize) {
+            isHole = true;
+            break;
+          }
+        }
+        if (isHole) {
+          startAngle += sliceAngle;
           continue;
         }
-        const wedgeGeo = new CylinderGeometry(3.2, 3.2, this.platformThickness, 8, 1, false, startAngle, sliceAngle);
-        let color = 58998;
+        const wedgeGeo = new CylinderGeometry(3.2, 3.2, this.platformThickness, 4, 1, false, startAngle, sliceAngle);
+        let colorStr = this.currentLevelConfig.floorColor;
         let isDanger = false;
         let isWin = false;
         if (isLast) {
-          color = 16766287;
+          colorStr = "rgba(255, 213, 79, 1)";
           isWin = true;
-        } else if (Math.random() < dangerChance) {
-          color = 13840175;
-          isDanger = true;
+        } else {
+          isDanger = dangerArray.pop() || false;
+          if (isDanger) {
+            colorStr = this.currentLevelConfig.floorKillerColor;
+          }
         }
-        const mat = new MeshLambertMaterial({ color });
+        const mat = new MeshLambertMaterial({ color: new Color(colorStr) });
         const wedge = new Mesh(wedgeGeo, mat);
         wedge.receiveShadow = true;
         wedge.userData = { isDanger, isWin };
@@ -74367,6 +75611,32 @@ var HelixJumpComponent = class _HelixJumpComponent {
       this.towerGroup.add(group);
       this.platformsData.push({ y, group });
     }
+    this.startTimer();
+  }
+  breakFloor(pData, isSmashed = false) {
+    if (pData.broken)
+      return;
+    pData.broken = true;
+    const worldPos = new Vector3();
+    const worldQuat = new Quaternion();
+    const wedgesToBreak = [...pData.group.children];
+    const speedMultiplier = isSmashed ? 1.5 : 0.8;
+    wedgesToBreak.forEach((child) => {
+      const wedge = child;
+      wedge.getWorldPosition(worldPos);
+      wedge.getWorldQuaternion(worldQuat);
+      this.scene.add(wedge);
+      wedge.position.copy(worldPos);
+      wedge.quaternion.copy(worldQuat);
+      const r = Math.random() * Math.PI * 2;
+      this.breakingWedges.push({
+        mesh: wedge,
+        vx: Math.cos(r) * 0.4 * speedMultiplier,
+        vy: (Math.random() * 0.3 + 0.2) * speedMultiplier,
+        vz: Math.sin(r) * 0.4 * speedMultiplier
+      });
+    });
+    this.towerGroup.remove(pData.group);
   }
   onPointerDown(e) {
     if (this.gameState !== "PLAYING")
@@ -74384,54 +75654,160 @@ var HelixJumpComponent = class _HelixJumpComponent {
   onPointerUp() {
     this.isDragging = false;
   }
-  animate() {
-    this.animationFrameId = requestAnimationFrame(() => this.animate());
+  triggerExplosion() {
+    if (this.explosionParticles)
+      return;
+    this.ball.visible = false;
+    this.gameState = "LOSE";
+    this.stopTimer();
+    const particleCount = 60;
+    const geometry = new BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    this.explosionVelocities = [];
+    const ballColor = new Color(this.currentLevelConfig?.ballColor || 16728193);
+    for (let i = 0; i < particleCount; i++) {
+      positions[i * 3] = this.ball.position.x + (Math.random() - 0.5) * 0.5;
+      positions[i * 3 + 1] = this.ball.position.y + (Math.random() - 0.5) * 0.5;
+      positions[i * 3 + 2] = this.ball.position.z + (Math.random() - 0.5) * 0.5;
+      this.explosionVelocities.push(new Vector3((Math.random() - 0.5) * 0.3, (Math.random() - 0.5) * 0.3 + 0.2, (Math.random() - 0.5) * 0.3));
+    }
+    geometry.setAttribute("position", new BufferAttribute(positions, 3));
+    const material = new PointsMaterial({
+      color: ballColor,
+      size: 0.3
+    });
+    this.explosionParticles = new Points(geometry, material);
+    this.scene.add(this.explosionParticles);
+    this.tools.playSound("sfx_8");
+  }
+  animate = () => {
+    this.animationFrameId = requestAnimationFrame(this.animate);
+    if (this.tools.isWindowBlurred)
+      return;
     if (this.gameState === "PLAYING") {
       this.ballVy += this.gravity;
       this.ball.position.y += this.ballVy;
       this.ball.scale.x += (1 - this.ball.scale.x) * 0.1;
       this.ball.scale.y += (1 - this.ball.scale.y) * 0.1;
       this.ball.scale.z += (1 - this.ball.scale.z) * 0.1;
+      const lastPlatform = this.platformsData[this.platformsData.length - 1];
+      if (lastPlatform && this.ball.position.y < lastPlatform.y - this.platformThickness) {
+        this.ngZone.run(() => {
+          this.gamePoints += 50;
+          this.gameState = "WIN";
+          this.stopTimer();
+          this.tools.playSound("sfx_4");
+        });
+        return;
+      }
       const pData = this.platformsData[this.currentPlatformIndex];
       if (pData) {
+        let didHit = false;
         const platformTopY = pData.y + this.platformThickness / 2;
-        if (this.ballVy < 0 && this.ball.position.y - this.ballRadius <= platformTopY && this.ball.position.y > pData.y - this.platformThickness) {
-          this.raycaster.set(this.ball.position, this.downVector);
+        if (!pData.broken && this.ballVy < 0 && this.ball.position.y - this.ballRadius <= platformTopY) {
+          const rayPos = new Vector3(this.ball.position.x, platformTopY + 1, this.ball.position.z);
+          this.raycaster.set(rayPos, this.downVector);
           const intersects = this.raycaster.intersectObjects(pData.group.children);
-          if (intersects.length > 0 && intersects[0].distance < this.ballRadius + 0.25) {
+          if (intersects.length > 0) {
+            didHit = true;
             const hit = intersects[0].object;
-            if (hit.userData["isDanger"]) {
+            if (this.consecutiveHoles >= 3) {
+              this.consecutiveHoles = 0;
               this.ngZone.run(() => {
-                this.gameState = "LOSE";
-                this.tools.playSound("sfx_8");
+                this.gamePoints += 20;
+                this.levelPoints += 20;
+                this.tools.playSound("sfx_1");
               });
-            } else if (hit.userData["isWin"]) {
-              this.ngZone.run(() => {
-                this.gamePoints += 50;
-                this.gameState = "WIN";
-                this.tools.playSound("sfx_4");
-              });
+              this.breakFloor(pData, true);
             } else {
-              this.ball.position.y = platformTopY + this.ballRadius;
-              this.ballVy = this.bounceVelocity;
-              this.ball.scale.set(1.3, 0.7, 1.3);
-              this.tools.playSound("sfx_1");
+              this.consecutiveHoles = 0;
+              if (hit.userData["isDanger"]) {
+                this.ngZone.run(() => {
+                  this.triggerExplosion();
+                });
+              } else if (hit.userData["isWin"]) {
+                this.ngZone.run(() => {
+                  this.gamePoints += 50;
+                  this.levelPoints += 50;
+                  this.gameState = "WIN";
+                  this.stopTimer();
+                  this.tools.playSound("sfx_4");
+                });
+              } else {
+                this.ball.position.y = platformTopY + this.ballRadius;
+                this.ballVy = this.bounceVelocity;
+                this.ball.scale.set(1.3, 0.7, 1.3);
+                this.tools.playSound("sfx_1");
+              }
             }
           }
-        } else if (this.ball.position.y < pData.y - this.platformThickness) {
+        }
+        if (!didHit && this.ball.position.y < pData.y - this.platformThickness) {
           this.currentPlatformIndex++;
+          if (!pData.broken) {
+            this.consecutiveHoles++;
+            this.breakFloor(pData, false);
+          }
           this.ngZone.run(() => {
             this.gamePoints += 10;
+            this.levelPoints += 10;
           });
+        }
+      }
+      if (this.consecutiveHoles >= 3) {
+        const pGeo = new SphereGeometry(this.ballRadius * 0.6, 8, 8);
+        const pMat = new MeshBasicMaterial({ color: 16777215, transparent: true, opacity: 0.7 });
+        const p = new Mesh(pGeo, pMat);
+        p.position.copy(this.ball.position);
+        p.position.x += (Math.random() - 0.5) * 0.6;
+        p.position.z += (Math.random() - 0.5) * 0.6;
+        this.scene.add(p);
+        this.chargeTrail.push(p);
+      }
+      for (let i = this.chargeTrail.length - 1; i >= 0; i--) {
+        const p = this.chargeTrail[i];
+        p.scale.multiplyScalar(0.85);
+        p.position.y += 0.1;
+        p.material.opacity -= 0.05;
+        if (p.scale.x < 0.1 || p.material.opacity <= 0) {
+          this.scene.remove(p);
+          p.geometry.dispose();
+          p.material.dispose();
+          this.chargeTrail.splice(i, 1);
+        }
+      }
+      for (let i = this.breakingWedges.length - 1; i >= 0; i--) {
+        const bw = this.breakingWedges[i];
+        bw.vy += this.gravity;
+        bw.mesh.position.x += bw.vx;
+        bw.mesh.position.y += bw.vy;
+        bw.mesh.position.z += bw.vz;
+        bw.mesh.rotation.x += 0.1;
+        bw.mesh.rotation.z += 0.1;
+        if (bw.mesh.position.y < this.camera.position.y - 20) {
+          this.scene.remove(bw.mesh);
+          bw.mesh.geometry.dispose();
+          bw.mesh.material.dispose();
+          this.breakingWedges.splice(i, 1);
         }
       }
       this.camera.position.y += (this.ball.position.y + 3 - this.camera.position.y) * 0.1;
       this.camera.lookAt(0, this.ball.position.y - 1, 0);
     }
+    if (this.explosionParticles) {
+      const positions = this.explosionParticles.geometry.attributes["position"].array;
+      for (let i = 0; i < this.explosionVelocities.length; i++) {
+        this.explosionVelocities[i].y += this.gravity;
+        positions[i * 3] += this.explosionVelocities[i].x;
+        positions[i * 3 + 1] += this.explosionVelocities[i].y;
+        positions[i * 3 + 2] += this.explosionVelocities[i].z;
+      }
+      this.explosionParticles.geometry.attributes["position"].needsUpdate = true;
+    }
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
     }
-  }
+  };
   onResize() {
     if (!this.camera || !this.renderer)
       return;
@@ -74459,7 +75835,7 @@ var HelixJumpComponent = class _HelixJumpComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.gameContainer = _t.first);
     }
-  }, decls: 16, vars: 11, consts: [["gameContainer", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], [1, "screen"], [1, "btn", 3, "click"]], template: function HelixJumpComponent_Template(rf, ctx) {
+  }, decls: 17, vars: 12, consts: [["gameContainer", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], [1, "screen"], [1, "btn", 3, "click"]], template: function HelixJumpComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div");
       \u0275\u0275element(1, "div", 1, 0);
@@ -74472,8 +75848,10 @@ var HelixJumpComponent = class _HelixJumpComponent {
       \u0275\u0275text(10);
       \u0275\u0275elementStart(11, "span");
       \u0275\u0275text(12);
-      \u0275\u0275elementEnd()()()();
-      \u0275\u0275template(13, HelixJumpComponent_Conditional_13_Template, 7, 3, "div", 4)(14, HelixJumpComponent_Conditional_14_Template, 7, 4, "div", 4)(15, HelixJumpComponent_Conditional_15_Template, 7, 4, "div", 4);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275template(13, HelixJumpComponent_Conditional_13_Template, 4, 2, "div");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275template(14, HelixJumpComponent_Conditional_14_Template, 7, 3, "div", 4)(15, HelixJumpComponent_Conditional_15_Template, 7, 4, "div", 4)(16, HelixJumpComponent_Conditional_16_Template, 7, 4, "div", 4);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
@@ -74487,11 +75865,13 @@ var HelixJumpComponent = class _HelixJumpComponent {
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.level);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "START" ? 13 : -1);
+      \u0275\u0275conditional(ctx.timeLeft > 0 ? 13 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "WIN" ? 14 : -1);
+      \u0275\u0275conditional(ctx.gameState === "START" ? 14 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "LOSE" ? 15 : -1);
+      \u0275\u0275conditional(ctx.gameState === "WIN" ? 15 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.gameState === "LOSE" ? 16 : -1);
     }
   }, dependencies: [CommonModule], styles: ["\n\n.helix-jump-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #ECECEC;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  padding: 20px 30px;\n  font-size: 1.8em;\n  font-weight: 800;\n  color: #333;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(255, 255, 255, 0.75);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 3em;\n  color: #222;\n  margin-bottom: 15px;\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  color: #555;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 14px 40px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #E91E63,\n      #C2185B);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=helix_jump.component.css.map */"] });
 };
@@ -74505,6 +75885,9 @@ var HelixJumpComponent = class _HelixJumpComponent {
     <div class="hud">
       <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
       <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+      @if (timeLeft > 0) {
+        <div>{{tools.minigames[tools.lang]?.time || 'Time: '}} <span>{{timeLeft}}</span></div>
+      }
     </div>
   </div>
 
@@ -74519,7 +75902,7 @@ var HelixJumpComponent = class _HelixJumpComponent {
   @if (gameState === 'WIN') {
     <div class="screen">
       <h1>{{tools.minigames[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
       <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
     </div>
   }
@@ -74527,7 +75910,7 @@ var HelixJumpComponent = class _HelixJumpComponent {
   @if (gameState === 'LOSE') {
     <div class="screen">
       <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
       <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
     </div>
   }
@@ -74607,7 +75990,7 @@ var MagicSortComponent = class _MagicSortComponent {
   renderer = inject(Renderer2);
   elRef = inject(ElementRef);
   gameState = "START";
-  level = 1;
+  level = 0;
   tubes = [];
   selectedTubeIndex = null;
   initialTubesState = [];
@@ -74971,7 +76354,7 @@ var MobControlComponent = class _MobControlComponent {
   canvasRef;
   gameState = "START";
   gamePoints = 0;
-  level = 1;
+  level = 0;
   cannonX = 200;
   units = [];
   gates = [];
@@ -75071,6 +76454,8 @@ var MobControlComponent = class _MobControlComponent {
   }
   loop() {
     this.animationFrameId = requestAnimationFrame(() => this.loop());
+    if (this.tools.isWindowBlurred)
+      return;
     if (this.gameState === "PLAYING") {
       const canvas = this.canvasRef.nativeElement;
       this.cannonX += (this.pointerX - this.cannonX) * 0.2;
@@ -75977,7 +77362,7 @@ var PaperIoComponent = class _PaperIoComponent {
     });
   }
   loop(timestamp) {
-    if (this.gameState !== "PLAYING") {
+    if (this.tools.isWindowBlurred || this.gameState !== "PLAYING") {
       this.animationFrameId = requestAnimationFrame((ts) => this.loop(ts));
       return;
     }
@@ -76378,7 +77763,7 @@ var SpiralRollComponent = class _SpiralRollComponent {
   gameContainer;
   gameState = "START";
   gamePoints = 0;
-  level = 1;
+  level = 0;
   scene;
   camera;
   renderer;
@@ -76416,7 +77801,7 @@ var SpiralRollComponent = class _SpiralRollComponent {
   }
   startGame() {
     this.gamePoints = 0;
-    this.level = 1;
+    this.level = 0;
     this.gameState = "PLAYING";
     this.resetLevel();
   }
@@ -76529,6 +77914,8 @@ var SpiralRollComponent = class _SpiralRollComponent {
   }
   animate() {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
+    if (this.tools.isWindowBlurred)
+      return;
     if (this.gameState === "PLAYING") {
       this.playerGroup.position.z -= 0.25;
       if (this.isHolding && this.activeRoll) {
@@ -76787,7 +78174,7 @@ var StackColorsComponent = class _StackColorsComponent {
   gameContainer;
   gameState = "START";
   gamePoints = 0;
-  level = 1;
+  level = 0;
   scene;
   camera;
   renderer;
@@ -76832,7 +78219,7 @@ var StackColorsComponent = class _StackColorsComponent {
   }
   startGame() {
     this.gamePoints = 0;
-    this.level = 1;
+    this.level = 0;
     this.gameState = "PLAYING";
     this.resetLevel();
   }
@@ -76951,6 +78338,8 @@ var StackColorsComponent = class _StackColorsComponent {
   }
   animate() {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
+    if (this.tools.isWindowBlurred)
+      return;
     if (this.gameState === "PLAYING") {
       this.playerGroup.position.z -= 0.35;
       this.playerGroup.position.x += (this.targetX - this.playerGroup.position.x) * 0.2;
@@ -77114,7 +78503,7 @@ var StackColorsComponent = class _StackColorsComponent {
 })();
 
 // src/app/pages/minigames/minigames.component.ts
-var _forTrack04 = ($index, $item) => $item.id;
+var _forTrack05 = ($index, $item) => $item.id;
 function MinigamesComponent_For_3_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 6);
@@ -77187,7 +78576,7 @@ var MinigamesComponent = class _MinigamesComponent {
   static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MinigamesComponent, selectors: [["app-minigames"]], decls: 4, vars: 3, consts: [[1, "container"], [3, "class"], [3, "click"], [1, "menu-icon", "coin-glow", 3, "src", "alt"], [1, "card-content"], [1, "card-title"], [1, "card-sub"]], template: function MinigamesComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div");
-      \u0275\u0275repeaterCreate(2, MinigamesComponent_For_3_Template, 6, 7, "div", 1, _forTrack04);
+      \u0275\u0275repeaterCreate(2, MinigamesComponent_For_3_Template, 6, 7, "div", 1, _forTrack05);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -78132,7 +79521,7 @@ var AppComponent = class _AppComponent {
     document.onselectstart = function() {
       return false;
     };
-    document.addEventListener("keydown", this.onKeyDown.bind(this), { passive: false });
+    window.onkeydown = this.onKeyDown.bind(this);
     document.addEventListener("touchstart", this.onTouchStart.bind(this), { passive: false });
     window.addEventListener("beforeunload", (event) => {
       event.preventDefault();
