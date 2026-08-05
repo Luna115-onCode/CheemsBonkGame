@@ -102,7 +102,7 @@ export class ToolsService {
   private musicGain: GainNode | null = null;
   private currentMusicBuffer: AudioBuffer | null = null;
   private currentMusicFile: string = "";
-  private isWindowBlurred: boolean = false;
+  public isWindowBlurred: boolean = false;
 
   availableLanguages: Array<LanguageItem> = AVAILABLE_LANGUAGES;
 
@@ -467,6 +467,7 @@ export class ToolsService {
   }
 
   playSound(customSoundId?: string): void {
+    if (this.isWindowBlurred) return;
     const soundToPlay = customSoundId || this.selectedSound;
     const item = this.soundEffects.find(s => String(s.id) === String(soundToPlay));
 

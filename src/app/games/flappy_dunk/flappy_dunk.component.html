@@ -3,7 +3,14 @@
 </div>
 
 <div id="ui-layer">
-    <!-- Game Score -->
+    <!-- Top HUD -->
+    <div class="top-hud">
+        <div class="hud-item">Level: {{currentLevelIndex + 1}}</div>
+        <div class="hud-item">Score: {{gamePoints}}</div>
+        <div class="hud-item">Session: {{sessionPoints}}</div>
+    </div>
+
+    <!-- Game Score (Center) -->
     <div class="hud" id="scoreUI" [class.hidden]="gameState === 'START' || gameState === 'GAMEOVER'">
         {{gamePoints}}
     </div>
@@ -12,17 +19,19 @@
 <!-- Menus -->
 <div id="startScreen" class="screen" [class.hidden]="gameState !== 'START'">
     <h1>{{tools.flappy_dunk[tools.lang]?.title || 'Flappy Dunk'}}</h1>
-    <p [innerHTML]="tools.flappy_dunk[tools.lang]?.instructions || 'Tap to flap.<br>Dunk through the hoops.<br>Don\'t miss!'"></p>
+    <p [innerHTML]="currentLevelConfig?.baskestsCount === 0 ? 
+        (tools.flappy_dunk[tools.lang]?.instructions_infinite || 'Dunk through the hoops until you lose.') : 
+        (tools.flappy_dunk[tools.lang]?.instructions_finite || 'Dunk through the hoops until you reach the end.')"></p>
     <button class="btn" (click)="startGame()">{{tools.flappy_dunk[tools.lang]?.tapToPlay || 'TAP TO PLAY'}}</button>
 </div>
 
-<div id="gameOverScreen" class="screen" [class.hidden]="gameState !== 'GAMEOVER'">
-    <h1 style="color: #ff5252; text-shadow: 0 4px 0 #b71c1c, 0 8px 15px rgba(0,0,0,0.3);">
-        {{tools.flappy_dunk[tools.lang]?.gameOver || 'GAME OVER'}}
+<div id="gameOverScreen" class="screen" [class.hidden]="gameState !== 'GAMEOVER' && gameState !== 'LEVEL_CLEAR'">
+    <h1 [style.color]="gameState === 'LEVEL_CLEAR' ? '#4CAF50' : '#ff5252'" [style.textShadow]="gameState === 'LEVEL_CLEAR' ? '0 4px 0 #1B5E20, 0 8px 15px rgba(0,0,0,0.3)' : '0 4px 0 #b71c1c, 0 8px 15px rgba(0,0,0,0.3)'">
+        {{gameState === 'LEVEL_CLEAR' ? 'LEVEL CLEARED!' : (tools.flappy_dunk[tools.lang]?.gameOver || 'GAME OVER')}}
     </h1>
     <p>
         {{tools.flappy_dunk[tools.lang]?.scoreLabel || 'Score: '}} 
         <span id="finalScore" style="color: #e91e63; font-size: 1.5em;">{{gamePoints}}</span>
     </p>
-    <button class="btn" (click)="initGameState()">{{tools.flappy_dunk[tools.lang]?.playAgain || 'PLAY AGAIN'}}</button>
+    <button class="btn" (click)="initGameState()">{{gameState === 'LEVEL_CLEAR' ? 'NEXT LEVEL' : (tools.flappy_dunk[tools.lang]?.playAgain || 'PLAY AGAIN')}}</button>
 </div>

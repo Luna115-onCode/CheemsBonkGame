@@ -18,7 +18,7 @@ export class SpiralRollComponent implements OnInit, AfterViewInit, OnDestroy {
 
   gameState: 'START' | 'PLAYING' | 'WIN' | 'LOSE' = 'START';
   gamePoints = 0;
-  level = 1;
+  level = 0;
 
   private scene!: THREE.Scene;
   private camera!: THREE.PerspectiveCamera;
@@ -62,7 +62,7 @@ export class SpiralRollComponent implements OnInit, AfterViewInit, OnDestroy {
 
   startGame(): void {
     this.gamePoints = 0;
-    this.level = 1;
+    this.level = 0;
     this.gameState = 'PLAYING';
     this.resetLevel();
   }
@@ -193,6 +193,7 @@ export class SpiralRollComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private animate(): void {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
+    if (this.tools.isWindowBlurred) return;
 
     if (this.gameState === 'PLAYING') {
       this.playerGroup.position.z -= 0.25;

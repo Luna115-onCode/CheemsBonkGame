@@ -3,12 +3,22 @@
 
   <div class="ui-layer">
     <div class="hud">
-      <div>🗡️ x<span id="bulletCount">{{bullets}}</span> | 💣 x<span id="bombCount">{{bombs}}</span></div>
-      <div class="timer-container">
-        <span>⏱️</span>
-        <span class="timer-ui">{{timeLeftFormatted}}</span>
+      <div class="stats-top">
+        <div>{{ (tools.minigames[tools.lang]?.attack_hole_level || 'Level {0}').replace('{0}', level.toString()) }}</div>
+        <div>{{ (tools.minigames[tools.lang]?.attack_hole_session_points || 'Session: {0}').replace('{0}', sessionPoints.toString()) }}</div>
+        <div>{{ (tools.minigames[tools.lang]?.attack_hole_level_points || 'Points: {0}').replace('{0}', levelPoints.toString()) }}</div>
       </div>
-      <div>🪙 <span>{{gamePoints}}</span></div>
+    </div>
+    
+    <div class="timer-container">
+      <span>⏱️</span>
+      <span class="timer-ui">{{timeLeftFormatted}}</span>
+    </div>
+    
+    <div class="hud-right">
+      @for (item of itemsConfig; track item.id) {
+        <div class="ammo-item"><span>{{item.emojiCounter}}</span> {{collectedItems[item.id] || 0}}</div>
+      }
     </div>
   </div>
 
@@ -17,6 +27,21 @@
       <h1>{{tools.minigames[tools.lang]?.attack_hole_title || 'Attack Hole'}}</h1>
       <p>{{tools.minigames[tools.lang]?.attack_hole_inst || 'Move the hole to swallow weapons and defeat the giant boss!'}}</p>
       <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'ATTACK_READY' || gameState === 'ATTACKING' || gameState === 'ATTACK_END_DELAY') {
+    <div class="boss-health-container">
+      <div class="boss-health-bar-bg">
+        <div class="boss-health-bar-fill" [style.width.%]="(wallCurrentHealth / wallMaxHealthValue) * 100"></div>
+      </div>
+      <div class="boss-health-text">{{wallCurrentHealth | number:'1.0-0'}} / {{wallMaxHealthValue | number:'1.0-0'}}</div>
+    </div>
+  }
+
+  @if (gameState === 'ATTACK_READY') {
+    <div class="screen attack-ready-screen" (click)="triggerAttack()">
+      <h1 class="attack-text flashing">{{tools.minigames[tools.lang]?.attack_hole_attack || 'Attack!'}}</h1>
     </div>
   }
 

@@ -170,6 +170,10 @@ export const minigamesText = {
   victory: "",
   defeat: "",
   convertedPointsToast: "",
+  attack_hole_level: "",
+  attack_hole_session_points: "",
+  attack_hole_level_points: "",
+  attack_hole_attack: "",
   attack_hole_inst: "",
   doge_rescue_inst: "",
   flappy_dunk_inst: "",
@@ -269,7 +273,8 @@ export const p404Text = {
 
 export const flappy_dunkText = {
   title: "",
-  instructions: "",
+  instructions_finite: "",
+  instructions_infinite: "",
   tapToPlay: "",
   gameOver: "",
   scoreLabel: "",

@@ -40,10 +40,102 @@
   text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 
-.timer-container {
+.hud-right {
+  position: absolute;
+  top: 15px;
+  right: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+  align-items: flex-end;
+}
+
+.ammo-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-top {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.attack-ready-screen {
+  background: transparent !important;
+  backdrop-filter: none !important;
+}
+
+.attack-text {
+  font-size: 4em !important;
+  color: #FF1744 !important;
+  text-shadow: 0 0 20px #FF1744, 0 0 30px #D50000 !important;
+  pointer-events: none;
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.1); }
+}
+
+.flashing {
+  animation: flash 1s infinite;
+}
+
+.boss-health-container {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  z-index: 15;
+}
+
+.boss-health-bar-bg {
+  width: 100%;
+  height: 25px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+}
+
+.boss-health-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff1744, #d50000);
+  transition: width 0.2s ease-out;
+}
+
+.boss-health-text {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+  margin-top: 5px;
+}
+
+.timer-container {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
 }
 
 .timer-ui {

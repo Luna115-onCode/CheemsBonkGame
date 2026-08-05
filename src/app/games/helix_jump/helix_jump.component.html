@@ -5,6 +5,9 @@
     <div class="hud">
       <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
       <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+      @if (timeLeft > 0) {
+        <div>{{tools.minigames[tools.lang]?.time || 'Time: '}} <span>{{timeLeft}}</span></div>
+      }
     </div>
   </div>
 
@@ -19,7 +22,7 @@
   @if (gameState === 'WIN') {
     <div class="screen">
       <h1>{{tools.minigames[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
       <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
     </div>
   }
@@ -27,7 +30,7 @@
   @if (gameState === 'LOSE') {
     <div class="screen">
       <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
       <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
     </div>
   }

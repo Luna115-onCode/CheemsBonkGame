@@ -19,7 +19,7 @@ export class AppComponent implements OnInit {
     document.ondragstart = function(){return false};
     document.onselectstart = function(){return false};
 
-    document.addEventListener('keydown', this.onKeyDown.bind(this), { passive: false });
+    window.onkeydown = this.onKeyDown.bind(this);
     document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
 
     window.addEventListener('beforeunload', (event: BeforeUnloadEvent) => {
@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
     this.tools.loadApp();
   }
   
-  onKeyDown(event: KeyboardEvent): void {
+  onKeyDown(event: KeyboardEvent) {
     if (event.key === ' ' || event.code === 'Space' || ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) {
       if (event.cancelable) {
         event.preventDefault();

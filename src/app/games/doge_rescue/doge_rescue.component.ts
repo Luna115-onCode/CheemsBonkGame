@@ -34,7 +34,7 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
 
   gameState: 'LOADING' | 'START' | 'DRAWING' | 'ATTACK' | 'WIN' | 'LOSE' = 'LOADING';
   gamePoints = 0;
-  level = 1;
+  level = 0;
   timerDisplay = 5;
 
   private engine!: Matter.Engine;
@@ -357,10 +357,14 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (this.beeSpawnTimer) clearInterval(this.beeSpawnTimer);
-    this.beeSpawnTimer = setInterval(spawnBees, 500);
+    this.beeSpawnTimer = setInterval(() => {
+      if (this.tools.isWindowBlurred) return;
+      spawnBees();
+    }, 500);
 
     if (this.attackTimer) clearInterval(this.attackTimer);
     this.attackTimer = setInterval(() => {
+      if (this.tools.isWindowBlurred) return;
       if (this.gameState === 'ATTACK') {
         this.timerDisplay--;
         if (this.timerDisplay <= 0) {
@@ -378,6 +382,7 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loop(): void {
     this.animationFrameId = requestAnimationFrame(() => this.loop());
+    if (this.tools.isWindowBlurred) return;
 
     if (this.gameState === 'ATTACK') {
       Matter.Engine.update(this.engine, 1000 / 60);

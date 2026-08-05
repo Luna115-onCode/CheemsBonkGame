@@ -38,7 +38,7 @@ export class MobControlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   gameState: 'START' | 'PLAYING' | 'WIN' | 'LOSE' = 'START';
   gamePoints = 0;
-  level = 1;
+  level = 0;
 
   private cannonX = 200;
   private units: Unit[] = [];
@@ -152,6 +152,7 @@ export class MobControlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loop(): void {
     this.animationFrameId = requestAnimationFrame(() => this.loop());
+    if (this.tools.isWindowBlurred) return;
 
     if (this.gameState === 'PLAYING') {
       const canvas = this.canvasRef.nativeElement;

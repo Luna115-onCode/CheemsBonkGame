@@ -659,7 +659,7 @@ export class PaperIoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loop(timestamp: number): void {
-      if (this.gameState !== 'PLAYING') {
+      if (this.tools.isWindowBlurred || this.gameState !== 'PLAYING') {
          this.animationFrameId = requestAnimationFrame((ts) => this.loop(ts));
          return;
       }

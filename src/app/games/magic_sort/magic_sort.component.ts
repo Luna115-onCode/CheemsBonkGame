@@ -15,7 +15,7 @@ export class MagicSortComponent implements OnInit, AfterViewInit, OnDestroy {
   private elRef: ElementRef = inject(ElementRef);
 
   gameState: 'START' | 'PLAYING' | 'WIN' = 'START';
-  level = 1;
+  level = 0;
 
   tubes: string[][] = [];
   selectedTubeIndex: number | null = null;

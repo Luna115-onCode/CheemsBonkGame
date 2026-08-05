@@ -103,7 +103,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   };
 
   gameState: 'MERGE' | 'DIG' = 'MERGE';
-  playerLevel = 1;
+  playerLevel = 0;
   selectedSlotIndex: number | null = null;
   gamePoints: number = 50;
   get coins(): number {
@@ -605,6 +605,10 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   digLoop(): void {
     if (this.gameState !== 'DIG' || !this.ctx || !this.canvas) return;
+    if (this.tools.isWindowBlurred) {
+       this.animationFrameId = requestAnimationFrame(() => this.digLoop());
+       return;
+    }
     const bgColor = this.currentLevelData?.background_color || this.currentLevelData?.backgroundColor || "#87CEEB";
     this.ctx.fillStyle = bgColor;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -819,7 +823,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   loadLevel(): void {
-    this.playerLevel = 1;
+    this.playerLevel = 0;
   }
 
   saveLevel(): void {
@@ -855,7 +859,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     if (this.playerLevel > 1) {
       const reward = this.playerLevel * 20;
       this.coins += reward;
-      this.playerLevel = 1;
+      this.playerLevel = 0;
       this.saveLevel();
       this.pickEligibleLevel();
       this.buildLevel();
