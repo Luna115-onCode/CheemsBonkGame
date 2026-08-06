@@ -1,0 +1,48 @@
+[
+  {
+    "id": "level_1",
+    "time": 45,
+    "HoleSizeIncreasePercentage": 100,
+    "floorSize": 100,
+    "ammoGrouping": "grouped",
+    "floorPrimaryColor": "rgba(224, 224, 224, 1)",
+    "floorSecondaryColor": "rgba(180, 180, 180, 1)",
+    "floorPattern": "squares",
+    "wallPrimaryColor": "rgba(255, 255, 255, 1)",
+    "wallSecondaryColor": "rgba(200, 200, 200, 1)",
+    "wallPattern": "hexagons",
+    "wallLife": 1000,
+    "ammo": {
+      "gun": [15, 30],
+      "magnum": [10, 20],
+      "shotgun": [5, 15],
+      "tmp": [5, 10],
+      "sniper": [2, 8],
+      "rocket": [1, 3],
+      "grenade": [5, 10],
+      "flash_grenade": [2, 5],
+      "fire_grenade": [1, 2],
+      "big_grenade": [1, 3]
+    }
+  },
+  {
+    "id": "level_2",
+    "time": 30,
+    "HoleSizeIncreasePercentage": 150,
+    "floorSize": 150,
+    "ammoGrouping": "near",
+    "floorPrimaryColor": "rgba(50, 150, 50, 1)",
+    "floorSecondaryColor": "rgba(30, 100, 30, 1)",
+    "floorPattern": "triangles",
+    "wallPrimaryColor": "rgba(100, 50, 50, 1)",
+    "wallSecondaryColor": "rgba(50, 20, 20, 1)",
+    "wallPattern": "stars",
+    "wallLife": 2000,
+    "ammo": {
+      "magnum": [15, 30],
+      "shotgun": [15, 30],
+      "rocket": [5, 10],
+      "big_grenade": [5, 10]
+    }
+  }
+]

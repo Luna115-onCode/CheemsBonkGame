@@ -45,7 +45,7 @@
     "model": "games/attack_hole/data/models/rocket.geo.json",
     "texture": "games/attack_hole/assets/rocket_bullet.png",
     "points": 50,
-    "category": "bomb"
+    "category": "ammo"
   },
   {
     "id": "grenade",
