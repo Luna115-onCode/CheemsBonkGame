@@ -22,6 +22,9 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
   sessionPoints = 0;
   level = 0;
   
+  levelsConfig: any[] = [];
+  currentLevelConfig: any = null;
+  
   collectedItems: Record<string, number> = {};
 
   timeLeft = 30;
@@ -46,9 +49,10 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
   private mouseNDC = new THREE.Vector2(0, 0);
   private isPointerDown = false;
   
+  private ground!: THREE.Mesh;
   private wall!: THREE.Mesh;
   wallCurrentHealth = 1000; // make public for HTML binding
-  get wallMaxHealthValue(): number { return 1000 + (this.level * 500); }
+  get wallMaxHealthValue(): number { return this.currentLevelConfig ? this.currentLevelConfig.wallLife : (1000 + (this.level * 500)); }
   private attackProjectiles: { mesh: THREE.Object3D, target: THREE.Vector3, damage: number, type: string, delay: number }[] = [];
   private activeExplosions: { particles: THREE.Points, velocities: THREE.Vector3[] }[] = [];
   itemsConfig: any[] = [];
@@ -89,6 +93,16 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   startGame(): void {
+    if (this.levelsConfig && this.levelsConfig.length > 1) {
+      let nextLevel;
+      do {
+        nextLevel = this.levelsConfig[Math.floor(Math.random() * this.levelsConfig.length)];
+      } while (this.currentLevelConfig && nextLevel.id === this.currentLevelConfig.id);
+      this.currentLevelConfig = nextLevel;
+    } else if (this.levelsConfig && this.levelsConfig.length > 0) {
+      this.currentLevelConfig = this.levelsConfig[0];
+    }
+
     this.levelPoints = 0;
     this.gamePoints = 0; // backward compat
     
@@ -97,7 +111,24 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
       this.collectedItems[item.id] = 0;
     });
     
-    this.timeLeft = 30;
+    this.timeLeft = this.currentLevelConfig ? (this.currentLevelConfig.time || 30) : 30;
+
+    if (this.currentLevelConfig && this.ground) {
+      const floorSize = this.currentLevelConfig.floorSize || 100;
+      const scale = floorSize / 100;
+      this.ground.scale.set(scale, scale, 1);
+
+      if (this.currentLevelConfig.floorPattern) {
+        const tex = this.generatePatternTexture(
+          this.currentLevelConfig.floorPattern,
+          this.currentLevelConfig.floorPrimaryColor,
+          this.currentLevelConfig.floorSecondaryColor
+        );
+        (this.ground.material as THREE.MeshLambertMaterial).map = tex;
+        (this.ground.material as THREE.MeshLambertMaterial).color.setHex(0xffffff);
+        (this.ground.material as THREE.MeshLambertMaterial).needsUpdate = true;
+      }
+    }
     
     // Clear attack phase items
     if (this.wall && this.scene) {
@@ -170,10 +201,10 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const groundGeo = new THREE.PlaneGeometry(60, 80);
     const groundMat = new THREE.MeshLambertMaterial({ color: 0xE0E0E0 });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    this.scene.add(ground);
+    this.ground = new THREE.Mesh(groundGeo, groundMat);
+    this.ground.rotation.x = -Math.PI / 2;
+    this.ground.receiveShadow = true;
+    this.scene.add(this.ground);
 
     const holeGeo = new THREE.CircleGeometry(this.holeRadius, 32);
     const holeMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
@@ -202,6 +233,9 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private async loadModels(): Promise<void> {
     try {
+      const levelsResponse = await fetch('games/attack_hole/data/levels.json');
+      this.levelsConfig = await levelsResponse.json();
+
       const response = await fetch('games/attack_hole/data/items.json');
       this.itemsConfig = await response.json();
       this.itemsConfig.forEach(item => {
@@ -226,10 +260,11 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
         texture.wrapT = THREE.RepeatWrapping;
 
         const mat = new THREE.MeshStandardMaterial({ 
-          map: texture, 
+          map: texture,
           transparent: true, 
           alphaTest: 0.1,
-          side: THREE.DoubleSide
+          side: THREE.DoubleSide,
+          emissive: new THREE.Color(0x222222)
         });
         
         geoData.bones.forEach((bone: any) => {
@@ -305,42 +340,191 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
     return { group: itemGroup, points, category };
   }
 
+  private generatePatternTexture(pattern: string, primaryColor: string, secondaryColor: string): THREE.Texture {
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return new THREE.Texture();
+
+    ctx.fillStyle = primaryColor || '#ffffff';
+    ctx.fillRect(0, 0, 512, 512);
+
+    ctx.fillStyle = secondaryColor || '#000000';
+    
+    if (pattern === 'squares') {
+      for (let y = 0; y < 512; y += 64) {
+        for (let x = 0; x < 512; x += 64) {
+          if ((x / 64 + y / 64) % 2 === 0) ctx.fillRect(x, y, 64, 64);
+        }
+      }
+    } else if (pattern === 'triangles') {
+      for (let y = 0; y < 512; y += 64) {
+        for (let x = 0; x < 512; x += 64) {
+          ctx.beginPath();
+          ctx.moveTo(x + 32, y);
+          ctx.lineTo(x + 64, y + 64);
+          ctx.lineTo(x, y + 64);
+          ctx.fill();
+        }
+      }
+    } else if (pattern === 'pentagons') {
+      for (let y = 0; y < 512; y += 64) {
+        for (let x = 0; x < 512; x += 64) {
+          ctx.beginPath();
+          ctx.moveTo(x + 32, y + 10);
+          ctx.lineTo(x + 60, y + 30);
+          ctx.lineTo(x + 50, y + 60);
+          ctx.lineTo(x + 14, y + 60);
+          ctx.lineTo(x + 4, y + 30);
+          ctx.fill();
+        }
+      }
+    } else if (pattern === 'hexagons') {
+      for (let y = 0; y < 512; y += 64) {
+        for (let x = 0; x < 512; x += 64) {
+          ctx.beginPath();
+          ctx.moveTo(x + 32, y + 5);
+          ctx.lineTo(x + 60, y + 20);
+          ctx.lineTo(x + 60, y + 45);
+          ctx.lineTo(x + 32, y + 60);
+          ctx.lineTo(x + 4, y + 45);
+          ctx.lineTo(x + 4, y + 20);
+          ctx.fill();
+        }
+      }
+    } else if (pattern === 'stars') {
+      for (let y = 0; y < 512; y += 64) {
+        for (let x = 0; x < 512; x += 64) {
+          const cx = x + 32;
+          const cy = y + 32;
+          ctx.beginPath();
+          let rot = Math.PI / 2 * 3;
+          let xx = cx; let yy = cy;
+          const step = Math.PI / 5;
+          ctx.moveTo(cx, cy - 30);
+          for (let i = 0; i < 5; i++) {
+            xx = cx + Math.cos(rot) * 30;
+            yy = cy + Math.sin(rot) * 30;
+            ctx.lineTo(xx, yy);
+            rot += step;
+            xx = cx + Math.cos(rot) * 15;
+            yy = cy + Math.sin(rot) * 15;
+            ctx.lineTo(xx, yy);
+            rot += step;
+          }
+          ctx.lineTo(cx, cy - 30);
+          ctx.fill();
+        }
+      }
+    }
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(4, 4);
+    return texture;
+  }
+
+  private spawnItem(type: string, x: number, z: number): void {
+    const { group: itemGroup, points, category } = this.createItem(type);
+    if (category === 'ammo') {
+      itemGroup.rotation.x = Math.PI / 2;
+      itemGroup.rotation.z = Math.random() * Math.PI * 2;
+      itemGroup.position.y = 0.3;
+    } else {
+      itemGroup.position.y = 0.6;
+    }
+    
+    itemGroup.userData = { category, type, points, isFalling: false };
+    itemGroup.position.x = x;
+    itemGroup.position.z = z;
+    this.scene.add(itemGroup);
+    this.items.push(itemGroup);
+  }
+
   private resetScene(): void {
     this.items.forEach(item => this.scene.remove(item));
     this.items = [];
 
     if (this.itemsConfig.length === 0) return;
 
-    const ammoItems = this.itemsConfig.filter(i => i.category === 'ammo');
-    const bombItems = this.itemsConfig.filter(i => i.category === 'bomb');
+    const floorSize = this.currentLevelConfig ? (this.currentLevelConfig.floorSize || 100) : 100;
+    const scale = floorSize / 100;
+    const boundsX = 50 * scale;
+    const boundsZ = 70 * scale;
+    const grouping = this.currentLevelConfig ? (this.currentLevelConfig.ammoGrouping || 'random') : 'random';
 
-    for (let i = 0; i < 100; i++) {
-      let type = '';
-      const rand = Math.random();
-      if (rand < 0.25 && bombItems.length > 0) {
-        const r = Math.floor(Math.random() * bombItems.length);
-        type = bombItems[r].id;
-      } else if (ammoItems.length > 0) {
-        const r = Math.floor(Math.random() * ammoItems.length);
-        type = ammoItems[r].id;
-      } else {
-        type = this.itemsConfig[0].id;
+    const itemsToSpawn: string[] = [];
+
+    if (this.currentLevelConfig && this.currentLevelConfig.ammo) {
+      const ammoConfig = this.currentLevelConfig.ammo;
+      Object.keys(ammoConfig).forEach(type => {
+        const [min, max] = ammoConfig[type];
+        const count = Math.floor(Math.random() * (max - min + 1)) + min;
+        for (let i = 0; i < count; i++) {
+          itemsToSpawn.push(type);
+        }
+      });
+    } else {
+      const ammoItems = this.itemsConfig.filter(i => i.category === 'ammo');
+      const bombItems = this.itemsConfig.filter(i => i.category === 'bomb');
+      for (let i = 0; i < 100; i++) {
+        let type = '';
+        const rand = Math.random();
+        if (rand < 0.25 && bombItems.length > 0) {
+          type = bombItems[Math.floor(Math.random() * bombItems.length)].id;
+        } else if (ammoItems.length > 0) {
+          type = ammoItems[Math.floor(Math.random() * ammoItems.length)].id;
+        } else {
+          type = this.itemsConfig[0].id;
+        }
+        itemsToSpawn.push(type);
       }
+    }
 
-      const { group: itemGroup, points, category } = this.createItem(type);
-      if (category === 'ammo') {
-        itemGroup.rotation.x = Math.PI / 2;
-        itemGroup.rotation.z = Math.random() * Math.PI * 2;
-        itemGroup.position.y = 0.3;
-      } else {
-        itemGroup.position.y = 0.6;
+    if (grouping === 'grouped') {
+      const typeCenters: Record<string, {x: number, z: number}> = {};
+      itemsToSpawn.forEach(type => {
+        if (!typeCenters[type]) {
+          typeCenters[type] = {
+            x: (Math.random() - 0.5) * boundsX,
+            z: (Math.random() - 0.5) * boundsZ - 2
+          };
+        }
+        const center = typeCenters[type];
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 5 * scale;
+        const spawnX = Math.max(-boundsX/2, Math.min(boundsX/2, center.x + Math.cos(angle) * radius));
+        const spawnZ = Math.max(-boundsZ/2 - 2, Math.min(boundsZ/2 - 2, center.z + Math.sin(angle) * radius));
+        this.spawnItem(type, spawnX, spawnZ);
+      });
+    } else if (grouping === 'near') {
+      // shuffle randomly
+      for (let i = itemsToSpawn.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [itemsToSpawn[i], itemsToSpawn[j]] = [itemsToSpawn[j], itemsToSpawn[i]];
       }
       
-      itemGroup.userData = { category, type, points, isFalling: false };
-      itemGroup.position.x = (Math.random() - 0.5) * 50;
-      itemGroup.position.z = (Math.random() - 0.5) * 70 - 2;
-      this.scene.add(itemGroup);
-      this.items.push(itemGroup);
+      let angle = 0;
+      let radius = 2;
+      itemsToSpawn.forEach((type, index) => {
+        const spawnX = Math.max(-boundsX/2, Math.min(boundsX/2, Math.cos(angle) * radius));
+        const spawnZ = Math.max(-boundsZ/2 - 2, Math.min(boundsZ/2 - 2, -2 + Math.sin(angle) * radius));
+        this.spawnItem(type, spawnX, spawnZ);
+        
+        angle += 1.5; // step angle
+        if (index % 5 === 0) {
+          radius += 1.2; // increase radius periodically to form a spiral/circle
+        }
+      });
+    } else {
+      // random
+      itemsToSpawn.forEach(type => {
+        const spawnX = (Math.random() - 0.5) * boundsX;
+        const spawnZ = (Math.random() - 0.5) * boundsZ - 2;
+        this.spawnItem(type, spawnX, spawnZ);
+      });
     }
   }
 
@@ -401,7 +585,8 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
       this.ring.position.x = this.hole.position.x;
       this.ring.position.z = this.hole.position.z;
 
-      const targetScale = 1 + (this.gamePoints / 800);
+      const growthFactor = this.currentLevelConfig ? ((this.currentLevelConfig.HoleSizeIncreasePercentage || 100) / 100) : 1.0;
+      const targetScale = 1 + ((this.gamePoints / 800) * growthFactor);
       const currentScale = this.hole.scale.x;
       const newScale = currentScale + (targetScale - currentScale) * 0.1;
       
@@ -549,6 +734,16 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const wallGeo = new THREE.BoxGeometry(20, 20, 2);
     const wallMat = new THREE.MeshLambertMaterial({ color: 0xFFFFFF });
+    
+    if (this.currentLevelConfig && this.currentLevelConfig.wallPattern) {
+      const tex = this.generatePatternTexture(
+        this.currentLevelConfig.wallPattern,
+        this.currentLevelConfig.wallPrimaryColor,
+        this.currentLevelConfig.wallSecondaryColor
+      );
+      wallMat.map = tex;
+    }
+
     this.wall = new THREE.Mesh(wallGeo, wallMat);
     this.wall.position.set(0, 5, -10);
     this.scene.add(this.wall);
@@ -562,15 +757,24 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
     
     let currentDelay = 0;
     
-    const itemsList: {type: string, category: string}[] = [];
+    const itemsList: {type: string, category: string, points: number}[] = [];
     Object.keys(this.collectedItems).forEach(type => {
       const count = this.collectedItems[type];
+      const config = this.itemsConfig.find(i => i.id === type);
+      const points = config ? config.points : 10;
+      const category = config ? config.category : (type.includes('bomb') ? 'bomb' : 'ammo');
+
       for (let i = 0; i < count; i++) {
-        itemsList.push({type, category: type.includes('bomb') ? 'bomb' : 'ammo'});
+        itemsList.push({type, category, points});
       }
     });
 
-    itemsList.sort((a, b) => a.category === 'ammo' ? -1 : 1);
+    itemsList.sort((a, b) => {
+      if (a.category !== b.category) {
+        return a.category === 'ammo' ? -1 : 1;
+      }
+      return a.points - b.points;
+    });
 
     itemsList.forEach((item) => {
       const { group, points, category } = this.createItem(item.type);
