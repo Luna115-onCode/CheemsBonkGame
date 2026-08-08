@@ -46,7 +46,7 @@ jobs:
             echo "build_prefix=dev" >> $GITHUB_OUTPUT
           fi
 
-  deploy-web:
+  compile-web:
     needs: prepare-env
     runs-on: ubuntu-latest
     steps:
@@ -132,7 +132,7 @@ jobs:
           fi
 
   build-android-linux:
-    needs: prepare-env
+    needs: [prepare-env, compile-web]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -220,7 +220,7 @@ jobs:
             electron/dist/*.rpm
 
   build-windows:
-    needs: prepare-env
+    needs: [prepare-env, compile-web]
     runs-on: windows-latest
     strategy:
       matrix:
@@ -290,7 +290,7 @@ jobs:
             electron/dist/*.msi
 
   build-macos-ios:
-    needs: prepare-env
+    needs: [prepare-env, compile-web]
     runs-on: macos-latest
     strategy:
       matrix:
