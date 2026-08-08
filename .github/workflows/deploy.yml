@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy
 
 on:
   push:
@@ -14,9 +14,17 @@ concurrency:
   group: deploy-gh-pages
   cancel-in-progress: false
 
+env:
+  NODE_VERSION: 20
+
 jobs:
-  deploy:
+  prepare-env:
     runs-on: ubuntu-latest
+    outputs:
+      build_env: ${{ steps.set-env.outputs.build_env }}
+      path: ${{ steps.set-env.outputs.path }}
+      page_root: ${{ steps.set-env.outputs.page_root }}
+      build_prefix: ${{ steps.set-env.outputs.build_prefix }}
     steps:
       - name: Set environment variables
         id: set-env
@@ -38,23 +46,20 @@ jobs:
             echo "build_prefix=dev" >> $GITHUB_OUTPUT
           fi
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+  deploy-web:
+    needs: prepare-env
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Install Angular CLI
-        run: npm install -g @angular/cli
-
-      - name: Install dependencies
-        run: npm install
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm install -g @angular/cli
+      - run: npm install
 
       - name: Setup PWA
         env:
-          build_prefix: ${{ steps.set-env.outputs.build_prefix }}
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
         run: |
           rm -rf public/img/icons/pwa
           mkdir -p public/img/icons/pwa
@@ -64,15 +69,23 @@ jobs:
           rm -f public/manifest.webmanifest
           cp .pwa/manifest-$build_prefix.webmanifest public/manifest.webmanifest
 
-      - name: Build the application
+      - name: Build Web
         env:
-          build_env: ${{ steps.set-env.outputs.build_env }}
-          page_root: ${{ steps.set-env.outputs.page_root }}
-        run: npm run build -- --configuration="$build_env" --base-href="$page_root"
+          build_env: ${{ needs.prepare-env.outputs.build_env }}
+        run: npm run build -- --configuration="$build_env"
 
-      - name: Clone gh-pages branch
+      - name: Upload Web Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
+          path: dist/
+
+      - name: Deploy to gh-pages
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
+          path: ${{ needs.prepare-env.outputs.path }}
+          build_env: ${{ needs.prepare-env.outputs.build_env }}
+          page_root: ${{ needs.prepare-env.outputs.page_root }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -92,17 +105,14 @@ jobs:
             git checkout --orphan gh-pages
             cd ..
           fi
-
-      - name: Update Target Environment Directory
-        env:
-          path: ${{ steps.set-env.outputs.path }}
-          build_env: ${{ steps.set-env.outputs.build_env }}
-        run: |
           target_dir="deploy-folder/$path"
-          echo "Removing and recreating target directory: $target_dir"
           rm -rf "$target_dir"
           mkdir -p "$target_dir"
           cp -r dist/cheems-angular/browser/* "$target_dir/"
+          
+          # Patch base href for gh-pages since it was built without it
+          sed -i 's|<base href="/">|<base href="'"$page_root"'">|g' "$target_dir/index.html"
+          
           cp README.md .gitignore "$target_dir/" 2>/dev/null || true
           mkdir -p "$target_dir/game"
           cp "$target_dir/index.html" "$target_dir/game/index.html"
@@ -114,16 +124,254 @@ jobs:
             cp README.md .gitignore "deploy-folder/" 2>/dev/null || true
             cp .pwa/index.html "deploy-folder/404.html" 2>/dev/null || true
           fi
-
-      - name: Commit and Push to gh-pages
-        working-directory: deploy-folder
-        env:
-          GH_PAT: ${{ secrets.GH_PAT }}
-        run: |
+          cd deploy-folder
           git add .
-          if git diff --cached --quiet; then
-            echo "No changes to commit. Skipping deployment."
-          else
-            git commit -m "Deploy #${{ github.run_number }} from ${{ github.ref }} branch - ${{ steps.set-env.outputs.build_env }}"
+          if ! git diff --cached --quiet; then
+            git commit -m "Deploy #${{ github.run_number }} from ${{ github.ref }} branch - $build_env"
             git push origin HEAD:gh-pages
           fi
+
+  build-android-linux:
+    needs: prepare-env
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app_type: [bundled, pwa]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      
+      - run: npm install -g @angular/cli @capacitor/cli @capacitor/assets
+      - run: npm install
+
+      - name: Apply Environment Configs
+        env:
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
+          page_root: ${{ needs.prepare-env.outputs.page_root }}
+          app_type: ${{ matrix.app_type }}
+        run: |
+          node -e "
+          const fs = require('fs');
+          let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
+          let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
+          const isPwa = process.env.app_type === 'pwa';
+          const prefix = process.env.build_prefix;
+          const repoOwner = process.env.GITHUB_REPOSITORY_OWNER;
+          const pageRoot = process.env.page_root;
+          const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
+          cap = cap.replace('com.cheems.app', appId);
+          elec = elec.replace('com.cheems.app', appId);
+          if (isPwa) {
+            cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
+            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
+          }
+          fs.writeFileSync('capacitor.config.ts', cap);
+          fs.writeFileSync('electron/electron-builder.config.json', elec);
+          "
+          mkdir -p assets
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
+          npx @capacitor/assets generate
+
+      - name: Download Web Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
+          path: dist/
+
+      - name: Build Android
+        run: |
+          npx cap add android
+          npx cap sync android
+          cd android
+          ./gradlew assembleDebug
+          ./gradlew bundleDebug
+
+      - name: Build Linux (Electron)
+        run: |
+          sed -i '/"mac":/i \  "linux": {\n    "target": ["deb", "rpm"],\n    "category": "Game"\n  },' electron/electron-builder.config.json
+          npx cap copy @capacitor-community/electron
+          cd electron
+          npm install
+          npm run electron:make
+
+      - name: Upload Android Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app_type == 'bundled' && 'android-app-bundled-' || 'android-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/bundle/debug/app-debug.aab
+
+      - name: Upload Linux Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app_type == 'bundled' && 'linux-app-bundled-' || 'linux-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          path: |
+            electron/dist/*.deb
+            electron/dist/*.rpm
+
+  build-windows:
+    needs: prepare-env
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        app_type: [bundled, pwa]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - run: npm install -g @angular/cli @capacitor/cli @capacitor/assets
+      - run: npm install
+
+      - name: Apply Environment Configs
+        env:
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
+          page_root: ${{ needs.prepare-env.outputs.page_root }}
+          app_type: ${{ matrix.app_type }}
+        shell: bash
+        run: |
+          node -e "
+          const fs = require('fs');
+          let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
+          let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
+          const isPwa = process.env.app_type === 'pwa';
+          const prefix = process.env.build_prefix;
+          const repoOwner = process.env.GITHUB_REPOSITORY_OWNER;
+          const pageRoot = process.env.page_root;
+          const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
+          cap = cap.replace('com.cheems.app', appId);
+          elec = elec.replace('com.cheems.app', appId);
+          if (isPwa) {
+            cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
+            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
+          }
+          fs.writeFileSync('capacitor.config.ts', cap);
+          fs.writeFileSync('electron/electron-builder.config.json', elec);
+          "
+          mkdir -p assets
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
+          npx @capacitor/assets generate
+
+      - name: Download Web Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
+          path: dist/
+
+      - name: Build Windows (Electron)
+        shell: bash
+        run: |
+          sed -i 's/"target": "nsis"/"target": ["nsis", "msi"]/g' electron/electron-builder.config.json
+          npx cap copy @capacitor-community/electron
+          cd electron
+          npm install
+          npm run electron:make
+
+      - name: Upload Windows Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app_type == 'bundled' && 'windows-app-bundled-' || 'windows-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          path: |
+            electron/dist/*.exe
+            electron/dist/*.msi
+
+  build-macos-ios:
+    needs: prepare-env
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        app_type: [bundled, pwa]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - run: npm install -g @angular/cli @capacitor/cli @capacitor/assets
+      - run: npm install
+
+      - name: Apply Environment Configs
+        env:
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
+          page_root: ${{ needs.prepare-env.outputs.page_root }}
+          app_type: ${{ matrix.app_type }}
+        run: |
+          node -e "
+          const fs = require('fs');
+          let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
+          let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
+          const isPwa = process.env.app_type === 'pwa';
+          const prefix = process.env.build_prefix;
+          const repoOwner = process.env.GITHUB_REPOSITORY_OWNER;
+          const pageRoot = process.env.page_root;
+          const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
+          cap = cap.replace('com.cheems.app', appId);
+          elec = elec.replace('com.cheems.app', appId);
+          if (isPwa) {
+            cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
+            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
+          }
+          fs.writeFileSync('capacitor.config.ts', cap);
+          fs.writeFileSync('electron/electron-builder.config.json', elec);
+          "
+          mkdir -p assets
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
+          npx @capacitor/assets generate
+
+      - name: Download Web Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
+          path: dist/
+
+      - name: Build Mac (Electron)
+        run: |
+          npx cap copy @capacitor-community/electron
+          cd electron
+          npm install
+          npm run electron:make
+
+      - name: Build iOS
+        run: |
+          npx cap add ios
+          npx cap sync ios
+          cd ios/App
+          # Build .app
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
+          # Archive for .ipa (will fail if no signing certificates are present)
+          xcodebuild archive -workspace App.xcworkspace -scheme App -configuration Release -archivePath build/App.xcarchive CODE_SIGNING_ALLOWED=NO || true
+          # We export without signing if possible, otherwise this step is skipped
+          xcodebuild -exportArchive -archivePath build/App.xcarchive -exportPath build/Export -exportOptionsPlist App/Info.plist CODE_SIGNING_ALLOWED=NO || true
+
+      - name: Upload Mac Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app_type == 'bundled' && 'macos-app-bundled-' || 'macos-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          path: |
+            electron/dist/*.dmg
+            electron/dist/mac/*.app
+
+      - name: Upload iOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app_type == 'bundled' && 'ios-app-bundled-' || 'ios-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          path: |
+            ios/App/build/Build/Products/Debug-iphonesimulator/*.app
+            ios/App/build/Export/*.ipa

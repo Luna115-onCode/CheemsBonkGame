@@ -12,7 +12,7 @@
     "emojiCounter": "🤠",
     "model": "games/attack_hole/data/models/magnum.geo.json",
     "texture": "games/attack_hole/assets/magnum_bullet.png",
-    "points": 15,
+    "points": 50,
     "category": "ammo"
   },
   {
@@ -20,7 +20,7 @@
     "emojiCounter": "🪖",
     "model": "games/attack_hole/data/models/tmp.geo.json",
     "texture": "games/attack_hole/assets/tmp_bullet.png",
-    "points": 20,
+    "points": 5,
     "category": "ammo"
   },
   {
@@ -36,7 +36,7 @@
     "emojiCounter": "🎯",
     "model": "games/attack_hole/data/models/sniper.geo.json",
     "texture": "games/attack_hole/assets/sniper_bullet.png",
-    "points": 30,
+    "points": 35,
     "category": "ammo"
   },
   {
@@ -44,7 +44,7 @@
     "emojiCounter": "🚀",
     "model": "games/attack_hole/data/models/rocket.geo.json",
     "texture": "games/attack_hole/assets/rocket_bullet.png",
-    "points": 50,
+    "points": 100,
     "category": "ammo"
   },
   {
@@ -52,7 +52,7 @@
     "emojiCounter": "💣",
     "model": "games/attack_hole/data/models/grenade.geo.json",
     "texture": "games/attack_hole/assets/grenade_bomb.png",
-    "points": 40,
+    "points": 60,
     "category": "bomb"
   },
   {
@@ -60,7 +60,7 @@
     "emojiCounter": "⚡",
     "model": "games/attack_hole/data/models/flash_grenade.geo.json",
     "texture": "games/attack_hole/assets/flash_grenade_bomb.png",
-    "points": 45,
+    "points": 50,
     "category": "bomb"
   },
   {
@@ -68,7 +68,7 @@
     "emojiCounter": "🔥",
     "model": "games/attack_hole/data/models/fire_grenade.geo.json",
     "texture": "games/attack_hole/assets/fire_grenade_bomb.png",
-    "points": 60,
+    "points": 70,
     "category": "bomb"
   },
   {
@@ -76,7 +76,7 @@
     "emojiCounter": "💥",
     "model": "games/attack_hole/data/models/big_grenade.geo.json",
     "texture": "games/attack_hole/assets/big_grenade_bomb.png",
-    "points": 75,
+    "points": 150,
     "category": "bomb"
   }
 ]

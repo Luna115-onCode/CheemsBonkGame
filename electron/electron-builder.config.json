@@ -1,0 +1,30 @@
+{
+  "appId": "com.cheems.app",
+  "productName": "Cheems Bonk Game",
+  "directories": {
+    "buildResources": "resources"
+  },
+  "files": [
+    "assets/**/*",
+    "build/**/*",
+    "capacitor.config.*",
+    "app/**/*"
+  ],
+  "publish": {
+    "provider": "github"
+  },
+  "nsis": {
+    "allowElevation": true,
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true
+  },
+  "win": {
+    "target": "nsis",
+    "icon": "assets/icon.png"
+  },
+  "mac": {
+    "icon": "assets/icon.png",
+    "category": "public.app-category.games",
+    "target": "dmg"
+  }
+}
