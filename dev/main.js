@@ -73700,8 +73700,10 @@ var AttackHoleComponent = class _AttackHoleComponent {
         const dir = vector.sub(this.camera.position).normalize();
         const distance = -this.camera.position.y / dir.y;
         const pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
-        this.targetPosition.x = Math.max(-28, Math.min(28, pos.x));
-        this.targetPosition.z = Math.max(-38, Math.min(38, pos.z));
+        const floorSize = this.currentLevelConfig ? this.currentLevelConfig.floorSize || 100 : 100;
+        const scale = floorSize / 100;
+        this.targetPosition.x = Math.max(-28 * scale, Math.min(28 * scale, pos.x));
+        this.targetPosition.z = Math.max(-38 * scale, Math.min(38 * scale, pos.z));
       }
       this.hole.position.x += (this.targetPosition.x - this.hole.position.x) * 0.15;
       this.hole.position.z += (this.targetPosition.z - this.hole.position.z) * 0.15;
@@ -73714,6 +73716,8 @@ var AttackHoleComponent = class _AttackHoleComponent {
       this.hole.scale.set(newScale, newScale, 1);
       this.ring.scale.set(newScale, newScale, 1);
       this.holeRadius = 1.8 * newScale;
+      this.hole.position.y = 0.02 * newScale;
+      this.ring.position.y = 0.03 * newScale;
       const targetCamY = 5 * newScale;
       const targetCamZOffset = 6 * newScale;
       this.camera.position.y += (targetCamY - this.camera.position.y) * 0.1;
