@@ -203,14 +203,17 @@ jobs:
         run: |
           npm install -g @bubblewrap/cli
           MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${{ needs.prepare-env.outputs.page_root }}manifest.webmanifest"
-          
-          echo "yes" | bubblewrap init --manifest "$MANIFEST_URL" --directory android-twa
+          mkdir -p ~/.bubblewrap
+          cat <<EOF > ~/.bubblewrap/config.json
+          {
+            "jdkPath": "$JAVA_HOME",
+            "androidSdkPath": "$ANDROID_HOME"
+          }
+          EOF
+          yes "" | bubblewrap init --manifest "$MANIFEST_URL" --directory android-twa
           cd android-twa
-          
           keytool -genkeypair -v -keystore android.keystore -alias androiddebugkey -storepass password -keypass password -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          
           node -e "const fs = require('fs'); let m = JSON.parse(fs.readFileSync('twa-manifest.json')); m.signingKey.path = 'android.keystore'; m.signingKey.alias = 'androiddebugkey'; fs.writeFileSync('twa-manifest.json', JSON.stringify(m, null, 2));"
-          
           bubblewrap build --keyPassword password --aliasPassword password
 
       - name: Build Linux (Bundled Electron)
@@ -397,14 +400,71 @@ jobs:
           npm install
           npm run electron:make
 
-      - name: Build Windows (MSIX PWA)
+      - name: Build Windows (Native MSIX PWA)
         if: matrix.app_type == 'pwa'
-        shell: bash
+        shell: pwsh
+        env:
+          page_root: ${{ needs.prepare-env.outputs.page_root }}
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
         run: |
-          npm install -g @pwabuilder/cli
-          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${{ needs.prepare-env.outputs.page_root }}manifest.webmanifest"
+          $ManifestUrl = "https://${env:GITHUB_REPOSITORY_OWNER}.github.io${env:page_root}"
+          $Prefix = $env:build_prefix
+          $AppDir = "windows-pwa-src"
+          New-Item -ItemType Directory -Path "$AppDir\Assets" -Force
+
+          # Copy PWA icons to Windows asset format
+          $IconSrc = ".pwa/icons-$Prefix/pwa/icon-512x512.png"
+          Copy-Item $IconSrc "$AppDir\Assets\StoreLogo.png"
+          Copy-Item $IconSrc "$AppDir\Assets\Square150x150Logo.png"
+          Copy-Item $IconSrc "$AppDir\Assets\Square44x44Logo.png"
+          Copy-Item $IconSrc "$AppDir\Assets\SplashScreen.png"
+
+          # Generate the AppxManifest for a Hosted Web App
+          $ManifestContent = @"
+          <?xml version="1.0" encoding="utf-8"?>
+          <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
+            <Identity Name="CheemsBonkGame.PWA.$Prefix" Publisher="CN=Cheems" Version="1.0.0.0" />
+            <Properties>
+              <DisplayName>Cheems Bonk Game (PWA)</DisplayName>
+              <PublisherDisplayName>Cheems</PublisherDisplayName>
+              <Logo>Assets\StoreLogo.png</Logo>
+            </Properties>
+            <Resources>
+              <Resource Language="en-us" />
+            </Resources>
+            <Dependencies>
+              <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
+            </Dependencies>
+            <Applications>
+              <Application Id="App" StartPage="$ManifestUrl">
+                <uap:VisualElements DisplayName="Cheems Bonk Game" Description="Cheems Bonk Game PWA" BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png">
+                  <uap:SplashScreen Image="Assets\SplashScreen.png" />
+                </uap:VisualElements>
+                <uap:ApplicationContentUriRules>
+                  <uap:Rule Type="include" Match="$ManifestUrl" />
+                </uap:ApplicationContentUriRules>
+              </Application>
+            </Applications>
+          </Package>
+          "@
+          Set-Content -Path "$AppDir\AppxManifest.xml" -Value $ManifestContent
+
+          # Locate Windows SDK packaging tools
+          $MakeAppx = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
+          $SignTool = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
+
+          # Pack the MSIX
+          & $MakeAppx pack /d $AppDir /p cheems-pwa-$Prefix.msix
+
+          # Generate a self-signed certificate and sign the package so Windows allows installation
+          $Cert = New-SelfSignedCertificate -Type Custom -Subject "CN=Cheems" -KeyUsage DigitalSignature -FriendlyName "Cheems PWA Cert" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
+          $Password = ConvertTo-SecureString -String "password" -Force -AsPlainText
+          Export-PfxCertificate -Cert "Cert:\CurrentUser\My\$($Cert.Thumbprint)" -FilePath "cheems.pfx" -Password $Password
           
-          npx @pwabuilder/cli generate -u "$MANIFEST_URL" -p windows -d windows-pwa
+          & $SignTool sign /fd SHA256 /a /f cheems.pfx /p password cheems-pwa-$Prefix.msix
+          
+          mkdir -p windows-pwa
+          mv cheems-pwa-$Prefix.msix windows-pwa/
 
       - name: Upload Windows Bundled Artifacts
         if: matrix.app_type == 'bundled'
@@ -420,7 +480,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-pwa-${{ needs.prepare-env.outputs.build_prefix }}
-          path: windows-pwa/**/*.msix
+          path: windows-pwa/*.msix
 
   build-macos-ios:
     needs: [prepare-env, compile-web]
