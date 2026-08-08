@@ -170,7 +170,7 @@ jobs:
           if (isPwa) {
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
             elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('"executableName": "CheemsBonkGame"', '"executableName": "CheemsBonkGamePWA"');
+            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
             const url = 'https://' + repoOwner + '.github.io' + pageRoot;
             cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
           }
@@ -189,7 +189,8 @@ jobs:
           name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: dist/
 
-      - name: Build Android
+      - name: Build Android (Bundled)
+        if: matrix.app_type == 'bundled'
         run: |
           npx cap add android
           npx cap sync android
@@ -197,29 +198,150 @@ jobs:
           ./gradlew assembleDebug
           ./gradlew bundleDebug
 
-      - name: Build Linux (Electron)
+      - name: Build Android (TWA PWA)
+        if: matrix.app_type == 'pwa'
         run: |
-          sed -i '/"mac":/i \  "linux": {\n    "target": ["deb", "rpm"],\n    "category": "Game"\n  },' electron/electron-builder.config.json
+          npm install -g @bubblewrap/cli
+          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${{ needs.prepare-env.outputs.page_root }}manifest.webmanifest"
+          
+          echo "yes" | bubblewrap init --manifest "$MANIFEST_URL" --directory android-twa
+          cd android-twa
+          
+          keytool -genkeypair -v -keystore android.keystore -alias androiddebugkey -storepass password -keypass password -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+          
+          node -e "const fs = require('fs'); let m = JSON.parse(fs.readFileSync('twa-manifest.json')); m.signingKey.path = 'android.keystore'; m.signingKey.alias = 'androiddebugkey'; fs.writeFileSync('twa-manifest.json', JSON.stringify(m, null, 2));"
+          
+          bubblewrap build --keyPassword password --aliasPassword password
+
+      - name: Build Linux (Bundled Electron)
+        if: matrix.app_type == 'bundled'
+        run: |
           npx cap copy @capacitor-community/electron
           cd electron
           npm install
           npm run electron:make
 
-      - name: Upload Android Artifacts
+      - name: Build Linux (Native PWA .deb and .rpm)
+        if: matrix.app_type == 'pwa'
+        shell: bash
+        run: |
+          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${{ needs.prepare-env.outputs.page_root }}"
+          APP_NAME="cheems-bonk-pwa-${{ needs.prepare-env.outputs.build_prefix }}"
+          
+          mkdir -p deb-package/DEBIAN
+          mkdir -p deb-package/usr/bin
+          mkdir -p deb-package/usr/share/applications
+          mkdir -p deb-package/usr/share/icons/hicolor/512x512/apps
+          
+          cat <<EOF > deb-package/DEBIAN/control
+          Package: $APP_NAME
+          Version: 1.0.0
+          Section: games
+          Priority: optional
+          Architecture: all
+          Maintainer: Action <action@github.com>
+          Description: Cheems Bonk Game (PWA)
+           A lightweight Linux native wrapper for the Cheems Bonk PWA.
+          EOF
+          
+          cat <<'EOF' > deb-package/usr/bin/$APP_NAME
+          #!/bin/bash
+          URL="MANIFEST_URL_PLACEHOLDER"
+          if command -v google-chrome &> /dev/null; then
+              exec google-chrome --app="$URL"
+          elif command -v chromium &> /dev/null; then
+              exec chromium --app="$URL"
+          elif command -v chromium-browser &> /dev/null; then
+              exec chromium-browser --app="$URL"
+          elif command -v microsoft-edge &> /dev/null; then
+              exec microsoft-edge --app="$URL"
+          elif command -v brave-browser &> /dev/null; then
+              exec brave-browser --app="$URL"
+          else
+              exec xdg-open "$URL"
+          fi
+          EOF
+          
+          sed -i "s|MANIFEST_URL_PLACEHOLDER|$MANIFEST_URL|g" deb-package/usr/bin/$APP_NAME
+          chmod +x deb-package/usr/bin/$APP_NAME
+          
+          cat <<EOF > deb-package/usr/share/applications/$APP_NAME.desktop
+          [Desktop Entry]
+          Type=Application
+          Name=Cheems Bonk Game (PWA)
+          Exec=$APP_NAME
+          Icon=$APP_NAME
+          Terminal=false
+          Categories=Game;
+          EOF
+          
+          cp .pwa/icons-${{ needs.prepare-env.outputs.build_prefix }}/pwa/icon-512x512.png deb-package/usr/share/icons/hicolor/512x512/apps/$APP_NAME.png
+          
+          dpkg-deb --build deb-package ${APP_NAME}.deb
+          
+          sudo apt-get update && sudo apt-get install -y rpm
+          mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+          
+          cat <<EOF > rpmbuild/SPECS/pwa.spec
+          Name:           $APP_NAME
+          Version:        1.0.0
+          Release:        1
+          Summary:        Cheems Bonk Game (PWA)
+          License:        MIT
+          BuildArch:      noarch
+          
+          %description
+          A lightweight Linux native wrapper for the Cheems Bonk PWA.
+          
+          %prep
+          %build
+          %install
+          mkdir -p %{buildroot}
+          cp -a $GITHUB_WORKSPACE/deb-package/usr %{buildroot}/
+          
+          %files
+          /usr/bin/$APP_NAME
+          /usr/share/applications/$APP_NAME.desktop
+          /usr/share/icons/hicolor/512x512/apps/$APP_NAME.png
+          EOF
+          
+          rpmbuild -bb --define "_topdir $GITHUB_WORKSPACE/rpmbuild" rpmbuild/SPECS/pwa.spec
+          cp rpmbuild/RPMS/noarch/*.rpm .
+
+      - name: Upload Android Bundled Artifacts
+        if: matrix.app_type == 'bundled'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app_type == 'bundled' && 'android-app-bundled-' || 'android-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          name: android-app-bundled-${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
             android/app/build/outputs/bundle/debug/app-debug.aab
 
-      - name: Upload Linux Artifacts
+      - name: Upload Android TWA Artifacts
+        if: matrix.app_type == 'pwa'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app_type == 'bundled' && 'linux-app-bundled-' || 'linux-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          name: android-pwa-${{ needs.prepare-env.outputs.build_prefix }}
+          path: android-twa/app/build/outputs/apk/release/*.apk
+
+      - name: Upload Linux Bundled Artifacts
+        if: matrix.app_type == 'bundled'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-app-bundled-${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             electron/dist/*.deb
             electron/dist/*.rpm
+            electron/dist/*.AppImage
+
+      - name: Upload Linux Native PWA Artifacts
+        if: matrix.app_type == 'pwa'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-pwa-${{ needs.prepare-env.outputs.build_prefix }}
+          path: |
+            *.deb
+            *.rpm
 
   build-windows:
     needs: [prepare-env, compile-web]
@@ -245,28 +367,18 @@ jobs:
         run: |
           node -e "
           const fs = require('fs');
-          let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
           let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
           const isPwa = process.env.app_type === 'pwa';
           const prefix = process.env.build_prefix;
-          const repoOwner = process.env.GITHUB_REPOSITORY_OWNER;
-          const pageRoot = process.env.page_root;
           const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
-          cap = cap.replace('com.cheems.app', appId);
           elec = elec.replace('com.cheems.app', appId);
           if (isPwa) {
-            cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
             elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('"executableName": "CheemsBonkGame"', '"executableName": "CheemsBonkGamePWA"');
-            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
-            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
+            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
           }
-          fs.writeFileSync('capacitor.config.ts', cap);
           fs.writeFileSync('electron/electron-builder.config.json', elec);
           "
-          mkdir -p assets electron/assets
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
+          mkdir -p electron/assets
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
           npx @capacitor/assets generate
 
@@ -276,22 +388,39 @@ jobs:
           name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: dist/
 
-      - name: Build Windows (Electron)
+      - name: Build Windows (Bundled)
+        if: matrix.app_type == 'bundled'
         shell: bash
         run: |
-          sed -i 's/"target": "nsis"/"target": ["nsis", "msi"]/g' electron/electron-builder.config.json
           npx cap copy @capacitor-community/electron
           cd electron
           npm install
           npm run electron:make
 
-      - name: Upload Windows Artifacts
+      - name: Build Windows (MSIX PWA)
+        if: matrix.app_type == 'pwa'
+        shell: bash
+        run: |
+          npm install -g @pwabuilder/cli
+          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${{ needs.prepare-env.outputs.page_root }}manifest.webmanifest"
+          
+          npx @pwabuilder/cli generate -u "$MANIFEST_URL" -p windows -d windows-pwa
+
+      - name: Upload Windows Bundled Artifacts
+        if: matrix.app_type == 'bundled'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app_type == 'bundled' && 'windows-app-bundled-' || 'windows-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          name: windows-app-bundled-${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             electron/dist/*.exe
             electron/dist/*.msi
+
+      - name: Upload Windows MSIX Artifacts
+        if: matrix.app_type == 'pwa'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-pwa-${{ needs.prepare-env.outputs.build_prefix }}
+          path: windows-pwa/**/*.msix
 
   build-macos-ios:
     needs: [prepare-env, compile-web]
@@ -328,7 +457,7 @@ jobs:
           if (isPwa) {
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
             elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('"executableName": "CheemsBonkGame"', '"executableName": "CheemsBonkGamePWA"');
+            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
             const url = 'https://' + repoOwner + '.github.io' + pageRoot;
             cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
           }
@@ -347,7 +476,14 @@ jobs:
           name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: dist/
 
-      - name: Build Mac (Electron)
+      - name: Optimize PWA Size for Wrappers
+        if: matrix.app_type == 'pwa'
+        shell: bash
+        run: |
+          rm -rf dist/cheems-angular/browser/*
+          echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Cheems Bonk Game</title></head><body style=\"background: black; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif;\"><h1>Loading PWA...</h1></body></html>" > dist/cheems-angular/browser/index.html
+
+      - name: Build Mac (Electron Bundled)
         run: |
           npx cap copy @capacitor-community/electron
           cd electron
@@ -359,11 +495,8 @@ jobs:
           npx cap add ios
           npx cap sync ios
           cd ios/App
-          # Build .app
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
-          # Archive for .ipa (will fail if no signing certificates are present)
-          xcodebuild archive -workspace App.xcworkspace -scheme App -configuration Release -archivePath build/App.xcarchive CODE_SIGNING_ALLOWED=NO || true
-          # We export without signing if possible, otherwise this step is skipped
+          xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
+          xcodebuild archive -project App.xcodeproj -scheme App -configuration Release -archivePath build/App.xcarchive CODE_SIGNING_ALLOWED=NO || true
           xcodebuild -exportArchive -archivePath build/App.xcarchive -exportPath build/Export -exportOptionsPlist App/Info.plist CODE_SIGNING_ALLOWED=NO || true
 
       - name: Upload Mac Artifacts

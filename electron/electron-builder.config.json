@@ -17,8 +17,12 @@
     "allowToChangeInstallationDirectory": true
   },
   "win": {
-    "target": "nsis",
+    "target": ["nsis", "portable", "msi"],
     "icon": "assets/icon.png"
+  },
+  "linux": {
+    "target": ["deb", "rpm", "AppImage"],
+    "category": "Game"
   },
   "mac": {
     "icon": "assets/icon.png",
