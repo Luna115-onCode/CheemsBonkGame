@@ -160,7 +160,7 @@ jobs:
           let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
           const isPwa = process.env.app_type === 'pwa';
           const prefix = process.env.build_prefix;
-          const repoOwner = process.env.GITHUB_REPOSITORY_OWNER;
+          const repoOwner = '${{ github.repository_owner }}'.toLowerCase();
           const pageRoot = process.env.page_root;
           const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
           cap = cap.replace('com.cheems.app', appId);
@@ -212,7 +212,7 @@ jobs:
           } else if (!m.short_name) {
             m.short_name = 'Cheems Bonk';
           }
-          const repoOwner = (process.env.GITHUB_REPOSITORY_OWNER || '').toLowerCase();
+          const repoOwner = '${{ github.repository_owner }}'.toLowerCase();
           const pageRoot = '${{ needs.prepare-env.outputs.page_root }}';
           const domainUrl = 'https://' + repoOwner + '.github.io';
           const baseUrl = domainUrl + pageRoot;
@@ -232,7 +232,9 @@ jobs:
           fs.writeFileSync(manifestPath, JSON.stringify(m, null, 2));
           "
           mkdir android-twa
-          bubblewrap init --manifest dist/cheems-angular/browser/manifest.webmanifest --directory android-twa
+          OWNER="${{ github.repository_owner }}"
+          MANIFEST_URL="https://${OWNER,,}.github.io${{ needs.prepare-env.outputs.page_root }}"
+          bubblewrap init --manifest dist/cheems-angular/browser/manifest.webmanifest --manifestUrl "$MANIFEST_URL" --directory android-twa
           cd android-twa
           keytool -genkeypair -v -keystore android.keystore -alias androiddebugkey -storepass password -keypass password -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           node -e "const fs = require('fs'); let m = JSON.parse(fs.readFileSync('twa-manifest.json')); m.signingKey.path = 'android.keystore'; m.signingKey.alias = 'androiddebugkey'; fs.writeFileSync('twa-manifest.json', JSON.stringify(m, null, 2));"
@@ -250,7 +252,8 @@ jobs:
         if: matrix.app_type == 'pwa'
         shell: bash
         run: |
-          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io${{ needs.prepare-env.outputs.page_root }}"
+          OWNER="${{ github.repository_owner }}"
+          MANIFEST_URL="https://${OWNER,,}.github.io${{ needs.prepare-env.outputs.page_root }}"
           APP_NAME="cheems-bonk-pwa-${{ needs.prepare-env.outputs.build_prefix }}"
           
           mkdir -p deb-package/DEBIAN
@@ -452,7 +455,8 @@ jobs:
           page_root: ${{ needs.prepare-env.outputs.page_root }}
           build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
         run: |
-          $ManifestUrl = "https://$($env:GITHUB_REPOSITORY_OWNER.ToLower()).github.io${env:page_root}"
+          $Owner = "${{ github.repository_owner }}".ToLower()
+          $ManifestUrl = "https://$Owner.github.io${env:page_root}"
           $Prefix = $env:build_prefix
           $AppDir = "windows-pwa-src"
           New-Item -ItemType Directory -Path "$AppDir\Assets" -Force
@@ -548,7 +552,8 @@ jobs:
           mkdir -p ext-chromium ext-firefox
           
           # Setup routing logic based on PWA or Bundled
-          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io${page_root}"
+          OWNER="${{ github.repository_owner }}"
+          MANIFEST_URL="https://${OWNER,,}.github.io${page_root}"
           if [ "$app_type" = "bundled" ]; then
             # Copy all game files into the extension for offline play
             cp -r dist/cheems-angular/browser/* ext-chromium/
@@ -657,7 +662,7 @@ jobs:
           let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
           const isPwa = process.env.app_type === 'pwa';
           const prefix = process.env.build_prefix;
-          const repoOwner = process.env.GITHUB_REPOSITORY_OWNER;
+          const repoOwner = '${{ github.repository_owner }}'.toLowerCase();
           const pageRoot = process.env.page_root;
           const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
           cap = cap.replace('com.cheems.app', appId);
