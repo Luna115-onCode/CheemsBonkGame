@@ -233,20 +233,25 @@ jobs:
           "
           mkdir android-twa
           
-          # We start a local server to serve the manifest via HTTP.
-          # This completely bypasses a known bug in Bubblewrap CLI on Node 18+ where local file paths
-          # trigger an 'Invalid URL' exception during internal path resolution.
-          npx serve -p 8080 dist/cheems-angular/browser &
+          # We spoof the domain locally to bypass Bubblewrap's 'localhost' prompt
+          # and also bypass the Node 18+ local file 'Invalid URL' bug.
+          sudo bash -c "echo '127.0.0.1 luna115-oncode.github.io' >> /etc/hosts"
+          
+          # Create directory structure matching the URL path so icons resolve perfectly
+          mkdir -p dist/serve-root/CheemsBonkGame/dev
+          cp -r dist/cheems-angular/browser/* dist/serve-root/CheemsBonkGame/dev/
+          
+          sudo $(which npx) --yes serve -l 80 dist/serve-root &
           SERVE_PID=$!
           sleep 3
           
-          # Run bubblewrap with the HTTP manifest URL
-          bubblewrap init --manifest "http://localhost:8080/manifest.webmanifest" --directory android-twa || {
+          # Run bubblewrap with the 'production' HTTP manifest URL
+          bubblewrap init --manifest "http://luna115-oncode.github.io/CheemsBonkGame/dev/manifest.webmanifest" --directory android-twa || {
             echo "Bubblewrap init failed!"
-            kill $SERVE_PID
+            sudo kill $SERVE_PID
             exit 1
           }
-          kill $SERVE_PID
+          sudo kill $SERVE_PID
           
           cd android-twa
           keytool -genkeypair -v -keystore android.keystore -alias androiddebugkey -storepass password -keypass password -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
