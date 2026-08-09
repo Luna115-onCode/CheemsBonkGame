@@ -241,9 +241,15 @@ jobs:
           mkdir -p dist/serve-root/CheemsBonkGame/dev
           cp -r dist/cheems-angular/browser/* dist/serve-root/CheemsBonkGame/dev/
           
-          sudo $(which npx) --yes serve -l 80 dist/serve-root &
+          # Run serve on port 80, preserving PATH so sudo can find npx
+          sudo env PATH="$PATH" npx --yes serve -l 80 dist/serve-root &
           SERVE_PID=$!
-          sleep 3
+          
+          # Wait until the server is actually responding on port 80 before proceeding
+          for i in {1..10}; do
+            if curl -s http://127.0.0.1 > /dev/null; then break; fi
+            sleep 1
+          done
           
           # Run bubblewrap with the 'production' HTTP manifest URL
           bubblewrap init --manifest "http://luna115-oncode.github.io/CheemsBonkGame/dev/manifest.webmanifest" --directory android-twa || {
