@@ -182,15 +182,11 @@ jobs:
           name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: dist/
 
-      - name: Build Android + Android TV (Bundled)
+      - name: Build Android (Bundled)
         if: matrix.app_type == 'bundled'
         run: |
           npx cap add android
           npx cap sync android
-          
-          # Inject LEANBACK (Android TV) support into the unified Android app
-          sed -i 's|<category android:name="android.intent.category.LAUNCHER" />|<category android:name="android.intent.category.LAUNCHER" />\n                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />|g' android/app/src/main/AndroidManifest.xml
-          sed -i '/<application/i \    <uses-feature android:name="android.software.leanback" android:required="false" />\n    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />' android/app/src/main/AndroidManifest.xml
           
           cd android
           ./gradlew assembleDebug
@@ -310,7 +306,7 @@ jobs:
           rpmbuild -bb --define "_topdir $GITHUB_WORKSPACE/rpmbuild" rpmbuild/SPECS/pwa.spec
           cp rpmbuild/RPMS/noarch/*.rpm .
 
-      - name: Upload Android + Android TV Artifacts
+      - name: Upload Android Artifacts
         if: matrix.app_type == 'bundled'
         uses: actions/upload-artifact@v4
         with:
@@ -515,68 +511,6 @@ jobs:
           name: windows-xbox-pwa-${{ needs.prepare-env.outputs.build_prefix }}
           path: windows-pwa/*.msix
 
-  build-smart-tvs:
-    needs: [prepare-env, compile-web]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          
-      - name: Download Web Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
-          path: dist/
-          
-      - name: Prepare TV Assets
-        env:
-          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
-        run: |
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png dist/cheems-angular/browser/icon.png
-          
-      - name: Build LG webOS (.ipk)
-        run: |
-          npm install -g @webosose/ares-cli
-          cat <<EOF > dist/cheems-angular/browser/appinfo.json
-          {
-            "id": "com.cheems.app",
-            "version": "1.0.0",
-            "vendor": "Cheems",
-            "type": "web",
-            "main": "index.html",
-            "title": "Cheems Bonk Game",
-            "icon": "icon.png",
-            "uiRevision": 2
-          }
-          EOF
-          ares-package dist/cheems-angular/browser -o webos-out
-          
-      - name: Build Samsung Tizen (.wgt)
-        run: |
-          cat <<EOF > dist/cheems-angular/browser/config.xml
-          <?xml version="1.0" encoding="UTF-8"?>
-          <widget xmlns="http://www.w3.org/ns/widgets" xmlns:tizen="http://tizen.org/ns/widgets" id="http://cheems.com/CheemsBonk" version="1.0.0" viewmodes="fullscreen">
-              <tizen:application id="Xyz1234.CheemsBonk" package="Xyz1234" required_version="2.3"/>
-              <content src="index.html"/>
-              <feature name="http://tizen.org/feature/screen.size.all"/>
-              <icon src="icon.png"/>
-              <name>Cheems Bonk Game</name>
-          </widget>
-          EOF
-          cd dist/cheems-angular/browser
-          zip -r ../../../cheems-tizen.wgt *
-          cd ../../..
-          
-      - name: Upload Smart TV Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: smart-tvs-${{ needs.prepare-env.outputs.build_prefix }}
-          path: |
-            webos-out/*.ipk
-            cheems-tizen.wgt
-
   build-extensions:
     needs: [prepare-env, compile-web]
     runs-on: ubuntu-latest
@@ -749,7 +683,16 @@ jobs:
           npx cap copy @capacitor-community/electron
           cd electron
           npm install
-          npm run electron:make
+          # Kill any processes that might be holding onto the disk
+          lsof | grep -i /dev/disk | awk '{print $2}' | xargs kill -9 2>/dev/null || true
+          # Give the system a moment to clean up
+          sleep 2
+          # Retry the build with a timeout
+          timeout 600 npm run electron:make || {
+            # If it fails, force unmount any remaining disk images
+            diskutil list | grep -i APFS | awk '{print $NF}' | xargs -I {} diskutil unmountDisk force /dev/{} 2>/dev/null || true
+            exit 1
+          }
 
       - name: Build iOS
         run: |

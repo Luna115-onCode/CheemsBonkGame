@@ -3,22 +3,42 @@
   "productName": "Cheems Bonk Game",
   "executableName": "CheemsBonkGame",
   "directories": {
-    "buildResources": "resources"
+    "output": "dist",
+    "buildResources": "assets"
   },
   "files": [
-    "assets/**/*",
     "build/**/*",
-    "capacitor.config.*",
-    "app/**/*"
+    "node_modules/**/*",
+    "package.json"
   ],
-  "nsis": {
-    "allowElevation": true,
-    "oneClick": false,
-    "allowToChangeInstallationDirectory": true
+  "extraMetadata": {
+    "main": "build/src/index.js"
   },
   "win": {
-    "target": ["nsis", "portable", "msi"],
-    "icon": "assets/icon.png"
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "msi",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "assets/icon.png",
+    "certificateFile": null,
+    "certificatePassword": null,
+    "signingHashAlgorithms": ["sha256"]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Cheems Bonk Game"
+  },
+  "msi": {
+    "oneClick": false
   },
   "linux": {
     "target": ["deb", "rpm", "AppImage"],
