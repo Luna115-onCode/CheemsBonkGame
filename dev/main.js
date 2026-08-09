@@ -40291,6 +40291,13 @@ function withPreloading(preloadingStrategy) {
   }];
   return routerFeature(0, providers);
 }
+function withHashLocation() {
+  const providers = [{
+    provide: LocationStrategy,
+    useClass: HashLocationStrategy
+  }];
+  return routerFeature(6, providers);
+}
 function withComponentInputBinding() {
   const providers = [RoutedComponentInputBinder, {
     provide: INPUT_BINDER,
@@ -79504,7 +79511,7 @@ var ServiceWorkerModule = class _ServiceWorkerModule {
 var appConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(routes, withHashLocation()),
     provideServiceWorker("ngsw-worker.js", {
       enabled: !isDevMode() || typeof window !== "undefined" && window.location.hostname !== "localhost",
       registrationStrategy: "registerWhenStable:30000"

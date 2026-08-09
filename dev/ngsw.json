@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1786246468537,
+  "timestamp": 1786247523403,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -543,7 +543,7 @@
     "/licences/futuro-bajo-trap-future-bass-royalty-free-music-167020-license.txt": "fa1298faa5261b1eb5f3a23667646935995a712f",
     "/licences/guitarra-solista-separation-185196-license.txt": "72f4f4be684748d2581282af3e230d2572066e57",
     "/licences/needed.txt": "2636a6b17ac3ccccad73de23caef51cd72afe9a1",
-    "/main.js": "dd10a294a156e9d478bf6b88deb685f13a2fe4a1",
+    "/main.js": "2a02bf5accf569bb4e38ced6b4c568451722680d",
     "/manifest.webmanifest": "e1bb6537aeb79eeb070ef90801d13b102e6ad58f",
     "/minigames.json": "8b784c495d55c78ee62e8d3a2fc43b4ec1bf5ed1",
     "/polyfills.js": "321b3a888edbd93081a92e1659c272f85bbaf088",
