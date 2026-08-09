@@ -166,7 +166,7 @@ jobs:
           cap = cap.replace('com.cheems.app', appId);
           if (isPwa) {
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
+            const url = 'https://' + repoOwner + '.github.io' + pageRoot + 'game';
             cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
           }
           fs.writeFileSync('capacitor.config.ts', cap);
@@ -212,7 +212,7 @@ jobs:
           } else if (!m.short_name) {
             m.short_name = 'Cheems Bonk';
           }
-          const baseUrl = 'https://${GITHUB_REPOSITORY_OWNER}.github.io${{ needs.prepare-env.outputs.page_root }}';
+          const baseUrl = 'https://${GITHUB_REPOSITORY_OWNER}.github.io${{ needs.prepare-env.outputs.page_root }}game';
           if (!m.start_url || !m.start_url.startsWith('http')) {
             m.start_url = baseUrl;
           }
@@ -237,7 +237,7 @@ jobs:
         if: matrix.app_type == 'pwa'
         shell: bash
         run: |
-          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${{ needs.prepare-env.outputs.page_root }}"
+          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${{ needs.prepare-env.outputs.page_root }}game"
           APP_NAME="cheems-bonk-pwa-${{ needs.prepare-env.outputs.build_prefix }}"
           
           mkdir -p deb-package/DEBIAN
@@ -439,7 +439,7 @@ jobs:
           page_root: ${{ needs.prepare-env.outputs.page_root }}
           build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
         run: |
-          $ManifestUrl = "https://${env:GITHUB_REPOSITORY_OWNER}.github.io${env:page_root}"
+          $ManifestUrl = "https://${env:GITHUB_REPOSITORY_OWNER}.github.io${env:page_root}game"
           $Prefix = $env:build_prefix
           $AppDir = "windows-pwa-src"
           New-Item -ItemType Directory -Path "$AppDir\Assets" -Force
@@ -535,7 +535,7 @@ jobs:
           mkdir -p ext-chromium ext-firefox
           
           # Setup routing logic based on PWA or Bundled
-          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${page_root}"
+          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER}.github.io${page_root}game"
           if [ "$app_type" = "bundled" ]; then
             # Copy all game files into the extension for offline play
             cp -r dist/cheems-angular/browser/* ext-chromium/
@@ -653,7 +653,7 @@ jobs:
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
             elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
             elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
-            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
+            const url = 'https://' + repoOwner + '.github.io' + pageRoot + 'game';
             cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
           }
           fs.writeFileSync('capacitor.config.ts', cap);
@@ -687,8 +687,8 @@ jobs:
           lsof | grep -i /dev/disk | awk '{print $2}' | xargs kill -9 2>/dev/null || true
           # Give the system a moment to clean up
           sleep 2
-          # Retry the build with a timeout
-          timeout 600 npm run electron:make || {
+          # Retry the build
+          npm run electron:make || {
             # If it fails, force unmount any remaining disk images
             diskutil list | grep -i APFS | awk '{print $NF}' | xargs -I {} diskutil unmountDisk force /dev/{} 2>/dev/null || true
             exit 1
