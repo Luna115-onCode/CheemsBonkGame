@@ -232,26 +232,22 @@ jobs:
           fs.writeFileSync(manifestPath, JSON.stringify(m, null, 2));
           "
           mkdir android-twa
-          OWNER="${{ github.repository_owner }}"
-          if [ -z "$OWNER" ]; then OWNER="luna115-oncode"; fi
-          MANIFEST_URL="https://${OWNER,,}.github.io${{ needs.prepare-env.outputs.page_root }}"
           
-          # Print the manifest to logs so we can verify its contents completely
-          echo "==== GENERATED MANIFEST ===="
-          cat dist/cheems-angular/browser/manifest.webmanifest
-          echo "============================"
+          # We start a local server to serve the manifest via HTTP.
+          # This completely bypasses a known bug in Bubblewrap CLI on Node 18+ where local file paths
+          # trigger an 'Invalid URL' exception during internal path resolution.
+          npx serve -p 8080 dist/cheems-angular/browser &
+          SERVE_PID=$!
+          sleep 3
           
-          # Patch bubblewrap to print the full stack trace for this error
-          CLI_PATH=$(npm root -g)/@bubblewrap/cli/bin/cli.js
-          if [ -f "$CLI_PATH" ]; then
-            sed -i 's/console\.error([^)]*)/console.error(err.stack || err)/g' "$CLI_PATH" || true
-          fi
-          
-          # Run bubblewrap with the local manifest
-          bubblewrap init --manifest dist/cheems-angular/browser/manifest.webmanifest --manifestUrl "$MANIFEST_URL" --directory android-twa || {
+          # Run bubblewrap with the HTTP manifest URL
+          bubblewrap init --manifest "http://localhost:8080/manifest.webmanifest" --directory android-twa || {
             echo "Bubblewrap init failed!"
+            kill $SERVE_PID
             exit 1
           }
+          kill $SERVE_PID
+          
           cd android-twa
           keytool -genkeypair -v -keystore android.keystore -alias androiddebugkey -storepass password -keypass password -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           node -e "const fs = require('fs'); let m = JSON.parse(fs.readFileSync('twa-manifest.json')); m.signingKey.path = 'android.keystore'; m.signingKey.alias = 'androiddebugkey'; fs.writeFileSync('twa-manifest.json', JSON.stringify(m, null, 2));"
