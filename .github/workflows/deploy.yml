@@ -160,7 +160,7 @@ jobs:
           let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
           const isPwa = process.env.app_type === 'pwa';
           const prefix = process.env.build_prefix;
-          const repoOwner = '${{ github.repository_owner }}'.toLowerCase();
+          const repoOwner = '${{ github.repository_owner }}'.toLowerCase() || 'luna115-oncode';
           const pageRoot = process.env.page_root;
           const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
           cap = cap.replace('com.cheems.app', appId);
@@ -212,7 +212,7 @@ jobs:
           } else if (!m.short_name) {
             m.short_name = 'Cheems Bonk';
           }
-          const repoOwner = '${{ github.repository_owner }}'.toLowerCase();
+          const repoOwner = '${{ github.repository_owner }}'.toLowerCase() || 'luna115-oncode';
           const pageRoot = '${{ needs.prepare-env.outputs.page_root }}';
           const domainUrl = 'https://' + repoOwner + '.github.io';
           const baseUrl = domainUrl + pageRoot;
@@ -233,8 +233,25 @@ jobs:
           "
           mkdir android-twa
           OWNER="${{ github.repository_owner }}"
+          if [ -z "$OWNER" ]; then OWNER="luna115-oncode"; fi
           MANIFEST_URL="https://${OWNER,,}.github.io${{ needs.prepare-env.outputs.page_root }}"
-          bubblewrap init --manifest dist/cheems-angular/browser/manifest.webmanifest --manifestUrl "$MANIFEST_URL" --directory android-twa
+          
+          # Print the manifest to logs so we can verify its contents completely
+          echo "==== GENERATED MANIFEST ===="
+          cat dist/cheems-angular/browser/manifest.webmanifest
+          echo "============================"
+          
+          # Patch bubblewrap to print the full stack trace for this error
+          CLI_PATH=$(npm root -g)/@bubblewrap/cli/bin/cli.js
+          if [ -f "$CLI_PATH" ]; then
+            sed -i 's/console\.error([^)]*)/console.error(err.stack || err)/g' "$CLI_PATH" || true
+          fi
+          
+          # Run bubblewrap with the local manifest
+          bubblewrap init --manifest dist/cheems-angular/browser/manifest.webmanifest --manifestUrl "$MANIFEST_URL" --directory android-twa || {
+            echo "Bubblewrap init failed!"
+            exit 1
+          }
           cd android-twa
           keytool -genkeypair -v -keystore android.keystore -alias androiddebugkey -storepass password -keypass password -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
           node -e "const fs = require('fs'); let m = JSON.parse(fs.readFileSync('twa-manifest.json')); m.signingKey.path = 'android.keystore'; m.signingKey.alias = 'androiddebugkey'; fs.writeFileSync('twa-manifest.json', JSON.stringify(m, null, 2));"
@@ -253,6 +270,7 @@ jobs:
         shell: bash
         run: |
           OWNER="${{ github.repository_owner }}"
+          if [ -z "$OWNER" ]; then OWNER="luna115-oncode"; fi
           MANIFEST_URL="https://${OWNER,,}.github.io${{ needs.prepare-env.outputs.page_root }}"
           APP_NAME="cheems-bonk-pwa-${{ needs.prepare-env.outputs.build_prefix }}"
           
@@ -455,7 +473,9 @@ jobs:
           page_root: ${{ needs.prepare-env.outputs.page_root }}
           build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
         run: |
-          $Owner = "${{ github.repository_owner }}".ToLower()
+          $Owner = "${{ github.repository_owner }}"
+          if ([string]::IsNullOrWhiteSpace($Owner)) { $Owner = "luna115-oncode" }
+          $Owner = $Owner.ToLower()
           $ManifestUrl = "https://$Owner.github.io${env:page_root}"
           $Prefix = $env:build_prefix
           $AppDir = "windows-pwa-src"
@@ -553,6 +573,7 @@ jobs:
           
           # Setup routing logic based on PWA or Bundled
           OWNER="${{ github.repository_owner }}"
+          if [ -z "$OWNER" ]; then OWNER="luna115-oncode"; fi
           MANIFEST_URL="https://${OWNER,,}.github.io${page_root}"
           if [ "$app_type" = "bundled" ]; then
             # Copy all game files into the extension for offline play
