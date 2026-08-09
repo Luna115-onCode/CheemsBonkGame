@@ -158,22 +158,28 @@ jobs:
           node -e "
           const fs = require('fs');
           let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
+          let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
           const isPwa = process.env.app_type === 'pwa';
           const prefix = process.env.build_prefix;
           const repoOwner = '${{ github.repository_owner }}'.toLowerCase() || 'luna115-oncode';
           const pageRoot = process.env.page_root;
           const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
           cap = cap.replace('com.cheems.app', appId);
+          elec = elec.replace('com.cheems.app', appId);
           if (isPwa) {
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
             const url = 'https://' + repoOwner + '.github.io' + pageRoot;
             cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
           }
           fs.writeFileSync('capacitor.config.ts', cap);
+          fs.writeFileSync('electron/electron-builder.config.json', elec);
           "
-          mkdir -p assets
+          mkdir -p assets electron/assets
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
           npx @capacitor/assets generate
 
       - name: Download Web Artifact
@@ -182,8 +188,7 @@ jobs:
           name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: dist/
 
-      - name: Build Android (Bundled)
-        if: matrix.app_type == 'bundled'
+      - name: Build Android
         run: |
           npx cap add android
           npx cap sync android
@@ -192,195 +197,31 @@ jobs:
           ./gradlew assembleDebug
           ./gradlew bundleDebug
 
-      - name: Build Android (TWA PWA)
-        if: matrix.app_type == 'pwa'
-        run: |
-          npm install -g @bubblewrap/cli
-          mkdir -p ~/.bubblewrap
-          cat <<EOF > ~/.bubblewrap/config.json
-          {
-            "jdkPath": "$JAVA_HOME",
-            "androidSdkPath": "$ANDROID_HOME"
-          }
-          EOF
-          node -e "
-          const fs = require('fs');
-          const manifestPath = 'dist/cheems-angular/browser/manifest.webmanifest';
-          let m = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-          if (m.short_name && m.short_name.length > 12) {
-            m.short_name = m.short_name.substring(0, 12).trim();
-          } else if (!m.short_name) {
-            m.short_name = 'Cheems Bonk';
-          }
-          const repoOwner = '${{ github.repository_owner }}'.toLowerCase() || 'luna115-oncode';
-          const pageRoot = '${{ needs.prepare-env.outputs.page_root }}';
-          const domainUrl = 'https://' + repoOwner + '.github.io';
-          const baseUrl = domainUrl + pageRoot;
-          if (!m.start_url || !m.start_url.startsWith('http')) {
-            m.start_url = baseUrl;
-          }
-          if (m.scope && !m.scope.startsWith('http')) {
-            m.scope = domainUrl + m.scope;
-          }
-          if (m.icons) {
-            m.icons.forEach(i => {
-              if (i.src && !i.src.startsWith('http')) {
-                i.src = domainUrl + i.src;
-              }
-            });
-          }
-          fs.writeFileSync(manifestPath, JSON.stringify(m, null, 2));
-          "
-          mkdir android-twa
-          
-          # We spoof the domain locally to bypass Bubblewrap's 'localhost' prompt
-          # and also bypass the Node 18+ local file 'Invalid URL' bug.
-          sudo bash -c "echo '127.0.0.1 luna115-oncode.github.io' >> /etc/hosts"
-          
-          # Create directory structure matching the URL path so icons resolve perfectly
-          mkdir -p dist/serve-root/CheemsBonkGame/dev
-          cp -r dist/cheems-angular/browser/* dist/serve-root/CheemsBonkGame/dev/
-          
-          # Run serve on port 80, preserving PATH so sudo can find npx
-          sudo env PATH="$PATH" npx --yes serve -l 80 dist/serve-root &
-          SERVE_PID=$!
-          
-          # Wait until the server is actually responding on port 80 before proceeding
-          for i in {1..10}; do
-            if curl -s http://127.0.0.1 > /dev/null; then break; fi
-            sleep 1
-          done
-          
-          # Run bubblewrap with the 'production' HTTP manifest URL
-          bubblewrap init --manifest "http://luna115-oncode.github.io/CheemsBonkGame/dev/manifest.webmanifest" --directory android-twa || {
-            echo "Bubblewrap init failed!"
-            sudo kill $SERVE_PID
-            exit 1
-          }
-          sudo kill $SERVE_PID
-          
-          cd android-twa
-          keytool -genkeypair -v -keystore android.keystore -alias androiddebugkey -storepass password -keypass password -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
-          node -e "const fs = require('fs'); let m = JSON.parse(fs.readFileSync('twa-manifest.json')); m.signingKey.path = 'android.keystore'; m.signingKey.alias = 'androiddebugkey'; fs.writeFileSync('twa-manifest.json', JSON.stringify(m, null, 2));"
-          bubblewrap build --keyPassword password --aliasPassword password
-
-      - name: Build Linux (Bundled Electron + Portable)
-        if: matrix.app_type == 'bundled'
+      - name: Build Linux
         run: |
           npx cap copy @capacitor-community/electron
           cd electron
           npm install
           npm run electron:make
 
-      - name: Build Linux (Native PWA .deb and .rpm)
-        if: matrix.app_type == 'pwa'
-        shell: bash
-        run: |
-          OWNER="${{ github.repository_owner }}"
-          if [ -z "$OWNER" ]; then OWNER="luna115-oncode"; fi
-          MANIFEST_URL="https://${OWNER,,}.github.io${{ needs.prepare-env.outputs.page_root }}"
-          APP_NAME="cheems-bonk-pwa-${{ needs.prepare-env.outputs.build_prefix }}"
-          
-          mkdir -p deb-package/DEBIAN
-          mkdir -p deb-package/usr/bin
-          mkdir -p deb-package/usr/share/applications
-          mkdir -p deb-package/usr/share/icons/hicolor/512x512/apps
-          
-          cat <<EOF > deb-package/DEBIAN/control
-          Package: $APP_NAME
-          Version: 1.0.0
-          Section: games
-          Priority: optional
-          Architecture: all
-          Maintainer: Action <action@github.com>
-          Description: Cheems Bonk Game (PWA)
-          EOF
-          
-          cat <<'EOF' > deb-package/usr/bin/$APP_NAME
-          #!/bin/bash
-          URL="MANIFEST_URL_PLACEHOLDER"
-          if command -v google-chrome &> /dev/null; then exec google-chrome --app="$URL"; elif command -v chromium &> /dev/null; then exec chromium --app="$URL"; else exec xdg-open "$URL"; fi
-          EOF
-          
-          sed -i "s|MANIFEST_URL_PLACEHOLDER|$MANIFEST_URL|g" deb-package/usr/bin/$APP_NAME
-          chmod +x deb-package/usr/bin/$APP_NAME
-          
-          cat <<EOF > deb-package/usr/share/applications/$APP_NAME.desktop
-          [Desktop Entry]
-          Type=Application
-          Name=Cheems Bonk Game (PWA)
-          Exec=$APP_NAME
-          Icon=$APP_NAME
-          Terminal=false
-          Categories=Game;
-          EOF
-          
-          cp .pwa/icons-${{ needs.prepare-env.outputs.build_prefix }}/pwa/icon-512x512.png deb-package/usr/share/icons/hicolor/512x512/apps/$APP_NAME.png
-          
-          dpkg-deb --build deb-package ${APP_NAME}.deb
-          
-          sudo apt-get update && sudo apt-get install -y rpm
-          mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-          cat <<EOF > rpmbuild/SPECS/pwa.spec
-          Name:           $APP_NAME
-          Version:        1.0.0
-          Release:        1
-          Summary:        Cheems Bonk Game (PWA)
-          License:        MIT
-          BuildArch:      noarch
-          
-          %description
-          A lightweight Linux native wrapper.
-          
-          %prep
-          %build
-          %install
-          mkdir -p %{buildroot}
-          cp -a $GITHUB_WORKSPACE/deb-package/usr %{buildroot}/
-          
-          %files
-          /usr/bin/$APP_NAME
-          /usr/share/applications/$APP_NAME.desktop
-          /usr/share/icons/hicolor/512x512/apps/$APP_NAME.png
-          EOF
-          
-          rpmbuild -bb --define "_topdir $GITHUB_WORKSPACE/rpmbuild" rpmbuild/SPECS/pwa.spec
-          cp rpmbuild/RPMS/noarch/*.rpm .
+
 
       - name: Upload Android Artifacts
-        if: matrix.app_type == 'bundled'
         uses: actions/upload-artifact@v4
         with:
-          name: android-app-bundled-${{ needs.prepare-env.outputs.build_prefix }}
+          name: ${{ matrix.app_type == 'bundled' && 'android-app-bundled-' || 'android-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
             android/app/build/outputs/bundle/debug/app-debug.aab
 
-      - name: Upload Android TWA Artifacts
-        if: matrix.app_type == 'pwa'
+      - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: android-pwa-${{ needs.prepare-env.outputs.build_prefix }}
-          path: android-twa/app/build/outputs/apk/release/*.apk
-
-      - name: Upload Linux Bundled Artifacts
-        if: matrix.app_type == 'bundled'
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-app-bundled-${{ needs.prepare-env.outputs.build_prefix }}
+          name: ${{ matrix.app_type == 'bundled' && 'linux-app-bundled-' || 'linux-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             electron/dist/*.deb
             electron/dist/*.rpm
             electron/dist/*.AppImage
-
-      - name: Upload Linux Native PWA Artifacts
-        if: matrix.app_type == 'pwa'
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-pwa-${{ needs.prepare-env.outputs.build_prefix }}
-          path: |
-            *.deb
-            *.rpm
 
   build-windows-xbox:
     needs: [prepare-env, compile-web]
@@ -397,14 +238,46 @@ jobs:
       - run: npm install -g @angular/cli @capacitor/cli @capacitor/assets
       - run: npm install
 
+      - name: Apply Environment Configs
+        env:
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
+          page_root: ${{ needs.prepare-env.outputs.page_root }}
+          app_type: ${{ matrix.app_type }}
+        run: |
+          node -e "
+          const fs = require('fs');
+          let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
+          let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
+          const isPwa = process.env.app_type === 'pwa';
+          const prefix = process.env.build_prefix;
+          const repoOwner = '${{ github.repository_owner }}'.toLowerCase() || 'luna115-oncode';
+          const pageRoot = process.env.page_root;
+          const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
+          cap = cap.replace('com.cheems.app', appId);
+          elec = elec.replace('com.cheems.app', appId);
+          if (isPwa) {
+            cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
+            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
+            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
+          }
+          fs.writeFileSync('capacitor.config.ts', cap);
+          fs.writeFileSync('electron/electron-builder.config.json', elec);
+          "
+          mkdir -p assets electron/assets
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
+          npx @capacitor/assets generate
+
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
         with:
           name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: dist/
 
-      - name: Build Windows Desktop (Electron Bundled + Portable)
-        if: matrix.app_type == 'bundled'
+      - name: Build Windows
         shell: bash
         run: |
           npx cap copy @capacitor-community/electron
@@ -412,148 +285,15 @@ jobs:
           npm install
           npm run electron:make
 
-      - name: Build Windows & Xbox (Native MSIX Bundled Offline)
-        if: matrix.app_type == 'bundled'
-        shell: pwsh
-        env:
-          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
-        run: |
-          $Prefix = $env:build_prefix
-          $AppDir = "windows-bundled-src"
-          New-Item -ItemType Directory -Path "$AppDir\Assets" -Force
 
-          # Copy local web files directly into the package for offline use
-          Copy-Item -Path "dist\cheems-angular\browser\*" -Destination $AppDir -Recurse
 
-          $IconSrc = ".pwa/icons-$Prefix/pwa/icon-512x512.png"
-          Copy-Item $IconSrc "$AppDir\Assets\StoreLogo.png"
-          Copy-Item $IconSrc "$AppDir\Assets\Square150x150Logo.png"
-          Copy-Item $IconSrc "$AppDir\Assets\Square44x44Logo.png"
-          Copy-Item $IconSrc "$AppDir\Assets\SplashScreen.png"
-
-          # Generate the AppxManifest pointing to the local index.html
-          $ManifestContent = @"
-          <?xml version="1.0" encoding="utf-8"?>
-          <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
-            <Identity Name="CheemsBonkGame.Bundled.$Prefix" Publisher="CN=Cheems" Version="1.0.0.0" />
-            <Properties>
-              <DisplayName>Cheems Bonk Game</DisplayName>
-              <PublisherDisplayName>Cheems</PublisherDisplayName>
-              <Logo>Assets\StoreLogo.png</Logo>
-            </Properties>
-            <Resources>
-              <Resource Language="en-us" />
-            </Resources>
-            <Dependencies>
-              <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
-              <TargetDeviceFamily Name="Windows.Xbox" MinVersion="10.0.14393.0" MaxVersionTested="10.0.19041.0" />
-            </Dependencies>
-            <Applications>
-              <Application Id="App" StartPage="index.html">
-                <uap:VisualElements DisplayName="Cheems Bonk Game" Description="Cheems Bonk Game Offline" BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png">
-                  <uap:SplashScreen Image="Assets\SplashScreen.png" />
-                </uap:VisualElements>
-              </Application>
-            </Applications>
-          </Package>
-          "@
-          Set-Content -Path "$AppDir\AppxManifest.xml" -Value $ManifestContent
-
-          $MakeAppx = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
-          $SignTool = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
-
-          & $MakeAppx pack /d $AppDir /p cheems-bundled-$Prefix.msix
-
-          $Cert = New-SelfSignedCertificate -Type Custom -Subject "CN=Cheems" -KeyUsage DigitalSignature -FriendlyName "Cheems App Cert" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
-          $Password = ConvertTo-SecureString -String "password" -Force -AsPlainText
-          Export-PfxCertificate -Cert "Cert:\CurrentUser\My\$($Cert.Thumbprint)" -FilePath "cheems.pfx" -Password $Password
-          
-          & $SignTool sign /fd SHA256 /a /f cheems.pfx /p password cheems-bundled-$Prefix.msix
-          
-          mkdir -p windows-bundled
-          mv cheems-bundled-$Prefix.msix windows-bundled/
-
-      - name: Build Windows & Xbox (Native MSIX PWA)
-        if: matrix.app_type == 'pwa'
-        shell: pwsh
-        env:
-          page_root: ${{ needs.prepare-env.outputs.page_root }}
-          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
-        run: |
-          $Owner = "${{ github.repository_owner }}"
-          if ([string]::IsNullOrWhiteSpace($Owner)) { $Owner = "luna115-oncode" }
-          $Owner = $Owner.ToLower()
-          $ManifestUrl = "https://$Owner.github.io${env:page_root}"
-          $Prefix = $env:build_prefix
-          $AppDir = "windows-pwa-src"
-          New-Item -ItemType Directory -Path "$AppDir\Assets" -Force
-
-          $IconSrc = ".pwa/icons-$Prefix/pwa/icon-512x512.png"
-          Copy-Item $IconSrc "$AppDir\Assets\StoreLogo.png"
-          Copy-Item $IconSrc "$AppDir\Assets\Square150x150Logo.png"
-          Copy-Item $IconSrc "$AppDir\Assets\Square44x44Logo.png"
-          Copy-Item $IconSrc "$AppDir\Assets\SplashScreen.png"
-
-          $ManifestContent = @"
-          <?xml version="1.0" encoding="utf-8"?>
-          <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
-            <Identity Name="CheemsBonkGame.PWA.$Prefix" Publisher="CN=Cheems" Version="1.0.0.0" />
-            <Properties>
-              <DisplayName>Cheems Bonk Game (PWA)</DisplayName>
-              <PublisherDisplayName>Cheems</PublisherDisplayName>
-              <Logo>Assets\StoreLogo.png</Logo>
-            </Properties>
-            <Resources>
-              <Resource Language="en-us" />
-            </Resources>
-            <Dependencies>
-              <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
-              <TargetDeviceFamily Name="Windows.Xbox" MinVersion="10.0.14393.0" MaxVersionTested="10.0.19041.0" />
-            </Dependencies>
-            <Applications>
-              <Application Id="App" StartPage="$ManifestUrl">
-                <uap:VisualElements DisplayName="Cheems Bonk Game" Description="Cheems Bonk Game PWA" BackgroundColor="transparent" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png">
-                  <uap:SplashScreen Image="Assets\SplashScreen.png" />
-                </uap:VisualElements>
-                <uap:ApplicationContentUriRules>
-                  <uap:Rule Type="include" Match="$ManifestUrl" />
-                </uap:ApplicationContentUriRules>
-              </Application>
-            </Applications>
-          </Package>
-          "@
-          Set-Content -Path "$AppDir\AppxManifest.xml" -Value $ManifestContent
-
-          $MakeAppx = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
-          $SignTool = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
-
-          & $MakeAppx pack /d $AppDir /p cheems-pwa-$Prefix.msix
-
-          $Cert = New-SelfSignedCertificate -Type Custom -Subject "CN=Cheems" -KeyUsage DigitalSignature -FriendlyName "Cheems PWA Cert" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
-          $Password = ConvertTo-SecureString -String "password" -Force -AsPlainText
-          Export-PfxCertificate -Cert "Cert:\CurrentUser\My\$($Cert.Thumbprint)" -FilePath "cheems.pfx" -Password $Password
-          
-          & $SignTool sign /fd SHA256 /a /f cheems.pfx /p password cheems-pwa-$Prefix.msix
-          
-          mkdir -p windows-pwa
-          mv cheems-pwa-$Prefix.msix windows-pwa/
-
-      - name: Upload Windows + Xbox Bundled Artifacts
-        if: matrix.app_type == 'bundled'
+      - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-xbox-app-bundled-${{ needs.prepare-env.outputs.build_prefix }}
+          name: ${{ matrix.app_type == 'bundled' && 'windows-app-bundled-' || 'windows-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             electron/dist/*.exe
             electron/dist/*.msi
-            windows-bundled/*.msix
-
-      - name: Upload Windows + Xbox PWA Artifacts
-        if: matrix.app_type == 'pwa'
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-xbox-pwa-${{ needs.prepare-env.outputs.build_prefix }}
-          path: windows-pwa/*.msix
 
   build-extensions:
     needs: [prepare-env, compile-web]
