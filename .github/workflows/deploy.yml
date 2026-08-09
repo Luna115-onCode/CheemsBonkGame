@@ -214,9 +214,20 @@ jobs:
           }
           const repoOwner = (process.env.GITHUB_REPOSITORY_OWNER || '').toLowerCase();
           const pageRoot = '${{ needs.prepare-env.outputs.page_root }}';
-          const baseUrl = 'https://' + repoOwner + '.github.io' + pageRoot + 'game';
+          const domainUrl = 'https://' + repoOwner + '.github.io';
+          const baseUrl = domainUrl + pageRoot + 'game';
           if (!m.start_url || !m.start_url.startsWith('http')) {
             m.start_url = baseUrl;
+          }
+          if (m.scope && !m.scope.startsWith('http')) {
+            m.scope = domainUrl + m.scope;
+          }
+          if (m.icons) {
+            m.icons.forEach(i => {
+              if (i.src && !i.src.startsWith('http')) {
+                i.src = domainUrl + i.src;
+              }
+            });
           }
           fs.writeFileSync(manifestPath, JSON.stringify(m, null, 2));
           "
