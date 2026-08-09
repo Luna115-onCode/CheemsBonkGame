@@ -166,7 +166,7 @@ jobs:
           cap = cap.replace('com.cheems.app', appId);
           if (isPwa) {
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            const url = 'https://' + repoOwner + '.github.io' + pageRoot + 'game';
+            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
             cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
           }
           fs.writeFileSync('capacitor.config.ts', cap);
@@ -215,7 +215,7 @@ jobs:
           const repoOwner = (process.env.GITHUB_REPOSITORY_OWNER || '').toLowerCase();
           const pageRoot = '${{ needs.prepare-env.outputs.page_root }}';
           const domainUrl = 'https://' + repoOwner + '.github.io';
-          const baseUrl = domainUrl + pageRoot + 'game';
+          const baseUrl = domainUrl + pageRoot;
           if (!m.start_url || !m.start_url.startsWith('http')) {
             m.start_url = baseUrl;
           }
@@ -250,7 +250,7 @@ jobs:
         if: matrix.app_type == 'pwa'
         shell: bash
         run: |
-          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io${{ needs.prepare-env.outputs.page_root }}game"
+          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io${{ needs.prepare-env.outputs.page_root }}"
           APP_NAME="cheems-bonk-pwa-${{ needs.prepare-env.outputs.build_prefix }}"
           
           mkdir -p deb-package/DEBIAN
@@ -452,7 +452,7 @@ jobs:
           page_root: ${{ needs.prepare-env.outputs.page_root }}
           build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
         run: |
-          $ManifestUrl = "https://$($env:GITHUB_REPOSITORY_OWNER.ToLower()).github.io${env:page_root}game"
+          $ManifestUrl = "https://$($env:GITHUB_REPOSITORY_OWNER.ToLower()).github.io${env:page_root}"
           $Prefix = $env:build_prefix
           $AppDir = "windows-pwa-src"
           New-Item -ItemType Directory -Path "$AppDir\Assets" -Force
@@ -548,7 +548,7 @@ jobs:
           mkdir -p ext-chromium ext-firefox
           
           # Setup routing logic based on PWA or Bundled
-          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io${page_root}game"
+          MANIFEST_URL="https://${GITHUB_REPOSITORY_OWNER,,}.github.io${page_root}"
           if [ "$app_type" = "bundled" ]; then
             # Copy all game files into the extension for offline play
             cp -r dist/cheems-angular/browser/* ext-chromium/
@@ -666,7 +666,7 @@ jobs:
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
             elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
             elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
-            const url = 'https://' + repoOwner + '.github.io' + pageRoot + 'game';
+            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
             cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
           }
           fs.writeFileSync('capacitor.config.ts', cap);
