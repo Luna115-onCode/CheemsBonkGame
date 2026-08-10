@@ -200,10 +200,10 @@ export class ToolsService {
   async loadClosetPrices(): Promise<void> {
     try {
       const [cheemsRes, soundsRes, musicRes, closetRes] = await Promise.all([
-        fetch('items/cheems.json').catch(() => null),
-        fetch('items/sound_effects.json').catch(() => null),
-        fetch('items/music.json').catch(() => null),
-        fetch('closet.json').catch(() => null)
+        fetch('data/cheems.json').catch(() => null),
+        fetch('data/sound_effects.json').catch(() => null),
+        fetch('data/music.json').catch(() => null),
+        fetch('data/closet.json').catch(() => null)
       ]);
 
       const cheemsCatalog: Array<CheemsSkinItem> = cheemsRes && cheemsRes.ok ? await cheemsRes.json() : [];
@@ -229,7 +229,7 @@ export class ToolsService {
       this.appendUnlockableShopItems();
       this.playMusic(this.selectedMusic);
     } catch (err) {
-      console.warn('Could not load closet.json or items, using default arrays', err);
+      console.warn('Could not load data/closet.json or data/ items, using default arrays', err);
     }
   }
 
@@ -358,7 +358,7 @@ export class ToolsService {
 
   async loadMinigamesConfig(): Promise<void> {
     try {
-      const res = await fetch("minigames.json");
+      const res = await fetch("data/minigames.json");
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) {
@@ -370,7 +370,7 @@ export class ToolsService {
         }
       }
     } catch (err) {
-      console.warn("Could not load minigames.json", err);
+      console.warn("Could not load data/minigames.json", err);
     }
   }
 
@@ -976,7 +976,7 @@ export class ToolsService {
 
   async loadShopItems(): Promise<void> {
     try {
-      const res = await fetch("shop.json");
+      const res = await fetch("data/shop.json");
       if (res.ok) {
         const rawItems = await res.json();
 
@@ -989,7 +989,7 @@ export class ToolsService {
         }));
       }
     } catch (err) {
-      console.warn("Could not load shop.json", err);
+      console.warn("Could not load data/shop.json", err);
     }
     this.appendUnlockableShopItems();
   }
@@ -1357,6 +1357,13 @@ export class ToolsService {
     return this.lang === 'es' ? (skin.nameEs || skin.nameEn || skin.id) : (skin.nameEn || skin.nameEs || skin.id);
   }
 
+  getCheemsDescription(skin: CheemsSkinItem): string {
+    if (skin.description && this.itemsText[this.lang]?.[skin.description]) {
+      return this.itemsText[this.lang][skin.description];
+    }
+    return '';
+  }
+
   getSoundName(sound: SoundEffectItem): string {
     if (sound.nameKey && this.itemsText[this.lang]?.[sound.nameKey]) {
       return this.itemsText[this.lang][sound.nameKey];
@@ -1364,11 +1371,25 @@ export class ToolsService {
     return sound.name || sound.id;
   }
 
+  getSoundDescription(sound: SoundEffectItem): string {
+    if (sound.description && this.itemsText[this.lang]?.[sound.description]) {
+      return this.itemsText[this.lang][sound.description];
+    }
+    return '';
+  }
+
   getMusicName(track: MusicTrackItem): string {
     if (track.nameKey && this.itemsText[this.lang]?.[track.nameKey]) {
       return this.itemsText[this.lang][track.nameKey];
     }
     return track.name || String(track.id);
+  }
+
+  getMusicDescription(track: MusicTrackItem): string {
+    if (track.description && this.itemsText[this.lang]?.[track.description]) {
+      return this.itemsText[this.lang][track.description];
+    }
+    return '';
   }
 
 

@@ -48,6 +48,7 @@ export interface CheemsSkinItem {
   cost?: number;
   default?: boolean;
   storageKey: string;
+  description?: string;
 }
 
 export interface SoundEffectItem {
@@ -60,6 +61,7 @@ export interface SoundEffectItem {
   file?: string;
   files?: string[];
   basePath?: string;
+  description?: string;
 }
 
 export interface MusicTrackItem {
@@ -72,6 +74,7 @@ export interface MusicTrackItem {
   default?: boolean;
   cost?: number;
   storageKey: string;
+  description?: string;
 }
 
 export interface LanguageItem {
@@ -330,10 +333,10 @@ export const OFFLINE_CATEGORIES: OfflineCategory[] = [
       'index.html',
       'favicon.ico',
       'manifest.webmanifest',
-      'closet.json',
-      'items/cheems.json',
-      'items/sound_effects.json',
-      'items/music.json',
+      'data/closet.json',
+      'data/cheems.json',
+      'data/sound_effects.json',
+      'data/music.json',
       'lang/texts.en.lang',
       'lang/texts.es.lang',
       'img/dogecoin-min.png',

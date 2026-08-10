@@ -4,72 +4,91 @@
     "nameKey": "sfx_1",
     "file": "sfx/hit.ogg",
     "default": true,
-    "storageKey": "s1"
+    "storageKey": "s1",
+    "description": "sfx_1_desc"
   },
   {
     "id": "sfx_2",
     "nameKey": "sfx_2",
     "file": "sfx/hurt-minecraft.ogg",
-    "storageKey": "s2"
+    "storageKey": "s2",
+    "description": "sfx_2_desc"
   },
   {
     "id": "sfx_3",
     "nameKey": "sfx_3",
     "file": "sfx/hurt-roblox.ogg",
-    "storageKey": "s3"
+    "storageKey": "s3",
+    "description": "sfx_3_desc"
   },
   {
     "id": "sfx_4",
     "nameKey": "sfx_4",
-    "files": ["sfx/levelup1.ogg", "sfx/levelup2.ogg"],
-    "storageKey": "s4"
+    "files": [
+      "sfx/levelup1.ogg",
+      "sfx/levelup2.ogg"
+    ],
+    "storageKey": "s4",
+    "description": "sfx_4_desc"
   },
   {
     "id": "sfx_5",
     "nameKey": "sfx_5",
-    "files": ["sfx/discord-connect.ogg", "sfx/discord-disconnect.ogg", "sfx/discord-msg.ogg"],
-    "storageKey": "s5"
+    "files": [
+      "sfx/discord-connect.ogg",
+      "sfx/discord-disconnect.ogg",
+      "sfx/discord-msg.ogg"
+    ],
+    "storageKey": "s5",
+    "description": "sfx_5_desc"
   },
   {
     "id": "sfx_6",
     "nameKey": "sfx_6",
     "file": "sfx/hello.ogg",
-    "storageKey": "s6"
+    "storageKey": "s6",
+    "description": "sfx_6_desc"
   },
   {
     "id": "sfx_7",
     "nameKey": "sfx_7",
     "file": "sfx/hit-minecraft.ogg",
-    "storageKey": "s7"
+    "storageKey": "s7",
+    "description": "sfx_7_desc"
   },
   {
     "id": "sfx_8",
     "nameKey": "sfx_8",
     "file": "sfx/no.ogg",
-    "storageKey": "s8"
+    "storageKey": "s8",
+    "description": "sfx_8_desc"
   },
   {
     "id": "sfx_9",
     "nameKey": "sfx_9",
     "file": "sfx/pato.ogg",
-    "storageKey": "s9"
+    "storageKey": "s9",
+    "description": "sfx_9_desc"
   },
   {
     "id": "sfx_10",
     "nameKey": "sfx_10",
     "file": "sfx/peluche.ogg",
-    "storageKey": "s10"
+    "storageKey": "s10",
+    "description": "sfx_10_desc"
   },
   {
     "id": "sfx_11",
     "nameKey": "sfx_11",
     "file": "sfx/splat.ogg",
-    "storageKey": "s11"
+    "storageKey": "s11",
+    "description": "sfx_11_desc"
   },
   {
     "id": "sfx_12",
     "nameKey": "sfx_12",
     "file": "sfx/windows-error.ogg",
-    "storageKey": "s12"
+    "storageKey": "s12",
+    "description": "sfx_12_desc"
   }
 ]

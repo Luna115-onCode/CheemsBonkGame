@@ -28,6 +28,9 @@
                          [alt]="skin.id">
                     <div class="item-info">
                         <span class="item-name">{{tools.getCheemsName(skin)}}</span>
+                        @if (tools.getCheemsDescription(skin)) {
+                            <span class="item-desc">{{tools.getCheemsDescription(skin)}}</span>
+                        }
                         @if (tools.selectedCheems === skin.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else {
@@ -50,6 +53,9 @@
                          [alt]="tools.getSoundName(sound)">
                     <div class="item-info">
                         <span class="item-name">{{tools.getSoundName(sound)}}</span>
+                        @if (tools.getSoundDescription(sound)) {
+                            <span class="item-desc">{{tools.getSoundDescription(sound)}}</span>
+                        }
                         @if (tools.selectedSound === sound.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else {
@@ -74,6 +80,9 @@
                     }
                     <div class="item-info">
                         <span class="item-name">{{tools.getMusicName(track)}}</span>
+                        @if (tools.getMusicDescription(track)) {
+                            <span class="item-desc">{{tools.getMusicDescription(track)}}</span>
+                        }
                         @if (tools.selectedMusic === track.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else {

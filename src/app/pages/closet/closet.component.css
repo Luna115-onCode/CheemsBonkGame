@@ -108,6 +108,12 @@
     text-align: center;
 }
 
+.item-desc {
+    font-size: 0.85em;
+    text-align: center;
+    opacity: 0.8;
+}
+
 .status-badge {
     padding: 0.3rem 0.85rem;
     border-radius: 50px;
