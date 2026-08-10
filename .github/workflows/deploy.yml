@@ -180,7 +180,6 @@ jobs:
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
-          npx @capacitor/assets generate
 
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
@@ -188,9 +187,17 @@ jobs:
           name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: dist/
 
+      - name: Optimize PWA Size for Wrappers
+        if: matrix.app_type == 'pwa'
+        shell: bash
+        run: |
+          rm -rf dist/cheems-angular/browser/*
+          echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Cheems Bonk Game</title></head><body style=\"background: black; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif;\"><h1>Loading PWA...</h1></body></html>" > dist/cheems-angular/browser/index.html
+
       - name: Build Android
         run: |
           npx cap add android
+          npx @capacitor/assets generate --android
           npx cap sync android
           
           cd android
@@ -209,7 +216,7 @@ jobs:
       - name: Upload Android Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app_type == 'bundled' && 'android-app-bundled-' || 'android-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          name: ${{ matrix.app_type == 'bundled' && 'android-app-' || 'android-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             android/app/build/outputs/apk/debug/app-debug.apk
             android/app/build/outputs/bundle/debug/app-debug.aab
@@ -217,7 +224,7 @@ jobs:
       - name: Upload Linux Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app_type == 'bundled' && 'linux-app-bundled-' || 'linux-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          name: ${{ matrix.app_type == 'bundled' && 'linux-app-' || 'linux-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             electron/dist/*.deb
             electron/dist/*.rpm
@@ -239,6 +246,7 @@ jobs:
       - run: npm install
 
       - name: Apply Environment Configs
+        shell: bash
         env:
           build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
           page_root: ${{ needs.prepare-env.outputs.page_root }}
@@ -269,13 +277,19 @@ jobs:
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
-          npx @capacitor/assets generate
 
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
         with:
           name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: dist/
+
+      - name: Optimize PWA Size for Wrappers
+        if: matrix.app_type == 'pwa'
+        shell: bash
+        run: |
+          rm -rf dist/cheems-angular/browser/*
+          echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Cheems Bonk Game</title></head><body style=\"background: black; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif;\"><h1>Loading PWA...</h1></body></html>" > dist/cheems-angular/browser/index.html
 
       - name: Build Windows
         shell: bash
@@ -290,10 +304,115 @@ jobs:
       - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app_type == 'bundled' && 'windows-app-bundled-' || 'windows-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          name: ${{ matrix.app_type == 'bundled' && 'windows-app-' || 'windows-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             electron/dist/*.exe
             electron/dist/*.msi
+
+  build-macos-ios:
+    needs: [prepare-env, compile-web]
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        app_type: [bundled, pwa]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - run: npm install -g @angular/cli @capacitor/cli @capacitor/assets
+      - run: npm install
+
+      - name: Apply Environment Configs
+        env:
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
+          page_root: ${{ needs.prepare-env.outputs.page_root }}
+          app_type: ${{ matrix.app_type }}
+        run: |
+          node -e "
+          const fs = require('fs');
+          let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
+          let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
+          const isPwa = process.env.app_type === 'pwa';
+          const prefix = process.env.build_prefix;
+          const repoOwner = '${{ github.repository_owner }}'.toLowerCase();
+          const pageRoot = process.env.page_root;
+          const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
+          cap = cap.replace('com.cheems.app', appId);
+          elec = elec.replace('com.cheems.app', appId);
+          if (isPwa) {
+            cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
+            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
+            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
+            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
+          }
+          fs.writeFileSync('capacitor.config.ts', cap);
+          fs.writeFileSync('electron/electron-builder.config.json', elec);
+          "
+          mkdir -p assets electron/assets
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
+
+      - name: Download Web Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
+          path: dist/
+
+      - name: Optimize PWA Size for Wrappers
+        if: matrix.app_type == 'pwa'
+        shell: bash
+        run: |
+          rm -rf dist/cheems-angular/browser/*
+          echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Cheems Bonk Game</title></head><body style=\"background: black; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif;\"><h1>Loading PWA...</h1></body></html>" > dist/cheems-angular/browser/index.html
+
+      - name: Build Mac (Electron Intel & Apple Silicon)
+        if: matrix.app_type != 'pwa'
+        run: |
+          npx cap copy @capacitor-community/electron
+          cd electron
+          npm install
+          # Kill any processes that might be holding onto the disk
+          lsof | grep -i /dev/disk | awk '{print $2}' | xargs kill -9 2>/dev/null || true
+          # Give the system a moment to clean up
+          sleep 2
+          # Retry the build
+          npm run electron:make || {
+            # If it fails, force unmount any remaining disk images
+            diskutil list | grep -i APFS | awk '{print $NF}' | xargs -I {} diskutil unmountDisk force /dev/{} 2>/dev/null || true
+            exit 1
+          }
+
+      - name: Build iOS
+        run: |
+          npx cap add ios
+          npx @capacitor/assets generate --ios
+          npx cap sync ios
+          cd ios/App
+          xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
+          xcodebuild archive -project App.xcodeproj -scheme App -configuration Release -archivePath build/App.xcarchive CODE_SIGNING_ALLOWED=NO || true
+          xcodebuild -exportArchive -archivePath build/App.xcarchive -exportPath build/Export -exportOptionsPlist App/Info.plist CODE_SIGNING_ALLOWED=NO || true
+
+      - name: Upload Mac Artifacts
+        if: matrix.app_type != 'pwa'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app_type == 'bundled' && 'macos-app-' || 'macos-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          path: |
+            electron/dist/*.dmg
+            electron/dist/*.zip
+            electron/dist/**/*.app
+
+      - name: Upload iOS Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app_type == 'bundled' && 'ios-app-' || 'ios-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          path: |
+            ios/App/build/Build/Products/Debug-iphonesimulator/*.app
+            ios/App/build/Export/*.ipa
 
   build-extensions:
     needs: [prepare-env, compile-web]
@@ -402,106 +521,3 @@ jobs:
           name: ${{ matrix.app_type == 'bundled' && 'browser-extensions-bundled-' || 'browser-extensions-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             *.zip
-
-  build-macos-ios:
-    needs: [prepare-env, compile-web]
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        app_type: [bundled, pwa]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      
-      - run: npm install -g @angular/cli @capacitor/cli @capacitor/assets
-      - run: npm install
-
-      - name: Apply Environment Configs
-        env:
-          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
-          page_root: ${{ needs.prepare-env.outputs.page_root }}
-          app_type: ${{ matrix.app_type }}
-        run: |
-          node -e "
-          const fs = require('fs');
-          let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
-          let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
-          const isPwa = process.env.app_type === 'pwa';
-          const prefix = process.env.build_prefix;
-          const repoOwner = '${{ github.repository_owner }}'.toLowerCase();
-          const pageRoot = process.env.page_root;
-          const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
-          cap = cap.replace('com.cheems.app', appId);
-          elec = elec.replace('com.cheems.app', appId);
-          if (isPwa) {
-            cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
-            const url = 'https://' + repoOwner + '.github.io' + pageRoot;
-            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
-          }
-          fs.writeFileSync('capacitor.config.ts', cap);
-          fs.writeFileSync('electron/electron-builder.config.json', elec);
-          "
-          mkdir -p assets electron/assets
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
-          npx @capacitor/assets generate
-
-      - name: Download Web Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: web-app-${{ needs.prepare-env.outputs.build_prefix }}
-          path: dist/
-
-      - name: Optimize PWA Size for Wrappers
-        if: matrix.app_type == 'pwa'
-        shell: bash
-        run: |
-          rm -rf dist/cheems-angular/browser/*
-          echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Cheems Bonk Game</title></head><body style=\"background: black; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif;\"><h1>Loading PWA...</h1></body></html>" > dist/cheems-angular/browser/index.html
-
-      - name: Build Mac (Electron Intel & Apple Silicon)
-        run: |
-          npx cap copy @capacitor-community/electron
-          cd electron
-          npm install
-          # Kill any processes that might be holding onto the disk
-          lsof | grep -i /dev/disk | awk '{print $2}' | xargs kill -9 2>/dev/null || true
-          # Give the system a moment to clean up
-          sleep 2
-          # Retry the build
-          npm run electron:make || {
-            # If it fails, force unmount any remaining disk images
-            diskutil list | grep -i APFS | awk '{print $NF}' | xargs -I {} diskutil unmountDisk force /dev/{} 2>/dev/null || true
-            exit 1
-          }
-
-      - name: Build iOS
-        run: |
-          npx cap add ios
-          npx cap sync ios
-          cd ios/App
-          xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
-          xcodebuild archive -project App.xcodeproj -scheme App -configuration Release -archivePath build/App.xcarchive CODE_SIGNING_ALLOWED=NO || true
-          xcodebuild -exportArchive -archivePath build/App.xcarchive -exportPath build/Export -exportOptionsPlist App/Info.plist CODE_SIGNING_ALLOWED=NO || true
-
-      - name: Upload Mac Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.app_type == 'bundled' && 'macos-app-bundled-' || 'macos-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
-          path: |
-            electron/dist/*.dmg
-            electron/dist/*.zip
-            electron/dist/**/*.app
-
-      - name: Upload iOS Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.app_type == 'bundled' && 'ios-app-bundled-' || 'ios-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
-          path: |
-            ios/App/build/Build/Products/Debug-iphonesimulator/*.app
-            ios/App/build/Export/*.ipa
