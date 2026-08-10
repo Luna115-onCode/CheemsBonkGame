@@ -204,12 +204,50 @@ jobs:
           ./gradlew assembleDebug
           ./gradlew bundleDebug
 
-      - name: Build Linux
+      - name: Build Linux (Bundled Electron + Portable)
+        if: matrix.app_type == 'bundled'
+        env:
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
         run: |
           npx cap copy @capacitor-community/electron
           cd electron
           npm install
           npm run electron:make
+
+      - name: Build Linux (Native PWA .deb and .rpm)
+        if: matrix.app_type == 'pwa'
+        shell: bash
+        env:
+          page_root: ${{ needs.prepare-env.outputs.page_root }}
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
+        run: |
+          OWNER="${{ github.repository_owner }}"
+          if [ -z "$OWNER" ]; then OWNER="luna115-oncode"; fi
+          MANIFEST_URL="https://${OWNER,,}.github.io${page_root}"
+          APP_NAME="cheems-bonk-pwa-${build_prefix}"
+          
+          mkdir -p deb-package/DEBIAN
+          mkdir -p deb-package/usr/bin
+          mkdir -p deb-package/usr/share/applications
+          mkdir -p deb-package/usr/share/icons/hicolor/512x512/apps
+          
+          sed -e "s|\${AppName}|$APP_NAME|g" .pwa/linux-control > deb-package/DEBIAN/control
+          
+          sed -e "s|\${ManifestUrl}|$MANIFEST_URL|g" .pwa/linux-launcher.sh > deb-package/usr/bin/$APP_NAME
+          chmod +x deb-package/usr/bin/$APP_NAME
+          
+          sed -e "s|\${AppName}|$APP_NAME|g" .pwa/linux.desktop > deb-package/usr/share/applications/$APP_NAME.desktop
+          
+          cp .pwa/icons-${build_prefix}/pwa/icon-512x512.png deb-package/usr/share/icons/hicolor/512x512/apps/$APP_NAME.png
+          
+          dpkg-deb --build deb-package ${APP_NAME}.deb
+          
+          sudo apt-get update && sudo apt-get install -y rpm
+          mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+          sed -e "s|\${AppName}|$APP_NAME|g" -e "s|\${Workspace}|$GITHUB_WORKSPACE|g" .pwa/linux.spec > rpmbuild/SPECS/pwa.spec
+          
+          rpmbuild -bb --define "_topdir $GITHUB_WORKSPACE/rpmbuild" rpmbuild/SPECS/pwa.spec
+          cp rpmbuild/RPMS/noarch/*.rpm .
 
 
 
@@ -221,14 +259,24 @@ jobs:
             android/app/build/outputs/apk/debug/app-debug.apk
             android/app/build/outputs/bundle/debug/app-debug.aab
 
-      - name: Upload Linux Artifacts
+      - name: Upload Linux Bundled Artifacts
+        if: matrix.app_type == 'bundled'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app_type == 'bundled' && 'linux-app-' || 'linux-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          name: linux-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             electron/dist/*.deb
             electron/dist/*.rpm
             electron/dist/*.AppImage
+            
+      - name: Upload Linux PWA Artifacts
+        if: matrix.app_type == 'pwa'
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-pwa-${{ needs.prepare-env.outputs.build_prefix }}
+          path: |
+            *.deb
+            *.rpm
 
   build-windows-xbox:
     needs: [prepare-env, compile-web]
@@ -291,7 +339,8 @@ jobs:
           rm -rf dist/cheems-angular/browser/*
           echo "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"><title>Cheems Bonk Game</title></head><body style=\"background: black; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif;\"><h1>Loading PWA...</h1></body></html>" > dist/cheems-angular/browser/index.html
 
-      - name: Build Windows
+      - name: Build Windows Desktop (Electron Bundled + Portable)
+        if: matrix.app_type == 'bundled'
         shell: bash
         run: |
           npx cap copy @capacitor-community/electron
@@ -299,15 +348,92 @@ jobs:
           npm install
           npm run electron:make
 
+      - name: Build Windows & Xbox (Native MSIX Bundled Offline)
+        if: matrix.app_type == 'bundled'
+        shell: pwsh
+        env:
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
+        run: |
+          $Prefix = $env:build_prefix
+          $AppDir = "windows-bundled-src"
+          New-Item -ItemType Directory -Path "$AppDir\Assets" -Force
+          Copy-Item -Path "dist\cheems-angular\browser\*" -Destination $AppDir -Recurse
+          $IconSrc = ".pwa/icons-$Prefix/pwa/icon-512x512.png"
+          Copy-Item $IconSrc "$AppDir\Assets\StoreLogo.png"
+          Copy-Item $IconSrc "$AppDir\Assets\Square150x150Logo.png"
+          Copy-Item $IconSrc "$AppDir\Assets\Square44x44Logo.png"
+          Copy-Item $IconSrc "$AppDir\Assets\SplashScreen.png"
+          
+          $ManifestContent = Get-Content -Path ".pwa/windows-bundled.appxmanifest.xml" -Raw
+          $ManifestContent = $ManifestContent -replace '\$\{Prefix\}', $Prefix
+          Set-Content -Path "$AppDir\AppxManifest.xml" -Value $ManifestContent
+          
+          $MakeAppx = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
+          $SignTool = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
+          & $MakeAppx pack /d $AppDir /p cheems-bundled-$Prefix.msix
+          $Cert = New-SelfSignedCertificate -Type Custom -Subject "CN=Cheems" -KeyUsage DigitalSignature -FriendlyName "Cheems App Cert" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
+          $Password = ConvertTo-SecureString -String "password" -Force -AsPlainText
+          Export-PfxCertificate -Cert "Cert:\CurrentUser\My\$($Cert.Thumbprint)" -FilePath "cheems.pfx" -Password $Password
+          
+          & $SignTool sign /fd SHA256 /a /f cheems.pfx /p password cheems-bundled-$Prefix.msix
+          
+          mkdir -p windows-bundled
+          mv cheems-bundled-$Prefix.msix windows-bundled/
+
+      - name: Build Windows & Xbox (Native MSIX PWA)
+        if: matrix.app_type == 'pwa'
+        shell: pwsh
+        env:
+          page_root: ${{ needs.prepare-env.outputs.page_root }}
+          build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
+        run: |
+          $Owner = "${{ github.repository_owner }}"
+          if ([string]::IsNullOrWhiteSpace($Owner)) { $Owner = "luna115-oncode" }
+          $Owner = $Owner.ToLower()
+          $ManifestUrl = "https://$Owner.github.io${env:page_root}"
+          $Prefix = $env:build_prefix
+          $AppDir = "windows-pwa-src"
+          New-Item -ItemType Directory -Path "$AppDir\Assets" -Force
+          $IconSrc = ".pwa/icons-$Prefix/pwa/icon-512x512.png"
+          Copy-Item $IconSrc "$AppDir\Assets\StoreLogo.png"
+          Copy-Item $IconSrc "$AppDir\Assets\Square150x150Logo.png"
+          Copy-Item $IconSrc "$AppDir\Assets\Square44x44Logo.png"
+          Copy-Item $IconSrc "$AppDir\Assets\SplashScreen.png"
+          
+          $ManifestContent = Get-Content -Path ".pwa/windows-pwa.appxmanifest.xml" -Raw
+          $ManifestContent = $ManifestContent -replace '\$\{Prefix\}', $Prefix -replace '\$\{ManifestUrl\}', $ManifestUrl
+          Set-Content -Path "$AppDir\AppxManifest.xml" -Value $ManifestContent
+          
+          $MakeAppx = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
+          $SignTool = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
+          & $MakeAppx pack /d $AppDir /p cheems-pwa-$Prefix.msix
+          $Cert = New-SelfSignedCertificate -Type Custom -Subject "CN=Cheems" -KeyUsage DigitalSignature -FriendlyName "Cheems PWA Cert" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
+          $Password = ConvertTo-SecureString -String "password" -Force -AsPlainText
+          Export-PfxCertificate -Cert "Cert:\CurrentUser\My\$($Cert.Thumbprint)" -FilePath "cheems.pfx" -Password $Password
+          
+          & $SignTool sign /fd SHA256 /a /f cheems.pfx /p password cheems-pwa-$Prefix.msix
+          
+          mkdir -p windows-pwa
+          mv cheems-pwa-$Prefix.msix windows-pwa/
 
 
-      - name: Upload Windows Artifacts
+
+      - name: Upload Windows Bundled Artifacts
+        if: matrix.app_type == 'bundled'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.app_type == 'bundled' && 'windows-app-' || 'windows-pwa-' }}${{ needs.prepare-env.outputs.build_prefix }}
+          name: windows-app-${{ needs.prepare-env.outputs.build_prefix }}
           path: |
             electron/dist/*.exe
             electron/dist/*.msi
+            windows-bundled/*.msix
+
+      - name: Upload Windows PWA Artifacts
+        if: matrix.app_type == 'pwa'
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-pwa-${{ needs.prepare-env.outputs.build_prefix }}
+          path: windows-pwa/*.msix
 
   build-macos-ios:
     needs: [prepare-env, compile-web]
@@ -458,55 +584,12 @@ jobs:
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png ext-firefox/icon.png
           
           # 1. Chromium Extension (Chrome, Edge, Brave, Opera, ChromeOS)
-          cat <<EOF > ext-chromium/manifest.json
-          {
-            "manifest_version": 3,
-            "name": "$APP_NAME",
-            "version": "1.0.0",
-            "description": "Play Cheems Bonk Game",
-            "action": {},
-            "background": {
-              "service_worker": "background.js"
-            },
-            "icons": {
-              "128": "icon.png"
-            }
-          }
-          EOF
-          
-          cat <<EOF > ext-chromium/background.js
-          chrome.action.onClicked.addListener(() => {
-            chrome.tabs.create({ url: '$TARGET_URL' });
-          });
-          EOF
+          sed -e "s|\${AppName}|$APP_NAME|g" .pwa/chromium-manifest.json > ext-chromium/manifest.json
+          sed -e "s|\${TargetUrl}|$TARGET_URL|g" .pwa/extension-background.js > ext-chromium/background.js
           
           # 2. Firefox Extension
-          cat <<EOF > ext-firefox/manifest.json
-          {
-            "manifest_version": 3,
-            "name": "$APP_NAME",
-            "version": "1.0.0",
-            "description": "Play Cheems Bonk Game",
-            "action": {},
-            "background": {
-              "scripts": ["background.js"]
-            },
-            "icons": {
-              "128": "icon.png"
-            },
-            "browser_specific_settings": {
-              "gecko": {
-                "id": "cheemsbonk-${build_prefix}@cheems.com"
-              }
-            }
-          }
-          EOF
-          
-          cat <<EOF > ext-firefox/background.js
-          chrome.action.onClicked.addListener(() => {
-            chrome.tabs.create({ url: '$TARGET_URL' });
-          });
-          EOF
+          sed -e "s|\${AppName}|$APP_NAME|g" -e "s|\${Prefix}|$build_prefix|g" .pwa/firefox-manifest.json > ext-firefox/manifest.json
+          sed -e "s|\${TargetUrl}|$TARGET_URL|g" .pwa/extension-background.js > ext-firefox/background.js
           
           # Zip the extensions (Ready for Chrome Web Store & Mozilla Add-ons)
           cd ext-chromium

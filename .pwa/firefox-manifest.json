@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "${AppName}",
+  "version": "1.0.0",
+  "description": "Play Cheems Bonk Game",
+  "action": {},
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "cheemsbonk-${Prefix}@cheems.com"
+    }
+  }
+}

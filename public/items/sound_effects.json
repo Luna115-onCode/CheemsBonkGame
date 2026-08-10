@@ -2,74 +2,74 @@
   {
     "id": "sfx_1",
     "nameKey": "sfx_1",
-    "file": "hit.ogg",
+    "file": "sfx/hit.ogg",
     "default": true,
     "storageKey": "s1"
   },
   {
     "id": "sfx_2",
     "nameKey": "sfx_2",
-    "file": "hurt-minecraft.ogg",
+    "file": "sfx/hurt-minecraft.ogg",
     "storageKey": "s2"
   },
   {
     "id": "sfx_3",
     "nameKey": "sfx_3",
-    "file": "hurt-roblox.ogg",
+    "file": "sfx/hurt-roblox.ogg",
     "storageKey": "s3"
   },
   {
     "id": "sfx_4",
     "nameKey": "sfx_4",
-    "files": ["levelup1.ogg", "levelup2.ogg"],
+    "files": ["sfx/levelup1.ogg", "sfx/levelup2.ogg"],
     "storageKey": "s4"
   },
   {
     "id": "sfx_5",
     "nameKey": "sfx_5",
-    "files": ["discord-connect.ogg", "discord-disconnect.ogg", "discord-msg.ogg"],
+    "files": ["sfx/discord-connect.ogg", "sfx/discord-disconnect.ogg", "sfx/discord-msg.ogg"],
     "storageKey": "s5"
   },
   {
     "id": "sfx_6",
     "nameKey": "sfx_6",
-    "file": "hello.ogg",
+    "file": "sfx/hello.ogg",
     "storageKey": "s6"
   },
   {
     "id": "sfx_7",
     "nameKey": "sfx_7",
-    "file": "hit-minecraft.ogg",
+    "file": "sfx/hit-minecraft.ogg",
     "storageKey": "s7"
   },
   {
     "id": "sfx_8",
     "nameKey": "sfx_8",
-    "file": "no.ogg",
+    "file": "sfx/no.ogg",
     "storageKey": "s8"
   },
   {
     "id": "sfx_9",
     "nameKey": "sfx_9",
-    "file": "pato.ogg",
+    "file": "sfx/pato.ogg",
     "storageKey": "s9"
   },
   {
     "id": "sfx_10",
     "nameKey": "sfx_10",
-    "file": "peluche.ogg",
+    "file": "sfx/peluche.ogg",
     "storageKey": "s10"
   },
   {
     "id": "sfx_11",
     "nameKey": "sfx_11",
-    "file": "splat.ogg",
+    "file": "sfx/splat.ogg",
     "storageKey": "s11"
   },
   {
     "id": "sfx_12",
     "nameKey": "sfx_12",
-    "file": "windows-error.ogg",
+    "file": "sfx/windows-error.ogg",
     "storageKey": "s12"
   }
 ]

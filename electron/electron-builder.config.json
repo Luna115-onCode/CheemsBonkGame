@@ -17,7 +17,7 @@
   "win": {
     "target": [
       {
-        "target": "nsis",
+        "target": ["nsis", "msi"],
         "arch": ["x64"]
       }
     ],
@@ -34,7 +34,11 @@
     "shortcutName": "Cheems Bonk Game"
   },
   "msi": {
-    "oneClick": false
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Cheems Bonk Game"
   },
   "linux": {
     "target": ["deb", "rpm", "AppImage"],

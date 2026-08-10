@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Cheems Bonk Game (PWA)
+Exec=${AppName}
+Icon=${AppName}
+Terminal=false
+Categories=Game;
