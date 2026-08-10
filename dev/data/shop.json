@@ -258,6 +258,51 @@
     "oneTimePurchase": true
   },
   {
+    "id": "cheems_not_ai",
+    "type": "cheems",
+    "nameKey": "cheems_not_ai",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/cheems/not_ai.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_realistic",
+    "type": "cheems",
+    "nameKey": "cheems_realistic",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/cheems/realistic.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_not_a_plumber",
+    "type": "cheems",
+    "nameKey": "cheems_not_a_plumber",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/cheems/not_a_plumber.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_minecraft",
+    "type": "cheems",
+    "nameKey": "cheems_minecraft",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/cheems/cubes.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_not_a_dog",
+    "type": "cheems",
+    "nameKey": "cheems_not_a_dog",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/cheems/not_a_dog.png",
+    "oneTimePurchase": true
+  },
+  {
     "id": "sfx_2",
     "type": "sound",
     "nameKey": "sfx_2",
@@ -396,6 +441,213 @@
     "id": "music_6",
     "type": "music",
     "nameKey": "music_6",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_7",
+    "type": "music",
+    "nameKey": "music_7",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_8",
+    "type": "music",
+    "nameKey": "music_8",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_9",
+    "type": "music",
+    "nameKey": "music_9",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_10",
+    "type": "music",
+    "nameKey": "music_10",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_11",
+    "type": "music",
+    "nameKey": "music_11",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_12",
+    "type": "music",
+    "nameKey": "music_12",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_13",
+    "type": "music",
+    "nameKey": "music_13",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_14",
+    "type": "music",
+    "nameKey": "music_14",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_15",
+    "type": "music",
+    "nameKey": "music_15",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_16",
+    "type": "music",
+    "nameKey": "music_16",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_17",
+    "type": "music",
+    "nameKey": "music_17",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_18",
+    "type": "music",
+    "nameKey": "music_18",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_19",
+    "type": "music",
+    "nameKey": "music_19",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_20",
+    "type": "music",
+    "nameKey": "music_20",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_21",
+    "type": "music",
+    "nameKey": "music_21",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_22",
+    "type": "music",
+    "nameKey": "music_22",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_23",
+    "type": "music",
+    "nameKey": "music_23",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_24",
+    "type": "music",
+    "nameKey": "music_24",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_25",
+    "type": "music",
+    "nameKey": "music_25",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_26",
+    "type": "music",
+    "nameKey": "music_26",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_27",
+    "type": "music",
+    "nameKey": "music_27",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_28",
+    "type": "music",
+    "nameKey": "music_28",
+    "cost": 0,
+    "costCoins": 10,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_29",
+    "type": "music",
+    "nameKey": "music_29",
     "cost": 0,
     "costCoins": 10,
     "icon": "img/icons/music-svgrepo-com.svg",
@@ -544,4 +796,3 @@
     "icon": "img/dogecoin-min.png"
   }
 ]
-

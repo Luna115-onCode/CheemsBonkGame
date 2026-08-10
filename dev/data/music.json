@@ -1,0 +1,272 @@
+[
+  {
+    "id": "music_0",
+    "nameKey": "music_0",
+    "file": "",
+    "basePath": "sound/music/",
+    "default": true,
+    "storageKey": "m0",
+    "description": "music_0_desc"
+  },
+  {
+    "id": "music_1",
+    "nameKey": "music_1",
+    "file": "A_Jazz_Piano.ogg",
+    "basePath": "sound/music/",
+    "default": true,
+    "storageKey": "m1",
+    "description": "music_1_desc"
+  },
+  {
+    "id": "music_2",
+    "nameKey": "music_2",
+    "file": "Jack_Bootleg.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m2",
+    "description": "music_2_desc"
+  },
+  {
+    "id": "music_3",
+    "nameKey": "music_3",
+    "file": "Magic_night.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m3",
+    "description": "music_3_desc"
+  },
+  {
+    "id": "music_4",
+    "nameKey": "music_4",
+    "file": "Minimalism_No9.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m4",
+    "description": "music_4_desc"
+  },
+  {
+    "id": "music_5",
+    "nameKey": "music_5",
+    "file": "Minimalism_No10.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m5",
+    "description": "music_5_desc"
+  },
+  {
+    "id": "music_6",
+    "nameKey": "music_6",
+    "file": "When_you_smile.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m6",
+    "description": "music_6_desc"
+  },
+  {
+    "id": "music_7",
+    "nameKey": "music_7",
+    "file": "TETRIS (Joey iLLah Bootleg) (Final).wav",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m7",
+    "description": "music_7_desc"
+  },
+  {
+    "id": "music_8",
+    "nameKey": "music_8",
+    "file": "separation-185196.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m8",
+    "description": "music_8_desc"
+  },
+  {
+    "id": "music_9",
+    "nameKey": "music_9",
+    "file": "electro-summer-positive-party-141081.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m9",
+    "description": "music_9_desc"
+  },
+  {
+    "id": "music_10",
+    "nameKey": "music_10",
+    "file": "titanium-170190.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m10",
+    "description": "music_10_desc"
+  },
+  {
+    "id": "music_11",
+    "nameKey": "music_11",
+    "file": "believe-me-143530.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m11",
+    "description": "music_11_desc"
+  },
+  {
+    "id": "music_12",
+    "nameKey": "music_12",
+    "file": "city-streets-background-version-166003.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m12",
+    "description": "music_12_desc"
+  },
+  {
+    "id": "music_13",
+    "nameKey": "music_13",
+    "file": "coffee-shop-189585.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m13",
+    "description": "music_13_desc"
+  },
+  {
+    "id": "music_14",
+    "nameKey": "music_14",
+    "file": "trap-future-bass-royalty-free-music-167020.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m14",
+    "description": "music_14_desc"
+  },
+  {
+    "id": "music_15",
+    "nameKey": "music_15",
+    "file": "bonk_the_amber.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m15",
+    "description": "music_15_desc"
+  },
+  {
+    "id": "music_16",
+    "nameKey": "music_16",
+    "file": "bonk_the_avatar.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m16",
+    "description": "music_16_desc"
+  },
+  {
+    "id": "music_17",
+    "nameKey": "music_17",
+    "file": "bonus_level_bounce.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m17",
+    "description": "music_17_desc"
+  },
+  {
+    "id": "music_18",
+    "nameKey": "music_18",
+    "file": "button_smash_routine.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m18",
+    "description": "music_18_desc"
+  },
+  {
+    "id": "music_19",
+    "nameKey": "music_19",
+    "file": "cheems-chan_bonk.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m19",
+    "description": "music_19_desc"
+  },
+  {
+    "id": "music_20",
+    "nameKey": "music_20",
+    "file": "click_for_a_bonk.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m20",
+    "description": "music_20_desc"
+  },
+  {
+    "id": "music_21",
+    "nameKey": "music_21",
+    "file": "hardwood_strike.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m21",
+    "description": "music_21_desc"
+  },
+  {
+    "id": "music_22",
+    "nameKey": "music_22",
+    "file": "perfect_round.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m22",
+    "description": "music_22_desc"
+  },
+  {
+    "id": "music_23",
+    "nameKey": "music_23",
+    "file": "pocket_change_victory.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m23",
+    "description": "music_23_desc"
+  },
+  {
+    "id": "music_24",
+    "nameKey": "music_24",
+    "file": "quick_loot_run.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m24",
+    "description": "music_24_desc"
+  },
+  {
+    "id": "music_25",
+    "nameKey": "music_25",
+    "file": "target_in_the_sight.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m25",
+    "description": "music_25_desc"
+  },
+  {
+    "id": "music_26",
+    "nameKey": "music_26",
+    "file": "the_hammer_falls.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m26",
+    "description": "music_26_desc"
+  },
+  {
+    "id": "music_27",
+    "nameKey": "music_27",
+    "file": "the_late_commute.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m27",
+    "description": "music_27_desc"
+  },
+  {
+    "id": "music_28",
+    "nameKey": "music_28",
+    "file": "the_unwritten_page.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m28",
+    "description": "music_28_desc"
+  },
+  {
+    "id": "music_29",
+    "nameKey": "music_29",
+    "file": "where_the_path_bends.mp3",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m29",
+    "description": "music_29_desc"
+  }
+]

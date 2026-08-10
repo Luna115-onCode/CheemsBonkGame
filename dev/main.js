@@ -40725,10 +40725,10 @@ var OFFLINE_CATEGORIES = [
       "index.html",
       "favicon.ico",
       "manifest.webmanifest",
-      "closet.json",
-      "items/cheems.json",
-      "items/sound_effects.json",
-      "items/music.json",
+      "data/closet.json",
+      "data/cheems.json",
+      "data/sound_effects.json",
+      "data/music.json",
       "lang/texts.en.lang",
       "lang/texts.es.lang",
       "img/dogecoin-min.png",
@@ -40899,6 +40899,7 @@ var ToolsService = class _ToolsService {
   p404 = createLangMap(p404Text);
   offline = createLangMap(offlineText);
   shop = {};
+  gallery = {};
   minigames = createLangMap(minigamesText);
   stats = createLangMap(statsText);
   pageName = createLangMap(pageName);
@@ -40928,6 +40929,7 @@ var ToolsService = class _ToolsService {
   currentMusicBuffer = null;
   currentMusicFile = "";
   isWindowBlurred = false;
+  isBackgroundMusicPaused = false;
   availableLanguages = AVAILABLE_LANGUAGES;
   cheemsSkins = CHEEMS_SKINS;
   soundEffects = SOUND_EFFECTS;
@@ -40953,7 +40955,7 @@ var ToolsService = class _ToolsService {
       }
     });
     const resumeMusicOnInteraction = () => {
-      if (String(this.selectedMusic) !== "0" && this.musicAudio.paused) {
+      if (String(this.selectedMusic) !== "0" && this.musicAudio.paused && !this.isBackgroundMusicPaused) {
         this.playMusic(this.selectedMusic);
       }
     };
@@ -41016,6 +41018,8 @@ var ToolsService = class _ToolsService {
             this.flappy_dunk[langCode] = __spreadValues(__spreadValues({}, this.flappy_dunk[langCode]), data.flappy_dunk);
           if (data.magic_sort)
             this.magic_sort[langCode] = __spreadValues(__spreadValues({}, this.magic_sort[langCode]), data.magic_sort);
+          if (data.gallery)
+            this.gallery[langCode] = __spreadValues(__spreadValues({}, this.gallery[langCode]), data.gallery);
           if (data.shopItemsText)
             this.shopItemsText[langCode] = __spreadValues(__spreadValues({}, this.shopItemsText[langCode]), data.shopItemsText);
           if (data.itemsText)
@@ -41030,10 +41034,10 @@ var ToolsService = class _ToolsService {
     return __async(this, null, function* () {
       try {
         const [cheemsRes, soundsRes, musicRes, closetRes] = yield Promise.all([
-          fetch("items/cheems.json").catch(() => null),
-          fetch("items/sound_effects.json").catch(() => null),
-          fetch("items/music.json").catch(() => null),
-          fetch("closet.json").catch(() => null)
+          fetch("data/cheems.json").catch(() => null),
+          fetch("data/sound_effects.json").catch(() => null),
+          fetch("data/music.json").catch(() => null),
+          fetch("data/closet.json").catch(() => null)
         ]);
         const cheemsCatalog = cheemsRes && cheemsRes.ok ? yield cheemsRes.json() : [];
         const soundsCatalog = soundsRes && soundsRes.ok ? yield soundsRes.json() : [];
@@ -41055,7 +41059,7 @@ var ToolsService = class _ToolsService {
         this.appendUnlockableShopItems();
         this.playMusic(this.selectedMusic);
       } catch (err) {
-        console.warn("Could not load closet.json or items, using default arrays", err);
+        console.warn("Could not load data/closet.json or data/ items, using default arrays", err);
       }
     });
   }
@@ -41110,7 +41114,7 @@ var ToolsService = class _ToolsService {
     const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
     if (minigamePages.includes(this.actPage)) {
       this.redirect("minigames");
-    } else if (["devSettings", "closet", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage)) {
+    } else if (["devSettings", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage)) {
       this.redirect("game");
@@ -41167,7 +41171,7 @@ var ToolsService = class _ToolsService {
   loadMinigamesConfig() {
     return __async(this, null, function* () {
       try {
-        const res = yield fetch("minigames.json");
+        const res = yield fetch("data/minigames.json");
         if (res.ok) {
           const data = yield res.json();
           if (Array.isArray(data)) {
@@ -41179,7 +41183,7 @@ var ToolsService = class _ToolsService {
           }
         }
       } catch (err) {
-        console.warn("Could not load minigames.json", err);
+        console.warn("Could not load data/minigames.json", err);
       }
     });
   }
@@ -41781,7 +41785,7 @@ var ToolsService = class _ToolsService {
   loadShopItems() {
     return __async(this, null, function* () {
       try {
-        const res = yield fetch("shop.json");
+        const res = yield fetch("data/shop.json");
         if (res.ok) {
           const rawItems = yield res.json();
           this.shopItems = rawItems.map((item) => __spreadProps(__spreadValues({}, item), {
@@ -41792,7 +41796,7 @@ var ToolsService = class _ToolsService {
           }));
         }
       } catch (err) {
-        console.warn("Could not load shop.json", err);
+        console.warn("Could not load data/shop.json", err);
       }
       this.appendUnlockableShopItems();
     });
@@ -42088,6 +42092,20 @@ var ToolsService = class _ToolsService {
     if (!this.isWindowBlurred)
       return;
     this.isWindowBlurred = false;
+    this.resumeBackground();
+  }
+  pauseBackground() {
+    this.isBackgroundMusicPaused = true;
+    if (this.audioCtx && this.audioCtx.state === "running") {
+      this.audioCtx.suspend().catch(() => {
+      });
+    }
+    if (!this.musicAudio.paused) {
+      this.musicAudio.pause();
+    }
+  }
+  resumeBackground() {
+    this.isBackgroundMusicPaused = false;
     if (String(this.selectedMusic) !== "0" && this.musVol > 0) {
       if (this.audioCtx && this.audioCtx.state === "suspended") {
         this.audioCtx.resume().catch(() => {
@@ -42131,17 +42149,35 @@ var ToolsService = class _ToolsService {
     }
     return this.lang === "es" ? skin.nameEs || skin.nameEn || skin.id : skin.nameEn || skin.nameEs || skin.id;
   }
+  getCheemsDescription(skin) {
+    if (skin.description && this.itemsText[this.lang]?.[skin.description]) {
+      return this.itemsText[this.lang][skin.description];
+    }
+    return "";
+  }
   getSoundName(sound) {
     if (sound.nameKey && this.itemsText[this.lang]?.[sound.nameKey]) {
       return this.itemsText[this.lang][sound.nameKey];
     }
     return sound.name || sound.id;
   }
+  getSoundDescription(sound) {
+    if (sound.description && this.itemsText[this.lang]?.[sound.description]) {
+      return this.itemsText[this.lang][sound.description];
+    }
+    return "";
+  }
   getMusicName(track) {
     if (track.nameKey && this.itemsText[this.lang]?.[track.nameKey]) {
       return this.itemsText[this.lang][track.nameKey];
     }
     return track.name || String(track.id);
+  }
+  getMusicDescription(track) {
+    if (track.description && this.itemsText[this.lang]?.[track.description]) {
+      return this.itemsText[this.lang][track.description];
+    }
+    return "";
   }
   exportSave() {
     const saveData = {};
@@ -42336,16 +42372,16 @@ var GameComponent = class _GameComponent {
 })();
 
 // src/app/pages/menu/menu.component.ts
-function MenuComponent_Conditional_32_Template(rf, ctx) {
+function MenuComponent_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("click", function MenuComponent_Conditional_32_Template_div_click_0_listener() {
+    \u0275\u0275listener("click", function MenuComponent_Conditional_37_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.tools.redirect("devSettings"));
     });
-    \u0275\u0275element(1, "img", 11);
+    \u0275\u0275element(1, "img", 12);
     \u0275\u0275elementStart(2, "div", 3)(3, "div", 4);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()();
@@ -42371,7 +42407,7 @@ var MenuComponent = class _MenuComponent {
   static \u0275fac = function MenuComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MenuComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 33, vars: 28, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], [3, "class"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Dev Settings", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 38, vars: 32, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/picture-svgrepo-com.svg", "alt", "Gallery", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], [3, "class"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Dev Settings", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_2_listener() {
@@ -42399,7 +42435,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(17, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_17_listener() {
-        return ctx.tools.redirect("settings");
+        return ctx.tools.redirect("gallery");
       });
       \u0275\u0275element(18, "img", 7);
       \u0275\u0275elementStart(19, "div", 3)(20, "div", 4);
@@ -42407,7 +42443,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(22, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_22_listener() {
-        return ctx.tools.redirect("stats");
+        return ctx.tools.redirect("settings");
       });
       \u0275\u0275element(23, "img", 8);
       \u0275\u0275elementStart(24, "div", 3)(25, "div", 4);
@@ -42415,13 +42451,21 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(27, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_27_listener() {
-        return ctx.tools.redirect("licenses");
+        return ctx.tools.redirect("stats");
       });
       \u0275\u0275element(28, "img", 9);
       \u0275\u0275elementStart(29, "div", 3)(30, "div", 4);
       \u0275\u0275text(31);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(32, MenuComponent_Conditional_32_Template, 5, 4, "div", 10);
+      \u0275\u0275elementStart(32, "div", 1);
+      \u0275\u0275listener("click", function MenuComponent_Template_div_click_32_listener() {
+        return ctx.tools.redirect("licenses");
+      });
+      \u0275\u0275element(33, "img", 10);
+      \u0275\u0275elementStart(34, "div", 3)(35, "div", 4);
+      \u0275\u0275text(36);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275template(37, MenuComponent_Conditional_37_Template, 5, 4, "div", 11);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -42442,6 +42486,10 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].gallery || "Gallery");
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(4);
       \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].settings);
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
@@ -42452,7 +42500,7 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275advance(4);
       \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].licenses);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.tools.devMenuUnlocked ? 32 : -1);
+      \u0275\u0275conditional(ctx.tools.devMenuUnlocked ? 37 : -1);
     }
   }, styles: ["\n\n.menu-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));\n  gap: 1.25rem;\n  width: 95%;\n  max-width: 900px;\n  margin: 2rem auto;\n  padding: 2rem;\n}\n.menu-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  gap: 1rem;\n  padding: 1.15rem;\n  border-radius: 16px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid transparent;\n}\n.menu-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);\n}\n.menu-card[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.98);\n}\n.menu-icon[_ngcontent-%COMP%] {\n  width: 44px;\n  height: 44px;\n  object-fit: contain;\n  flex-shrink: 0;\n}\n.coin-glow[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.7));\n}\n.card-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.card-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.card-sub[_ngcontent-%COMP%] {\n  font-size: 0.85em;\n  opacity: 0.8;\n}\n.menu-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(80, 68, 55, 0.85),\n      rgba(50, 42, 33, 0.95));\n  border: 1px solid rgba(255, 209, 102, 0.25);\n  color: rgb(245, 235, 220);\n}\n.menu-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.9),\n      rgba(240, 225, 195, 0.95));\n  border: 1px solid rgba(156, 92, 20, 0.3);\n  color: rgb(70, 45, 20);\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dogecoin-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(120, 95, 40, 0.9),\n      rgba(75, 55, 20, 0.95));\n  border-color: #ffd166;\n}\n.dogecoin-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 225, 160, 0.95),\n      rgba(245, 205, 130, 0.95));\n  border-color: #9c5c14;\n}\n.dogecoin-card.theme-contrast[_ngcontent-%COMP%] {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dev-card[_ngcontent-%COMP%] {\n  border-style: dashed !important;\n}\n@media (max-width: 600px) {\n  .menu-grid[_ngcontent-%COMP%] {\n    grid-template-columns: 1fr;\n    padding: 1.25rem;\n  }\n}\n/*# sourceMappingURL=menu.component.css.map */"] });
 };
@@ -42482,6 +42530,14 @@ var MenuComponent = class _MenuComponent {
             <img src="img/icons/personal-svgrepo-com.svg" class="menu-icon" alt="Closet">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].closet}}</div>
+            </div>
+        </div>
+
+        <!-- Gallery -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('gallery')">
+            <img src="img/icons/picture-svgrepo-com.svg" class="menu-icon" alt="Gallery">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].gallery || 'Gallery'}}</div>
             </div>
         </div>
 
@@ -43088,14 +43144,27 @@ function ClosetComponent_Conditional_8_For_2_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(3);
+    const skin_r2 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getCheemsDescription(skin_r2));
   }
 }
 function ClosetComponent_Conditional_8_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 8);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
+  }
+}
+function ClosetComponent_Conditional_8_For_2_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 9);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -43118,7 +43187,7 @@ function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
     \u0275\u0275elementStart(2, "div", 5)(3, "span", 6);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, ClosetComponent_Conditional_8_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_8_For_2_Conditional_6_Template, 2, 1, "span", 8);
+    \u0275\u0275template(5, ClosetComponent_Conditional_8_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_8_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_8_For_2_Conditional_7_Template, 2, 1, "span", 9);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -43131,13 +43200,15 @@ function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r2.tools.getCheemsName(skin_r2));
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.tools.selectedCheems === skin_r2.id ? 5 : 6);
+    \u0275\u0275conditional(ctx_r2.tools.getCheemsDescription(skin_r2) ? 5 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.tools.selectedCheems === skin_r2.id ? 6 : 7);
   }
 }
 function ClosetComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_8_For_2_Template, 7, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_8_For_2_Template, 8, 10, "div", 3, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -43153,14 +43224,27 @@ function ClosetComponent_Conditional_9_For_2_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(3);
+    const sound_r5 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getSoundDescription(sound_r5));
   }
 }
 function ClosetComponent_Conditional_9_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 8);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
+  }
+}
+function ClosetComponent_Conditional_9_For_2_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 9);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -43179,11 +43263,11 @@ function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectSound(sound_r5));
     });
-    \u0275\u0275element(1, "img", 9);
+    \u0275\u0275element(1, "img", 10);
     \u0275\u0275elementStart(2, "div", 5)(3, "span", 6);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, ClosetComponent_Conditional_9_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_9_For_2_Conditional_6_Template, 2, 1, "span", 8);
+    \u0275\u0275template(5, ClosetComponent_Conditional_9_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_9_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_9_For_2_Conditional_7_Template, 2, 1, "span", 9);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -43196,13 +43280,15 @@ function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r2.tools.getSoundName(sound_r5));
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.tools.selectedSound === sound_r5.id ? 5 : 6);
+    \u0275\u0275conditional(ctx_r2.tools.getSoundDescription(sound_r5) ? 5 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.tools.selectedSound === sound_r5.id ? 6 : 7);
   }
 }
 function ClosetComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_9_For_2_Template, 7, 8, "div", 3, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_9_For_2_Template, 8, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -43213,7 +43299,7 @@ function ClosetComponent_Conditional_9_Template(rf, ctx) {
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 10);
+    \u0275\u0275element(0, "img", 11);
   }
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
@@ -43223,7 +43309,7 @@ function ClosetComponent_Conditional_10_For_2_Conditional_1_Template(rf, ctx) {
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 11);
+    \u0275\u0275element(0, "img", 12);
   }
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
@@ -43238,14 +43324,27 @@ function ClosetComponent_Conditional_10_For_2_Conditional_6_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(3);
+    const track_r7 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getMusicDescription(track_r7));
   }
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 8);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
+  }
+}
+function ClosetComponent_Conditional_10_For_2_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 9);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -43264,11 +43363,11 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectMusic(track_r7));
     });
-    \u0275\u0275template(1, ClosetComponent_Conditional_10_For_2_Conditional_1_Template, 1, 1, "img", 10)(2, ClosetComponent_Conditional_10_For_2_Conditional_2_Template, 1, 1, "img", 11);
+    \u0275\u0275template(1, ClosetComponent_Conditional_10_For_2_Conditional_1_Template, 1, 1, "img", 11)(2, ClosetComponent_Conditional_10_For_2_Conditional_2_Template, 1, 1, "img", 12);
     \u0275\u0275elementStart(3, "div", 5)(4, "span", 6);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(6, ClosetComponent_Conditional_10_For_2_Conditional_6_Template, 2, 1, "span", 7)(7, ClosetComponent_Conditional_10_For_2_Conditional_7_Template, 2, 1, "span", 8);
+    \u0275\u0275template(6, ClosetComponent_Conditional_10_For_2_Conditional_6_Template, 2, 1, "span", 7)(7, ClosetComponent_Conditional_10_For_2_Conditional_7_Template, 2, 1, "span", 8)(8, ClosetComponent_Conditional_10_For_2_Conditional_8_Template, 2, 1, "span", 9);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -43281,13 +43380,15 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate(ctx_r2.tools.getMusicName(track_r7));
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.tools.selectedMusic === track_r7.id ? 6 : 7);
+    \u0275\u0275conditional(ctx_r2.tools.getMusicDescription(track_r7) ? 6 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.tools.selectedMusic === track_r7.id ? 7 : 8);
   }
 }
 function ClosetComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_10_For_2_Template, 8, 8, "div", 3, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_10_For_2_Template, 9, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -43327,7 +43428,7 @@ var ClosetComponent = class _ClosetComponent {
   static \u0275fac = function ClosetComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ClosetComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 11, vars: 27, consts: [[1, "container"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], ["src", "img/icons/sound-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/music-svgrepo-com.svg", 1, "item-icon", 3, "alt"]], template: function ClosetComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 11, vars: 27, consts: [[1, "container"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "item-desc"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], ["src", "img/icons/sound-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/music-svgrepo-com.svg", 1, "item-icon", 3, "alt"]], template: function ClosetComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "button", 1);
       \u0275\u0275listener("click", function ClosetComponent_Template_button_click_2_listener() {
@@ -43375,7 +43476,7 @@ var ClosetComponent = class _ClosetComponent {
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.activeTab === "music" ? 10 : -1);
     }
-  }, styles: ["\n\n.tabs-header[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn[_ngcontent-%COMP%] {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active[_ngcontent-%COMP%] {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));\n  gap: 1.5rem;\n  width: 95%;\n  max-width: 1000px;\n  margin: 0 auto 3rem auto;\n}\n.shop-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem;\n  border-radius: 18px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-5px) scale(1.03);\n  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);\n}\n.shop-card.theme-light[_ngcontent-%COMP%] {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.shop-card.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.shop-card.theme-contrast[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.item-img[_ngcontent-%COMP%] {\n  width: 110px;\n  height: 110px;\n  object-fit: contain;\n  margin-bottom: 0.75rem;\n}\n.item-icon[_ngcontent-%COMP%] {\n  width: 60px;\n  height: 60px;\n  object-fit: contain;\n  margin: 1rem 0;\n}\n.item-info[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.5rem;\n  width: 100%;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1em;\n  text-align: center;\n}\n.status-badge[_ngcontent-%COMP%] {\n  padding: 0.3rem 0.85rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 900;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n}\n.active-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 209, 102, 0.3);\n  color: #ffd166;\n  border: 1px solid #ffd166;\n}\n.unlocked-badge[_ngcontent-%COMP%] {\n  background: rgba(100, 255, 100, 0.2);\n  color: #55ff55;\n  border: 1px solid #55ff55;\n}\n.cost-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 100, 100, 0.2);\n  color: #ff8888;\n  border: 1px solid #ff8888;\n}\n/*# sourceMappingURL=closet.component.css.map */"] });
+  }, styles: ["\n\n.tabs-header[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn[_ngcontent-%COMP%] {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active[_ngcontent-%COMP%] {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));\n  gap: 1.5rem;\n  width: 95%;\n  max-width: 1000px;\n  margin: 0 auto 3rem auto;\n}\n.shop-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem;\n  border-radius: 18px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-5px) scale(1.03);\n  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);\n}\n.shop-card.theme-light[_ngcontent-%COMP%] {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.shop-card.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.shop-card.theme-contrast[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.item-img[_ngcontent-%COMP%] {\n  width: 110px;\n  height: 110px;\n  object-fit: contain;\n  margin-bottom: 0.75rem;\n}\n.item-icon[_ngcontent-%COMP%] {\n  width: 60px;\n  height: 60px;\n  object-fit: contain;\n  margin: 1rem 0;\n}\n.item-info[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.5rem;\n  width: 100%;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1em;\n  text-align: center;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.85em;\n  text-align: center;\n  opacity: 0.8;\n}\n.status-badge[_ngcontent-%COMP%] {\n  padding: 0.3rem 0.85rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 900;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n}\n.active-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 209, 102, 0.3);\n  color: #ffd166;\n  border: 1px solid #ffd166;\n}\n.unlocked-badge[_ngcontent-%COMP%] {\n  background: rgba(100, 255, 100, 0.2);\n  color: #55ff55;\n  border: 1px solid #55ff55;\n}\n.cost-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 100, 100, 0.2);\n  color: #ff8888;\n  border: 1px solid #ff8888;\n}\n/*# sourceMappingURL=closet.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ClosetComponent, [{
@@ -43410,6 +43511,9 @@ var ClosetComponent = class _ClosetComponent {
                          [alt]="skin.id">
                     <div class="item-info">
                         <span class="item-name">{{tools.getCheemsName(skin)}}</span>
+                        @if (tools.getCheemsDescription(skin)) {
+                            <span class="item-desc">{{tools.getCheemsDescription(skin)}}</span>
+                        }
                         @if (tools.selectedCheems === skin.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else {
@@ -43432,6 +43536,9 @@ var ClosetComponent = class _ClosetComponent {
                          [alt]="tools.getSoundName(sound)">
                     <div class="item-info">
                         <span class="item-name">{{tools.getSoundName(sound)}}</span>
+                        @if (tools.getSoundDescription(sound)) {
+                            <span class="item-desc">{{tools.getSoundDescription(sound)}}</span>
+                        }
                         @if (tools.selectedSound === sound.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else {
@@ -43456,6 +43563,9 @@ var ClosetComponent = class _ClosetComponent {
                     }
                     <div class="item-info">
                         <span class="item-name">{{tools.getMusicName(track)}}</span>
+                        @if (tools.getMusicDescription(track)) {
+                            <span class="item-desc">{{tools.getMusicDescription(track)}}</span>
+                        }
                         @if (tools.selectedMusic === track.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else {
@@ -43467,7 +43577,7 @@ var ClosetComponent = class _ClosetComponent {
         </div>
     }
 </div>
-`, styles: ["/* src/app/pages/closet/closet.component.css */\n.tabs-header {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));\n  gap: 1.5rem;\n  width: 95%;\n  max-width: 1000px;\n  margin: 0 auto 3rem auto;\n}\n.shop-card {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem;\n  border-radius: 18px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n}\n.shop-card:hover {\n  transform: translateY(-5px) scale(1.03);\n  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);\n}\n.shop-card.theme-light {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.shop-card.theme-contrast {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.shop-card.theme-contrast:hover {\n  border-color: #ffff00;\n}\n.item-img {\n  width: 110px;\n  height: 110px;\n  object-fit: contain;\n  margin-bottom: 0.75rem;\n}\n.item-icon {\n  width: 60px;\n  height: 60px;\n  object-fit: contain;\n  margin: 1rem 0;\n}\n.item-info {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.5rem;\n  width: 100%;\n}\n.item-name {\n  font-weight: 900;\n  font-size: 1em;\n  text-align: center;\n}\n.status-badge {\n  padding: 0.3rem 0.85rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 900;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n}\n.active-badge {\n  background: rgba(255, 209, 102, 0.3);\n  color: #ffd166;\n  border: 1px solid #ffd166;\n}\n.unlocked-badge {\n  background: rgba(100, 255, 100, 0.2);\n  color: #55ff55;\n  border: 1px solid #55ff55;\n}\n.cost-badge {\n  background: rgba(255, 100, 100, 0.2);\n  color: #ff8888;\n  border: 1px solid #ff8888;\n}\n/*# sourceMappingURL=closet.component.css.map */\n"] }]
+`, styles: ["/* src/app/pages/closet/closet.component.css */\n.tabs-header {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));\n  gap: 1.5rem;\n  width: 95%;\n  max-width: 1000px;\n  margin: 0 auto 3rem auto;\n}\n.shop-card {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem;\n  border-radius: 18px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n}\n.shop-card:hover {\n  transform: translateY(-5px) scale(1.03);\n  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);\n}\n.shop-card.theme-light {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.shop-card.theme-contrast {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.shop-card.theme-contrast:hover {\n  border-color: #ffff00;\n}\n.item-img {\n  width: 110px;\n  height: 110px;\n  object-fit: contain;\n  margin-bottom: 0.75rem;\n}\n.item-icon {\n  width: 60px;\n  height: 60px;\n  object-fit: contain;\n  margin: 1rem 0;\n}\n.item-info {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.5rem;\n  width: 100%;\n}\n.item-name {\n  font-weight: 900;\n  font-size: 1em;\n  text-align: center;\n}\n.item-desc {\n  font-size: 0.85em;\n  text-align: center;\n  opacity: 0.8;\n}\n.status-badge {\n  padding: 0.3rem 0.85rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 900;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n}\n.active-badge {\n  background: rgba(255, 209, 102, 0.3);\n  color: #ffd166;\n  border: 1px solid #ffd166;\n}\n.unlocked-badge {\n  background: rgba(100, 255, 100, 0.2);\n  color: #55ff55;\n  border: 1px solid #55ff55;\n}\n.cost-badge {\n  background: rgba(255, 100, 100, 0.2);\n  color: #ff8888;\n  border: 1px solid #ff8888;\n}\n/*# sourceMappingURL=closet.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
@@ -43545,7 +43655,7 @@ var LicensesComponent = class _LicensesComponent {
   static \u0275fac = function LicensesComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _LicensesComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LicensesComponent, selectors: [["app-licenses"]], decls: 141, vars: 4, consts: [[1, "container"], [1, "licenses-title"], [1, "licenses-content"], ["href", "https://www.svgrepo.com/page/licensing/#CC0", "target", "_blank"], ["href", "https://www.svgrepo.com/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/solar-bold-icons/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/isometric-3d-interface-icons/", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com/es/users/william_king-33448498/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=185196", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=185196", "target", "_blank"], ["href", "https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"]], template: function LicensesComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LicensesComponent, selectors: [["app-licenses"]], decls: 137, vars: 4, consts: [[1, "container"], [1, "licenses-title"], [1, "licenses-content"], ["href", "https://www.svgrepo.com/page/licensing/#CC0", "target", "_blank"], ["href", "https://www.svgrepo.com/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/solar-bold-icons/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/isometric-3d-interface-icons/", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-a-jazz-piano-110481/", "target", "_blank"], ["href", "https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-when-you-smile-151423/", "target", "_blank"], ["href", "https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-tradicional-magic-night-134393/", "target", "_blank"], ["href", "https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-titanium-170190/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-coffee-shop-189585/", "target", "_blank"], ["href", "https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com/es/music/cafeter%C3%ADa-believe-me-143530/", "target", "_blank"], ["href", "https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-city-streets-background-version-166003/", "target", "_blank"], ["href", "https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-trap-future-bass-royalty-free-music-167020/", "target", "_blank"], ["href", "https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com/es/music/electro-electro-summer-positive-party-141081/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"]], template: function LicensesComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "h2", 1);
       \u0275\u0275text(3);
@@ -43580,140 +43690,117 @@ var LicensesComponent = class _LicensesComponent {
       \u0275\u0275elementStart(28, "h3");
       \u0275\u0275text(29, "Music & Sound");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(30, "ul")(31, "li")(32, "strong");
-      \u0275\u0275text(33, "Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(34, "a", 7);
-      \u0275\u0275text(35, "Link");
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(36, "li")(37, "strong");
+      \u0275\u0275elementStart(30, "ul")(31, "li")(32, "strong")(33, "a", 7);
+      \u0275\u0275text(34, "Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(35, "li")(36, "strong")(37, "a", 8);
       \u0275\u0275text(38, "Jack Bootleg");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(39, "a", 8);
-      \u0275\u0275text(40, "Link");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(39, "li")(40, "strong")(41, "a", 9);
+      \u0275\u0275text(42, "Minimalism N. 10, Notre envol II - Rapha\xEBl Novarina [Piano]");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(43, "li")(44, "strong")(45, "a", 10);
+      \u0275\u0275text(46, "A Jazz Piano");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(41, "li")(42, "strong");
-      \u0275\u0275text(43, "Minimalism N. 10, Notre envol II - Rapha\xEBl Novarina [Piano]");
+      \u0275\u0275text(47, " Music by ");
+      \u0275\u0275elementStart(48, "a", 11);
+      \u0275\u0275text(49, "Oleg Kyrylkovv");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(44, "a", 9);
-      \u0275\u0275text(45, "Link");
+      \u0275\u0275text(50, " from ");
+      \u0275\u0275elementStart(51, "a", 12);
+      \u0275\u0275text(52, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(46, "li")(47, "strong");
-      \u0275\u0275text(48, "A Jazz Piano");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(49, " Music by ");
-      \u0275\u0275elementStart(50, "a", 10);
-      \u0275\u0275text(51, "Oleg Kyrylkovv");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(52, " from ");
-      \u0275\u0275elementStart(53, "a", 11);
-      \u0275\u0275text(54, "Pixabay");
+      \u0275\u0275elementStart(53, "li")(54, "strong")(55, "a", 13);
+      \u0275\u0275text(56, "When you smile");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(55, "li")(56, "strong");
-      \u0275\u0275text(57, "When you smile");
+      \u0275\u0275text(57, " Music by ");
+      \u0275\u0275elementStart(58, "a", 14);
+      \u0275\u0275text(59, "Aleksey Chistilin");
       \u0275\u0275elementEnd();
-      \u0275\u0275text(58, " Music by ");
-      \u0275\u0275elementStart(59, "a", 12);
-      \u0275\u0275text(60, "Aleksey Chistilin");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(61, " from ");
-      \u0275\u0275elementStart(62, "a", 13);
-      \u0275\u0275text(63, "Pixabay");
+      \u0275\u0275text(60, " from ");
+      \u0275\u0275elementStart(61, "a", 15);
+      \u0275\u0275text(62, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(64, "li")(65, "strong");
+      \u0275\u0275elementStart(63, "li")(64, "strong")(65, "a", 16);
       \u0275\u0275text(66, "Magic Night");
-      \u0275\u0275elementEnd();
+      \u0275\u0275elementEnd()();
       \u0275\u0275text(67, " Music by ");
-      \u0275\u0275elementStart(68, "a", 14);
+      \u0275\u0275elementStart(68, "a", 17);
       \u0275\u0275text(69, "Keyframe Audio");
       \u0275\u0275elementEnd();
       \u0275\u0275text(70, " from ");
-      \u0275\u0275elementStart(71, "a", 15);
+      \u0275\u0275elementStart(71, "a", 18);
       \u0275\u0275text(72, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(73, "li")(74, "strong");
-      \u0275\u0275text(75, "Separation");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(76, " Music by ");
-      \u0275\u0275elementStart(77, "a", 16);
-      \u0275\u0275text(78, "William_King");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(79, " from ");
-      \u0275\u0275elementStart(80, "a", 17);
-      \u0275\u0275text(81, "Pixabay");
+      \u0275\u0275elementStart(73, "li")(74, "strong")(75, "a", 19);
+      \u0275\u0275text(76, "Titanium");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(82, "li")(83, "strong");
-      \u0275\u0275text(84, "Titanium");
+      \u0275\u0275text(77, " Music by ");
+      \u0275\u0275elementStart(78, "a", 20);
+      \u0275\u0275text(79, "Alisia");
       \u0275\u0275elementEnd();
-      \u0275\u0275text(85, " Music by ");
-      \u0275\u0275elementStart(86, "a", 18);
-      \u0275\u0275text(87, "Alisia");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(88, " from ");
-      \u0275\u0275elementStart(89, "a", 19);
-      \u0275\u0275text(90, "Pixabay");
+      \u0275\u0275text(80, " from ");
+      \u0275\u0275elementStart(81, "a", 21);
+      \u0275\u0275text(82, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(91, "li")(92, "strong");
-      \u0275\u0275text(93, "Coffe Shop");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(94, " Music by ");
-      \u0275\u0275elementStart(95, "a", 20);
-      \u0275\u0275text(96, "Barnabas");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(97, " from ");
-      \u0275\u0275elementStart(98, "a", 21);
-      \u0275\u0275text(99, "Pixabay");
+      \u0275\u0275elementStart(83, "li")(84, "strong")(85, "a", 22);
+      \u0275\u0275text(86, "Coffe Shop");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(100, "li")(101, "strong");
-      \u0275\u0275text(102, "Believe me");
+      \u0275\u0275text(87, " Music by ");
+      \u0275\u0275elementStart(88, "a", 23);
+      \u0275\u0275text(89, "Barnabas");
       \u0275\u0275elementEnd();
-      \u0275\u0275text(103, " Music by ");
-      \u0275\u0275elementStart(104, "a", 22);
-      \u0275\u0275text(105, "Oleksii Holubiev");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(106, " from ");
-      \u0275\u0275elementStart(107, "a", 23);
-      \u0275\u0275text(108, "Pixabay");
+      \u0275\u0275text(90, " from ");
+      \u0275\u0275elementStart(91, "a", 24);
+      \u0275\u0275text(92, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(109, "li")(110, "strong");
-      \u0275\u0275text(111, "City Streets (Background version)");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(112, " Music by ");
-      \u0275\u0275elementStart(113, "a", 24);
-      \u0275\u0275text(114, "Nathaniel");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(115, " from ");
-      \u0275\u0275elementStart(116, "a", 25);
-      \u0275\u0275text(117, "Pixabay");
+      \u0275\u0275elementStart(93, "li")(94, "strong")(95, "a", 25);
+      \u0275\u0275text(96, "Believe me");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(118, "li")(119, "strong");
-      \u0275\u0275text(120, "Trap Future bass (Royalty free music)");
+      \u0275\u0275text(97, " Music by ");
+      \u0275\u0275elementStart(98, "a", 26);
+      \u0275\u0275text(99, "Oleksii Holubiev");
       \u0275\u0275elementEnd();
-      \u0275\u0275text(121, " Music by ");
-      \u0275\u0275elementStart(122, "a", 26);
-      \u0275\u0275text(123, "Nver Avetyan");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(124, " from ");
-      \u0275\u0275elementStart(125, "a", 27);
-      \u0275\u0275text(126, "Pixabay");
+      \u0275\u0275text(100, " from ");
+      \u0275\u0275elementStart(101, "a", 27);
+      \u0275\u0275text(102, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(127, "li")(128, "strong");
-      \u0275\u0275text(129, "Electro summer positive party");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(130, " Music by ");
-      \u0275\u0275elementStart(131, "a", 28);
-      \u0275\u0275text(132, "Alex_Kizenkov");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(133, " from ");
-      \u0275\u0275elementStart(134, "a", 29);
-      \u0275\u0275text(135, "Pixabay");
+      \u0275\u0275elementStart(103, "li")(104, "strong")(105, "a", 28);
+      \u0275\u0275text(106, "City Streets (Background version)");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(136, "li")(137, "strong");
-      \u0275\u0275text(138, "TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD");
+      \u0275\u0275text(107, " Music by ");
+      \u0275\u0275elementStart(108, "a", 29);
+      \u0275\u0275text(109, "Nathaniel");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(139, "a", 30);
-      \u0275\u0275text(140, "Link");
-      \u0275\u0275elementEnd()()()()()();
+      \u0275\u0275text(110, " from ");
+      \u0275\u0275elementStart(111, "a", 30);
+      \u0275\u0275text(112, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(113, "li")(114, "strong")(115, "a", 31);
+      \u0275\u0275text(116, "Trap Future bass (Royalty free music)");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275text(117, " Music by ");
+      \u0275\u0275elementStart(118, "a", 32);
+      \u0275\u0275text(119, "Nver Avetyan");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(120, " from ");
+      \u0275\u0275elementStart(121, "a", 33);
+      \u0275\u0275text(122, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(123, "li")(124, "strong")(125, "a", 34);
+      \u0275\u0275text(126, "Electro summer positive party");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275text(127, " Music by ");
+      \u0275\u0275elementStart(128, "a", 35);
+      \u0275\u0275text(129, "Alex_Kizenkov");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(130, " from ");
+      \u0275\u0275elementStart(131, "a", 36);
+      \u0275\u0275text(132, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(133, "li")(134, "strong")(135, "a", 37);
+      \u0275\u0275text(136, "TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD");
+      \u0275\u0275elementEnd()()()()()()();
     }
     if (rf & 2) {
       \u0275\u0275advance();
@@ -43741,20 +43828,19 @@ var LicensesComponent = class _LicensesComponent {
 
             <h3>Music & Sound</h3>
             <ul>
-                <li><strong>Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]</strong> <a href="https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Link</a></li>
-                <li><strong>Jack Bootleg</strong> <a href="https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Link</a></li>
-                <li><strong>Minimalism N. 10, Notre envol II - Rapha\xEBl Novarina [Piano]</strong> <a href="https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Link</a></li>
-                <li><strong>A Jazz Piano</strong> Music by <a href="https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481" target="_blank">Oleg Kyrylkovv</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481" target="_blank">Pixabay</a></li>
-                <li><strong>When you smile</strong> Music by <a href="https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423" target="_blank">Aleksey Chistilin</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423" target="_blank">Pixabay</a></li>
-                <li><strong>Magic Night</strong> Music by <a href="https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393" target="_blank">Keyframe Audio</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393" target="_blank">Pixabay</a></li>
-                <li><strong>Separation</strong> Music by <a href="https://pixabay.com/es/users/william_king-33448498/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=185196" target="_blank">William_King</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=185196" target="_blank">Pixabay</a></li>
-                <li><strong>Titanium</strong> Music by <a href="https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190" target="_blank">Alisia</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190" target="_blank">Pixabay</a></li>
-                <li><strong>Coffe Shop</strong> Music by <a href="https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585" target="_blank">Barnabas</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585" target="_blank">Pixabay</a></li>
-                <li><strong>Believe me</strong> Music by <a href="https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530" target="_blank">Oleksii Holubiev</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530" target="_blank">Pixabay</a></li>
-                <li><strong>City Streets (Background version)</strong> Music by <a href="https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003" target="_blank">Nathaniel</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003" target="_blank">Pixabay</a></li>
-                <li><strong>Trap Future bass (Royalty free music)</strong> Music by <a href="https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020" target="_blank">Nver Avetyan</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020" target="_blank">Pixabay</a></li>
-                <li><strong>Electro summer positive party</strong> Music by <a href="https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081" target="_blank">Alex_Kizenkov</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081" target="_blank">Pixabay</a></li>
-                <li><strong>TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD</strong> <a href="https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Link</a></li>
+                <li><strong><a href="https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]</a></strong></li>
+                <li><strong><a href="https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Jack Bootleg</a></strong></li>
+                <li><strong><a href="https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Minimalism N. 10, Notre envol II - Rapha\xEBl Novarina [Piano]</a></strong></li>
+                <li><strong><a href="https://pixabay.com/es/music/jazz-moderno-a-jazz-piano-110481/" target="_blank">A Jazz Piano</a></strong> Music by <a href="https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481" target="_blank">Oleg Kyrylkovv</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481" target="_blank">Pixabay</a></li>
+                <li><strong><a href="https://pixabay.com/es/music/jazz-moderno-when-you-smile-151423/" target="_blank">When you smile</a></strong> Music by <a href="https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423" target="_blank">Aleksey Chistilin</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423" target="_blank">Pixabay</a></li>
+                <li><strong><a href="https://pixabay.com/es/music/jazz-tradicional-magic-night-134393/" target="_blank">Magic Night</a></strong> Music by <a href="https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393" target="_blank">Keyframe Audio</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393" target="_blank">Pixabay</a></li>
+                <li><strong><a href="https://pixabay.com/es/music/futuro-bajo-titanium-170190/" target="_blank">Titanium</a></strong> Music by <a href="https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190" target="_blank">Alisia</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190" target="_blank">Pixabay</a></li>
+                <li><strong><a href="https://pixabay.com/es/music/late-coffee-shop-189585/" target="_blank">Coffe Shop</a></strong> Music by <a href="https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585" target="_blank">Barnabas</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585" target="_blank">Pixabay</a></li>
+                <li><strong><a href="https://pixabay.com/es/music/cafeter%C3%ADa-believe-me-143530/" target="_blank">Believe me</a></strong> Music by <a href="https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530" target="_blank">Oleksii Holubiev</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530" target="_blank">Pixabay</a></li>
+                <li><strong><a href="https://pixabay.com/es/music/late-city-streets-background-version-166003/" target="_blank">City Streets (Background version)</a></strong> Music by <a href="https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003" target="_blank">Nathaniel</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003" target="_blank">Pixabay</a></li>
+                <li><strong><a href="https://pixabay.com/es/music/futuro-bajo-trap-future-bass-royalty-free-music-167020/" target="_blank">Trap Future bass (Royalty free music)</a></strong> Music by <a href="https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020" target="_blank">Nver Avetyan</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020" target="_blank">Pixabay</a></li>
+                <li><strong><a href="https://pixabay.com/es/music/electro-electro-summer-positive-party-141081/" target="_blank">Electro summer positive party</a></strong> Music by <a href="https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081" target="_blank">Alex_Kizenkov</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081" target="_blank">Pixabay</a></li>
+                <li><strong><a href="https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD</a></strong></li>
             </ul>
         </div>
     </div>
@@ -78956,6 +79042,700 @@ var StatsComponent = class _StatsComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(StatsComponent, { className: "StatsComponent", filePath: "src/app/pages/stats/stats.component.ts", lineNumber: 10 });
 })();
 
+// src/app/pages/gallery/gallery.component.ts
+var _c010 = ["audioPlayer"];
+function GalleryComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_1_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.closeFullScreen());
+    });
+    \u0275\u0275element(1, "img", 6);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("src", ctx_r1.fullScreenImg, \u0275\u0275sanitizeUrl);
+  }
+}
+function GalleryComponent_Conditional_12_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div")(1, "div", 9)(2, "h2");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 10);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "div", 11)(7, "div", 12)(8, "span", 13);
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "img", 14);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_12_Conditional_0_Template_img_click_10_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.openFullScreen(ctx_r1.tools.getCheemsImg(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex].id)));
+    });
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(11, "div", 12)(12, "span", 13);
+    \u0275\u0275text(13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "img", 15);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_12_Conditional_0_Template_img_click_14_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.openFullScreen(ctx_r1.tools.getCheemsHitImg(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex].id)));
+    });
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(15, "div", 16)(16, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_12_Conditional_0_Template_button_click_16_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.prevItem());
+    });
+    \u0275\u0275text(17, "\u25C0");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(18, "span", 17);
+    \u0275\u0275text(19);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(20, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_12_Conditional_0_Template_button_click_20_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.nextItem());
+    });
+    \u0275\u0275text(21, "\u25B6");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMapInterpolate1("viewer-container ", ctx_r1.tools.themeColor, "");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.tools.getCheemsName(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex]));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.tools.getCheemsDescription(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex]));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate((ctx_r1.tools.gallery[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.gallery[ctx_r1.tools.lang].normalSkin) || "Normal");
+    \u0275\u0275advance();
+    \u0275\u0275property("src", ctx_r1.tools.getCheemsImg(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex].id), \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate((ctx_r1.tools.gallery[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.gallery[ctx_r1.tools.lang].hitSkin) || "Hit");
+    \u0275\u0275advance();
+    \u0275\u0275property("src", ctx_r1.tools.getCheemsHitImg(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex].id), \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(2);
+    \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate2("", ctx_r1.currentIndex + 1, " / ", ctx_r1.unlockedCheemsSkins.length, "");
+    \u0275\u0275advance();
+    \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
+  }
+}
+function GalleryComponent_Conditional_12_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 8);
+    \u0275\u0275text(1, "No skins unlocked yet.");
+    \u0275\u0275elementEnd();
+  }
+}
+function GalleryComponent_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, GalleryComponent_Conditional_12_Conditional_0_Template, 22, 17, "div", 7)(1, GalleryComponent_Conditional_12_Conditional_1_Template, 2, 0, "p", 8);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r1.unlockedCheemsSkins.length > 0 ? 0 : 1);
+  }
+}
+function GalleryComponent_Conditional_13_Conditional_0_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 20)(1, "span");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "input", 24);
+    \u0275\u0275listener("input", function GalleryComponent_Conditional_13_Conditional_0_Conditional_9_Template_input_input_3_listener($event) {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.onSeek($event));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "span");
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.formatTime(ctx_r1.currentTime));
+    \u0275\u0275advance();
+    \u0275\u0275property("max", ctx_r1.duration || 100)("value", ctx_r1.currentTime);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.formatTime(ctx_r1.duration));
+  }
+}
+function GalleryComponent_Conditional_13_Conditional_0_Conditional_13_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Conditional_13_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.skip(-10));
+    });
+    \u0275\u0275text(1, "-10s");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275classMapInterpolate1("control-btn secondary-btn ", ctx_r1.tools.themeColor, "");
+  }
+}
+function GalleryComponent_Conditional_13_Conditional_0_Conditional_16_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Conditional_16_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.skip(10));
+    });
+    \u0275\u0275text(1, "+10s");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275classMapInterpolate1("control-btn secondary-btn ", ctx_r1.tools.themeColor, "");
+  }
+}
+function GalleryComponent_Conditional_13_Conditional_0_Conditional_19_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 22)(1, "span", 25);
+    \u0275\u0275text(2, "\u{1F50A}");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "input", 26);
+    \u0275\u0275listener("input", function GalleryComponent_Conditional_13_Conditional_0_Conditional_19_Template_input_input_3_listener($event) {
+      \u0275\u0275restoreView(_r8);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.onVolumeChange($event));
+    });
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("value", ctx_r1.currentVolume);
+  }
+}
+function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div")(1, "div", 9)(2, "h2");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 10);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "div", 18)(7, "audio", 19, 0);
+    \u0275\u0275listener("timeupdate", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_timeupdate_7_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.onTimeUpdate($event));
+    })("loadedmetadata", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_loadedmetadata_7_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.onLoadedMetadata($event));
+    })("play", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_play_7_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.onAudioPlay());
+    })("pause", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_pause_7_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.onAudioPause());
+    })("ended", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_ended_7_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.onAudioEnded());
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(9, GalleryComponent_Conditional_13_Conditional_0_Conditional_9_Template, 6, 4, "div", 20);
+    \u0275\u0275elementStart(10, "div", 21)(11, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_11_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.prevItem());
+    });
+    \u0275\u0275text(12, "\u25C0");
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(13, GalleryComponent_Conditional_13_Conditional_0_Conditional_13_Template, 2, 3, "button", 7);
+    \u0275\u0275elementStart(14, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_14_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.togglePlay());
+    });
+    \u0275\u0275text(15);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(16, GalleryComponent_Conditional_13_Conditional_0_Conditional_16_Template, 2, 3, "button", 7);
+    \u0275\u0275elementStart(17, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_17_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.nextItem());
+    });
+    \u0275\u0275text(18, "\u25B6");
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(19, GalleryComponent_Conditional_13_Conditional_0_Conditional_19_Template, 4, 1, "div", 22);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(20, "div", 23)(21, "span", 17);
+    \u0275\u0275text(22);
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMapInterpolate1("viewer-container ", ctx_r1.tools.themeColor, "");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.currentAudioName);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.currentAudioDesc);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("src", ctx_r1.currentAudioSrc, \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 9 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 13 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275classMapInterpolate1("control-btn play-btn ", ctx_r1.tools.themeColor, "");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.activeSection === "sfx" ? (ctx_r1.tools.gallery[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.gallery[ctx_r1.tools.lang].play) || "Play" : ctx_r1.isPlaying ? (ctx_r1.tools.gallery[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.gallery[ctx_r1.tools.lang].pause) || "Pause" : (ctx_r1.tools.gallery[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.gallery[ctx_r1.tools.lang].play) || "Play", " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 16 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 19 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate2(" ", ctx_r1.currentIndex + 1, " / ", ctx_r1.activeSection === "sfx" ? ctx_r1.unlockedSoundEffects.length : ctx_r1.unlockedMusicTracks.length, " ");
+  }
+}
+function GalleryComponent_Conditional_13_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 8);
+    \u0275\u0275text(1, "No media unlocked yet.");
+    \u0275\u0275elementEnd();
+  }
+}
+function GalleryComponent_Conditional_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, GalleryComponent_Conditional_13_Conditional_0_Template, 23, 22, "div", 7)(1, GalleryComponent_Conditional_13_Conditional_1_Template, 2, 0, "p", 8);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r1.activeSection === "sfx" && ctx_r1.unlockedSoundEffects.length > 0 || ctx_r1.activeSection === "music" && ctx_r1.unlockedMusicTracks.length > 0 ? 0 : 1);
+  }
+}
+var GalleryComponent = class _GalleryComponent {
+  tools;
+  audioPlayer;
+  activeSection = "skins";
+  currentIndex = 0;
+  isPlaying = false;
+  currentTime = 0;
+  duration = 0;
+  currentVolume = 1;
+  fullScreenImg = null;
+  constructor(tools) {
+    this.tools = tools;
+  }
+  ngOnInit() {
+    this.tools.actPage = "gallery";
+  }
+  ngOnDestroy() {
+    this.resumeBackgroundMusic();
+  }
+  get unlockedCheemsSkins() {
+    return this.tools.cheemsSkins.filter((skin) => skin.default || this.tools.unlockedCheems[skin.storageKey]);
+  }
+  get unlockedSoundEffects() {
+    return this.tools.soundEffects.filter((sound) => sound.default || this.tools.unlockedSounds[sound.storageKey]);
+  }
+  get unlockedMusicTracks() {
+    return this.tools.musicTracks.filter((track) => (track.default || this.tools.unlockedMusic[track.storageKey]) && track.id !== "music_0");
+  }
+  openSection(section) {
+    this.activeSection = section;
+    this.currentIndex = 0;
+    if (this.audioPlayer?.nativeElement) {
+      this.audioPlayer.nativeElement.pause();
+      this.audioPlayer.nativeElement.currentTime = 0;
+      this.isPlaying = false;
+    }
+    if (section === "sfx" || section === "music") {
+      this.pauseBackgroundMusic();
+      this.loadAudio();
+    } else {
+      this.resumeBackgroundMusic();
+    }
+  }
+  openFullScreen(imgUrl) {
+    this.fullScreenImg = imgUrl;
+  }
+  closeFullScreen() {
+    this.fullScreenImg = null;
+  }
+  pauseBackgroundMusic() {
+    this.tools.pauseBackground();
+  }
+  resumeBackgroundMusic() {
+    this.tools.resumeBackground();
+  }
+  nextItem() {
+    let listLength = 0;
+    if (this.activeSection === "skins")
+      listLength = this.unlockedCheemsSkins.length;
+    if (this.activeSection === "sfx")
+      listLength = this.unlockedSoundEffects.length;
+    if (this.activeSection === "music")
+      listLength = this.unlockedMusicTracks.length;
+    if (listLength > 0) {
+      this.currentIndex = (this.currentIndex + 1) % listLength;
+      if (this.activeSection !== "skins")
+        this.loadAudio();
+    }
+  }
+  prevItem() {
+    let listLength = 0;
+    if (this.activeSection === "skins")
+      listLength = this.unlockedCheemsSkins.length;
+    if (this.activeSection === "sfx")
+      listLength = this.unlockedSoundEffects.length;
+    if (this.activeSection === "music")
+      listLength = this.unlockedMusicTracks.length;
+    if (listLength > 0) {
+      this.currentIndex = (this.currentIndex - 1 + listLength) % listLength;
+      if (this.activeSection !== "skins")
+        this.loadAudio();
+    }
+  }
+  loadAudio() {
+    this.isPlaying = false;
+    this.currentTime = 0;
+    this.duration = 0;
+    if (this.audioPlayer?.nativeElement) {
+      this.audioPlayer.nativeElement.pause();
+    }
+    setTimeout(() => {
+      if (this.audioPlayer?.nativeElement) {
+        this.audioPlayer.nativeElement.currentTime = 0;
+        this.audioPlayer.nativeElement.load();
+        this.audioPlayer.nativeElement.volume = this.currentVolume;
+      }
+    });
+  }
+  get currentAudioSrc() {
+    if (this.activeSection === "sfx" && this.unlockedSoundEffects.length > 0) {
+      const sfx = this.unlockedSoundEffects[this.currentIndex];
+      return sfx.basePath + (sfx.file || (sfx.files ? sfx.files[0] : ""));
+    } else if (this.activeSection === "music" && this.unlockedMusicTracks.length > 0) {
+      const music = this.unlockedMusicTracks[this.currentIndex];
+      return music.basePath + music.file;
+    }
+    return "";
+  }
+  get currentAudioName() {
+    if (this.activeSection === "sfx" && this.unlockedSoundEffects.length > 0) {
+      return this.tools.getSoundName(this.unlockedSoundEffects[this.currentIndex]);
+    } else if (this.activeSection === "music" && this.unlockedMusicTracks.length > 0) {
+      return this.tools.getMusicName(this.unlockedMusicTracks[this.currentIndex]);
+    }
+    return "";
+  }
+  get currentAudioDesc() {
+    if (this.activeSection === "sfx" && this.unlockedSoundEffects.length > 0) {
+      return this.tools.getSoundDescription(this.unlockedSoundEffects[this.currentIndex]);
+    } else if (this.activeSection === "music" && this.unlockedMusicTracks.length > 0) {
+      return this.tools.getMusicDescription(this.unlockedMusicTracks[this.currentIndex]);
+    }
+    return "";
+  }
+  togglePlay() {
+    if (this.activeSection === "sfx" && this.unlockedSoundEffects.length > 0) {
+      this.tools.playSound(this.unlockedSoundEffects[this.currentIndex].id);
+      return;
+    }
+    if (this.audioPlayer?.nativeElement) {
+      if (!this.audioPlayer.nativeElement.paused) {
+        this.audioPlayer.nativeElement.pause();
+      } else {
+        if (this.audioPlayer.nativeElement.currentTime >= (this.audioPlayer.nativeElement.duration || 0)) {
+          this.audioPlayer.nativeElement.currentTime = 0;
+        }
+        this.audioPlayer.nativeElement.play();
+      }
+    }
+  }
+  skip(seconds) {
+    if (this.audioPlayer?.nativeElement) {
+      let newTime = this.audioPlayer.nativeElement.currentTime + seconds;
+      const dur = this.audioPlayer.nativeElement.duration || 0;
+      if (newTime > dur)
+        newTime = dur;
+      if (newTime < 0)
+        newTime = 0;
+      this.audioPlayer.nativeElement.currentTime = newTime;
+    }
+  }
+  onVolumeChange(event) {
+    this.currentVolume = event.target.value;
+    if (this.audioPlayer?.nativeElement) {
+      this.audioPlayer.nativeElement.volume = this.currentVolume;
+    }
+  }
+  onLoadedMetadata(event) {
+    this.duration = event.target.duration || 0;
+  }
+  onAudioPlay() {
+    this.isPlaying = true;
+  }
+  onAudioPause() {
+    this.isPlaying = false;
+  }
+  onTimeUpdate(event) {
+    this.currentTime = event.target.currentTime;
+    this.duration = event.target.duration || 0;
+  }
+  onAudioEnded() {
+    this.isPlaying = false;
+  }
+  onSeek(event) {
+    if (this.audioPlayer?.nativeElement) {
+      this.audioPlayer.nativeElement.currentTime = event.target.value;
+    }
+  }
+  formatTime(seconds) {
+    if (isNaN(seconds))
+      return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  }
+  static \u0275fac = function GalleryComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _GalleryComponent)(\u0275\u0275directiveInject(ToolsService));
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GalleryComponent, selectors: [["app-gallery"]], viewQuery: function GalleryComponent_Query(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275viewQuery(_c010, 5);
+    }
+    if (rf & 2) {
+      let _t;
+      \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.audioPlayer = _t.first);
+    }
+  }, decls: 14, vars: 31, consts: [["audioPlayer", ""], [1, "container"], [1, "fullscreen-overlay"], [1, "header"], [3, "click"], [1, "fullscreen-overlay", 3, "click"], ["alt", "Fullscreen Image", 1, "fullscreen-img", 3, "src"], [3, "class"], [1, "no-items"], [1, "viewer-header"], [1, "desc"], [1, "skins-display"], [1, "skin-box"], [1, "skin-label"], ["alt", "Normal Skin", 1, "viewer-img", "clickable", 3, "click", "src"], ["alt", "Hit Skin", 1, "viewer-img", "clickable", 3, "click", "src"], [1, "viewer-controls"], [1, "counter"], [1, "audio-player"], [3, "timeupdate", "loadedmetadata", "play", "pause", "ended", "src"], [1, "time-slider-container"], [1, "audio-controls"], [1, "volume-slider-container"], [1, "counter-display"], ["type", "range", "min", "0", 1, "time-slider", 3, "input", "max", "value"], [1, "vol-icon"], ["type", "range", "min", "0", "max", "1", "step", "0.01", 1, "volume-slider", 3, "input", "value"]], template: function GalleryComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 1);
+      \u0275\u0275template(1, GalleryComponent_Conditional_1_Template, 2, 1, "div", 2);
+      \u0275\u0275elementStart(2, "div", 3)(3, "h1");
+      \u0275\u0275text(4);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(5, "div")(6, "button", 4);
+      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_6_listener() {
+        return ctx.openSection("skins");
+      });
+      \u0275\u0275text(7);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(8, "button", 4);
+      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_8_listener() {
+        return ctx.openSection("sfx");
+      });
+      \u0275\u0275text(9);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(10, "button", 4);
+      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_10_listener() {
+        return ctx.openSection("music");
+      });
+      \u0275\u0275text(11);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275template(12, GalleryComponent_Conditional_12_Template, 2, 1)(13, GalleryComponent_Conditional_13_Template, 2, 1);
+      \u0275\u0275elementEnd();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.fullScreenImg ? 1 : -1);
+      \u0275\u0275advance(2);
+      \u0275\u0275classMap(ctx.tools.fontSize);
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate((ctx.tools.gallery[ctx.tools.lang] == null ? null : ctx.tools.gallery[ctx.tools.lang].title) || "Gallery");
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("tabs-header ", ctx.tools.themeColor, "");
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate2("tab-btn ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
+      \u0275\u0275classProp("active", ctx.activeSection === "skins");
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate1(" ", (ctx.tools.gallery[ctx.tools.lang] == null ? null : ctx.tools.gallery[ctx.tools.lang].skinsSection) || "Skins", " ");
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate2("tab-btn ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
+      \u0275\u0275classProp("active", ctx.activeSection === "sfx");
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate1(" ", (ctx.tools.gallery[ctx.tools.lang] == null ? null : ctx.tools.gallery[ctx.tools.lang].soundsSection) || "Sound Effects", " ");
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate2("tab-btn ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
+      \u0275\u0275classProp("active", ctx.activeSection === "music");
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate1(" ", (ctx.tools.gallery[ctx.tools.lang] == null ? null : ctx.tools.gallery[ctx.tools.lang].musicSection) || "Music", " ");
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.activeSection === "skins" ? 12 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.activeSection === "sfx" || ctx.activeSection === "music" ? 13 : -1);
+    }
+  }, dependencies: [CommonModule], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  padding-top: 10vh;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  position: relative;\n  padding-bottom: 5rem;\n}\n.header[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 900;\n  margin: 0;\n  text-transform: uppercase;\n  text-shadow: 2px 2px 0 #000;\n}\n.tabs-header[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn[_ngcontent-%COMP%] {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active[_ngcontent-%COMP%] {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.viewer-container[_ngcontent-%COMP%] {\n  width: 95%;\n  max-width: 800px;\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  border-radius: 18px;\n  padding: 2rem;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n  margin: 0 auto;\n}\n.viewer-container.theme-light[_ngcontent-%COMP%] {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.viewer-container.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.viewer-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 1.8rem;\n  margin: 0 0 0.5rem 0;\n  color: #ffd166;\n}\n.theme-light[_ngcontent-%COMP%]   .viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #9c5c14;\n}\n.theme-contrast[_ngcontent-%COMP%]   .viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.viewer-header[_ngcontent-%COMP%]   .desc[_ngcontent-%COMP%] {\n  opacity: 0.8;\n  font-size: 0.95rem;\n  margin: 0;\n}\n.skins-display[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2rem;\n  width: 100%;\n  margin-bottom: 2rem;\n}\n.skin-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 1.5rem;\n  border-radius: 16px;\n  flex: 1;\n  max-width: 300px;\n  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);\n}\n.theme-light[_ngcontent-%COMP%]   .skin-box[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.05);\n}\n.skin-label[_ngcontent-%COMP%] {\n  font-weight: 900;\n  text-transform: uppercase;\n  font-size: 1rem;\n  opacity: 0.9;\n  letter-spacing: 1px;\n}\n.viewer-img[_ngcontent-%COMP%] {\n  width: 150px;\n  height: 150px;\n  object-fit: contain;\n}\n.viewer-controls[_ngcontent-%COMP%], \n.audio-controls[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  margin-top: 1rem;\n  width: 100%;\n}\n.control-btn[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  color: white;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  font-size: 1.2rem;\n  cursor: pointer;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.control-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 209, 102, 0.2);\n  border-color: #ffd166;\n  transform: scale(1.1);\n}\n.control-btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.9);\n}\n.secondary-btn[_ngcontent-%COMP%] {\n  width: 65px;\n  height: 45px;\n  border-radius: 20px;\n  font-size: 0.95rem;\n  font-weight: bold;\n}\n.play-btn[_ngcontent-%COMP%] {\n  width: 90px;\n  height: 60px;\n  border-radius: 30px;\n  font-size: 1.1rem;\n  font-weight: 900;\n  background: #ffd166;\n  color: #1a1612;\n  border-color: #ffd166;\n}\n.play-btn[_ngcontent-%COMP%]:hover {\n  background: #ffb703;\n  color: #1a1612;\n  transform: scale(1.08);\n}\n.theme-light[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%] {\n  background: rgba(156, 92, 20, 0.1);\n  border-color: rgba(156, 92, 20, 0.3);\n  color: #9c5c14;\n}\n.theme-light[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(156, 92, 20, 0.2);\n  border-color: #9c5c14;\n}\n.theme-light[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: white;\n}\n.theme-light[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%]:hover {\n  background: #7a460c;\n  color: white;\n}\n.theme-contrast[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%] {\n  background: #000;\n  border-color: #fff;\n  color: #fff;\n}\n.theme-contrast[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%]:hover {\n  border-color: #ff0;\n  color: #ff0;\n}\n.theme-contrast[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%] {\n  background: #ff0;\n  color: #000;\n  border-color: #ff0;\n}\n.counter-display[_ngcontent-%COMP%] {\n  margin-top: 1.5rem;\n  text-align: center;\n}\n.counter[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.2rem;\n  opacity: 0.8;\n}\n.audio-player[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.time-slider-container[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  width: 100%;\n  font-family: monospace;\n  font-size: 1.1rem;\n  font-weight: bold;\n}\n.time-slider[_ngcontent-%COMP%] {\n  flex: 1;\n  cursor: pointer;\n  height: 8px;\n  border-radius: 4px;\n  appearance: none;\n  -webkit-appearance: none;\n  background: rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n.theme-light[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.1);\n}\n.time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  -webkit-appearance: none;\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: #ffd166;\n  cursor: pointer;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n}\n.theme-light[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  background: #9c5c14;\n}\n.theme-contrast[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  background: #ff0;\n  border: 2px solid #000;\n}\n.no-items[_ngcontent-%COMP%] {\n  opacity: 0.6;\n  margin-top: 2rem;\n  font-style: italic;\n  font-size: 1.2rem;\n}\n.fullscreen-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.9);\n  -webkit-backdrop-filter: blur(8px);\n  backdrop-filter: blur(8px);\n  z-index: 9999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  cursor: zoom-out;\n}\n.fullscreen-img[_ngcontent-%COMP%] {\n  max-width: 90vw;\n  max-height: 90vh;\n  object-fit: contain;\n  animation: _ngcontent-%COMP%_zoomIn 0.2s ease-out;\n}\n@keyframes _ngcontent-%COMP%_zoomIn {\n  from {\n    transform: scale(0.8);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.clickable[_ngcontent-%COMP%] {\n  cursor: zoom-in;\n  transition: transform 0.2s;\n}\n.clickable[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.volume-slider-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  height: 80px;\n  margin-left: 1rem;\n}\n.volume-slider[_ngcontent-%COMP%] {\n  appearance: slider-vertical;\n  -webkit-appearance: slider-vertical;\n  writing-mode: bt-lr;\n  width: 8px;\n  height: 60px;\n  border-radius: 4px;\n  background: rgba(0, 0, 0, 0.5);\n  cursor: pointer;\n}\n.theme-light[_ngcontent-%COMP%]   .volume-slider[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.1);\n}\n@media (max-width: 600px) {\n  .skins-display[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n  }\n  .viewer-img[_ngcontent-%COMP%] {\n    width: 120px;\n    height: 120px;\n  }\n  .audio-controls[_ngcontent-%COMP%] {\n    gap: 0.5rem;\n    flex-wrap: wrap;\n  }\n  .control-btn[_ngcontent-%COMP%] {\n    width: 45px;\n    height: 45px;\n  }\n  .secondary-btn[_ngcontent-%COMP%] {\n    width: 60px;\n    height: 40px;\n    font-size: 0.85rem;\n  }\n  .play-btn[_ngcontent-%COMP%] {\n    width: 80px;\n    height: 50px;\n  }\n  .volume-slider-container[_ngcontent-%COMP%] {\n    flex-direction: row;\n    height: auto;\n    margin-left: 0;\n    margin-top: 1rem;\n    width: 100%;\n  }\n  .volume-slider[_ngcontent-%COMP%] {\n    appearance: none;\n    -webkit-appearance: none;\n    writing-mode: horizontal-tb;\n    width: 100px;\n    height: 8px;\n  }\n  .volume-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    width: 15px;\n    height: 15px;\n    border-radius: 50%;\n    background: #ffd166;\n    cursor: pointer;\n  }\n  .theme-light[_ngcontent-%COMP%]   .volume-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n    background: #9c5c14;\n  }\n}\n/*# sourceMappingURL=gallery.component.css.map */"] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GalleryComponent, [{
+    type: Component,
+    args: [{ selector: "app-gallery", standalone: true, imports: [CommonModule], template: `<div class="container">
+    @if (fullScreenImg) {
+        <div class="fullscreen-overlay" (click)="closeFullScreen()">
+            <img [src]="fullScreenImg" class="fullscreen-img" alt="Fullscreen Image">
+        </div>
+    }
+    <div class="header">
+        <h1 class="{{tools.fontSize}}">{{tools.gallery[tools.lang]?.title || 'Gallery'}}</h1>
+    </div>
+
+    <div class="tabs-header {{tools.themeColor}}">
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}" 
+                [class.active]="activeSection === 'skins'"
+                (click)="openSection('skins')">
+            {{tools.gallery[tools.lang]?.skinsSection || 'Skins'}}
+        </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}" 
+                [class.active]="activeSection === 'sfx'"
+                (click)="openSection('sfx')">
+            {{tools.gallery[tools.lang]?.soundsSection || 'Sound Effects'}}
+        </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}" 
+                [class.active]="activeSection === 'music'"
+                (click)="openSection('music')">
+            {{tools.gallery[tools.lang]?.musicSection || 'Music'}}
+        </button>
+    </div>
+
+    @if (activeSection === 'skins') {
+        @if (unlockedCheemsSkins.length > 0) {
+            <div class="viewer-container {{tools.themeColor}}">
+                <div class="viewer-header">
+                    <h2>{{tools.getCheemsName(unlockedCheemsSkins[currentIndex])}}</h2>
+                    <p class="desc">{{tools.getCheemsDescription(unlockedCheemsSkins[currentIndex])}}</p>
+                </div>
+                
+                <div class="skins-display">
+                    <div class="skin-box">
+                        <span class="skin-label">{{tools.gallery[tools.lang]?.normalSkin || 'Normal'}}</span>
+                        <img [src]="tools.getCheemsImg(unlockedCheemsSkins[currentIndex].id)" 
+                             class="viewer-img clickable" 
+                             alt="Normal Skin"
+                             (click)="openFullScreen(tools.getCheemsImg(unlockedCheemsSkins[currentIndex].id))">
+                    </div>
+                    <div class="skin-box">
+                        <span class="skin-label">{{tools.gallery[tools.lang]?.hitSkin || 'Hit'}}</span>
+                        <img [src]="tools.getCheemsHitImg(unlockedCheemsSkins[currentIndex].id)" 
+                             class="viewer-img clickable" 
+                             alt="Hit Skin"
+                             (click)="openFullScreen(tools.getCheemsHitImg(unlockedCheemsSkins[currentIndex].id))">
+                    </div>
+                </div>
+
+                <div class="viewer-controls">
+                    <button class="control-btn {{tools.themeColor}}" (click)="prevItem()">\u25C0</button>
+                    <span class="counter">{{currentIndex + 1}} / {{unlockedCheemsSkins.length}}</span>
+                    <button class="control-btn {{tools.themeColor}}" (click)="nextItem()">\u25B6</button>
+                </div>
+            </div>
+        } @else {
+            <p class="no-items">No skins unlocked yet.</p>
+        }
+    }
+
+    @if (activeSection === 'sfx' || activeSection === 'music') {
+        @if ((activeSection === 'sfx' && unlockedSoundEffects.length > 0) || (activeSection === 'music' && unlockedMusicTracks.length > 0)) {
+            <div class="viewer-container {{tools.themeColor}}">
+                <div class="viewer-header">
+                    <h2>{{currentAudioName}}</h2>
+                    <p class="desc">{{currentAudioDesc}}</p>
+                </div>
+
+                <div class="audio-player">
+                    <audio #audioPlayer 
+                           [src]="currentAudioSrc" 
+                           (timeupdate)="onTimeUpdate($event)" 
+                           (loadedmetadata)="onLoadedMetadata($event)"
+                           (play)="onAudioPlay()"
+                           (pause)="onAudioPause()"
+                           (ended)="onAudioEnded()">
+                    </audio>
+                    
+                    @if (activeSection !== 'sfx') {
+                        <div class="time-slider-container">
+                            <span>{{formatTime(currentTime)}}</span>
+                            <input type="range" class="time-slider" min="0" [max]="duration || 100" [value]="currentTime" (input)="onSeek($event)">
+                            <span>{{formatTime(duration)}}</span>
+                        </div>
+                    }
+
+                    <div class="audio-controls">
+                        <button class="control-btn {{tools.themeColor}}" (click)="prevItem()">\u25C0</button>
+                        
+                        @if (activeSection !== 'sfx') {
+                            <button class="control-btn secondary-btn {{tools.themeColor}}" (click)="skip(-10)">-10s</button>
+                        }
+                        
+                        <button class="control-btn play-btn {{tools.themeColor}}" (click)="togglePlay()">
+                            {{ (activeSection === 'sfx') ? (tools.gallery[tools.lang]?.play || 'Play') : (isPlaying ? (tools.gallery[tools.lang]?.pause || 'Pause') : (tools.gallery[tools.lang]?.play || 'Play')) }}
+                        </button>
+                        
+                        @if (activeSection !== 'sfx') {
+                            <button class="control-btn secondary-btn {{tools.themeColor}}" (click)="skip(10)">+10s</button>
+                        }
+                        
+                        <button class="control-btn {{tools.themeColor}}" (click)="nextItem()">\u25B6</button>
+
+                        @if (activeSection !== 'sfx') {
+                            <div class="volume-slider-container">
+                                <span class="vol-icon">\u{1F50A}</span>
+                                <input type="range" class="volume-slider" min="0" max="1" step="0.01" [value]="currentVolume" (input)="onVolumeChange($event)">
+                            </div>
+                        }
+                    </div>
+
+                    <div class="counter-display">
+                        <span class="counter">
+                            {{currentIndex + 1}} / {{activeSection === 'sfx' ? unlockedSoundEffects.length : unlockedMusicTracks.length}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        } @else {
+            <p class="no-items">No media unlocked yet.</p>
+        }
+    }
+</div>
+`, styles: ["/* src/app/pages/gallery/gallery.component.css */\n.container {\n  padding-top: 10vh;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  position: relative;\n  padding-bottom: 5rem;\n}\n.header h1 {\n  font-size: 2.5rem;\n  font-weight: 900;\n  margin: 0;\n  text-transform: uppercase;\n  text-shadow: 2px 2px 0 #000;\n}\n.tabs-header {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.viewer-container {\n  width: 95%;\n  max-width: 800px;\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  border-radius: 18px;\n  padding: 2rem;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n  margin: 0 auto;\n}\n.viewer-container.theme-light {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.viewer-container.theme-contrast {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.viewer-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.viewer-header h2 {\n  font-size: 1.8rem;\n  margin: 0 0 0.5rem 0;\n  color: #ffd166;\n}\n.theme-light .viewer-header h2 {\n  color: #9c5c14;\n}\n.theme-contrast .viewer-header h2 {\n  color: #ffff00;\n}\n.viewer-header .desc {\n  opacity: 0.8;\n  font-size: 0.95rem;\n  margin: 0;\n}\n.skins-display {\n  display: flex;\n  justify-content: center;\n  gap: 2rem;\n  width: 100%;\n  margin-bottom: 2rem;\n}\n.skin-box {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 1.5rem;\n  border-radius: 16px;\n  flex: 1;\n  max-width: 300px;\n  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);\n}\n.theme-light .skin-box {\n  background: rgba(0, 0, 0, 0.05);\n}\n.skin-label {\n  font-weight: 900;\n  text-transform: uppercase;\n  font-size: 1rem;\n  opacity: 0.9;\n  letter-spacing: 1px;\n}\n.viewer-img {\n  width: 150px;\n  height: 150px;\n  object-fit: contain;\n}\n.viewer-controls,\n.audio-controls {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  margin-top: 1rem;\n  width: 100%;\n}\n.control-btn {\n  background: rgba(0, 0, 0, 0.4);\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  color: white;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  font-size: 1.2rem;\n  cursor: pointer;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.control-btn:hover {\n  background: rgba(255, 209, 102, 0.2);\n  border-color: #ffd166;\n  transform: scale(1.1);\n}\n.control-btn:active {\n  transform: scale(0.9);\n}\n.secondary-btn {\n  width: 65px;\n  height: 45px;\n  border-radius: 20px;\n  font-size: 0.95rem;\n  font-weight: bold;\n}\n.play-btn {\n  width: 90px;\n  height: 60px;\n  border-radius: 30px;\n  font-size: 1.1rem;\n  font-weight: 900;\n  background: #ffd166;\n  color: #1a1612;\n  border-color: #ffd166;\n}\n.play-btn:hover {\n  background: #ffb703;\n  color: #1a1612;\n  transform: scale(1.08);\n}\n.theme-light .control-btn {\n  background: rgba(156, 92, 20, 0.1);\n  border-color: rgba(156, 92, 20, 0.3);\n  color: #9c5c14;\n}\n.theme-light .control-btn:hover {\n  background: rgba(156, 92, 20, 0.2);\n  border-color: #9c5c14;\n}\n.theme-light .play-btn {\n  background: #9c5c14;\n  color: white;\n}\n.theme-light .play-btn:hover {\n  background: #7a460c;\n  color: white;\n}\n.theme-contrast .control-btn {\n  background: #000;\n  border-color: #fff;\n  color: #fff;\n}\n.theme-contrast .control-btn:hover {\n  border-color: #ff0;\n  color: #ff0;\n}\n.theme-contrast .play-btn {\n  background: #ff0;\n  color: #000;\n  border-color: #ff0;\n}\n.counter-display {\n  margin-top: 1.5rem;\n  text-align: center;\n}\n.counter {\n  font-weight: 900;\n  font-size: 1.2rem;\n  opacity: 0.8;\n}\n.audio-player {\n  width: 100%;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.time-slider-container {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  width: 100%;\n  font-family: monospace;\n  font-size: 1.1rem;\n  font-weight: bold;\n}\n.time-slider {\n  flex: 1;\n  cursor: pointer;\n  height: 8px;\n  border-radius: 4px;\n  appearance: none;\n  -webkit-appearance: none;\n  background: rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n.theme-light .time-slider {\n  background: rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.1);\n}\n.time-slider::-webkit-slider-thumb {\n  -webkit-appearance: none;\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: #ffd166;\n  cursor: pointer;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n}\n.theme-light .time-slider::-webkit-slider-thumb {\n  background: #9c5c14;\n}\n.theme-contrast .time-slider::-webkit-slider-thumb {\n  background: #ff0;\n  border: 2px solid #000;\n}\n.no-items {\n  opacity: 0.6;\n  margin-top: 2rem;\n  font-style: italic;\n  font-size: 1.2rem;\n}\n.fullscreen-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.9);\n  -webkit-backdrop-filter: blur(8px);\n  backdrop-filter: blur(8px);\n  z-index: 9999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  cursor: zoom-out;\n}\n.fullscreen-img {\n  max-width: 90vw;\n  max-height: 90vh;\n  object-fit: contain;\n  animation: zoomIn 0.2s ease-out;\n}\n@keyframes zoomIn {\n  from {\n    transform: scale(0.8);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.clickable {\n  cursor: zoom-in;\n  transition: transform 0.2s;\n}\n.clickable:hover {\n  transform: scale(1.05);\n}\n.volume-slider-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  height: 80px;\n  margin-left: 1rem;\n}\n.volume-slider {\n  appearance: slider-vertical;\n  -webkit-appearance: slider-vertical;\n  writing-mode: bt-lr;\n  width: 8px;\n  height: 60px;\n  border-radius: 4px;\n  background: rgba(0, 0, 0, 0.5);\n  cursor: pointer;\n}\n.theme-light .volume-slider {\n  background: rgba(0, 0, 0, 0.1);\n}\n@media (max-width: 600px) {\n  .skins-display {\n    flex-direction: column;\n    align-items: center;\n  }\n  .viewer-img {\n    width: 120px;\n    height: 120px;\n  }\n  .audio-controls {\n    gap: 0.5rem;\n    flex-wrap: wrap;\n  }\n  .control-btn {\n    width: 45px;\n    height: 45px;\n  }\n  .secondary-btn {\n    width: 60px;\n    height: 40px;\n    font-size: 0.85rem;\n  }\n  .play-btn {\n    width: 80px;\n    height: 50px;\n  }\n  .volume-slider-container {\n    flex-direction: row;\n    height: auto;\n    margin-left: 0;\n    margin-top: 1rem;\n    width: 100%;\n  }\n  .volume-slider {\n    appearance: none;\n    -webkit-appearance: none;\n    writing-mode: horizontal-tb;\n    width: 100px;\n    height: 8px;\n  }\n  .volume-slider::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    width: 15px;\n    height: 15px;\n    border-radius: 50%;\n    background: #ffd166;\n    cursor: pointer;\n  }\n  .theme-light .volume-slider::-webkit-slider-thumb {\n    background: #9c5c14;\n  }\n}\n/*# sourceMappingURL=gallery.component.css.map */\n"] }]
+  }], () => [{ type: ToolsService }], { audioPlayer: [{
+    type: ViewChild,
+    args: ["audioPlayer"]
+  }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GalleryComponent, { className: "GalleryComponent", filePath: "src/app/pages/gallery/gallery.component.ts", lineNumber: 13 });
+})();
+
 // src/app/guards/guard.guard.ts
 function getSubPath(url, prefixes) {
   for (const prefix of prefixes) {
@@ -78995,6 +79775,7 @@ var routes = [
   { path: "settings", component: SettingsComponent, pathMatch: "full" },
   { path: "devSettings", component: DevSettingsComponent, pathMatch: "full" },
   { path: "closet", component: ClosetComponent, pathMatch: "full" },
+  { path: "gallery", component: GalleryComponent, pathMatch: "full" },
   { path: "onWork", component: OnworkPageComponent, pathMatch: "full" },
   { path: "licenses", component: LicensesComponent, pathMatch: "full" },
   { path: "shop", component: ShopComponent, pathMatch: "full" },
