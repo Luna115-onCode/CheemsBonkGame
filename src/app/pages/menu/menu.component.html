@@ -24,6 +24,14 @@
             </div>
         </div>
 
+        <!-- Gallery -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('gallery')">
+            <img src="img/icons/picture-svgrepo-com.svg" class="menu-icon" alt="Gallery">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].gallery || 'Gallery'}}</div>
+            </div>
+        </div>
+
         <!-- Settings -->
         <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('settings')">
             <img src="img/icons/set-up-svgrepo-com.svg" class="menu-icon" alt="Settings">

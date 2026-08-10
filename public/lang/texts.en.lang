@@ -20,7 +20,8 @@
     "spiral_roll": "Spiral Roll",
     "stack_colors": "Stack Colors",
     "minigames": "Minigames",
-    "licenses": "Licenses & Credits"
+    "licenses": "Licenses & Credits",
+    "gallery": "Gallery"
   },
   "minigames": {
     "title": "Merge Diggers",
@@ -90,7 +91,8 @@
     "buyDogeCoin": "Buy 1 DogeCoin",
     "buyDogeCoinSub": "Today's price: ",
     "buyDogeCoinSuccess": "You bought 1 DogeCoin!",
-    "buyDogeCoinFail": "You need more points!"
+    "buyDogeCoinFail": "You need more points!",
+    "gallery": "Gallery"
   },
   "options": {
     "changeLang": {
@@ -415,5 +417,15 @@
     "music_28_desc": "New music track: The Unwritten Page",
     "music_29": "Where The Path Bends",
     "music_29_desc": "New music track: Where The Path Bends"
+  },
+  "gallery": {
+    "title": "Gallery",
+    "skinsSection": "Skins",
+    "soundsSection": "Sound Effects",
+    "musicSection": "Music",
+    "normalSkin": "Normal",
+    "hitSkin": "Hitting",
+    "play": "Play",
+    "pause": "Pause"
   }
 }

@@ -74,6 +74,7 @@ export class ToolsService {
   p404: any = createLangMap(p404Text);
   offline: any = createLangMap(offlineText);
   shop: any = {};
+  gallery: any = {};
   minigames: any = createLangMap(minigamesText);
   stats: any = createLangMap(statsText);
   pageName: any = createLangMap(pageName);
@@ -103,6 +104,7 @@ export class ToolsService {
   private currentMusicBuffer: AudioBuffer | null = null;
   private currentMusicFile: string = "";
   public isWindowBlurred: boolean = false;
+  public isBackgroundMusicPaused: boolean = false;
 
   availableLanguages: Array<LanguageItem> = AVAILABLE_LANGUAGES;
 
@@ -132,7 +134,7 @@ export class ToolsService {
     });
 
     const resumeMusicOnInteraction = () => {
-      if (String(this.selectedMusic) !== '0' && this.musicAudio.paused) {
+      if (String(this.selectedMusic) !== '0' && this.musicAudio.paused && !this.isBackgroundMusicPaused) {
         this.playMusic(this.selectedMusic);
       }
     };
@@ -189,6 +191,7 @@ export class ToolsService {
         if (data.minigames) this.minigames[langCode] = { ...this.minigames[langCode], ...data.minigames };
         if (data.flappy_dunk) this.flappy_dunk[langCode] = { ...this.flappy_dunk[langCode], ...data.flappy_dunk };
         if (data.magic_sort) this.magic_sort[langCode] = { ...this.magic_sort[langCode], ...data.magic_sort };
+        if (data.gallery) this.gallery[langCode] = { ...this.gallery[langCode], ...data.gallery };
         if (data.shopItemsText) this.shopItemsText[langCode] = { ...this.shopItemsText[langCode], ...data.shopItemsText };
         if (data.itemsText) this.itemsText[langCode] = { ...this.itemsText[langCode], ...data.itemsText };
       }
@@ -294,7 +297,7 @@ export class ToolsService {
     const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
     if (minigamePages.includes(this.actPage as string)) {
       this.redirect("minigames");
-    } else if (["devSettings", "closet", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage as string)) {
+    } else if (["devSettings", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage as string)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage as string)) {
       this.redirect("game");
@@ -1312,6 +1315,21 @@ export class ToolsService {
   private resumeAllAudioForFocus(): void {
     if (!this.isWindowBlurred) return;
     this.isWindowBlurred = false;
+    this.resumeBackground();
+  }
+
+  public pauseBackground(): void {
+    this.isBackgroundMusicPaused = true;
+    if (this.audioCtx && this.audioCtx.state === 'running') {
+      this.audioCtx.suspend().catch(() => {});
+    }
+    if (!this.musicAudio.paused) {
+      this.musicAudio.pause();
+    }
+  }
+
+  public resumeBackground(): void {
+    this.isBackgroundMusicPaused = false;
     if (String(this.selectedMusic) !== '0' && this.musVol > 0) {
       if (this.audioCtx && this.audioCtx.state === 'suspended') {
         this.audioCtx.resume().catch(() => {});

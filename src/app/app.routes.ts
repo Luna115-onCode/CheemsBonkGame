@@ -20,6 +20,7 @@ import { SpiralRollComponent } from './games/spiral_roll/spiral_roll.component';
 import { StackColorsComponent } from './games/stack_colors/stack_colors.component';
 import { MinigamesComponent } from './pages/minigames/minigames.component';
 import { StatsComponent } from './pages/stats/stats.component';
+import { GalleryComponent } from './pages/gallery/gallery.component';
 import { developmentGuard, devGuard, testingGuard, appGuard } from './guards/guard.guard';
 
 export const routes: Routes = [
@@ -28,6 +29,7 @@ export const routes: Routes = [
     {path: "settings", component: SettingsComponent, pathMatch: "full"},
     {path: "devSettings", component: DevSettingsComponent, pathMatch: "full"},
     {path: "closet", component: ClosetComponent, pathMatch: "full"},
+    {path: "gallery", component: GalleryComponent, pathMatch: "full"},
     {path: "onWork", component: OnworkPageComponent, pathMatch: "full"},
     {path: "licenses", component: LicensesComponent, pathMatch: "full"},
     {path: "shop", component: ShopComponent, pathMatch: "full"},
