@@ -73357,7 +73357,8 @@ var AttackHoleComponent = class _AttackHoleComponent {
         dom.removeChild(this.renderer.domElement);
       }
     }
-    this.tools.leaveMinigame("attack_hole", this.gamePoints);
+    const totalPoints = this.sessionPoints + (["WIN", "LOSE", "START"].includes(this.gameState) ? 0 : this.levelPoints);
+    this.tools.leaveMinigame("attack_hole", totalPoints, this.level);
   }
   startGame() {
     if (this.levelsConfig && this.levelsConfig.length > 1) {

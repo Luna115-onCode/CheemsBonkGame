@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1786350028430,
+  "timestamp": 1786426510051,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -566,7 +566,7 @@
     "/index.html": "f784a61e43a7d48304a7d82868019aa3b9614df4",
     "/lang/texts.en.lang": "48bba320d229435683d4c527dbda44e67c743418",
     "/lang/texts.es.lang": "712876df402a144d444acf4567fe65c26941a481",
-    "/main.js": "6cc20e78b7cb5f17c2ef90399bfe3caa7665fde5",
+    "/main.js": "098c72dce1aa65550fde235b0fe90603694ba1c1",
     "/manifest.webmanifest": "e1bb6537aeb79eeb070ef90801d13b102e6ad58f",
     "/polyfills.js": "321b3a888edbd93081a92e1659c272f85bbaf088",
     "/sound/music/A_Jazz_Piano.ogg": "31d2aff129f934ced6339022e95c5e08e217eac1",
