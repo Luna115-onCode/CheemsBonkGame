@@ -163,23 +163,36 @@ jobs:
           const prefix = process.env.build_prefix;
           const repoOwner = '${{ github.repository_owner }}'.toLowerCase() || 'luna115-oncode';
           const pageRoot = process.env.page_root;
-          const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
-          cap = cap.replace('com.cheems.app', appId);
-          elec = elec.replace('com.cheems.app', appId);
+          
+          // Parse the electron config as JSON first to validate
+          let elecObj = JSON.parse(elec);
+          
+          // Update appId in the parsed object
+          if (elecObj.appId) {
+            elecObj.appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
+          }
+          
+          // Update name for PWA variants
+          if (isPwa && elecObj.productName) {
+            elecObj.productName = 'Cheems Bonk Game (PWA)';
+          }
+          if (isPwa && elecObj.executableName) {
+            elecObj.executableName = 'CheemsBonkGamePWA';
+          }
+          
+          // Write back as valid JSON
+          elec = JSON.stringify(elecObj, null, 2);
+          
+          // Update capacitor config
+          cap = cap.replace('com.cheems.app', isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix);
           if (isPwa) {
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
             const url = 'https://' + repoOwner + '.github.io' + pageRoot;
-            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
+            cap = cap.replace('webDir: \\'dist/cheems-angular/browser\\'', 'webDir: \\'dist/cheems-angular/browser\\',\\n  server: { url: \\'' + url + '\\' }');
           }
+          
           fs.writeFileSync('capacitor.config.ts', cap);
           fs.writeFileSync('electron/electron-builder.config.json', elec);
-          "
-          mkdir -p assets electron/assets
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
 
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
@@ -303,28 +316,32 @@ jobs:
           node -e "
           const fs = require('fs');
           let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
-          let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
+          let elec = JSON.parse(fs.readFileSync('electron/electron-builder.config.json', 'utf8'));
           const isPwa = process.env.app_type === 'pwa';
           const prefix = process.env.build_prefix;
           const repoOwner = '${{ github.repository_owner }}'.toLowerCase() || 'luna115-oncode';
           const pageRoot = process.env.page_root;
           const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
+          
+          // Update electron config as JSON object
+          elec.appId = appId;
+          if (isPwa) {
+            elec.productName = 'Cheems Bonk Game (PWA)';
+            elec.executableName = 'CheemsBonkGamePWA';
+            if (elec.nsis) elec.nsis.shortcutName = 'Cheems Bonk Game (PWA)';
+            if (elec.msi) elec.msi.shortcutName = 'Cheems Bonk Game (PWA)';
+          }
+          
+          // Update capacitor config
           cap = cap.replace('com.cheems.app', appId);
-          elec = elec.replace('com.cheems.app', appId);
           if (isPwa) {
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
             const url = 'https://' + repoOwner + '.github.io' + pageRoot;
-            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
+            cap = cap.replace('webDir: \\'dist/cheems-angular/browser\\'', 'webDir: \\'dist/cheems-angular/browser\\',\\n  server: { url: \\'' + url + '\\' }');
           }
+          
           fs.writeFileSync('capacitor.config.ts', cap);
-          fs.writeFileSync('electron/electron-builder.config.json', elec);
-          "
-          mkdir -p assets electron/assets
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
+          fs.writeFileSync('electron/electron-builder.config.json', JSON.stringify(elec, null, 2));
 
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
@@ -459,23 +476,30 @@ jobs:
           node -e "
           const fs = require('fs');
           let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
-          let elec = fs.readFileSync('electron/electron-builder.config.json', 'utf8');
+          let elec = JSON.parse(fs.readFileSync('electron/electron-builder.config.json', 'utf8'));
           const isPwa = process.env.app_type === 'pwa';
           const prefix = process.env.build_prefix;
-          const repoOwner = '${{ github.repository_owner }}'.toLowerCase();
+          const repoOwner = '${{ github.repository_owner }}'.toLowerCase() || 'luna115-oncode';
           const pageRoot = process.env.page_root;
           const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
+          
+          // Update electron config as JSON object
+          elec.appId = appId;
+          if (isPwa) {
+            elec.productName = 'Cheems Bonk Game (PWA)';
+            elec.executableName = 'CheemsBonkGamePWA';
+          }
+          
+          // Update capacitor config
           cap = cap.replace('com.cheems.app', appId);
-          elec = elec.replace('com.cheems.app', appId);
           if (isPwa) {
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
-            elec = elec.replace('\"executableName\": \"CheemsBonkGame\"', '\"executableName\": \"CheemsBonkGamePWA\"');
             const url = 'https://' + repoOwner + '.github.io' + pageRoot;
-            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
+            cap = cap.replace('webDir: \\'dist/cheems-angular/browser\\'', 'webDir: \\'dist/cheems-angular/browser\\',\\n  server: { url: \\'' + url + '\\' }');
           }
+          
           fs.writeFileSync('capacitor.config.ts', cap);
-          fs.writeFileSync('electron/electron-builder.config.json', elec);
+          fs.writeFileSync('electron/electron-builder.config.json', JSON.stringify(elec, null, 2));
           "
           mkdir -p assets electron/assets
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
