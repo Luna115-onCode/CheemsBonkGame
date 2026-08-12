@@ -333,15 +333,15 @@ jobs:
         env:
           NODE_TLS_REJECT_UNAUTHORIZED: 0
         run: |
-          # Try installing globals up to 3 times to handle random network drops
-          for i in 1 2 3; do 
-            npm install -g @angular/cli @capacitor/cli @capacitor/assets png-to-ico && break || sleep 5
-          done
+          foreach ($i in 1..3) {
+            npm install -g @angular/cli @capacitor/cli @capacitor/assets png-to-ico
+            if ($LASTEXITCODE -eq 0) { break }
+            Start-Sleep -Seconds 5
+          }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           
-          # Use 'npm ci' for reliable CI builds (falls back to 'npm install' if no lockfile exists)
-          npm ci || npm install
-
-          
+          npm ci
+          if ($LASTEXITCODE -ne 0) { npm install } 
 
       - name: Apply Environment Configs
         shell: bash
