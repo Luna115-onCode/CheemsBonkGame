@@ -194,6 +194,10 @@ jobs:
           fs.writeFileSync('capacitor.config.ts', cap);
           fs.writeFileSync('electron/electron-builder.config.json', elec);
           "
+          mkdir -p assets electron/assets
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
 
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
