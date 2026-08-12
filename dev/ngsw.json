@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1786521767690,
+  "timestamp": 1786524207740,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -564,9 +564,9 @@
     "/img/icons/volume-loud-svgrepo-com.svg": "4aa6a7f476256300378d275359c7908bc14c6fa6",
     "/img/icons/volume-small-svgrepo-com.svg": "e6cff6f1a08192f058140f574c06bfae88960ea5",
     "/index.html": "f784a61e43a7d48304a7d82868019aa3b9614df4",
-    "/lang/texts.en.lang": "48bba320d229435683d4c527dbda44e67c743418",
-    "/lang/texts.es.lang": "712876df402a144d444acf4567fe65c26941a481",
-    "/main.js": "098c72dce1aa65550fde235b0fe90603694ba1c1",
+    "/lang/texts.en.lang": "cb992beb3357db78e370ca378bacee44f2a6b14d",
+    "/lang/texts.es.lang": "a1a84f0babb04af2a5512b31428fafbaee393794",
+    "/main.js": "2fdf56e857f4c50d26a32ab39294fe018207ce3e",
     "/manifest.webmanifest": "e1bb6537aeb79eeb070ef90801d13b102e6ad58f",
     "/polyfills.js": "321b3a888edbd93081a92e1659c272f85bbaf088",
     "/sound/music/A_Jazz_Piano.ogg": "31d2aff129f934ced6339022e95c5e08e217eac1",

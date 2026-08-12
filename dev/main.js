@@ -53854,6 +53854,45 @@ var Color = class {
 };
 var _color = /* @__PURE__ */ new Color();
 Color.NAMES = _colorKeywords;
+var Fog = class _Fog {
+  /**
+   * Constructs a new fog.
+   *
+   * @param {number|Color} color - The fog's color.
+   * @param {number} [near=1] - The minimum distance to start applying fog.
+   * @param {number} [far=1000] - The maximum distance at which fog stops being calculated and applied.
+   */
+  constructor(color, near = 1, far = 1e3) {
+    this.isFog = true;
+    this.name = "";
+    this.color = new Color(color);
+    this.near = near;
+    this.far = far;
+  }
+  /**
+   * Returns a new fog with copied values from this instance.
+   *
+   * @return {Fog} A clone of this instance.
+   */
+  clone() {
+    return new _Fog(this.color, this.near, this.far);
+  }
+  /**
+   * Serializes the fog into JSON.
+   *
+   * @param {?(Object|string)} meta - An optional value holding meta information about the serialization.
+   * @return {Object} A JSON object representing the serialized fog
+   */
+  toJSON() {
+    return {
+      type: "Fog",
+      name: this.name,
+      color: this.color.getHex(),
+      near: this.near,
+      far: this.far
+    };
+  }
+};
 var Scene = class extends Object3D {
   /**
    * Constructs a new scene.
@@ -56288,6 +56327,508 @@ var BufferGeometry = class _BufferGeometry extends EventDispatcher {
     });
   }
 };
+var InterleavedBuffer = class {
+  /**
+   * Constructs a new interleaved buffer.
+   *
+   * @param {TypedArray} array - A typed array with a shared buffer storing attribute data.
+   * @param {number} stride - The number of typed-array elements per vertex.
+   */
+  constructor(array, stride) {
+    this.isInterleavedBuffer = true;
+    this.array = array;
+    this.stride = stride;
+    this.count = array !== void 0 ? array.length / stride : 0;
+    this.usage = StaticDrawUsage;
+    this.updateRanges = [];
+    this.version = 0;
+    this.uuid = generateUUID();
+  }
+  /**
+   * A callback function that is executed after the renderer has transferred the attribute array
+   * data to the GPU.
+   */
+  onUploadCallback() {
+  }
+  /**
+   * Flag to indicate that this attribute has changed and should be re-sent to
+   * the GPU. Set this to `true` when you modify the value of the array.
+   *
+   * @type {number}
+   * @default false
+   * @param {boolean} value
+   */
+  set needsUpdate(value) {
+    if (value === true) this.version++;
+  }
+  /**
+   * Sets the usage of this interleaved buffer.
+   *
+   * @param {(StaticDrawUsage|DynamicDrawUsage|StreamDrawUsage|StaticReadUsage|DynamicReadUsage|StreamReadUsage|StaticCopyUsage|DynamicCopyUsage|StreamCopyUsage)} value - The usage to set.
+   * @return {InterleavedBuffer} A reference to this interleaved buffer.
+   */
+  setUsage(value) {
+    this.usage = value;
+    return this;
+  }
+  /**
+   * Adds a range of data in the data array to be updated on the GPU.
+   *
+   * @param {number} start - Position at which to start update.
+   * @param {number} count - The number of components to update.
+   */
+  addUpdateRange(start, count) {
+    this.updateRanges.push({
+      start,
+      count
+    });
+  }
+  /**
+   * Clears the update ranges.
+   */
+  clearUpdateRanges() {
+    this.updateRanges.length = 0;
+  }
+  /**
+   * Copies the values of the given interleaved buffer to this instance.
+   *
+   * @param {InterleavedBuffer} source - The interleaved buffer to copy.
+   * @return {InterleavedBuffer} A reference to this instance.
+   */
+  copy(source) {
+    this.array = new source.array.constructor(source.array);
+    this.count = source.count;
+    this.stride = source.stride;
+    this.usage = source.usage;
+    return this;
+  }
+  /**
+   * Copies a vector from the given interleaved buffer to this one. The start
+   * and destination position in the attribute buffers are represented by the
+   * given indices.
+   *
+   * @param {number} index1 - The destination index into this interleaved buffer.
+   * @param {InterleavedBuffer} interleavedBuffer - The interleaved buffer to copy from.
+   * @param {number} index2 - The source index into the given interleaved buffer.
+   * @return {InterleavedBuffer} A reference to this instance.
+   */
+  copyAt(index1, interleavedBuffer, index2) {
+    index1 *= this.stride;
+    index2 *= interleavedBuffer.stride;
+    for (let i = 0, l = this.stride; i < l; i++) {
+      this.array[index1 + i] = interleavedBuffer.array[index2 + i];
+    }
+    return this;
+  }
+  /**
+   * Sets the given array data in the interleaved buffer.
+   *
+   * @param {(TypedArray|Array)} value - The array data to set.
+   * @param {number} [offset=0] - The offset in this interleaved buffer's array.
+   * @return {InterleavedBuffer} A reference to this instance.
+   */
+  set(value, offset = 0) {
+    this.array.set(value, offset);
+    return this;
+  }
+  /**
+   * Returns a new interleaved buffer with copied values from this instance.
+   *
+   * @param {Object} [data] - An object with shared array buffers that allows to retain shared structures.
+   * @return {InterleavedBuffer} A clone of this instance.
+   */
+  clone(data) {
+    if (data.arrayBuffers === void 0) {
+      data.arrayBuffers = {};
+    }
+    if (this.array.buffer._uuid === void 0) {
+      this.array.buffer._uuid = generateUUID();
+    }
+    if (data.arrayBuffers[this.array.buffer._uuid] === void 0) {
+      data.arrayBuffers[this.array.buffer._uuid] = this.array.slice(0).buffer;
+    }
+    const array = new this.array.constructor(data.arrayBuffers[this.array.buffer._uuid]);
+    const ib = new this.constructor(array, this.stride);
+    ib.setUsage(this.usage);
+    return ib;
+  }
+  /**
+   * Sets the given callback function that is executed after the Renderer has transferred
+   * the array data to the GPU. Can be used to perform clean-up operations after
+   * the upload when data are not needed anymore on the CPU side.
+   *
+   * @param {Function} callback - The `onUpload()` callback.
+   * @return {InterleavedBuffer} A reference to this instance.
+   */
+  onUpload(callback) {
+    this.onUploadCallback = callback;
+    return this;
+  }
+  /**
+   * Serializes the interleaved buffer into JSON.
+   *
+   * @param {Object} [data] - An optional value holding meta information about the serialization.
+   * @return {Object} A JSON object representing the serialized interleaved buffer.
+   */
+  toJSON(data) {
+    if (data.arrayBuffers === void 0) {
+      data.arrayBuffers = {};
+    }
+    if (this.array.buffer._uuid === void 0) {
+      this.array.buffer._uuid = generateUUID();
+    }
+    if (data.arrayBuffers[this.array.buffer._uuid] === void 0) {
+      data.arrayBuffers[this.array.buffer._uuid] = Array.from(new Uint32Array(this.array.buffer));
+    }
+    return {
+      uuid: this.uuid,
+      buffer: this.array.buffer._uuid,
+      type: this.array.constructor.name,
+      stride: this.stride
+    };
+  }
+};
+var _vector$8 = /* @__PURE__ */ new Vector3();
+var InterleavedBufferAttribute = class _InterleavedBufferAttribute {
+  /**
+   * Constructs a new interleaved buffer attribute.
+   *
+   * @param {InterleavedBuffer} interleavedBuffer - The buffer holding the interleaved data.
+   * @param {number} itemSize - The item size.
+   * @param {number} offset - The attribute offset into the buffer.
+   * @param {boolean} [normalized=false] - Whether the data are normalized or not.
+   */
+  constructor(interleavedBuffer, itemSize, offset, normalized = false) {
+    this.isInterleavedBufferAttribute = true;
+    this.name = "";
+    this.data = interleavedBuffer;
+    this.itemSize = itemSize;
+    this.offset = offset;
+    this.normalized = normalized;
+  }
+  /**
+   * The item count of this buffer attribute.
+   *
+   * @type {number}
+   * @readonly
+   */
+  get count() {
+    return this.data.count;
+  }
+  /**
+   * The array holding the interleaved buffer attribute data.
+   *
+   * @type {TypedArray}
+   */
+  get array() {
+    return this.data.array;
+  }
+  /**
+   * Flag to indicate that this attribute has changed and should be re-sent to
+   * the GPU. Set this to `true` when you modify the value of the array.
+   *
+   * @type {number}
+   * @default false
+   * @param {boolean} value
+   */
+  set needsUpdate(value) {
+    this.data.needsUpdate = value;
+  }
+  /**
+   * Applies the given 4x4 matrix to the given attribute. Only works with
+   * item size `3`.
+   *
+   * @param {Matrix4} m - The matrix to apply.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  applyMatrix4(m) {
+    for (let i = 0, l = this.data.count; i < l; i++) {
+      _vector$8.fromBufferAttribute(this, i);
+      _vector$8.applyMatrix4(m);
+      this.setXYZ(i, _vector$8.x, _vector$8.y, _vector$8.z);
+    }
+    return this;
+  }
+  /**
+   * Applies the given 3x3 normal matrix to the given attribute. Only works with
+   * item size `3`.
+   *
+   * @param {Matrix3} m - The normal matrix to apply.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  applyNormalMatrix(m) {
+    for (let i = 0, l = this.count; i < l; i++) {
+      _vector$8.fromBufferAttribute(this, i);
+      _vector$8.applyNormalMatrix(m);
+      this.setXYZ(i, _vector$8.x, _vector$8.y, _vector$8.z);
+    }
+    return this;
+  }
+  /**
+   * Applies the given 4x4 matrix to the given attribute. Only works with
+   * item size `3` and with direction vectors.
+   *
+   * @param {Matrix4} m - The matrix to apply.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  transformDirection(m) {
+    for (let i = 0, l = this.count; i < l; i++) {
+      _vector$8.fromBufferAttribute(this, i);
+      _vector$8.transformDirection(m);
+      this.setXYZ(i, _vector$8.x, _vector$8.y, _vector$8.z);
+    }
+    return this;
+  }
+  /**
+   * Returns the given component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @param {number} component - The component index.
+   * @return {number} The returned value.
+   */
+  getComponent(index, component) {
+    let value = this.array[index * this.data.stride + this.offset + component];
+    if (this.normalized) value = denormalize(value, this.array);
+    return value;
+  }
+  /**
+   * Sets the given value to the given component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @param {number} component - The component index.
+   * @param {number} value - The value to set.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  setComponent(index, component, value) {
+    if (this.normalized) value = normalize(value, this.array);
+    this.data.array[index * this.data.stride + this.offset + component] = value;
+    return this;
+  }
+  /**
+   * Sets the x component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @param {number} x - The value to set.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  setX(index, x) {
+    if (this.normalized) x = normalize(x, this.array);
+    this.data.array[index * this.data.stride + this.offset] = x;
+    return this;
+  }
+  /**
+   * Sets the y component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @param {number} y - The value to set.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  setY(index, y) {
+    if (this.normalized) y = normalize(y, this.array);
+    this.data.array[index * this.data.stride + this.offset + 1] = y;
+    return this;
+  }
+  /**
+   * Sets the z component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @param {number} z - The value to set.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  setZ(index, z) {
+    if (this.normalized) z = normalize(z, this.array);
+    this.data.array[index * this.data.stride + this.offset + 2] = z;
+    return this;
+  }
+  /**
+   * Sets the w component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @param {number} w - The value to set.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  setW(index, w) {
+    if (this.normalized) w = normalize(w, this.array);
+    this.data.array[index * this.data.stride + this.offset + 3] = w;
+    return this;
+  }
+  /**
+   * Returns the x component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @return {number} The x component.
+   */
+  getX(index) {
+    let x = this.data.array[index * this.data.stride + this.offset];
+    if (this.normalized) x = denormalize(x, this.array);
+    return x;
+  }
+  /**
+   * Returns the y component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @return {number} The y component.
+   */
+  getY(index) {
+    let y = this.data.array[index * this.data.stride + this.offset + 1];
+    if (this.normalized) y = denormalize(y, this.array);
+    return y;
+  }
+  /**
+   * Returns the z component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @return {number} The z component.
+   */
+  getZ(index) {
+    let z = this.data.array[index * this.data.stride + this.offset + 2];
+    if (this.normalized) z = denormalize(z, this.array);
+    return z;
+  }
+  /**
+   * Returns the w component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @return {number} The w component.
+   */
+  getW(index) {
+    let w = this.data.array[index * this.data.stride + this.offset + 3];
+    if (this.normalized) w = denormalize(w, this.array);
+    return w;
+  }
+  /**
+   * Sets the x and y component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @param {number} x - The value for the x component to set.
+   * @param {number} y - The value for the y component to set.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  setXY(index, x, y) {
+    index = index * this.data.stride + this.offset;
+    if (this.normalized) {
+      x = normalize(x, this.array);
+      y = normalize(y, this.array);
+    }
+    this.data.array[index + 0] = x;
+    this.data.array[index + 1] = y;
+    return this;
+  }
+  /**
+   * Sets the x, y and z component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @param {number} x - The value for the x component to set.
+   * @param {number} y - The value for the y component to set.
+   * @param {number} z - The value for the z component to set.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  setXYZ(index, x, y, z) {
+    index = index * this.data.stride + this.offset;
+    if (this.normalized) {
+      x = normalize(x, this.array);
+      y = normalize(y, this.array);
+      z = normalize(z, this.array);
+    }
+    this.data.array[index + 0] = x;
+    this.data.array[index + 1] = y;
+    this.data.array[index + 2] = z;
+    return this;
+  }
+  /**
+   * Sets the x, y, z and w component of the vector at the given index.
+   *
+   * @param {number} index - The index into the buffer attribute.
+   * @param {number} x - The value for the x component to set.
+   * @param {number} y - The value for the y component to set.
+   * @param {number} z - The value for the z component to set.
+   * @param {number} w - The value for the w component to set.
+   * @return {InterleavedBufferAttribute} A reference to this instance.
+   */
+  setXYZW(index, x, y, z, w) {
+    index = index * this.data.stride + this.offset;
+    if (this.normalized) {
+      x = normalize(x, this.array);
+      y = normalize(y, this.array);
+      z = normalize(z, this.array);
+      w = normalize(w, this.array);
+    }
+    this.data.array[index + 0] = x;
+    this.data.array[index + 1] = y;
+    this.data.array[index + 2] = z;
+    this.data.array[index + 3] = w;
+    return this;
+  }
+  /**
+   * Returns a new buffer attribute with copied values from this instance.
+   *
+   * If no parameter is provided, cloning an interleaved buffer attribute will de-interleave buffer data.
+   *
+   * @param {Object} [data] - An object with interleaved buffers that allows to retain the interleaved property.
+   * @return {BufferAttribute|InterleavedBufferAttribute} A clone of this instance.
+   */
+  clone(data) {
+    if (data === void 0) {
+      log("InterleavedBufferAttribute.clone(): Cloning an interleaved buffer attribute will de-interleave buffer data.");
+      const array = [];
+      for (let i = 0; i < this.count; i++) {
+        const index = i * this.data.stride + this.offset;
+        for (let j = 0; j < this.itemSize; j++) {
+          array.push(this.data.array[index + j]);
+        }
+      }
+      return new BufferAttribute(new this.array.constructor(array), this.itemSize, this.normalized);
+    } else {
+      if (data.interleavedBuffers === void 0) {
+        data.interleavedBuffers = {};
+      }
+      if (data.interleavedBuffers[this.data.uuid] === void 0) {
+        data.interleavedBuffers[this.data.uuid] = this.data.clone(data);
+      }
+      return new _InterleavedBufferAttribute(data.interleavedBuffers[this.data.uuid], this.itemSize, this.offset, this.normalized);
+    }
+  }
+  /**
+   * Serializes the buffer attribute into JSON.
+   *
+   * If no parameter is provided, cloning an interleaved buffer attribute will de-interleave buffer data.
+   *
+   * @param {Object} [data] - An optional value holding meta information about the serialization.
+   * @return {Object} A JSON object representing the serialized buffer attribute.
+   */
+  toJSON(data) {
+    if (data === void 0) {
+      log("InterleavedBufferAttribute.toJSON(): Serializing an interleaved buffer attribute will de-interleave buffer data.");
+      const array = [];
+      for (let i = 0; i < this.count; i++) {
+        const index = i * this.data.stride + this.offset;
+        for (let j = 0; j < this.itemSize; j++) {
+          array.push(this.data.array[index + j]);
+        }
+      }
+      return {
+        itemSize: this.itemSize,
+        type: this.array.constructor.name,
+        array,
+        normalized: this.normalized
+      };
+    } else {
+      if (data.interleavedBuffers === void 0) {
+        data.interleavedBuffers = {};
+      }
+      if (data.interleavedBuffers[this.data.uuid] === void 0) {
+        data.interleavedBuffers[this.data.uuid] = this.data.toJSON(data);
+      }
+      return {
+        isInterleavedBufferAttribute: true,
+        itemSize: this.itemSize,
+        data: this.data.uuid,
+        offset: this.offset,
+        normalized: this.normalized
+      };
+    }
+  }
+};
 var _materialId = 0;
 var Material = class extends EventDispatcher {
   /**
@@ -56852,6 +57393,145 @@ var Material = class extends EventDispatcher {
     if (value === true) this.version++;
   }
 };
+var SpriteMaterial = class extends Material {
+  /**
+   * Constructs a new sprite material.
+   *
+   * @param {Object} [parameters] - An object with one or more properties
+   * defining the material's appearance. Any property of the material
+   * (including any property from inherited materials) can be passed
+   * in here. Color values can be passed any type of value accepted
+   * by {@link Color#set}.
+   */
+  constructor(parameters) {
+    super();
+    this.isSpriteMaterial = true;
+    this.type = "SpriteMaterial";
+    this.color = new Color(16777215);
+    this.map = null;
+    this.alphaMap = null;
+    this.rotation = 0;
+    this.sizeAttenuation = true;
+    this.transparent = true;
+    this.fog = true;
+    this.setValues(parameters);
+  }
+  copy(source) {
+    super.copy(source);
+    this.color.copy(source.color);
+    this.map = source.map;
+    this.alphaMap = source.alphaMap;
+    this.rotation = source.rotation;
+    this.sizeAttenuation = source.sizeAttenuation;
+    this.fog = source.fog;
+    return this;
+  }
+};
+var _geometry;
+var _intersectPoint = /* @__PURE__ */ new Vector3();
+var _worldScale = /* @__PURE__ */ new Vector3();
+var _mvPosition = /* @__PURE__ */ new Vector3();
+var _alignedPosition = /* @__PURE__ */ new Vector2();
+var _rotatedPosition = /* @__PURE__ */ new Vector2();
+var _viewWorldMatrix = /* @__PURE__ */ new Matrix4();
+var _vA$1 = /* @__PURE__ */ new Vector3();
+var _vB$1 = /* @__PURE__ */ new Vector3();
+var _vC$1 = /* @__PURE__ */ new Vector3();
+var _uvA = /* @__PURE__ */ new Vector2();
+var _uvB = /* @__PURE__ */ new Vector2();
+var _uvC = /* @__PURE__ */ new Vector2();
+var Sprite = class extends Object3D {
+  /**
+   * Constructs a new sprite.
+   *
+   * @param {(SpriteMaterial|SpriteNodeMaterial)} [material] - The sprite material.
+   */
+  constructor(material = new SpriteMaterial()) {
+    super();
+    this.isSprite = true;
+    this.type = "Sprite";
+    if (_geometry === void 0) {
+      _geometry = new BufferGeometry();
+      const float32Array = new Float32Array([-0.5, -0.5, 0, 0, 0, 0.5, -0.5, 0, 1, 0, 0.5, 0.5, 0, 1, 1, -0.5, 0.5, 0, 0, 1]);
+      const interleavedBuffer = new InterleavedBuffer(float32Array, 5);
+      _geometry.setIndex([0, 1, 2, 0, 2, 3]);
+      _geometry.setAttribute("position", new InterleavedBufferAttribute(interleavedBuffer, 3, 0, false));
+      _geometry.setAttribute("uv", new InterleavedBufferAttribute(interleavedBuffer, 2, 3, false));
+    }
+    this.geometry = _geometry;
+    this.material = material;
+    this.center = new Vector2(0.5, 0.5);
+    this.count = 1;
+  }
+  /**
+   * Computes intersection points between a casted ray and this sprite.
+   *
+   * @param {Raycaster} raycaster - The raycaster.
+   * @param {Array<Object>} intersects - The target array that holds the intersection points.
+   */
+  raycast(raycaster, intersects) {
+    if (raycaster.camera === null) {
+      error('Sprite: "Raycaster.camera" needs to be set in order to raycast against sprites.');
+    }
+    _worldScale.setFromMatrixScale(this.matrixWorld);
+    _viewWorldMatrix.copy(raycaster.camera.matrixWorld);
+    this.modelViewMatrix.multiplyMatrices(raycaster.camera.matrixWorldInverse, this.matrixWorld);
+    _mvPosition.setFromMatrixPosition(this.modelViewMatrix);
+    if (raycaster.camera.isPerspectiveCamera && this.material.sizeAttenuation === false) {
+      _worldScale.multiplyScalar(-_mvPosition.z);
+    }
+    const rotation = this.material.rotation;
+    let sin, cos;
+    if (rotation !== 0) {
+      cos = Math.cos(rotation);
+      sin = Math.sin(rotation);
+    }
+    const center = this.center;
+    transformVertex(_vA$1.set(-0.5, -0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+    transformVertex(_vB$1.set(0.5, -0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+    transformVertex(_vC$1.set(0.5, 0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+    _uvA.set(0, 0);
+    _uvB.set(1, 0);
+    _uvC.set(1, 1);
+    let intersect2 = raycaster.ray.intersectTriangle(_vA$1, _vB$1, _vC$1, false, _intersectPoint);
+    if (intersect2 === null) {
+      transformVertex(_vB$1.set(-0.5, 0.5, 0), _mvPosition, center, _worldScale, sin, cos);
+      _uvB.set(0, 1);
+      intersect2 = raycaster.ray.intersectTriangle(_vA$1, _vC$1, _vB$1, false, _intersectPoint);
+      if (intersect2 === null) {
+        return;
+      }
+    }
+    const distance = raycaster.ray.origin.distanceTo(_intersectPoint);
+    if (distance < raycaster.near || distance > raycaster.far) return;
+    intersects.push({
+      distance,
+      point: _intersectPoint.clone(),
+      uv: Triangle.getInterpolation(_intersectPoint, _vA$1, _vB$1, _vC$1, _uvA, _uvB, _uvC, new Vector2()),
+      face: null,
+      object: this
+    });
+  }
+  copy(source, recursive) {
+    super.copy(source, recursive);
+    if (source.center !== void 0) this.center.copy(source.center);
+    this.material = source.material;
+    return this;
+  }
+};
+function transformVertex(vertexPosition, mvPosition, center, scale, sin, cos) {
+  _alignedPosition.subVectors(vertexPosition, center).addScalar(0.5).multiply(scale);
+  if (sin !== void 0) {
+    _rotatedPosition.x = cos * _alignedPosition.x - sin * _alignedPosition.y;
+    _rotatedPosition.y = sin * _alignedPosition.x + cos * _alignedPosition.y;
+  } else {
+    _rotatedPosition.copy(_alignedPosition);
+  }
+  vertexPosition.copy(mvPosition);
+  vertexPosition.x += _rotatedPosition.x;
+  vertexPosition.y += _rotatedPosition.y;
+  vertexPosition.applyMatrix4(_viewWorldMatrix);
+}
 var _vector$7 = /* @__PURE__ */ new Vector3();
 var _segCenter = /* @__PURE__ */ new Vector3();
 var _segDir = /* @__PURE__ */ new Vector3();
@@ -58598,6 +59278,275 @@ var CylinderGeometry = class _CylinderGeometry extends BufferGeometry {
    */
   static fromJSON(data) {
     return new _CylinderGeometry(data.radiusTop, data.radiusBottom, data.height, data.radialSegments, data.heightSegments, data.openEnded, data.thetaStart, data.thetaLength);
+  }
+};
+var PolyhedronGeometry = class _PolyhedronGeometry extends BufferGeometry {
+  /**
+   * Constructs a new polyhedron geometry.
+   *
+   * @param {Array<number>} [vertices] - A flat array of vertices describing the base shape.
+   * @param {Array<number>} [indices] - A flat array of indices describing the base shape.
+   * @param {number} [radius=1] - The radius of the shape.
+   * @param {number} [detail=0] - How many levels to subdivide the geometry. The more detail, the smoother the shape.
+   */
+  constructor(vertices = [], indices = [], radius = 1, detail = 0) {
+    super();
+    this.type = "PolyhedronGeometry";
+    this.parameters = {
+      vertices,
+      indices,
+      radius,
+      detail
+    };
+    const vertexBuffer = [];
+    const uvBuffer = [];
+    subdivide(detail);
+    applyRadius(radius);
+    generateUVs();
+    this.setAttribute("position", new Float32BufferAttribute(vertexBuffer, 3));
+    this.setAttribute("normal", new Float32BufferAttribute(vertexBuffer.slice(), 3));
+    this.setAttribute("uv", new Float32BufferAttribute(uvBuffer, 2));
+    if (detail === 0) {
+      this.computeVertexNormals();
+    } else {
+      this.normalizeNormals();
+    }
+    function subdivide(detail2) {
+      const a = new Vector3();
+      const b = new Vector3();
+      const c = new Vector3();
+      for (let i = 0; i < indices.length; i += 3) {
+        getVertexByIndex(indices[i + 0], a);
+        getVertexByIndex(indices[i + 1], b);
+        getVertexByIndex(indices[i + 2], c);
+        subdivideFace(a, b, c, detail2);
+      }
+    }
+    function subdivideFace(a, b, c, detail2) {
+      const cols = detail2 + 1;
+      const v = [];
+      for (let i = 0; i <= cols; i++) {
+        v[i] = [];
+        const aj = a.clone().lerp(c, i / cols);
+        const bj = b.clone().lerp(c, i / cols);
+        const rows = cols - i;
+        for (let j = 0; j <= rows; j++) {
+          if (j === 0 && i === cols) {
+            v[i][j] = aj;
+          } else {
+            v[i][j] = aj.clone().lerp(bj, j / rows);
+          }
+        }
+      }
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < 2 * (cols - i) - 1; j++) {
+          const k = Math.floor(j / 2);
+          if (j % 2 === 0) {
+            pushVertex(v[i][k + 1]);
+            pushVertex(v[i + 1][k]);
+            pushVertex(v[i][k]);
+          } else {
+            pushVertex(v[i][k + 1]);
+            pushVertex(v[i + 1][k + 1]);
+            pushVertex(v[i + 1][k]);
+          }
+        }
+      }
+    }
+    function applyRadius(radius2) {
+      const vertex2 = new Vector3();
+      for (let i = 0; i < vertexBuffer.length; i += 3) {
+        vertex2.x = vertexBuffer[i + 0];
+        vertex2.y = vertexBuffer[i + 1];
+        vertex2.z = vertexBuffer[i + 2];
+        vertex2.normalize().multiplyScalar(radius2);
+        vertexBuffer[i + 0] = vertex2.x;
+        vertexBuffer[i + 1] = vertex2.y;
+        vertexBuffer[i + 2] = vertex2.z;
+      }
+    }
+    function generateUVs() {
+      const vertex2 = new Vector3();
+      for (let i = 0; i < vertexBuffer.length; i += 3) {
+        vertex2.x = vertexBuffer[i + 0];
+        vertex2.y = vertexBuffer[i + 1];
+        vertex2.z = vertexBuffer[i + 2];
+        const u2 = azimuth(vertex2) / 2 / Math.PI + 0.5;
+        const v = inclination(vertex2) / Math.PI + 0.5;
+        uvBuffer.push(u2, 1 - v);
+      }
+      correctUVs();
+      correctSeam();
+    }
+    function correctSeam() {
+      for (let i = 0; i < uvBuffer.length; i += 6) {
+        const x0 = uvBuffer[i + 0];
+        const x1 = uvBuffer[i + 2];
+        const x2 = uvBuffer[i + 4];
+        const max = Math.max(x0, x1, x2);
+        const min = Math.min(x0, x1, x2);
+        if (max > 0.9 && min < 0.1) {
+          if (x0 < 0.2) uvBuffer[i + 0] += 1;
+          if (x1 < 0.2) uvBuffer[i + 2] += 1;
+          if (x2 < 0.2) uvBuffer[i + 4] += 1;
+        }
+      }
+    }
+    function pushVertex(vertex2) {
+      vertexBuffer.push(vertex2.x, vertex2.y, vertex2.z);
+    }
+    function getVertexByIndex(index, vertex2) {
+      const stride = index * 3;
+      vertex2.x = vertices[stride + 0];
+      vertex2.y = vertices[stride + 1];
+      vertex2.z = vertices[stride + 2];
+    }
+    function correctUVs() {
+      const a = new Vector3();
+      const b = new Vector3();
+      const c = new Vector3();
+      const centroid = new Vector3();
+      const uvA = new Vector2();
+      const uvB = new Vector2();
+      const uvC = new Vector2();
+      for (let i = 0, j = 0; i < vertexBuffer.length; i += 9, j += 6) {
+        a.set(vertexBuffer[i + 0], vertexBuffer[i + 1], vertexBuffer[i + 2]);
+        b.set(vertexBuffer[i + 3], vertexBuffer[i + 4], vertexBuffer[i + 5]);
+        c.set(vertexBuffer[i + 6], vertexBuffer[i + 7], vertexBuffer[i + 8]);
+        uvA.set(uvBuffer[j + 0], uvBuffer[j + 1]);
+        uvB.set(uvBuffer[j + 2], uvBuffer[j + 3]);
+        uvC.set(uvBuffer[j + 4], uvBuffer[j + 5]);
+        centroid.copy(a).add(b).add(c).divideScalar(3);
+        const azi = azimuth(centroid);
+        correctUV(uvA, j + 0, a, azi);
+        correctUV(uvB, j + 2, b, azi);
+        correctUV(uvC, j + 4, c, azi);
+      }
+    }
+    function correctUV(uv, stride, vector, azimuth2) {
+      if (azimuth2 < 0 && uv.x === 1) {
+        uvBuffer[stride] = uv.x - 1;
+      }
+      if (vector.x === 0 && vector.z === 0) {
+        uvBuffer[stride] = azimuth2 / 2 / Math.PI + 0.5;
+      }
+    }
+    function azimuth(vector) {
+      return Math.atan2(vector.z, -vector.x);
+    }
+    function inclination(vector) {
+      return Math.atan2(-vector.y, Math.sqrt(vector.x * vector.x + vector.z * vector.z));
+    }
+  }
+  copy(source) {
+    super.copy(source);
+    this.parameters = Object.assign({}, source.parameters);
+    return this;
+  }
+  /**
+   * Factory method for creating an instance of this class from the given
+   * JSON object.
+   *
+   * @param {Object} data - A JSON object representing the serialized geometry.
+   * @return {PolyhedronGeometry} A new instance.
+   */
+  static fromJSON(data) {
+    return new _PolyhedronGeometry(data.vertices, data.indices, data.radius, data.detail);
+  }
+};
+var DodecahedronGeometry = class _DodecahedronGeometry extends PolyhedronGeometry {
+  /**
+   * Constructs a new dodecahedron geometry.
+   *
+   * @param {number} [radius=1] - Radius of the dodecahedron.
+   * @param {number} [detail=0] - Setting this to a value greater than `0` adds vertices making it no longer a dodecahedron.
+   */
+  constructor(radius = 1, detail = 0) {
+    const t = (1 + Math.sqrt(5)) / 2;
+    const r = 1 / t;
+    const vertices = [
+      // (±1, ±1, ±1)
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      1,
+      -1,
+      1,
+      -1,
+      -1,
+      1,
+      1,
+      1,
+      -1,
+      -1,
+      1,
+      -1,
+      1,
+      1,
+      1,
+      -1,
+      1,
+      1,
+      1,
+      // (0, ±1/φ, ±φ)
+      0,
+      -r,
+      -t,
+      0,
+      -r,
+      t,
+      0,
+      r,
+      -t,
+      0,
+      r,
+      t,
+      // (±1/φ, ±φ, 0)
+      -r,
+      -t,
+      0,
+      -r,
+      t,
+      0,
+      r,
+      -t,
+      0,
+      r,
+      t,
+      0,
+      // (±φ, 0, ±1/φ)
+      -t,
+      0,
+      -r,
+      t,
+      0,
+      -r,
+      -t,
+      0,
+      r,
+      t,
+      0,
+      r
+    ];
+    const indices = [3, 11, 7, 3, 7, 15, 3, 15, 13, 7, 19, 17, 7, 17, 6, 7, 6, 15, 17, 4, 8, 17, 8, 10, 17, 10, 6, 8, 0, 16, 8, 16, 2, 8, 2, 10, 0, 12, 1, 0, 1, 18, 0, 18, 16, 6, 10, 2, 6, 2, 13, 6, 13, 15, 2, 16, 18, 2, 18, 3, 2, 3, 13, 18, 1, 9, 18, 9, 11, 18, 11, 3, 4, 14, 12, 4, 12, 0, 4, 0, 8, 11, 9, 5, 11, 5, 19, 11, 19, 7, 19, 5, 14, 19, 14, 4, 19, 4, 17, 1, 12, 14, 1, 14, 5, 1, 5, 9];
+    super(vertices, indices, radius, detail);
+    this.type = "DodecahedronGeometry";
+    this.parameters = {
+      radius,
+      detail
+    };
+  }
+  /**
+   * Factory method for creating an instance of this class from the given
+   * JSON object.
+   *
+   * @param {Object} data - A JSON object representing the serialized geometry.
+   * @return {DodecahedronGeometry} A new instance.
+   */
+  static fromJSON(data) {
+    return new _DodecahedronGeometry(data.radius, data.detail);
   }
 };
 var PlaneGeometry = class _PlaneGeometry extends BufferGeometry {
@@ -77971,17 +78920,17 @@ var PaperIoComponent = class _PaperIoComponent {
 
 // src/app/games/spiral_roll/spiral_roll.component.ts
 var _c08 = ["gameContainer"];
-function SpiralRollComponent_Conditional_13_Template(rf, ctx) {
+function SpiralRollComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "h1");
+    \u0275\u0275elementStart(0, "div", 7)(1, "h1");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p");
+    \u0275\u0275elementStart(3, "p", 8);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 5);
-    \u0275\u0275listener("click", function SpiralRollComponent_Conditional_13_Template_button_click_5_listener() {
+    \u0275\u0275elementStart(5, "button", 9);
+    \u0275\u0275listener("click", function SpiralRollComponent_Conditional_17_Template_button_click_5_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startGame());
@@ -77994,65 +78943,73 @@ function SpiralRollComponent_Conditional_13_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_title) || "Spiral Roll");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_inst) || "Tap and hold to carve wood spirals and clear obstacles!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_inst_orig) || "Hold to carve a spiral.\nRelease to launch it!\nBigger rolls = More points.");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "START");
   }
 }
-function SpiralRollComponent_Conditional_14_Template(rf, ctx) {
+function SpiralRollComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "h1");
+    \u0275\u0275elementStart(0, "div", 7)(1, "h1", 10);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
     \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 5);
-    \u0275\u0275listener("click", function SpiralRollComponent_Conditional_14_Template_button_click_5_listener() {
+    \u0275\u0275elementStart(5, "span", 11);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "button", 9);
+    \u0275\u0275listener("click", function SpiralRollComponent_Conditional_18_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.nextLevel());
     });
-    \u0275\u0275text(6);
+    \u0275\u0275text(8);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].levelCleared) || "Level Cleared!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_cleared) || "LEVEL CLEARED!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate1("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_final_score) || "Final Score: ", " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].nextLevel) || "Next Level");
+    \u0275\u0275textInterpolate(ctx_r1.levelPoints);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_next_level) || "NEXT LEVEL");
   }
 }
-function SpiralRollComponent_Conditional_15_Template(rf, ctx) {
+function SpiralRollComponent_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "h1");
+    \u0275\u0275elementStart(0, "div", 7)(1, "h1", 12);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
     \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 5);
-    \u0275\u0275listener("click", function SpiralRollComponent_Conditional_15_Template_button_click_5_listener() {
+    \u0275\u0275elementStart(5, "span", 11);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "button", 9);
+    \u0275\u0275listener("click", function SpiralRollComponent_Conditional_19_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startGame());
     });
-    \u0275\u0275text(6);
+    \u0275\u0275text(8);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].gameOver) || "Game Over");
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_crashed) || "CRASHED!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate1("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_final_score) || "Final Score: ", " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].tryAgain) || "Try Again");
+    \u0275\u0275textInterpolate(ctx_r1.levelPoints);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_try_again) || "TRY AGAIN");
   }
 }
 var SpiralRollComponent = class _SpiralRollComponent {
@@ -78060,34 +79017,63 @@ var SpiralRollComponent = class _SpiralRollComponent {
   ngZone = inject(NgZone);
   gameContainer;
   gameState = "START";
-  gamePoints = 0;
+  sessionPoints = 0;
+  levelPoints = 0;
   level = 0;
   scene;
   camera;
   renderer;
   playerGroup;
-  chisel;
+  blade;
+  handle;
   activeRoll = null;
-  rollRadius = 0.2;
+  rollRadius = 0;
+  maxRollRadius = 3;
   launchedRolls = [];
+  // Game Objects
   obstacles = [];
-  finishLineZ = -150;
+  coins = [];
+  particles = [];
+  floatingTexts = [];
+  multiplierStairs = null;
+  finishLineZ = -300;
+  finishLine;
+  trackLength = 300;
   isHolding = false;
   animationFrameId = null;
+  speed = 0.3;
+  baseSpeed = 0.3;
+  speedMultiplier = 1;
   onPointerDownBound = this.onPointerDown.bind(this);
   onPointerUpBound = this.onPointerUp.bind(this);
   onResizeBound = this.onResize.bind(this);
+  // Materials
+  woodMat;
+  spiralMat;
+  metalMat;
+  handleMat;
+  waterMat;
+  obstacleMat;
+  stoneMat;
+  enemyMat;
+  coinTex;
+  onKeyDownBound = this.onKeyDown.bind(this);
+  onKeyUpBound = this.onKeyUp.bind(this);
   ngOnInit() {
     this.tools.setTitle("spiral_roll");
     this.tools.actPage = "spiral_roll";
   }
   ngAfterViewInit() {
     this.init3D();
+    window.addEventListener("keydown", this.onKeyDownBound);
+    window.addEventListener("keyup", this.onKeyUpBound);
   }
   ngOnDestroy() {
     this.stopLoop();
     window.removeEventListener("resize", this.onResizeBound);
     window.removeEventListener("pointerup", this.onPointerUpBound);
+    window.removeEventListener("keydown", this.onKeyDownBound);
+    window.removeEventListener("keyup", this.onKeyUpBound);
     if (this.renderer) {
       this.renderer.dispose();
       const dom = this.gameContainer?.nativeElement;
@@ -78095,11 +79081,12 @@ var SpiralRollComponent = class _SpiralRollComponent {
         dom.removeChild(this.renderer.domElement);
       }
     }
-    this.tools.leaveMinigame("spiral_roll", this.gamePoints, this.level);
+    this.tools.leaveMinigame("spiral_roll", this.sessionPoints, this.level);
   }
   startGame() {
-    this.gamePoints = 0;
-    this.level = 0;
+    if (this.gameState === "START" || this.gameState === "LOSE") {
+      this.levelPoints = 0;
+    }
     this.gameState = "PLAYING";
     this.resetLevel();
   }
@@ -78113,40 +79100,66 @@ var SpiralRollComponent = class _SpiralRollComponent {
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
     this.scene = new Scene();
-    this.scene.background = new Color(5221630);
-    this.camera = new PerspectiveCamera(60, width / height, 0.1, 1e3);
-    this.camera.position.set(0, 4, 8);
-    this.camera.lookAt(0, 1, -5);
+    this.scene.background = new Color(8900331);
+    this.scene.fog = new Fog(8900331, 20, 100);
+    this.camera = new PerspectiveCamera(60, width / height, 0.1, 150);
+    this.camera.position.set(4, 5, 8);
+    this.camera.lookAt(0, 0, -5);
     this.renderer = new WebGLRenderer({ antialias: true });
     this.renderer.setSize(width, height);
     this.renderer.shadowMap.enabled = true;
     container.appendChild(this.renderer.domElement);
-    const ambientLight = new AmbientLight(16777215, 0.7);
+    const ambientLight = new AmbientLight(16777215, 0.6);
     this.scene.add(ambientLight);
-    const dirLight = new DirectionalLight(16777215, 0.8);
-    dirLight.position.set(10, 20, 10);
+    const dirLight = new DirectionalLight(16777215, 0.6);
+    dirLight.position.set(-10, 20, -10);
     dirLight.castShadow = true;
+    dirLight.shadow.camera.left = -20;
+    dirLight.shadow.camera.right = 20;
+    dirLight.shadow.camera.top = 40;
+    dirLight.shadow.camera.bottom = -40;
     this.scene.add(dirLight);
-    const trackGeo = new BoxGeometry(4, 1, 300);
-    const trackMat = new MeshLambertMaterial({ color: 14142664 });
-    const track = new Mesh(trackGeo, trackMat);
-    track.position.set(0, -0.5, -100);
-    track.receiveShadow = true;
-    this.scene.add(track);
-    const woodGeo = new BoxGeometry(2, 0.5, 250);
-    const woodMat = new MeshLambertMaterial({ color: 9268835 });
-    const wood = new Mesh(woodGeo, woodMat);
-    wood.position.set(0, 0.25, -100);
-    wood.receiveShadow = true;
-    this.scene.add(wood);
+    const texCanvas = document.createElement("canvas");
+    texCanvas.width = 256;
+    texCanvas.height = 256;
+    const tCtx = texCanvas.getContext("2d");
+    tCtx.fillStyle = "#f4a261";
+    tCtx.fillRect(0, 0, 256, 256);
+    tCtx.fillStyle = "#e76f51";
+    tCtx.save();
+    tCtx.translate(128, 128);
+    tCtx.rotate(Math.PI / 4);
+    for (let i = -300; i < 300; i += 32) {
+      tCtx.fillRect(i, -300, 16, 600);
+    }
+    tCtx.restore();
+    const spiralTex = new CanvasTexture(texCanvas);
+    spiralTex.wrapS = RepeatWrapping;
+    spiralTex.wrapT = RepeatWrapping;
+    const textureLoader = new TextureLoader();
+    this.coinTex = textureLoader.load("img/dogecoin-min.png");
+    this.woodMat = new MeshLambertMaterial({ color: 15120769 });
+    this.spiralMat = new MeshLambertMaterial({ map: spiralTex });
+    this.metalMat = new MeshLambertMaterial({ color: 12436423 });
+    this.handleMat = new MeshLambertMaterial({ color: 9132587 });
+    this.waterMat = new MeshLambertMaterial({ color: 5221630, transparent: true, opacity: 0.8 });
+    this.obstacleMat = new MeshLambertMaterial({ color: 12597547 });
+    this.stoneMat = new MeshLambertMaterial({ color: 8359053 });
+    this.enemyMat = new MeshLambertMaterial({ color: 9323693 });
     this.playerGroup = new Group();
-    this.playerGroup.position.set(0, 1, 0);
+    this.playerGroup.position.set(0, 0, 0);
     this.scene.add(this.playerGroup);
-    const chiselGeo = new BoxGeometry(1.6, 0.2, 0.8);
-    const chiselMat = new MeshLambertMaterial({ color: 11583173 });
-    this.chisel = new Mesh(chiselGeo, chiselMat);
-    this.chisel.rotation.x = 0.3;
-    this.playerGroup.add(this.chisel);
+    const bladeGeo = new BoxGeometry(1.5, 0.2, 1);
+    this.blade = new Mesh(bladeGeo, this.metalMat);
+    this.blade.position.set(0, 0.5, 0);
+    this.blade.castShadow = true;
+    this.playerGroup.add(this.blade);
+    const handleGeo = new CylinderGeometry(0.3, 0.3, 2, 16);
+    this.handle = new Mesh(handleGeo, this.handleMat);
+    this.handle.rotation.x = Math.PI / 2;
+    this.handle.position.set(0, 0.7, 1.5);
+    this.handle.castShadow = true;
+    this.playerGroup.add(this.handle);
     container.addEventListener("pointerdown", this.onPointerDownBound);
     window.addEventListener("pointerup", this.onPointerUpBound);
     window.addEventListener("resize", this.onResizeBound);
@@ -78154,117 +79167,423 @@ var SpiralRollComponent = class _SpiralRollComponent {
       this.animate();
     });
   }
-  resetLevel() {
-    this.obstacles.forEach((o) => this.scene.remove(o.mesh));
-    this.obstacles = [];
-    this.launchedRolls.forEach((r) => this.scene.remove(r.mesh));
-    this.launchedRolls = [];
-    if (this.activeRoll) {
-      this.playerGroup.remove(this.activeRoll);
-      this.activeRoll = null;
-    }
-    this.playerGroup.position.set(0, 1, 0);
-    this.finishLineZ = -150 - this.level * 20;
-    const numObs = 5 + this.level * 2;
-    for (let i = 0; i < numObs; i++) {
-      const z = -15 - i * 22;
-      const obsGeo = new BoxGeometry(1.8, 1.8, 0.8);
-      const obsMat = new MeshLambertMaterial({ color: 15022389 });
-      const mesh = new Mesh(obsGeo, obsMat);
-      mesh.position.set(0, 1.4, z);
-      mesh.castShadow = true;
-      this.scene.add(mesh);
-      this.obstacles.push({ mesh, active: true });
+  createRollMesh(radius) {
+    const geo = new CylinderGeometry(radius, radius, 1.4, 32);
+    const mesh = new Mesh(geo, this.spiralMat);
+    mesh.rotation.z = Math.PI / 2;
+    mesh.castShadow = true;
+    return mesh;
+  }
+  createFloatingText(text, position, color = "white") {
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 256;
+    const context2 = canvas.getContext("2d");
+    context2.font = "Bold 80px Arial";
+    context2.fillStyle = color;
+    context2.strokeStyle = "black";
+    context2.lineWidth = 6;
+    context2.textAlign = "center";
+    context2.strokeText(text, 256, 128);
+    context2.fillText(text, 256, 128);
+    const texture = new CanvasTexture(canvas);
+    const spriteMaterial = new SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new Sprite(spriteMaterial);
+    sprite.position.copy(position);
+    sprite.position.y += 2;
+    sprite.scale.set(6, 3, 1);
+    this.scene.add(sprite);
+    this.floatingTexts.push({ sprite, life: 1 });
+  }
+  generateObjects() {
+    let zPos = -30;
+    while (zPos > -this.trackLength + 30) {
+      const maxGap = Math.max(10, 30 - this.level * 2);
+      const minGap = Math.max(5, 15 - this.level * 1);
+      zPos -= Math.random() * maxGap + minGap;
+      const rand = Math.random();
+      if (rand < 0.2) {
+        const coinGeo = new CylinderGeometry(0.6, 0.6, 0.15, 16);
+        const colors = [15844367, 12436423, 13467442, 16752627];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const coinMat = new MeshLambertMaterial({ map: this.coinTex, color });
+        const coin = new Mesh(coinGeo, coinMat);
+        coin.rotation.x = Math.PI / 2;
+        coin.position.set(0, 1.5, zPos);
+        coin.castShadow = true;
+        this.scene.add(coin);
+        this.coins.push({ mesh: coin, active: true, color: color.toString() });
+      } else if (rand < 0.4) {
+        const stoneGeo = new DodecahedronGeometry(1.2);
+        const stone = new Mesh(stoneGeo, this.stoneMat);
+        stone.position.set(0, 1.2, zPos);
+        stone.castShadow = true;
+        this.scene.add(stone);
+        this.obstacles.push({ mesh: stone, active: true, type: "stone" });
+      } else if (rand < 0.6) {
+        const wallGeo = new BoxGeometry(3, 2, 0.5);
+        const wall = new Mesh(wallGeo, this.woodMat);
+        wall.position.set(0, 1, zPos);
+        wall.castShadow = true;
+        this.scene.add(wall);
+        this.obstacles.push({ mesh: wall, active: true, type: "wall" });
+      } else if (rand < 0.8) {
+        const enemyGeo = new SphereGeometry(1, 16, 16);
+        const enemy = new Mesh(enemyGeo, this.enemyMat);
+        enemy.position.set(0, 1, zPos);
+        enemy.castShadow = true;
+        this.scene.add(enemy);
+        this.obstacles.push({ mesh: enemy, active: true, type: "enemy" });
+      } else {
+        const height = Math.random() * 2 + 1;
+        const obsGeo = new BoxGeometry(1.8, height, 1);
+        const obs = new Mesh(obsGeo, this.obstacleMat);
+        obs.position.set(0, height / 2 + 0.5, zPos);
+        obs.castShadow = true;
+        this.scene.add(obs);
+        this.obstacles.push({ mesh: obs, active: true, type: "red" });
+      }
     }
   }
+  resetLevel() {
+    this.levelPoints = 0;
+    this.speedMultiplier = 1;
+    this.obstacles.forEach((o) => this.scene.remove(o.mesh));
+    this.obstacles = [];
+    this.coins.forEach((c) => this.scene.remove(c.mesh));
+    this.coins = [];
+    this.launchedRolls.forEach((r) => this.scene.remove(r.mesh));
+    this.launchedRolls = [];
+    this.particles.forEach((p) => {
+      this.scene.remove(p.mesh);
+      p.mesh.geometry.dispose();
+      p.mesh.material.dispose();
+    });
+    this.particles = [];
+    this.floatingTexts.forEach((f) => {
+      this.scene.remove(f.sprite);
+      f.sprite.material.dispose();
+    });
+    this.floatingTexts = [];
+    if (this.multiplierStairs) {
+      this.scene.remove(this.multiplierStairs);
+      this.multiplierStairs = null;
+    }
+    if (this.activeRoll) {
+      this.scene.remove(this.activeRoll);
+      this.activeRoll = null;
+    }
+    if (this.finishLine)
+      this.scene.remove(this.finishLine);
+    this.playerGroup.position.set(0, 0, 0);
+    this.rollRadius = 0;
+    this.isHolding = false;
+    this.trackLength = 300 + this.level * 100;
+    this.baseSpeed = 0.3 + Math.min(0.3, this.level * 0.02);
+    this.speed = this.baseSpeed;
+    this.finishLineZ = -this.trackLength;
+    if (!this.scene.getObjectByName("water")) {
+      const waterGeo = new PlaneGeometry(200, 2e3);
+      const water = new Mesh(waterGeo, this.waterMat);
+      water.rotation.x = -Math.PI / 2;
+      water.position.set(0, -1, -1e3);
+      water.name = "water";
+      this.scene.add(water);
+    }
+    if (this.scene.getObjectByName("track")) {
+      const oldTrack = this.scene.getObjectByName("track");
+      this.scene.remove(oldTrack);
+      oldTrack.geometry.dispose();
+    }
+    const trackGeo = new BoxGeometry(2, 1, this.trackLength + 100);
+    const track = new Mesh(trackGeo, this.woodMat);
+    track.position.set(0, 0, -this.trackLength / 2 + 30);
+    track.receiveShadow = true;
+    track.name = "track";
+    this.scene.add(track);
+    this.generateObjects();
+    const finGeo = new BoxGeometry(4, 0.5, 4);
+    const finMat = new MeshLambertMaterial({ color: 5025616 });
+    this.finishLine = new Mesh(finGeo, finMat);
+    this.finishLine.position.set(0, 0.75, this.finishLineZ);
+    this.scene.add(this.finishLine);
+    this.multiplierStairs = new Group();
+    this.multiplierStairs.position.set(0, 0, this.finishLineZ - 5);
+    const colors = [3066993, 3447003, 10181046, 15844367, 15158332];
+    for (let i = 1; i <= 5; i++) {
+      const stepGeo = new BoxGeometry(4, i * 1.5, 4);
+      const stepMat = new MeshLambertMaterial({ color: colors[i - 1] });
+      const step = new Mesh(stepGeo, stepMat);
+      step.position.set(0, i * 1.5 / 2, -i * 4);
+      step.receiveShadow = true;
+      step.castShadow = true;
+      const canvas = document.createElement("canvas");
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext("2d");
+      ctx.font = "Bold 60px Arial";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.fillText(`x${i}`, 64, 80);
+      const tex = new CanvasTexture(canvas);
+      const spriteMat = new SpriteMaterial({ map: tex });
+      const sprite = new Sprite(spriteMat);
+      sprite.position.set(0, i * 1.5 / 2 + 1, -i * 4 + 2);
+      this.multiplierStairs.add(step);
+      this.multiplierStairs.add(sprite);
+    }
+    this.scene.add(this.multiplierStairs);
+  }
   onPointerDown() {
-    if (this.gameState !== "PLAYING")
-      return;
-    this.isHolding = true;
-    if (!this.activeRoll) {
-      this.rollRadius = 0.2;
-      const geo = new CylinderGeometry(this.rollRadius, this.rollRadius, 1.6, 16);
-      const mat = new MeshLambertMaterial({ color: 16766287 });
-      this.activeRoll = new Mesh(geo, mat);
-      this.activeRoll.rotation.z = Math.PI / 2;
-      this.activeRoll.position.set(0, 0.4, -0.6);
-      this.playerGroup.add(this.activeRoll);
+    if (this.gameState === "PLAYING") {
+      this.isHolding = true;
     }
   }
   onPointerUp() {
-    if (!this.isHolding || this.gameState !== "PLAYING")
-      return;
-    this.isHolding = false;
-    if (this.activeRoll) {
-      this.playerGroup.remove(this.activeRoll);
-      const worldPos = new Vector3();
-      this.activeRoll.getWorldPosition(worldPos);
-      this.activeRoll.position.copy(worldPos);
-      this.scene.add(this.activeRoll);
+    if (this.gameState === "PLAYING" && this.isHolding) {
+      this.isHolding = false;
+      this.launchRoll();
+    }
+  }
+  onKeyDown(e) {
+    if (e.code === "Space" && !e.repeat) {
+      if (this.gameState === "PLAYING") {
+        this.onPointerDown();
+      } else if (this.gameState === "START" || this.gameState === "LOSE") {
+        this.ngZone.run(() => {
+          this.startGame();
+        });
+      } else if (this.gameState === "WIN") {
+        this.ngZone.run(() => {
+          this.nextLevel();
+        });
+      }
+    }
+  }
+  onKeyUp(e) {
+    if (e.code === "Space") {
+      this.onPointerUp();
+    }
+  }
+  spawnParticles(x, y, z, color, count) {
+    const particleGeo = new BoxGeometry(0.3, 0.3, 0.3);
+    for (let i = 0; i < count; i++) {
+      const particleMat = new MeshBasicMaterial({ color, transparent: true, opacity: 1 });
+      const particleMesh = new Mesh(particleGeo, particleMat);
+      particleMesh.position.set(x, y, z);
+      this.scene.add(particleMesh);
+      this.particles.push({
+        mesh: particleMesh,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: Math.random() * 0.4 + 0.2,
+        vz: (Math.random() - 0.5) * 0.4,
+        life: 1
+      });
+    }
+  }
+  launchRoll() {
+    if (this.rollRadius > 0.3) {
+      let pointsGained = Math.floor(this.rollRadius * 100);
+      this.ngZone.run(() => {
+        this.levelPoints += pointsGained;
+      });
       this.launchedRolls.push({
         mesh: this.activeRoll,
         radius: this.rollRadius,
-        speed: 0.45 + this.rollRadius * 0.2
+        speed: this.speed * 2.5,
+        combo: 1
       });
       this.activeRoll = null;
       this.tools.playSound("sfx_1");
+    } else if (this.activeRoll) {
+      this.scene.remove(this.activeRoll);
+      this.activeRoll = null;
     }
+    this.rollRadius = 0;
+  }
+  updateCarving() {
+    if (this.isHolding) {
+      this.blade.position.y = 0.3;
+      this.handle.position.y = 0.5;
+      if (this.rollRadius < this.maxRollRadius) {
+        this.rollRadius += 0.04;
+      }
+      if (!this.activeRoll) {
+        this.activeRoll = this.createRollMesh(this.rollRadius);
+        this.scene.add(this.activeRoll);
+      } else {
+        this.activeRoll.geometry.dispose();
+        this.activeRoll.geometry = new CylinderGeometry(this.rollRadius, this.rollRadius, 1.4, 32);
+      }
+      this.activeRoll.position.set(this.playerGroup.position.x, 0.5 + this.rollRadius, this.playerGroup.position.z - 0.5 - this.rollRadius);
+      this.activeRoll.rotation.x -= 0.2;
+      if (Math.random() < 0.3) {
+        this.spawnParticles(this.playerGroup.position.x, 0.5, this.playerGroup.position.z - 1, 16032353, 2);
+      }
+    } else {
+      this.blade.position.y = 0.5;
+      this.handle.position.y = 0.7;
+    }
+  }
+  gameOver() {
+    this.ngZone.run(() => {
+      this.sessionPoints += this.levelPoints;
+      this.gameState = "LOSE";
+      this.tools.playSound("sfx_8");
+    });
+    const shake = setInterval(() => {
+      this.camera.position.x = 4 + (Math.random() - 0.5);
+      this.camera.position.y = 5 + (Math.random() - 0.5);
+    }, 50);
+    setTimeout(() => {
+      clearInterval(shake);
+      this.camera.position.x = 4;
+      this.camera.position.y = 5;
+    }, 500);
   }
   animate() {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
     if (this.tools.isWindowBlurred)
       return;
     if (this.gameState === "PLAYING") {
-      this.playerGroup.position.z -= 0.25;
-      if (this.isHolding && this.activeRoll) {
-        this.rollRadius = Math.min(1.8, this.rollRadius + 0.015);
-        this.activeRoll.geometry.dispose();
-        this.activeRoll.geometry = new CylinderGeometry(this.rollRadius, this.rollRadius, 1.6, 16);
-        this.activeRoll.position.y = this.rollRadius;
-        this.activeRoll.position.z = -this.rollRadius - 0.3;
+      const progress = Math.abs(this.playerGroup.position.z) / this.trackLength;
+      this.speed = this.baseSpeed + progress * 0.2;
+      this.playerGroup.position.z -= this.speed;
+      this.camera.position.x += (4 - this.camera.position.x) * 0.1;
+      this.camera.position.y += (6 - this.camera.position.y) * 0.1;
+      this.camera.position.z = this.playerGroup.position.z + 8;
+      this.camera.lookAt(0, 0, this.playerGroup.position.z - 5);
+      this.updateCarving();
+      for (let j = this.coins.length - 1; j >= 0; j--) {
+        let coin = this.coins[j];
+        if (coin.active) {
+          coin.mesh.rotation.z += 0.05;
+          if (Math.abs(this.playerGroup.position.z - coin.mesh.position.z) < 1) {
+            coin.active = false;
+            this.scene.remove(coin.mesh);
+            this.spawnParticles(coin.mesh.position.x, coin.mesh.position.y, coin.mesh.position.z, 15844367, 10);
+            this.ngZone.run(() => {
+              this.sessionPoints += 100;
+            });
+            this.createFloatingText("+100", coin.mesh.position, "#f1c40f");
+            this.tools.playSound("sfx_4");
+          }
+        }
       }
       for (let i = this.launchedRolls.length - 1; i >= 0; i--) {
-        const r = this.launchedRolls[i];
+        let r = this.launchedRolls[i];
         r.mesh.position.z -= r.speed;
-        r.mesh.rotation.x -= 0.15;
-        for (let j = 0; j < this.obstacles.length; j++) {
-          const obs = this.obstacles[j];
-          if (obs.active) {
-            const dz = Math.abs(r.mesh.position.z - obs.mesh.position.z);
-            if (dz < r.radius + 0.5) {
-              obs.active = false;
-              this.scene.remove(obs.mesh);
-              this.ngZone.run(() => {
-                this.gamePoints += 50;
-                this.tools.playSound("sfx_4");
-              });
+        r.mesh.rotation.x -= 0.3;
+        let hit = false;
+        if (this.multiplierStairs && r.mesh.position.z < this.finishLineZ - 5) {
+          let hitStep = 1;
+          const diffZ = Math.abs(r.mesh.position.z - (this.finishLineZ - 5));
+          hitStep = Math.floor(diffZ / 4) + 1;
+          if (hitStep > 5)
+            hitStep = 5;
+          if (r.mesh.position.y < hitStep * 1.5) {
+            const multiplier = hitStep;
+            const bonusPoints = multiplier * 500;
+            this.ngZone.run(() => {
+              this.levelPoints += bonusPoints;
+              this.tools.playSound("sfx_4");
+            });
+            const bonusStr = this.tools.minigames[this.tools.lang]?.spiral_roll_bonus || "BONUS!";
+            this.createFloatingText(`+${bonusPoints} ${bonusStr}`, r.mesh.position, "#2ecc71");
+            this.scene.remove(r.mesh);
+            this.launchedRolls.splice(i, 1);
+            continue;
+          }
+        }
+        for (let j = this.obstacles.length - 1; j >= 0; j--) {
+          let obs = this.obstacles[j];
+          if (obs.active && Math.abs(r.mesh.position.z - obs.mesh.position.z) < r.radius + 0.5) {
+            obs.active = false;
+            this.scene.remove(obs.mesh);
+            let color = 12597547;
+            if (obs.type === "stone")
+              color = 8359053;
+            if (obs.type === "enemy")
+              color = 9323693;
+            if (obs.type === "wall")
+              color = 15120769;
+            this.spawnParticles(obs.mesh.position.x, obs.mesh.position.y, obs.mesh.position.z, color, 15);
+            this.tools.playSound("sfx_4");
+            const points = 50 * r.combo;
+            this.ngZone.run(() => {
+              this.levelPoints += points;
+            });
+            this.createFloatingText(`+${points}`, obs.mesh.position);
+            r.combo++;
+            if (obs.type === "stone" || obs.type === "wall") {
+              r.radius -= 1.5;
+            } else {
+              r.radius -= 1;
+            }
+            if (r.radius < 0.5) {
+              hit = true;
+            } else {
+              r.mesh.geometry.dispose();
+              r.mesh.geometry = new CylinderGeometry(r.radius, r.radius, 1.4, 32);
+              r.mesh.position.y = 0.5 + r.radius;
             }
           }
         }
-        if (r.mesh.position.z < this.playerGroup.position.z - 200) {
+        if (hit || r.mesh.position.z < this.playerGroup.position.z - 250) {
           this.scene.remove(r.mesh);
           this.launchedRolls.splice(i, 1);
         }
       }
-      for (let j = 0; j < this.obstacles.length; j++) {
-        const obs = this.obstacles[j];
-        if (obs.active && Math.abs(this.playerGroup.position.z - obs.mesh.position.z) < 0.6) {
-          this.ngZone.run(() => {
-            this.gameState = "LOSE";
-            this.tools.playSound("sfx_8");
-          });
-          break;
+      for (let j = this.obstacles.length - 1; j >= 0; j--) {
+        let obs = this.obstacles[j];
+        if (obs.active && this.playerGroup.position.z <= obs.mesh.position.z + 0.5 && this.playerGroup.position.z >= obs.mesh.position.z - 0.5) {
+          this.spawnParticles(this.playerGroup.position.x, 1, this.playerGroup.position.z, 12436423, 10);
+          this.gameOver();
         }
       }
-      if (this.playerGroup.position.z <= this.finishLineZ) {
+      this.obstacles.forEach((obs) => {
+        if (obs.active && obs.type === "enemy") {
+          obs.mesh.position.x = Math.sin(Date.now() * 2e-3 + obs.mesh.position.z) * 1.5;
+        }
+      });
+      if (this.playerGroup.position.z <= this.finishLine.position.z) {
+        this.speed = 0;
         this.ngZone.run(() => {
-          this.gamePoints += 100;
+          this.levelPoints += 500;
+          this.sessionPoints += this.levelPoints;
           this.gameState = "WIN";
           this.tools.playSound("sfx_4");
         });
       }
-      this.camera.position.z = this.playerGroup.position.z + 8;
-      this.camera.lookAt(0, 1, this.playerGroup.position.z - 5);
+    }
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      let p = this.particles[i];
+      p.mesh.position.x += p.vx;
+      p.mesh.position.y += p.vy;
+      p.mesh.position.z += p.vz;
+      p.vy -= 0.02;
+      p.life -= 0.03;
+      if (p.life <= 0) {
+        this.scene.remove(p.mesh);
+        p.mesh.geometry.dispose();
+        p.mesh.material.dispose();
+        this.particles.splice(i, 1);
+      } else {
+        p.mesh.scale.setScalar(p.life);
+        p.mesh.material.opacity = p.life;
+      }
+    }
+    for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+      let f = this.floatingTexts[i];
+      f.sprite.position.y += 0.05;
+      f.life -= 0.02;
+      if (f.life <= 0) {
+        this.scene.remove(f.sprite);
+        f.sprite.material.dispose();
+        this.floatingTexts.splice(i, 1);
+      } else {
+        f.sprite.material.opacity = f.life;
+      }
     }
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
@@ -78297,41 +79616,50 @@ var SpiralRollComponent = class _SpiralRollComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.gameContainer = _t.first);
     }
-  }, decls: 16, vars: 11, consts: [["gameContainer", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], [1, "screen"], [1, "btn", 3, "click"]], template: function SpiralRollComponent_Template(rf, ctx) {
+  }, decls: 20, vars: 13, consts: [["gameContainer", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], ["id", "sessionUI"], ["id", "scoreUI"], ["id", "levelUI"], [1, "screen"], [2, "white-space", "pre-line", "text-align", "center"], [1, "btn", 3, "click"], [2, "color", "#4CAF50"], [2, "color", "#FFEB3B", "font-weight", "bold"], [2, "color", "#F44336"]], template: function SpiralRollComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div");
       \u0275\u0275element(1, "div", 1, 0);
       \u0275\u0275elementStart(3, "div", 2)(4, "div", 3)(5, "div");
       \u0275\u0275text(6);
-      \u0275\u0275elementStart(7, "span");
+      \u0275\u0275elementStart(7, "span", 4);
       \u0275\u0275text(8);
       \u0275\u0275elementEnd()();
       \u0275\u0275elementStart(9, "div");
       \u0275\u0275text(10);
-      \u0275\u0275elementStart(11, "span");
+      \u0275\u0275elementStart(11, "span", 5);
       \u0275\u0275text(12);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(13, "div");
+      \u0275\u0275text(14);
+      \u0275\u0275elementStart(15, "span", 6);
+      \u0275\u0275text(16);
       \u0275\u0275elementEnd()()()();
-      \u0275\u0275template(13, SpiralRollComponent_Conditional_13_Template, 7, 3, "div", 4)(14, SpiralRollComponent_Conditional_14_Template, 7, 4, "div", 4)(15, SpiralRollComponent_Conditional_15_Template, 7, 4, "div", 4);
+      \u0275\u0275template(17, SpiralRollComponent_Conditional_17_Template, 7, 3, "div", 7)(18, SpiralRollComponent_Conditional_18_Template, 9, 4, "div", 7)(19, SpiralRollComponent_Conditional_19_Template, 9, 4, "div", 7);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("spiral-roll-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(6);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].score) || "Score: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].spiral_roll_session) || "Session: ", " ");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.gamePoints);
+      \u0275\u0275textInterpolate(ctx.sessionPoints);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].level) || "Level ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].spiral_roll_score) || "Score: ", " ");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.levelPoints);
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].spiral_roll_level_lbl) || "Level: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.level);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "START" ? 13 : -1);
+      \u0275\u0275conditional(ctx.gameState === "START" ? 17 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "WIN" ? 14 : -1);
+      \u0275\u0275conditional(ctx.gameState === "WIN" ? 18 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "LOSE" ? 15 : -1);
+      \u0275\u0275conditional(ctx.gameState === "LOSE" ? 19 : -1);
     }
-  }, dependencies: [CommonModule], styles: ['\n\n.spiral-roll-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #4facfe;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  padding: 20px 30px;\n  display: flex;\n  justify-content: space-between;\n  font-size: 1.8em;\n  font-weight: 800;\n  color: #fff;\n  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.65);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 14px 40px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #00C853,\n      #00897B);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=spiral_roll.component.css.map */'] });
+  }, dependencies: [CommonModule], styles: ['\n\n.spiral-roll-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #4facfe;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  padding: 20px;\n  display: flex;\n  justify-content: space-between;\n  font-size: 2em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.6);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\nh1[_ngcontent-%COMP%] {\n  font-size: 4em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);\n  text-align: center;\n}\np[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  color: #ddd;\n  margin-bottom: 30px;\n  text-align: center;\n}\n.btn[_ngcontent-%COMP%] {\n  background: #FF9800;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 15px rgba(255, 152, 0, 0.4);\n  transition: transform 0.1s;\n  pointer-events: auto;\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=spiral_roll.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SpiralRollComponent, [{
@@ -78341,36 +79669,37 @@ var SpiralRollComponent = class _SpiralRollComponent {
 
   <div class="ui-layer">
     <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.spiral_roll_session || 'Session: '}} <span id="sessionUI">{{sessionPoints}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.spiral_roll_score || 'Score: '}} <span id="scoreUI">{{levelPoints}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.spiral_roll_level_lbl || 'Level: '}} <span id="levelUI">{{level}}</span></div>
     </div>
   </div>
 
   @if (gameState === 'START') {
     <div class="screen">
       <h1>{{tools.minigames[tools.lang]?.spiral_roll_title || 'Spiral Roll'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.spiral_roll_inst || 'Tap and hold to carve wood spirals and clear obstacles!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      <p style="white-space: pre-line; text-align: center;">{{tools.minigames[tools.lang]?.spiral_roll_inst_orig || 'Hold to carve a spiral.\\nRelease to launch it!\\nBigger rolls = More points.'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'START'}}</button>
     </div>
   }
 
   @if (gameState === 'WIN') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+      <h1 style="color: #4CAF50">{{tools.minigames[tools.lang]?.spiral_roll_cleared || 'LEVEL CLEARED!'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.spiral_roll_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.spiral_roll_next_level || 'NEXT LEVEL'}}</button>
     </div>
   }
 
   @if (gameState === 'LOSE') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+      <h1 style="color: #F44336">{{tools.minigames[tools.lang]?.spiral_roll_crashed || 'CRASHED!'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.spiral_roll_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.spiral_roll_try_again || 'TRY AGAIN'}}</button>
     </div>
   }
 </div>
-`, styles: ['/* src/app/games/spiral_roll/spiral_roll.component.css */\n.spiral-roll-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #4facfe;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n}\n.ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  padding: 20px 30px;\n  display: flex;\n  justify-content: space-between;\n  font-size: 1.8em;\n  font-weight: 800;\n  color: #fff;\n  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.65);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);\n}\n.screen p {\n  font-size: 1.3em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn {\n  padding: 14px 40px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #00C853,\n      #00897B);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=spiral_roll.component.css.map */\n'] }]
+`, styles: ['/* src/app/games/spiral_roll/spiral_roll.component.css */\n.spiral-roll-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #4facfe;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n}\n.ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  padding: 20px;\n  display: flex;\n  justify-content: space-between;\n  font-size: 2em;\n  font-weight: bold;\n  color: #fff;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.6);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\nh1 {\n  font-size: 4em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);\n  text-align: center;\n}\np {\n  font-size: 1.5em;\n  color: #ddd;\n  margin-bottom: 30px;\n  text-align: center;\n}\n.btn {\n  background: #FF9800;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 15px rgba(255, 152, 0, 0.4);\n  transition: transform 0.1s;\n  pointer-events: auto;\n}\n.btn:active {\n  transform: scale(0.95);\n}\n.btn:hover {\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=spiral_roll.component.css.map */\n'] }]
   }], null, { gameContainer: [{
     type: ViewChild,
     args: ["gameContainer"]
@@ -78382,18 +79711,50 @@ var SpiralRollComponent = class _SpiralRollComponent {
 
 // src/app/games/stack_colors/stack_colors.component.ts
 var _c09 = ["gameContainer"];
-function StackColorsComponent_Conditional_13_Template(rf, ctx) {
+function StackColorsComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "h1");
+    \u0275\u0275elementStart(0, "div", 8)(1, "h2", 10);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 11);
+    \u0275\u0275element(4, "div", 12);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "button", 13);
+    \u0275\u0275listener("mousedown", function StackColorsComponent_Conditional_21_Template_button_mousedown_5_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.addKickPower($event));
+    })("touchstart", function StackColorsComponent_Conditional_21_Template_button_touchstart_5_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.addKickPower($event));
+    });
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_tap_kick) || "TAP TO KICK!");
+    \u0275\u0275advance(2);
+    \u0275\u0275styleProp("width", ctx_r1.kickPower, "%");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_kick_btn) || "KICK!");
+  }
+}
+function StackColorsComponent_Conditional_22_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 9)(1, "h1");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 5);
-    \u0275\u0275listener("click", function StackColorsComponent_Conditional_13_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r1);
+    \u0275\u0275elementStart(5, "button", 14);
+    \u0275\u0275listener("click", function StackColorsComponent_Conditional_22_Template_button_click_5_listener() {
+      \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startGame());
     });
@@ -78403,67 +79764,75 @@ function StackColorsComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_title) || "Stack Colors");
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_title) || "Stack Colors!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_inst) || "Move left and right to collect matching colored blocks!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_inst) || "Drag to move.\nCollect matching colors.\nAvoid wrong colors.");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_start_run) || "START RUN");
   }
 }
-function StackColorsComponent_Conditional_14_Template(rf, ctx) {
+function StackColorsComponent_Conditional_23_Template(rf, ctx) {
   if (rf & 1) {
-    const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "h1");
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 9)(1, "h1", 15);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
     \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 5);
-    \u0275\u0275listener("click", function StackColorsComponent_Conditional_14_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r3);
+    \u0275\u0275elementStart(5, "span", 16);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "button", 14);
+    \u0275\u0275listener("click", function StackColorsComponent_Conditional_23_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.nextLevel());
     });
-    \u0275\u0275text(6);
+    \u0275\u0275text(8);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].levelCleared) || "Level Cleared!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_level_complete) || "LEVEL COMPLETE");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate1("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_final_score) || "Final Score: ", " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].nextLevel) || "Next Level");
+    \u0275\u0275textInterpolate(ctx_r1.levelPoints);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_play_again) || "PLAY AGAIN");
   }
 }
-function StackColorsComponent_Conditional_15_Template(rf, ctx) {
+function StackColorsComponent_Conditional_24_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 4)(1, "h1");
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 9)(1, "h1", 17);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
     \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "button", 5);
-    \u0275\u0275listener("click", function StackColorsComponent_Conditional_15_Template_button_click_5_listener() {
-      \u0275\u0275restoreView(_r4);
+    \u0275\u0275elementStart(5, "span", 16);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "button", 14);
+    \u0275\u0275listener("click", function StackColorsComponent_Conditional_24_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.startGame());
     });
-    \u0275\u0275text(6);
+    \u0275\u0275text(8);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].gameOver) || "Game Over");
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_game_over) || "GAME OVER");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate1("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_final_score) || "Final Score: ", " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].tryAgain) || "Try Again");
+    \u0275\u0275textInterpolate(ctx_r1.levelPoints);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_play_again) || "PLAY AGAIN");
   }
 }
 var StackColorsComponent = class _StackColorsComponent {
@@ -78471,7 +79840,8 @@ var StackColorsComponent = class _StackColorsComponent {
   ngZone = inject(NgZone);
   gameContainer;
   gameState = "START";
-  gamePoints = 0;
+  sessionPoints = 0;
+  levelPoints = 0;
   level = 0;
   scene;
   camera;
@@ -78479,6 +79849,7 @@ var StackColorsComponent = class _StackColorsComponent {
   playerGroup;
   character;
   stack = [];
+  flyingStackGroup;
   currentColor = "orange";
   colorMap = {
     orange: 16750592,
@@ -78487,25 +79858,42 @@ var StackColorsComponent = class _StackColorsComponent {
   };
   collectibles = [];
   multipliers = [];
+  floatingTexts = [];
   trackLength = 160;
   isDragging = false;
   targetX = 0;
   animationFrameId = null;
+  speed = 0.35;
+  keys = { left: false, right: false };
+  shakeOffset = new Vector3();
+  shakeStrength = 0;
+  // Kick Mechanics
+  kickPower = 0;
+  kickDecayInterval;
+  stackVelocity = { y: 0, z: 0 };
   onPointerDownBound = this.onPointerDown.bind(this);
   onPointerMoveBound = this.onPointerMove.bind(this);
   onPointerUpBound = this.onPointerUp.bind(this);
   onResizeBound = this.onResize.bind(this);
+  onKeyDownBound = this.onKeyDown.bind(this);
+  onKeyUpBound = this.onKeyUp.bind(this);
   ngOnInit() {
     this.tools.setTitle("stack_colors");
     this.tools.actPage = "stack_colors";
   }
   ngAfterViewInit() {
     this.init3D();
+    window.addEventListener("keydown", this.onKeyDownBound);
+    window.addEventListener("keyup", this.onKeyUpBound);
   }
   ngOnDestroy() {
     this.stopLoop();
+    if (this.kickDecayInterval)
+      clearInterval(this.kickDecayInterval);
     window.removeEventListener("resize", this.onResizeBound);
     window.removeEventListener("pointerup", this.onPointerUpBound);
+    window.removeEventListener("keydown", this.onKeyDownBound);
+    window.removeEventListener("keyup", this.onKeyUpBound);
     if (this.renderer) {
       this.renderer.dispose();
       const dom = this.gameContainer?.nativeElement;
@@ -78513,11 +79901,12 @@ var StackColorsComponent = class _StackColorsComponent {
         dom.removeChild(this.renderer.domElement);
       }
     }
-    this.tools.leaveMinigame("stack_colors", this.gamePoints, this.level);
+    this.tools.leaveMinigame("stack_colors", this.sessionPoints, this.level);
   }
   startGame() {
-    this.gamePoints = 0;
-    this.level = 0;
+    if (this.gameState === "START" || this.gameState === "LOSE") {
+      this.levelPoints = 0;
+    }
     this.gameState = "PLAYING";
     this.resetLevel();
   }
@@ -78532,6 +79921,7 @@ var StackColorsComponent = class _StackColorsComponent {
     const height = container.clientHeight || window.innerHeight;
     this.scene = new Scene();
     this.scene.background = new Color(8900331);
+    this.scene.fog = new Fog(8900331, 20, 100);
     this.camera = new PerspectiveCamera(60, width / height, 0.1, 1e3);
     this.camera.position.set(0, 8, 12);
     this.camera.lookAt(0, 1, -5);
@@ -78545,16 +79935,12 @@ var StackColorsComponent = class _StackColorsComponent {
     dirLight.position.set(10, 20, 10);
     dirLight.castShadow = true;
     this.scene.add(dirLight);
-    const trackGeo = new BoxGeometry(6, 1, 400);
-    const trackMat = new MeshLambertMaterial({ color: 16448250 });
-    const track = new Mesh(trackGeo, trackMat);
-    track.position.set(0, -0.5, -150);
-    track.receiveShadow = true;
-    this.scene.add(track);
+    this.flyingStackGroup = new Group();
+    this.scene.add(this.flyingStackGroup);
     this.playerGroup = new Group();
     this.playerGroup.position.set(0, 0, 0);
     this.scene.add(this.playerGroup);
-    const charGeo = new BoxGeometry(1, 1.5, 1);
+    const charGeo = new CylinderGeometry(0.5, 0.5, 1.5, 16);
     const charMat = new MeshLambertMaterial({ color: this.colorMap[this.currentColor] });
     this.character = new Mesh(charGeo, charMat);
     this.character.position.y = 0.75;
@@ -78568,60 +79954,164 @@ var StackColorsComponent = class _StackColorsComponent {
       this.animate();
     });
   }
+  createFloatingText(text, position, color = "white") {
+    const canvas = document.createElement("canvas");
+    canvas.width = 512;
+    canvas.height = 256;
+    const context2 = canvas.getContext("2d");
+    context2.font = "Bold 80px Arial";
+    context2.fillStyle = color;
+    context2.strokeStyle = "black";
+    context2.lineWidth = 6;
+    context2.textAlign = "center";
+    context2.strokeText(text, 256, 128);
+    context2.fillText(text, 256, 128);
+    const texture = new CanvasTexture(canvas);
+    const spriteMaterial = new SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new Sprite(spriteMaterial);
+    sprite.position.copy(position);
+    sprite.position.y += 2;
+    sprite.scale.set(6, 3, 1);
+    this.scene.add(sprite);
+    this.floatingTexts.push({ sprite, life: 1 });
+  }
   resetLevel() {
+    this.levelPoints = 0;
     this.collectibles.forEach((c) => this.scene.remove(c.mesh));
     this.collectibles = [];
     this.multipliers.forEach((m) => this.scene.remove(m));
     this.multipliers = [];
     this.stack.forEach((s) => this.playerGroup.remove(s));
     this.stack = [];
+    while (this.flyingStackGroup.children.length > 0) {
+      this.flyingStackGroup.remove(this.flyingStackGroup.children[0]);
+    }
+    this.flyingStackGroup.position.set(0, 0, 0);
+    this.flyingStackGroup.rotation.set(0, 0, 0);
     this.playerGroup.position.set(0, 0, 0);
     this.targetX = 0;
+    this.kickPower = 0;
     this.currentColor = "orange";
     this.character.material.color.setHex(this.colorMap[this.currentColor]);
-    this.trackLength = 120 + this.level * 20;
+    this.updateCharacterHeight();
+    this.trackLength = 160 + this.level * 40;
+    this.speed = 0.35 + this.level * 0.02;
+    if (this.scene.getObjectByName("track")) {
+      const oldTrack = this.scene.getObjectByName("track");
+      this.scene.remove(oldTrack);
+      oldTrack.geometry.dispose();
+    }
+    const trackGeo = new BoxGeometry(6, 1, this.trackLength + 100);
+    const trackMat = new MeshLambertMaterial({ color: 16448250 });
+    const track = new Mesh(trackGeo, trackMat);
+    track.position.set(0, -0.5, -this.trackLength / 2 + 10);
+    track.receiveShadow = true;
+    track.name = "track";
+    this.scene.add(track);
     const colors = ["orange", "blue", "green"];
+    let expectedColor = "orange";
+    let rowCount = 0;
+    let noMatchRowCount = 0;
     for (let z = -15; z > -this.trackLength; z -= 4) {
+      const progress = Math.abs(z) / this.trackLength;
+      const difficulty = this.level * 0.1 + progress * 0.5;
       if (z % 40 === 0) {
-        const nextCol = colors[Math.floor(Math.random() * colors.length)];
+        const otherColors = colors.filter((c) => c !== expectedColor);
+        const nextCol = otherColors[Math.floor(Math.random() * otherColors.length)];
         const lineGeo = new BoxGeometry(6, 0.1, 1);
-        const lineMat = new MeshBasicMaterial({ color: this.colorMap[nextCol] });
+        const lineMat = new MeshBasicMaterial({ color: this.colorMap[nextCol], transparent: true, opacity: 0.5 });
         const line = new Mesh(lineGeo, lineMat);
         line.position.set(0, 0.05, z);
+        line.userData = { colorName: nextCol, passed: false };
         this.scene.add(line);
+        this.multipliers.push(line);
+        expectedColor = nextCol;
+        rowCount = 0;
+        noMatchRowCount = 0;
         continue;
       }
-      for (let x = -2; x <= 2; x += 2) {
-        if (Math.random() < 0.65) {
-          const cName = colors[Math.floor(Math.random() * colors.length)];
-          const geo = new BoxGeometry(1.4, 0.4, 0.8);
-          const mat = new MeshLambertMaterial({ color: this.colorMap[cName] });
-          const mesh = new Mesh(geo, mat);
-          mesh.position.set(x, 0.2, z);
-          mesh.castShadow = true;
-          this.scene.add(mesh);
-          this.collectibles.push({ mesh, colorName: cName, collected: false });
+      let rowColors = [];
+      if (rowCount < 2) {
+        rowColors = [expectedColor, expectedColor, expectedColor];
+        noMatchRowCount = 0;
+      } else {
+        let matchProb = 0.8 - difficulty * 0.4;
+        if (matchProb < 0.2)
+          matchProb = 0.2;
+        if (noMatchRowCount >= 3) {
+          matchProb = 1;
         }
+        if (Math.random() < matchProb) {
+          const quantityPattern = Math.random();
+          const otherColors = colors.filter((c) => c !== expectedColor);
+          if (quantityPattern > difficulty) {
+            rowColors = [expectedColor, expectedColor, expectedColor];
+          } else if (quantityPattern > difficulty / 2) {
+            const diffColor = otherColors[Math.floor(Math.random() * otherColors.length)];
+            rowColors = [expectedColor, expectedColor, diffColor];
+          } else {
+            const diff1 = otherColors[0];
+            const diff2 = otherColors[1];
+            rowColors = [expectedColor, diff1, diff2];
+          }
+          noMatchRowCount = 0;
+        } else {
+          const otherColors = colors.filter((c) => c !== expectedColor);
+          const diff1 = otherColors[0];
+          const diff2 = otherColors[1];
+          rowColors = [diff1, diff2, Math.random() > 0.5 ? diff1 : diff2];
+          noMatchRowCount++;
+        }
+        rowColors.sort(() => 0.5 - Math.random());
       }
+      const xPositions = [-2, 0, 2];
+      for (let i = 0; i < 3; i++) {
+        const cName = rowColors[i];
+        const geo = new BoxGeometry(1.4, 0.4, 0.8);
+        const mat = new MeshLambertMaterial({ color: this.colorMap[cName] });
+        const mesh = new Mesh(geo, mat);
+        mesh.position.set(xPositions[i], 0.2, z);
+        mesh.castShadow = true;
+        this.scene.add(mesh);
+        this.collectibles.push({ mesh, colorName: cName, collected: false });
+      }
+      rowCount++;
     }
     const multVals = [1, 2, 3, 5, 10];
     for (let i = 0; i < multVals.length; i++) {
-      const mz = -this.trackLength - 10 - i * 8;
-      const geo = new BoxGeometry(6, 0.2, 7);
-      const mat = new MeshLambertMaterial({
-        color: i % 2 === 0 ? 16771899 : 16761095
-      });
+      const mz = -this.trackLength - 5 - i * 10;
+      const geo = new PlaneGeometry(6, 10);
+      const hue = i * 45 % 360;
+      const mat = new MeshBasicMaterial({ color: `hsl(${hue}, 80%, 50%)` });
       const mesh = new Mesh(geo, mat);
-      mesh.position.set(0, 0.1, mz);
+      mesh.rotation.x = -Math.PI / 2;
+      mesh.position.set(0, 0.01, mz);
       mesh.userData = { multiplier: multVals[i] };
       this.scene.add(mesh);
       this.multipliers.push(mesh);
+      const canvas = document.createElement("canvas");
+      canvas.width = 128;
+      canvas.height = 128;
+      const ctx = canvas.getContext("2d");
+      ctx.font = "Bold 60px Arial";
+      ctx.fillStyle = "white";
+      ctx.textAlign = "center";
+      ctx.fillText(`x${multVals[i]}`, 64, 80);
+      const tex = new CanvasTexture(canvas);
+      const spriteMat = new SpriteMaterial({ map: tex });
+      const sprite = new Sprite(spriteMat);
+      sprite.position.set(0, 1, mz);
+      this.scene.add(sprite);
+      this.multipliers.push(sprite);
     }
   }
+  triggerCameraShake() {
+    this.shakeStrength = 0.5;
+  }
   onPointerDown(e) {
-    if (this.gameState !== "PLAYING")
-      return;
-    this.isDragging = true;
+    if (this.gameState === "PLAYING") {
+      this.isDragging = true;
+    }
   }
   onPointerMove(e) {
     if (!this.isDragging || this.gameState !== "PLAYING")
@@ -78634,14 +80124,111 @@ var StackColorsComponent = class _StackColorsComponent {
   onPointerUp() {
     this.isDragging = false;
   }
+  onKeyDown(e) {
+    if (e.code === "Space" && !e.repeat) {
+      if (this.gameState === "START" || this.gameState === "LOSE") {
+        this.ngZone.run(() => this.startGame());
+      } else if (this.gameState === "WIN") {
+        this.ngZone.run(() => this.nextLevel());
+      } else if (this.gameState === "PREP_KICK") {
+        this.addKickPower(e);
+      }
+    }
+    if (e.code === "ArrowLeft" || e.code === "KeyA")
+      this.keys.left = true;
+    if (e.code === "ArrowRight" || e.code === "KeyD")
+      this.keys.right = true;
+  }
+  onKeyUp(e) {
+    if (e.code === "ArrowLeft" || e.code === "KeyA")
+      this.keys.left = false;
+    if (e.code === "ArrowRight" || e.code === "KeyD")
+      this.keys.right = false;
+  }
+  addKickPower(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    if (this.gameState === "PREP_KICK") {
+      this.ngZone.run(() => {
+        this.kickPower += 15;
+        if (this.kickPower > 100)
+          this.kickPower = 100;
+      });
+    }
+  }
+  prepKick() {
+    this.ngZone.run(() => {
+      this.gameState = "PREP_KICK";
+      this.kickPower = 0;
+    });
+    if (this.kickDecayInterval)
+      clearInterval(this.kickDecayInterval);
+    this.kickDecayInterval = setInterval(() => {
+      this.ngZone.run(() => {
+        this.kickPower -= 1;
+        if (this.kickPower < 0)
+          this.kickPower = 0;
+      });
+    }, 50);
+    setTimeout(() => {
+      this.executeKick();
+    }, 3e3);
+  }
+  executeKick() {
+    if (this.kickDecayInterval)
+      clearInterval(this.kickDecayInterval);
+    this.ngZone.run(() => {
+      this.gameState = "KICKING";
+    });
+    while (this.stack.length > 0) {
+      let b = this.stack.shift();
+      let worldPos = new Vector3();
+      b.getWorldPosition(worldPos);
+      b.position.copy(worldPos);
+      this.flyingStackGroup.add(b);
+    }
+    this.playerGroup.remove(...this.playerGroup.children.filter((c) => c !== this.character));
+    let powerMult = this.kickPower / 100;
+    this.stackVelocity.y = 0.5 + powerMult * 1.5;
+    this.stackVelocity.z = -1 - powerMult * 2;
+  }
+  changePlayerColor(newColorName) {
+    this.currentColor = newColorName;
+    this.character.material.color.setHex(this.colorMap[this.currentColor]);
+    this.stack.forEach((b) => b.material.color.setHex(this.colorMap[this.currentColor]));
+  }
+  updateCharacterHeight() {
+    this.character.position.y = this.stack.length * 0.4 + 0.75;
+  }
+  gameOver() {
+    this.ngZone.run(() => {
+      this.sessionPoints += this.levelPoints;
+      this.gameState = "LOSE";
+      this.tools.playSound("sfx_8");
+    });
+  }
   animate() {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
     if (this.tools.isWindowBlurred)
       return;
     if (this.gameState === "PLAYING") {
-      this.playerGroup.position.z -= 0.35;
+      this.playerGroup.position.z -= this.speed;
+      if (this.keys.left)
+        this.targetX -= 0.15;
+      if (this.keys.right)
+        this.targetX += 0.15;
+      this.targetX = Math.max(-2.2, Math.min(2.2, this.targetX));
       this.playerGroup.position.x += (this.targetX - this.playerGroup.position.x) * 0.2;
-      const playerBox = new Box3().setFromObject(this.playerGroup);
+      this.multipliers.forEach((m) => {
+        if (m.userData && m.userData["colorName"] && !m.userData["passed"] && this.playerGroup.position.z < m.position.z) {
+          m.userData["passed"] = true;
+          this.changePlayerColor(m.userData["colorName"]);
+        }
+      });
+      const playerBox = new Box3().setFromObject(this.character);
+      playerBox.min.y = 0;
       this.collectibles.forEach((c) => {
         if (!c.collected) {
           const colBox = new Box3().setFromObject(c.mesh);
@@ -78650,41 +80237,87 @@ var StackColorsComponent = class _StackColorsComponent {
             if (c.colorName === this.currentColor) {
               this.scene.remove(c.mesh);
               const stackHeight = this.stack.length * 0.4 + 0.2;
-              c.mesh.position.set(0, stackHeight, 1.2);
+              c.mesh.position.set(0, stackHeight, 0);
               this.playerGroup.add(c.mesh);
               this.stack.push(c.mesh);
+              this.updateCharacterHeight();
               this.ngZone.run(() => {
-                this.gamePoints += 5;
+                this.levelPoints += 5;
               });
               this.tools.playSound("sfx_1");
             } else {
               this.scene.remove(c.mesh);
+              this.triggerCameraShake();
               if (this.stack.length > 0) {
                 const popped = this.stack.pop();
                 if (popped)
                   this.playerGroup.remove(popped);
+                this.updateCharacterHeight();
                 this.tools.playSound("sfx_8");
               } else {
-                this.ngZone.run(() => {
-                  this.gameState = "LOSE";
-                  this.tools.playSound("sfx_8");
-                });
+                this.gameOver();
               }
             }
           }
         }
       });
       if (this.playerGroup.position.z <= -this.trackLength) {
+        this.prepKick();
+      }
+      let camTargetX = this.playerGroup.position.x * 0.5;
+      let camTargetY = this.character.position.y + 7;
+      let camTargetZ = this.playerGroup.position.z + 11;
+      if (this.shakeStrength > 0) {
+        this.shakeOffset.set((Math.random() - 0.5) * this.shakeStrength, (Math.random() - 0.5) * this.shakeStrength, (Math.random() - 0.5) * this.shakeStrength);
+        this.shakeStrength -= 0.05;
+        if (this.shakeStrength < 0)
+          this.shakeStrength = 0;
+      }
+      this.camera.position.x += (camTargetX - this.camera.position.x) * 0.1 + this.shakeOffset.x;
+      this.camera.position.y += (camTargetY - this.camera.position.y) * 0.1 + this.shakeOffset.y;
+      this.camera.position.z = camTargetZ + this.shakeOffset.z;
+      this.camera.lookAt(this.playerGroup.position.x, this.character.position.y, this.playerGroup.position.z - 5);
+    } else if (this.gameState === "KICKING") {
+      this.stackVelocity.y -= 0.05;
+      this.flyingStackGroup.position.y += this.stackVelocity.y;
+      this.flyingStackGroup.position.z += this.stackVelocity.z;
+      this.flyingStackGroup.rotation.x -= 0.1;
+      this.camera.position.z += this.stackVelocity.z * 0.8;
+      this.camera.lookAt(this.flyingStackGroup.position);
+      if (this.flyingStackGroup.position.y <= 0) {
+        this.flyingStackGroup.position.y = 0;
+        let finalZ = this.flyingStackGroup.position.z;
+        let mult = 1;
+        this.multipliers.forEach((m) => {
+          if (m.userData && m.userData["multiplier"]) {
+            let mZ = m.position.z;
+            if (finalZ < mZ + 5 && finalZ > mZ - 5) {
+              mult = m.userData["multiplier"];
+            }
+          }
+        });
         this.ngZone.run(() => {
-          this.gamePoints += 50 + this.stack.length * 10;
+          const bonusStr = this.tools.minigames[this.tools.lang]?.stack_colors_bonus || "BONUS!";
+          const bonusPts = mult * 200;
+          this.levelPoints += bonusPts;
+          this.sessionPoints += this.levelPoints;
           this.gameState = "WIN";
+          this.createFloatingText(`+${bonusPts} ${bonusStr}`, this.flyingStackGroup.position, "#2ecc71");
           this.tools.playSound("sfx_4");
         });
       }
-      this.camera.position.x = this.playerGroup.position.x * 0.5;
-      this.camera.position.y = this.character.position.y + 7;
-      this.camera.position.z = this.playerGroup.position.z + 11;
-      this.camera.lookAt(this.playerGroup.position.x, 1, this.playerGroup.position.z - 5);
+    }
+    for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+      let f = this.floatingTexts[i];
+      f.sprite.position.y += 0.05;
+      f.life -= 0.02;
+      if (f.life <= 0) {
+        this.scene.remove(f.sprite);
+        f.sprite.material.dispose();
+        this.floatingTexts.splice(i, 1);
+      } else {
+        f.sprite.material.opacity = f.life;
+      }
     }
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
@@ -78717,41 +80350,63 @@ var StackColorsComponent = class _StackColorsComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.gameContainer = _t.first);
     }
-  }, decls: 16, vars: 11, consts: [["gameContainer", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], [1, "screen"], [1, "btn", 3, "click"]], template: function StackColorsComponent_Template(rf, ctx) {
+  }, decls: 25, vars: 16, consts: [["gameContainer", ""], ["id", "game-container"], [1, "ui-layer"], [1, "hud"], ["id", "sessionUI"], ["id", "scoreUI"], ["id", "levelUI"], ["id", "stackUI"], ["id", "kickUI"], [1, "screen"], [2, "color", "white", "text-shadow", "1px 1px 2px black", "margin", "0 0 10px 0"], [1, "power-bar-container"], ["id", "powerBar"], [1, "kick-btn", 3, "mousedown", "touchstart"], [1, "btn", 3, "click"], [2, "color", "#4CAF50"], [2, "color", "#FFEB3B", "font-weight", "bold"], [2, "color", "#F44336"]], template: function StackColorsComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div");
       \u0275\u0275element(1, "div", 1, 0);
       \u0275\u0275elementStart(3, "div", 2)(4, "div", 3)(5, "div");
       \u0275\u0275text(6);
-      \u0275\u0275elementStart(7, "span");
+      \u0275\u0275elementStart(7, "span", 4);
       \u0275\u0275text(8);
       \u0275\u0275elementEnd()();
       \u0275\u0275elementStart(9, "div");
       \u0275\u0275text(10);
-      \u0275\u0275elementStart(11, "span");
+      \u0275\u0275elementStart(11, "span", 5);
       \u0275\u0275text(12);
-      \u0275\u0275elementEnd()()()();
-      \u0275\u0275template(13, StackColorsComponent_Conditional_13_Template, 7, 3, "div", 4)(14, StackColorsComponent_Conditional_14_Template, 7, 4, "div", 4)(15, StackColorsComponent_Conditional_15_Template, 7, 4, "div", 4);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(13, "div");
+      \u0275\u0275text(14);
+      \u0275\u0275elementStart(15, "span", 6);
+      \u0275\u0275text(16);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(17, "div");
+      \u0275\u0275text(18);
+      \u0275\u0275elementStart(19, "span", 7);
+      \u0275\u0275text(20);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275template(21, StackColorsComponent_Conditional_21_Template, 7, 4, "div", 8);
+      \u0275\u0275elementEnd();
+      \u0275\u0275template(22, StackColorsComponent_Conditional_22_Template, 7, 3, "div", 9)(23, StackColorsComponent_Conditional_23_Template, 9, 4, "div", 9)(24, StackColorsComponent_Conditional_24_Template, 9, 4, "div", 9);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("stack-colors-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(6);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].score) || "Score: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].stack_colors_session) || "Session: ", " ");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.gamePoints);
+      \u0275\u0275textInterpolate(ctx.sessionPoints);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].level) || "Level ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].stack_colors_score) || "Score: ", " ");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.levelPoints);
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].stack_colors_level_lbl) || "Level: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.level);
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].stack_colors_stack) || "Stack: ", " ");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.stack.length);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "START" ? 13 : -1);
+      \u0275\u0275conditional(ctx.gameState === "PREP_KICK" ? 21 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "WIN" ? 14 : -1);
+      \u0275\u0275conditional(ctx.gameState === "START" ? 22 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.gameState === "LOSE" ? 15 : -1);
+      \u0275\u0275conditional(ctx.gameState === "WIN" ? 23 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.gameState === "LOSE" ? 24 : -1);
     }
-  }, dependencies: [CommonModule], styles: ['\n\n.stack-colors-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #87CEEB;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  padding: 20px 30px;\n  display: flex;\n  justify-content: space-between;\n  font-size: 1.8em;\n  font-weight: 800;\n  color: white;\n  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.65);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 14px 40px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #00C853,\n      #00897B);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=stack_colors.component.css.map */'] });
+  }, dependencies: [CommonModule], styles: ['\n\n.stack-colors-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #87CEEB;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  padding: 20px;\n  display: flex;\n  justify-content: space-between;\n  font-size: 2em;\n  font-weight: bold;\n  color: white;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.6);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 4em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);\n  text-align: center;\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  color: #ddd;\n  margin-bottom: 30px;\n  text-align: center;\n  white-space: pre-line;\n}\n.btn[_ngcontent-%COMP%] {\n  background: #FF4081;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 15px rgba(255, 64, 129, 0.4);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n#kickUI[_ngcontent-%COMP%] {\n  position: absolute;\n  bottom: 20%;\n  left: 50%;\n  transform: translateX(-50%);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  pointer-events: auto;\n}\n.kick-btn[_ngcontent-%COMP%] {\n  background: #ffeb3b;\n  color: #333;\n  border: none;\n  width: 120px;\n  height: 120px;\n  border-radius: 50%;\n  font-size: 1.5em;\n  font-weight: bold;\n  box-shadow: 0 10px 0 #fbc02d, 0 15px 20px rgba(0, 0, 0, 0.3);\n  cursor: pointer;\n}\n.kick-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(10px);\n  box-shadow: 0 0 0 #fbc02d, 0 5px 10px rgba(0, 0, 0, 0.3);\n}\n.power-bar-container[_ngcontent-%COMP%] {\n  width: 200px;\n  height: 20px;\n  background: rgba(0, 0, 0, 0.5);\n  border-radius: 10px;\n  margin-bottom: 20px;\n  overflow: hidden;\n  border: 2px solid white;\n}\n#powerBar[_ngcontent-%COMP%] {\n  height: 100%;\n  background:\n    linear-gradient(\n      90deg,\n      #4CAF50,\n      #FFEB3B,\n      #F44336);\n  transition: width 0.1s;\n}\n/*# sourceMappingURL=stack_colors.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(StackColorsComponent, [{
@@ -78761,36 +80416,48 @@ var StackColorsComponent = class _StackColorsComponent {
 
   <div class="ui-layer">
     <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.stack_colors_session || 'Session: '}} <span id="sessionUI">{{sessionPoints}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.stack_colors_score || 'Score: '}} <span id="scoreUI">{{levelPoints}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.stack_colors_level_lbl || 'Level: '}} <span id="levelUI">{{level}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.stack_colors_stack || 'Stack: '}} <span id="stackUI">{{stack.length}}</span></div>
     </div>
+
+    @if (gameState === 'PREP_KICK') {
+      <div id="kickUI">
+        <h2 style="color: white; text-shadow: 1px 1px 2px black; margin: 0 0 10px 0;">{{tools.minigames[tools.lang]?.stack_colors_tap_kick || 'TAP TO KICK!'}}</h2>
+        <div class="power-bar-container">
+            <div id="powerBar" [style.width.%]="kickPower"></div>
+        </div>
+        <button class="kick-btn" (mousedown)="addKickPower($event)" (touchstart)="addKickPower($event)">{{tools.minigames[tools.lang]?.stack_colors_kick_btn || 'KICK!'}}</button>
+      </div>
+    }
   </div>
 
   @if (gameState === 'START') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.stack_colors_title || 'Stack Colors'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.stack_colors_inst || 'Move left and right to collect matching colored blocks!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      <h1>{{tools.minigames[tools.lang]?.stack_colors_title || 'Stack Colors!'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.stack_colors_inst || 'Drag to move.\\nCollect matching colors.\\nAvoid wrong colors.'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.stack_colors_start_run || 'START RUN'}}</button>
     </div>
   }
 
   @if (gameState === 'WIN') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+      <h1 style="color: #4CAF50">{{tools.minigames[tools.lang]?.stack_colors_level_complete || 'LEVEL COMPLETE'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
     </div>
   }
 
   @if (gameState === 'LOSE') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+      <h1 style="color: #F44336">{{tools.minigames[tools.lang]?.stack_colors_game_over || 'GAME OVER'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
     </div>
   }
 </div>
-`, styles: ['/* src/app/games/stack_colors/stack_colors.component.css */\n.stack-colors-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #87CEEB;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n}\n.ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  padding: 20px 30px;\n  display: flex;\n  justify-content: space-between;\n  font-size: 1.8em;\n  font-weight: 800;\n  color: white;\n  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.65);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 3em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);\n}\n.screen p {\n  font-size: 1.3em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n}\n.btn {\n  padding: 14px 40px;\n  font-size: 1.4em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #00C853,\n      #00897B);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=stack_colors.component.css.map */\n'] }]
+`, styles: ['/* src/app/games/stack_colors/stack_colors.component.css */\n.stack-colors-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  overflow: hidden;\n  background-color: #87CEEB;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n}\n#game-container {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  z-index: 1;\n}\n.ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  padding: 20px;\n  display: flex;\n  justify-content: space-between;\n  font-size: 2em;\n  font-weight: bold;\n  color: white;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.6);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 4em;\n  color: #fff;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n  text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);\n  text-align: center;\n}\n.screen p {\n  font-size: 1.5em;\n  color: #ddd;\n  margin-bottom: 30px;\n  text-align: center;\n  white-space: pre-line;\n}\n.btn {\n  background: #FF4081;\n  color: white;\n  border: none;\n  padding: 15px 50px;\n  border-radius: 30px;\n  font-size: 1.5em;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 6px 15px rgba(255, 64, 129, 0.4);\n  transition: transform 0.1s;\n}\n.btn:active {\n  transform: scale(0.95);\n}\n#kickUI {\n  position: absolute;\n  bottom: 20%;\n  left: 50%;\n  transform: translateX(-50%);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  pointer-events: auto;\n}\n.kick-btn {\n  background: #ffeb3b;\n  color: #333;\n  border: none;\n  width: 120px;\n  height: 120px;\n  border-radius: 50%;\n  font-size: 1.5em;\n  font-weight: bold;\n  box-shadow: 0 10px 0 #fbc02d, 0 15px 20px rgba(0, 0, 0, 0.3);\n  cursor: pointer;\n}\n.kick-btn:active {\n  transform: translateY(10px);\n  box-shadow: 0 0 0 #fbc02d, 0 5px 10px rgba(0, 0, 0, 0.3);\n}\n.power-bar-container {\n  width: 200px;\n  height: 20px;\n  background: rgba(0, 0, 0, 0.5);\n  border-radius: 10px;\n  margin-bottom: 20px;\n  overflow: hidden;\n  border: 2px solid white;\n}\n#powerBar {\n  height: 100%;\n  background:\n    linear-gradient(\n      90deg,\n      #4CAF50,\n      #FFEB3B,\n      #F44336);\n  transition: width 0.1s;\n}\n/*# sourceMappingURL=stack_colors.component.css.map */\n'] }]
   }], null, { gameContainer: [{
     type: ViewChild,
     args: ["gameContainer"]
