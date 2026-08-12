@@ -347,7 +347,7 @@ jobs:
           
           mkdir -p electron/assets
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
-          png-to-ico electron/assets/icon.png > electron/assets/icon.ico
+          npx png-to-ico electron/assets/icon.png > electron/assets/icon.ico
 
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
