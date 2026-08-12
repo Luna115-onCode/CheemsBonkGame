@@ -324,7 +324,6 @@ jobs:
           const pageRoot = process.env.page_root;
           const appId = isPwa ? 'com.cheems.pwa.' + prefix : 'com.cheems.app.' + prefix;
           
-          // Update electron config as JSON object
           elec.appId = appId;
           if (isPwa) {
             elec.productName = 'Cheems Bonk Game (PWA)';
@@ -333,17 +332,22 @@ jobs:
             if (elec.msi) elec.msi.shortcutName = 'Cheems Bonk Game (PWA)';
           }
           
-          // Update capacitor config
+          if (elec.win) elec.win.icon = 'assets/icon.ico';
+          
           cap = cap.replace('com.cheems.app', appId);
           if (isPwa) {
             cap = cap.replace('Cheems Bonk Game', 'Cheems Bonk Game (PWA)');
             const url = 'https://' + repoOwner + '.github.io' + pageRoot;
-            cap = cap.replace('webDir: \\'dist/cheems-angular/browser\\'', 'webDir: \\'dist/cheems-angular/browser\\',\\n  server: { url: \\'' + url + '\\' }');
+            cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
           }
           
           fs.writeFileSync('capacitor.config.ts', cap);
           fs.writeFileSync('electron/electron-builder.config.json', JSON.stringify(elec, null, 2));
           "
+          
+          mkdir -p electron/assets
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
+          png-to-ico electron/assets/icon.png > electron/assets/icon.ico
 
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
@@ -435,8 +439,6 @@ jobs:
           mkdir -p windows-pwa
           mv cheems-pwa-$Prefix.msix windows-pwa/
 
-
-
       - name: Upload Windows Bundled Artifacts
         if: matrix.app_type == 'bundled'
         uses: actions/upload-artifact@v4
@@ -466,8 +468,12 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       
-      - run: npm install -g @angular/cli @capacitor/cli @capacitor/assets
-      - run: npm install
+      - name: Install Dependencies
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+        run: |
+          npm install -g @angular/cli @capacitor/cli @capacitor/assets
+          npm install
 
       - name: Apply Environment Configs
         env:
