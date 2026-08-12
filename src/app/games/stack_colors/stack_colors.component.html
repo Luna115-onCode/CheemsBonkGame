@@ -3,32 +3,44 @@
 
   <div class="ui-layer">
     <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.stack_colors_session || 'Session: '}} <span id="sessionUI">{{sessionPoints}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.stack_colors_score || 'Score: '}} <span id="scoreUI">{{levelPoints}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.stack_colors_level_lbl || 'Level: '}} <span id="levelUI">{{level}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.stack_colors_stack || 'Stack: '}} <span id="stackUI">{{stack.length}}</span></div>
     </div>
+
+    @if (gameState === 'PREP_KICK') {
+      <div id="kickUI">
+        <h2 style="color: white; text-shadow: 1px 1px 2px black; margin: 0 0 10px 0;">{{tools.minigames[tools.lang]?.stack_colors_tap_kick || 'TAP TO KICK!'}}</h2>
+        <div class="power-bar-container">
+            <div id="powerBar" [style.width.%]="kickPower"></div>
+        </div>
+        <button class="kick-btn" (mousedown)="addKickPower($event)" (touchstart)="addKickPower($event)">{{tools.minigames[tools.lang]?.stack_colors_kick_btn || 'KICK!'}}</button>
+      </div>
+    }
   </div>
 
   @if (gameState === 'START') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.stack_colors_title || 'Stack Colors'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.stack_colors_inst || 'Move left and right to collect matching colored blocks!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      <h1>{{tools.minigames[tools.lang]?.stack_colors_title || 'Stack Colors!'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.stack_colors_inst || 'Drag to move.\nCollect matching colors.\nAvoid wrong colors.'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.stack_colors_start_run || 'START RUN'}}</button>
     </div>
   }
 
   @if (gameState === 'WIN') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+      <h1 style="color: #4CAF50">{{tools.minigames[tools.lang]?.stack_colors_level_complete || 'LEVEL COMPLETE'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
     </div>
   }
 
   @if (gameState === 'LOSE') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+      <h1 style="color: #F44336">{{tools.minigames[tools.lang]?.stack_colors_game_over || 'GAME OVER'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
     </div>
   }
 </div>

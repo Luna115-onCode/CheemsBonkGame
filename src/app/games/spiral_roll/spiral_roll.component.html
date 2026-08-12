@@ -3,32 +3,33 @@
 
   <div class="ui-layer">
     <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.spiral_roll_session || 'Session: '}} <span id="sessionUI">{{sessionPoints}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.spiral_roll_score || 'Score: '}} <span id="scoreUI">{{levelPoints}}</span></div>
+      <div>{{tools.minigames[tools.lang]?.spiral_roll_level_lbl || 'Level: '}} <span id="levelUI">{{level}}</span></div>
     </div>
   </div>
 
   @if (gameState === 'START') {
     <div class="screen">
       <h1>{{tools.minigames[tools.lang]?.spiral_roll_title || 'Spiral Roll'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.spiral_roll_inst || 'Tap and hold to carve wood spirals and clear obstacles!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      <p style="white-space: pre-line; text-align: center;">{{tools.minigames[tools.lang]?.spiral_roll_inst_orig || 'Hold to carve a spiral.\nRelease to launch it!\nBigger rolls = More points.'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'START'}}</button>
     </div>
   }
 
   @if (gameState === 'WIN') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+      <h1 style="color: #4CAF50">{{tools.minigames[tools.lang]?.spiral_roll_cleared || 'LEVEL CLEARED!'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.spiral_roll_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.spiral_roll_next_level || 'NEXT LEVEL'}}</button>
     </div>
   }
 
   @if (gameState === 'LOSE') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+      <h1 style="color: #F44336">{{tools.minigames[tools.lang]?.spiral_roll_crashed || 'CRASHED!'}}</h1>
+      <p>{{tools.minigames[tools.lang]?.spiral_roll_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.spiral_roll_try_again || 'TRY AGAIN'}}</button>
     </div>
   }
 </div>
