@@ -54,8 +54,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - run: npm install -g @angular/cli
-      - run: npm install
+      - name: Install Dependencies
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+        run: |
+          npm install -g @angular/cli @capacitor/cli @capacitor/assets png-to-ico
+          npm install
+          
 
       - name: Setup PWA
         env:
@@ -146,8 +151,13 @@ jobs:
           distribution: 'zulu'
           java-version: '21'
       
-      - run: npm install -g @angular/cli @capacitor/cli @capacitor/assets
-      - run: npm install
+      - name: Install Dependencies
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+        run: |
+          npm install -g @angular/cli @capacitor/cli @capacitor/assets png-to-ico
+          npm install
+          
 
       - name: Apply Environment Configs
         env:
@@ -308,8 +318,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
       
-      - run: npm install -g @angular/cli @capacitor/cli @capacitor/assets
-      - run: npm install
+      - name: Install Dependencies
+        env:
+          NODE_TLS_REJECT_UNAUTHORIZED: 0
+        run: |
+          npm install -g @angular/cli @capacitor/cli @capacitor/assets png-to-ico
+          npm install
+          
 
       - name: Apply Environment Configs
         shell: bash
