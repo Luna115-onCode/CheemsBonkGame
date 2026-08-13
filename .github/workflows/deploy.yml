@@ -343,15 +343,24 @@ jobs:
           npm ci
           if ($LASTEXITCODE -ne 0) { npm install } 
 
-      - name: Apply Environment Configs
+            - name: Apply Environment Configs
         shell: bash
         env:
           build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
           page_root: ${{ needs.prepare-env.outputs.page_root }}
           app_type: ${{ matrix.app_type }}
         run: |
+          # Create directories and copy the source PNG
+          mkdir -p electron/assets assets
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
+          
+          # Install the converter locally so Node can require() it
+          npm install png-to-ico --no-save
+          
           node -e "
           const fs = require('fs');
+          const pngToIco = require('png-to-ico');
+          
           let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
           let elec = JSON.parse(fs.readFileSync('electron/electron-builder.config.json', 'utf8'));
           const isPwa = process.env.app_type === 'pwa';
@@ -365,9 +374,9 @@ jobs:
             elec.productName = 'Cheems Bonk Game (PWA)';
             elec.executableName = 'CheemsBonkGamePWA';
             if (elec.nsis) elec.nsis.shortcutName = 'Cheems Bonk Game (PWA)';
-            if (elec.msi) elec.msi.shortcutName = 'Cheems Bonk Game (PWA)';
           }
           
+          // Point Windows specifically to the .ico file
           if (elec.win) elec.win.icon = 'assets/icon.ico';
           
           cap = cap.replace('com.cheems.app', appId);
@@ -377,13 +386,16 @@ jobs:
             cap = cap.replace('webDir: \'dist/cheems-angular/browser\'', 'webDir: \'dist/cheems-angular/browser\',\n  server: { url: \'' + url + '\' }');
           }
           
-          fs.writeFileSync('capacitor.config.ts', cap);
-          fs.writeFileSync('electron/electron-builder.config.json', JSON.stringify(elec, null, 2));
+          // Generate the ICO file using raw binary buffers (avoids shell redirection corruption)
+          pngToIco('electron/assets/icon.png').then(buf => {
+            fs.writeFileSync('electron/assets/icon.ico', buf);
+            fs.writeFileSync('capacitor.config.ts', cap);
+            fs.writeFileSync('electron/electron-builder.config.json', JSON.stringify(elec, null, 2));
+          }).catch(err => {
+            console.error('Failed to convert icon:', err);
+            process.exit(1);
+          });
           "
-          
-          mkdir -p electron/assets
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
-          npx png-to-ico electron/assets/icon.png > electron/assets/icon.ico
 
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
