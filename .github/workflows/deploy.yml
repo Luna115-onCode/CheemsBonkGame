@@ -343,7 +343,7 @@ jobs:
           npm ci
           if ($LASTEXITCODE -ne 0) { npm install } 
 
-            - name: Apply Environment Configs
+      - name: Apply Environment Configs
         shell: bash
         env:
           build_prefix: ${{ needs.prepare-env.outputs.build_prefix }}
