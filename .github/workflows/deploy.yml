@@ -359,7 +359,10 @@ jobs:
           
           node -e "
           const fs = require('fs');
-          const pngToIco = require('png-to-ico');
+          
+          // Safely handle both ESM and CommonJS exports for the png-to-ico package
+          const imported = require('png-to-ico');
+          const pngToIco = imported.default || imported;
           
           let cap = fs.readFileSync('capacitor.config.ts', 'utf8');
           let elec = JSON.parse(fs.readFileSync('electron/electron-builder.config.json', 'utf8'));
@@ -396,6 +399,7 @@ jobs:
             process.exit(1);
           });
           "
+          
 
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
