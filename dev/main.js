@@ -40860,6 +40860,30 @@ var TranslationsService = class _TranslationsService {
     }]
   }], () => [], null);
 })();
+var attack_holeText = {
+  title: ""
+};
+var block_breakerText = {
+  title: ""
+};
+var doge_rescueText = {
+  title: ""
+};
+var helix_jumpText = {
+  title: ""
+};
+var mob_controlText = {
+  title: ""
+};
+var paper_ioText = {
+  title: ""
+};
+var spiral_rollText = {
+  title: ""
+};
+var stack_colorsText = {
+  title: ""
+};
 
 // src/app/services/tools.service.ts
 var ToolsService = class _ToolsService {
@@ -40900,11 +40924,20 @@ var ToolsService = class _ToolsService {
   offline = createLangMap(offlineText);
   shop = {};
   gallery = {};
+  licensesPage = {};
   minigames = createLangMap(minigamesText);
   stats = createLangMap(statsText);
   pageName = createLangMap(pageName);
   flappy_dunk = createLangMap(flappy_dunkText);
   magic_sort = createLangMap(magic_sortText);
+  attack_hole = createLangMap(attack_holeText);
+  block_breaker = createLangMap(block_breakerText);
+  doge_rescue = createLangMap(doge_rescueText);
+  helix_jump = createLangMap(helix_jumpText);
+  mob_control = createLangMap(mob_controlText);
+  paper_io = createLangMap(paper_ioText);
+  spiral_roll = createLangMap(spiral_rollText);
+  stack_colors = createLangMap(stack_colorsText);
   offlineCategories = OFFLINE_CATEGORIES;
   shopItemsText = {};
   itemsText = {};
@@ -41018,8 +41051,26 @@ var ToolsService = class _ToolsService {
             this.flappy_dunk[langCode] = __spreadValues(__spreadValues({}, this.flappy_dunk[langCode]), data.flappy_dunk);
           if (data.magic_sort)
             this.magic_sort[langCode] = __spreadValues(__spreadValues({}, this.magic_sort[langCode]), data.magic_sort);
+          if (data.attack_hole)
+            this.attack_hole[langCode] = __spreadValues(__spreadValues({}, this.attack_hole[langCode]), data.attack_hole);
+          if (data.block_breaker)
+            this.block_breaker[langCode] = __spreadValues(__spreadValues({}, this.block_breaker[langCode]), data.block_breaker);
+          if (data.doge_rescue)
+            this.doge_rescue[langCode] = __spreadValues(__spreadValues({}, this.doge_rescue[langCode]), data.doge_rescue);
+          if (data.helix_jump)
+            this.helix_jump[langCode] = __spreadValues(__spreadValues({}, this.helix_jump[langCode]), data.helix_jump);
+          if (data.mob_control)
+            this.mob_control[langCode] = __spreadValues(__spreadValues({}, this.mob_control[langCode]), data.mob_control);
+          if (data.paper_io)
+            this.paper_io[langCode] = __spreadValues(__spreadValues({}, this.paper_io[langCode]), data.paper_io);
+          if (data.spiral_roll)
+            this.spiral_roll[langCode] = __spreadValues(__spreadValues({}, this.spiral_roll[langCode]), data.spiral_roll);
+          if (data.stack_colors)
+            this.stack_colors[langCode] = __spreadValues(__spreadValues({}, this.stack_colors[langCode]), data.stack_colors);
           if (data.gallery)
             this.gallery[langCode] = __spreadValues(__spreadValues({}, this.gallery[langCode]), data.gallery);
+          if (data.licensesPage)
+            this.licensesPage[langCode] = __spreadValues(__spreadValues({}, this.licensesPage[langCode]), data.licensesPage);
           if (data.shopItemsText)
             this.shopItemsText[langCode] = __spreadValues(__spreadValues({}, this.shopItemsText[langCode]), data.shopItemsText);
           if (data.itemsText)
@@ -43314,7 +43365,7 @@ function ClosetComponent_Conditional_10_For_2_Conditional_2_Template(rf, ctx) {
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("alt", ctx_r2.tools.getMusicName(track_r7));
+    \u0275\u0275property("src", track_r7.cover || "img/music/no_image.png", \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_6_Template(rf, ctx) {
@@ -43363,7 +43414,7 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectMusic(track_r7));
     });
-    \u0275\u0275template(1, ClosetComponent_Conditional_10_For_2_Conditional_1_Template, 1, 1, "img", 11)(2, ClosetComponent_Conditional_10_For_2_Conditional_2_Template, 1, 1, "img", 12);
+    \u0275\u0275template(1, ClosetComponent_Conditional_10_For_2_Conditional_1_Template, 1, 1, "img", 11)(2, ClosetComponent_Conditional_10_For_2_Conditional_2_Template, 1, 2, "img", 12);
     \u0275\u0275elementStart(3, "div", 5)(4, "span", 6);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
@@ -43428,7 +43479,7 @@ var ClosetComponent = class _ClosetComponent {
   static \u0275fac = function ClosetComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ClosetComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 11, vars: 27, consts: [[1, "container"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "item-desc"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], ["src", "img/icons/sound-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/music-svgrepo-com.svg", 1, "item-icon", 3, "alt"]], template: function ClosetComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 11, vars: 27, consts: [[1, "container"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "item-desc"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], ["src", "img/icons/sound-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.svg", 1, "item-icon", 3, "alt"], [1, "item-icon", 2, "border-radius", "8px", "object-fit", "cover", 3, "src", "alt"]], template: function ClosetComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "button", 1);
       \u0275\u0275listener("click", function ClosetComponent_Template_button_click_2_listener() {
@@ -43559,7 +43610,7 @@ var ClosetComponent = class _ClosetComponent {
                     @if (track.id === 0) {
                         <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else {
-                        <img src="img/icons/music-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
+                        <img [src]="track.cover || 'img/music/no_image.png'" class="item-icon" [alt]="tools.getMusicName(track)" style="border-radius: 8px; object-fit: cover;">
                     }
                     <div class="item-info">
                         <span class="item-name">{{tools.getMusicName(track)}}</span>
@@ -43655,7 +43706,7 @@ var LicensesComponent = class _LicensesComponent {
   static \u0275fac = function LicensesComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _LicensesComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LicensesComponent, selectors: [["app-licenses"]], decls: 137, vars: 4, consts: [[1, "container"], [1, "licenses-title"], [1, "licenses-content"], ["href", "https://www.svgrepo.com/page/licensing/#CC0", "target", "_blank"], ["href", "https://www.svgrepo.com/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/solar-bold-icons/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/isometric-3d-interface-icons/", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-a-jazz-piano-110481/", "target", "_blank"], ["href", "https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-when-you-smile-151423/", "target", "_blank"], ["href", "https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-tradicional-magic-night-134393/", "target", "_blank"], ["href", "https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-titanium-170190/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-coffee-shop-189585/", "target", "_blank"], ["href", "https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com/es/music/cafeter%C3%ADa-believe-me-143530/", "target", "_blank"], ["href", "https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-city-streets-background-version-166003/", "target", "_blank"], ["href", "https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-trap-future-bass-royalty-free-music-167020/", "target", "_blank"], ["href", "https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com/es/music/electro-electro-summer-positive-party-141081/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"]], template: function LicensesComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LicensesComponent, selectors: [["app-licenses"]], decls: 223, vars: 24, consts: [[1, "container"], [1, "licenses-title"], [1, "licenses-content"], ["href", "https://www.svgrepo.com/page/licensing/#CC0", "target", "_blank"], ["href", "https://www.svgrepo.com/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/solar-bold-icons/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/isometric-3d-interface-icons/", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-a-jazz-piano-110481/", "target", "_blank"], ["href", "https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-when-you-smile-151423/", "target", "_blank"], ["href", "https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-tradicional-magic-night-134393/", "target", "_blank"], ["href", "https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-titanium-170190/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-coffee-shop-189585/", "target", "_blank"], ["href", "https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com/es/music/cafeter%C3%ADa-believe-me-143530/", "target", "_blank"], ["href", "https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-city-streets-background-version-166003/", "target", "_blank"], ["href", "https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-trap-future-bass-royalty-free-music-167020/", "target", "_blank"], ["href", "https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com/es/music/electro-electro-summer-positive-party-141081/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"]], template: function LicensesComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "h2", 1);
       \u0275\u0275text(3);
@@ -43688,7 +43739,7 @@ var LicensesComponent = class _LicensesComponent {
       \u0275\u0275text(27, "Collection");
       \u0275\u0275elementEnd()()();
       \u0275\u0275elementStart(28, "h3");
-      \u0275\u0275text(29, "Music & Sound");
+      \u0275\u0275text(29, "Music");
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(30, "ul")(31, "li")(32, "strong")(33, "a", 7);
       \u0275\u0275text(34, "Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]");
@@ -43800,15 +43851,161 @@ var LicensesComponent = class _LicensesComponent {
       \u0275\u0275elementEnd()();
       \u0275\u0275elementStart(133, "li")(134, "strong")(135, "a", 37);
       \u0275\u0275text(136, "TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD");
-      \u0275\u0275elementEnd()()()()()()();
+      \u0275\u0275elementEnd()()()();
+      \u0275\u0275elementStart(137, "h3");
+      \u0275\u0275text(138, "AI Generated Music");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(139, "ul")(140, "li")(141, "strong");
+      \u0275\u0275text(142, "Bonk The Amber");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(143);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(144, "li")(145, "strong");
+      \u0275\u0275text(146, "Bonk The Avatar");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(147);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(148, "li")(149, "strong");
+      \u0275\u0275text(150, "Bonus Level Bounce");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(151);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(152, "li")(153, "strong");
+      \u0275\u0275text(154, "Button Smash Routine");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(155);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(156, "li")(157, "strong");
+      \u0275\u0275text(158, "Cheems Chan Bonk");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(159);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(160, "li")(161, "strong");
+      \u0275\u0275text(162, "Click For A Bonk");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(163);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(164, "li")(165, "strong");
+      \u0275\u0275text(166, "Hardwood Strike");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(167);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(168, "li")(169, "strong");
+      \u0275\u0275text(170, "Perfect Round");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(171);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(172, "li")(173, "strong");
+      \u0275\u0275text(174, "Pocket Change Victory");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(175);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(176, "li")(177, "strong");
+      \u0275\u0275text(178, "Quick Loot Run");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(179);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(180, "li")(181, "strong");
+      \u0275\u0275text(182, "Target In The Sight");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(183);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(184, "li")(185, "strong");
+      \u0275\u0275text(186, "The Hammer Falls");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(187);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(188, "li")(189, "strong");
+      \u0275\u0275text(190, "The Late Commute");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(191);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(192, "li")(193, "strong");
+      \u0275\u0275text(194, "The Unwritten Page");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(195);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(196, "li")(197, "strong");
+      \u0275\u0275text(198, "Where The Path Bends");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(199);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(200, "h3");
+      \u0275\u0275text(201, "AI Generated Images");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(202, "ul")(203, "li")(204, "strong");
+      \u0275\u0275text(205, "Cheems Minecraft");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(206);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(207, "li")(208, "strong");
+      \u0275\u0275text(209, "Cheems not a dog");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(210);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(211, "li")(212, "strong");
+      \u0275\u0275text(213, "Cheems not a plumber");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(214);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(215, "li")(216, "strong");
+      \u0275\u0275text(217, "Cheems not ai");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(218);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(219, "li")(220, "strong");
+      \u0275\u0275text(221, "Cheems realistic");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(222);
+      \u0275\u0275elementEnd()()()()();
     }
     if (rf & 2) {
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " licenses-box");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate((ctx.tools.pageName[ctx.tools.lang] == null ? null : ctx.tools.pageName[ctx.tools.lang].licenses) || "Licenses");
+      \u0275\u0275advance(140);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
+      \u0275\u0275advance(7);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedImage, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedImage, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedImage, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedImage, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedImage, "");
     }
-  }, styles: ["\n\n.licenses-box[_ngcontent-%COMP%] {\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);\n  margin: 20px auto;\n  max-width: 800px;\n  height: 70vh;\n  overflow-y: auto;\n}\n.licenses-title[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 20px;\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.licenses-content[_ngcontent-%COMP%] {\n  padding: 0 10px;\n}\n.licenses-content[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin-top: 20px;\n  margin-bottom: 10px;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.2);\n  padding-bottom: 5px;\n}\n.theme-light[_ngcontent-%COMP%]   .licenses-content[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  border-bottom: 1px solid rgba(0, 0, 0, 0.2);\n}\n.licenses-content[_ngcontent-%COMP%]   ul[_ngcontent-%COMP%] {\n  list-style-type: none;\n  padding-left: 0;\n}\n.licenses-content[_ngcontent-%COMP%]   li[_ngcontent-%COMP%] {\n  margin-bottom: 12px;\n  line-height: 1.4;\n  word-break: break-word;\n}\n.licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: #3498db;\n  text-decoration: none;\n}\n.licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:hover {\n  text-decoration: underline;\n}\n.theme-dark[_ngcontent-%COMP%]   .licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: #5dade2;\n}\n.theme-light[_ngcontent-%COMP%]   .licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: #2980b9;\n}\n/*# sourceMappingURL=licenses.component.css.map */"] });
+  }, styles: ["\n\n.licenses-box[_ngcontent-%COMP%] {\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);\n  margin: 20px auto;\n  max-width: 800px;\n  height: 70vh;\n  overflow-y: auto;\n  display: block;\n}\n.licenses-title[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 20px;\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.licenses-content[_ngcontent-%COMP%] {\n  padding: 0 10px;\n}\n.licenses-content[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin-top: 20px;\n  margin-bottom: 10px;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.2);\n  padding-bottom: 5px;\n}\n.theme-light[_ngcontent-%COMP%]   .licenses-content[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  border-bottom: 1px solid rgba(0, 0, 0, 0.2);\n}\n.licenses-content[_ngcontent-%COMP%]   ul[_ngcontent-%COMP%] {\n  list-style-type: none;\n  padding-left: 0;\n}\n.licenses-content[_ngcontent-%COMP%]   li[_ngcontent-%COMP%] {\n  margin-bottom: 12px;\n  line-height: 1.4;\n  word-break: break-word;\n}\n.licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: #3498db;\n  text-decoration: none;\n}\n.licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%]:hover {\n  text-decoration: underline;\n}\n.theme-dark[_ngcontent-%COMP%]   .licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: #5dade2;\n}\n.theme-light[_ngcontent-%COMP%]   .licenses-content[_ngcontent-%COMP%]   a[_ngcontent-%COMP%] {\n  color: #2980b9;\n}\n/*# sourceMappingURL=licenses.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(LicensesComponent, [{
@@ -43826,7 +44023,7 @@ var LicensesComponent = class _LicensesComponent {
                 <li><strong>Isometric 3D Interface Icons:</strong> <a href="https://www.svgrepo.com/collection/isometric-3d-interface-icons/" target="_blank">Collection</a></li>
             </ul>
 
-            <h3>Music & Sound</h3>
+            <h3>Music</h3>
             <ul>
                 <li><strong><a href="https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]</a></strong></li>
                 <li><strong><a href="https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">Jack Bootleg</a></strong></li>
@@ -43842,10 +44039,36 @@ var LicensesComponent = class _LicensesComponent {
                 <li><strong><a href="https://pixabay.com/es/music/electro-electro-summer-positive-party-141081/" target="_blank">Electro summer positive party</a></strong> Music by <a href="https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081" target="_blank">Alex_Kizenkov</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081" target="_blank">Pixabay</a></li>
                 <li><strong><a href="https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing" target="_blank">TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD</a></strong></li>
             </ul>
+            <h3>AI Generated Music</h3>
+            <ul>
+                <li><strong>Bonk The Amber</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Bonk The Avatar</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Bonus Level Bounce</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Button Smash Routine</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Cheems Chan Bonk</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Click For A Bonk</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Hardwood Strike</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Perfect Round</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Pocket Change Victory</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Quick Loot Run</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Target In The Sight</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>The Hammer Falls</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>The Late Commute</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>The Unwritten Page</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+                <li><strong>Where The Path Bends</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedSong}}</li>
+            </ul>
+            <h3>AI Generated Images</h3>
+            <ul>
+                <li><strong>Cheems Minecraft</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedImage}}</li>
+                <li><strong>Cheems not a dog</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedImage}}</li>
+                <li><strong>Cheems not a plumber</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedImage}}</li>
+                <li><strong>Cheems not ai</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedImage}}</li>
+                <li><strong>Cheems realistic</strong> - {{tools.licensesPage[tools.lang]?.aiGeneratedImage}}</li>
+            </ul>
         </div>
     </div>
 </div>
-`, styles: ["/* src/app/pages/licenses/licenses.component.css */\n.licenses-box {\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);\n  margin: 20px auto;\n  max-width: 800px;\n  height: 70vh;\n  overflow-y: auto;\n}\n.licenses-title {\n  text-align: center;\n  margin-bottom: 20px;\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.licenses-content {\n  padding: 0 10px;\n}\n.licenses-content h3 {\n  margin-top: 20px;\n  margin-bottom: 10px;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.2);\n  padding-bottom: 5px;\n}\n.theme-light .licenses-content h3 {\n  border-bottom: 1px solid rgba(0, 0, 0, 0.2);\n}\n.licenses-content ul {\n  list-style-type: none;\n  padding-left: 0;\n}\n.licenses-content li {\n  margin-bottom: 12px;\n  line-height: 1.4;\n  word-break: break-word;\n}\n.licenses-content a {\n  color: #3498db;\n  text-decoration: none;\n}\n.licenses-content a:hover {\n  text-decoration: underline;\n}\n.theme-dark .licenses-content a {\n  color: #5dade2;\n}\n.theme-light .licenses-content a {\n  color: #2980b9;\n}\n/*# sourceMappingURL=licenses.component.css.map */\n"] }]
+`, styles: ["/* src/app/pages/licenses/licenses.component.css */\n.licenses-box {\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);\n  margin: 20px auto;\n  max-width: 800px;\n  height: 70vh;\n  overflow-y: auto;\n  display: block;\n}\n.licenses-title {\n  text-align: center;\n  margin-bottom: 20px;\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.licenses-content {\n  padding: 0 10px;\n}\n.licenses-content h3 {\n  margin-top: 20px;\n  margin-bottom: 10px;\n  border-bottom: 1px solid rgba(255, 255, 255, 0.2);\n  padding-bottom: 5px;\n}\n.theme-light .licenses-content h3 {\n  border-bottom: 1px solid rgba(0, 0, 0, 0.2);\n}\n.licenses-content ul {\n  list-style-type: none;\n  padding-left: 0;\n}\n.licenses-content li {\n  margin-bottom: 12px;\n  line-height: 1.4;\n  word-break: break-word;\n}\n.licenses-content a {\n  color: #3498db;\n  text-decoration: none;\n}\n.licenses-content a:hover {\n  text-decoration: underline;\n}\n.theme-dark .licenses-content a {\n  color: #5dade2;\n}\n.theme-light .licenses-content a {\n  color: #2980b9;\n}\n/*# sourceMappingURL=licenses.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
@@ -44913,11 +45136,11 @@ var ShopComponent = class _ShopComponent {
 })();
 
 // src/app/games/block_breaker/block_breaker.component.ts
-function BlockBreakerComponent_For_29_Template(rf, ctx) {
+function BlockBreakerComponent_For_27_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 20);
-    \u0275\u0275listener("click", function BlockBreakerComponent_For_29_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 19);
+    \u0275\u0275listener("click", function BlockBreakerComponent_For_27_Template_button_click_0_listener() {
       const toolKey_r2 = \u0275\u0275restoreView(_r1).$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.buyTool(toolKey_r2));
@@ -44939,16 +45162,16 @@ function BlockBreakerComponent_For_29_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.currentCost[toolKey_r2]);
   }
 }
-function BlockBreakerComponent_For_47_Conditional_1_Template(rf, ctx) {
+function BlockBreakerComponent_For_45_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 23);
-    \u0275\u0275listener("dragstart", function BlockBreakerComponent_For_47_Conditional_1_Template_div_dragstart_0_listener($event) {
+    \u0275\u0275elementStart(0, "div", 22);
+    \u0275\u0275listener("dragstart", function BlockBreakerComponent_For_45_Conditional_1_Template_div_dragstart_0_listener($event) {
       \u0275\u0275restoreView(_r6);
       const $index_r5 = \u0275\u0275nextContext().$index;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.onDragStart($event, $index_r5));
-    })("dragend", function BlockBreakerComponent_For_47_Conditional_1_Template_div_dragend_0_listener($event) {
+    })("dragend", function BlockBreakerComponent_For_45_Conditional_1_Template_div_dragend_0_listener($event) {
       \u0275\u0275restoreView(_r6);
       const $index_r5 = \u0275\u0275nextContext().$index;
       const ctx_r2 = \u0275\u0275nextContext();
@@ -44970,28 +45193,28 @@ function BlockBreakerComponent_For_47_Conditional_1_Template(rf, ctx) {
     \u0275\u0275textInterpolate1("", ctx_r2.getToolDamage(item_r7), " DMG ");
   }
 }
-function BlockBreakerComponent_For_47_Template(rf, ctx) {
+function BlockBreakerComponent_For_45_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 21);
-    \u0275\u0275listener("click", function BlockBreakerComponent_For_47_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275listener("click", function BlockBreakerComponent_For_45_Template_div_click_0_listener() {
       const $index_r5 = \u0275\u0275restoreView(_r4).$index;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.clickSlot($index_r5));
-    })("dragover", function BlockBreakerComponent_For_47_Template_div_dragover_0_listener($event) {
+    })("dragover", function BlockBreakerComponent_For_45_Template_div_dragover_0_listener($event) {
       const $index_r5 = \u0275\u0275restoreView(_r4).$index;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.onDragOver($event, $index_r5));
-    })("dragleave", function BlockBreakerComponent_For_47_Template_div_dragleave_0_listener($event) {
+    })("dragleave", function BlockBreakerComponent_For_45_Template_div_dragleave_0_listener($event) {
       const $index_r5 = \u0275\u0275restoreView(_r4).$index;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.onDragLeave($event, $index_r5));
-    })("drop", function BlockBreakerComponent_For_47_Template_div_drop_0_listener($event) {
+    })("drop", function BlockBreakerComponent_For_45_Template_div_drop_0_listener($event) {
       const $index_r5 = \u0275\u0275restoreView(_r4).$index;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.onDrop($event, $index_r5));
     });
-    \u0275\u0275template(1, BlockBreakerComponent_For_47_Conditional_1_Template, 4, 5, "div", 22);
+    \u0275\u0275template(1, BlockBreakerComponent_For_45_Conditional_1_Template, 4, 5, "div", 21);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -45003,25 +45226,25 @@ function BlockBreakerComponent_For_47_Template(rf, ctx) {
     \u0275\u0275conditional(item_r7 ? 1 : -1);
   }
 }
-function BlockBreakerComponent_Conditional_51_Template(rf, ctx) {
+function BlockBreakerComponent_Conditional_49_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 19)(1, "div")(2, "h3");
+    \u0275\u0275elementStart(0, "div", 18)(1, "div")(2, "h3");
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "p");
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 24)(7, "button", 25);
-    \u0275\u0275listener("click", function BlockBreakerComponent_Conditional_51_Template_button_click_7_listener() {
+    \u0275\u0275elementStart(6, "div", 23)(7, "button", 24);
+    \u0275\u0275listener("click", function BlockBreakerComponent_Conditional_49_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.confirmSellLevel());
     });
     \u0275\u0275text(8);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "button", 26);
-    \u0275\u0275listener("click", function BlockBreakerComponent_Conditional_51_Template_button_click_9_listener() {
+    \u0275\u0275elementStart(9, "button", 25);
+    \u0275\u0275listener("click", function BlockBreakerComponent_Conditional_49_Template_button_click_9_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.closeSellLevelConfirm());
@@ -45034,13 +45257,13 @@ function BlockBreakerComponent_Conditional_51_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275classMapInterpolate1("confirm-modal ", ctx_r2.tools.themeColor, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("\u2B50 ", (ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].sellLevel) || "Sell Level", "");
+    \u0275\u0275textInterpolate1("\u2B50 ", (ctx_r2.tools.block_breaker[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.block_breaker[ctx_r2.tools.lang].sellLevel) || "Sell Level", "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].confirmSellLevelMsg) || "Do you want to reset your level to Level 1 and get", " +", ctx_r2.playerLevel * 20, " \u{1F3AE}?");
+    \u0275\u0275textInterpolate2("", (ctx_r2.tools.block_breaker[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.block_breaker[ctx_r2.tools.lang].confirmSellLevelMsg) || "Do you want to reset your level to Level 1 and get", " +", ctx_r2.playerLevel * 20, " \u{1F3AE}?");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate2("", (ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].yes) || "Yes", " (+", ctx_r2.playerLevel * 20, " \u{1F3AE})");
+    \u0275\u0275textInterpolate2("", (ctx_r2.tools.block_breaker[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.block_breaker[ctx_r2.tools.lang].yes) || "Yes", " (+", ctx_r2.playerLevel * 20, " \u{1F3AE})");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang].no) || "No");
+    \u0275\u0275textInterpolate((ctx_r2.tools.block_breaker[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.block_breaker[ctx_r2.tools.lang].no) || "No");
   }
 }
 var BlockBreakerComponent = class _BlockBreakerComponent {
@@ -45111,10 +45334,10 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
   overlayHidden = true;
   overlaySuccess = false;
   overlayDanger = false;
-  overlayTitleText = this.tools.minigames[this.tools.lang]?.title || "Title";
+  overlayTitleText = this.tools.block_breaker[this.tools.lang]?.title || "Title";
   overlayDescText = "Description goes here";
   overlayBtnText = "Continue";
-  actionBtnText = this.tools.minigames[this.tools.lang]?.dropTools || "DROP TOOLS!";
+  actionBtnText = this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
   showLevelUpModal = false;
   canvas;
   ctx;
@@ -45366,7 +45589,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
         this.tools.playSound("sfx_8");
       }
     } else {
-      this.tools.showToast(this.tools.minigames[this.tools.lang]?.notEnoughMinigameCoins || "Not enough Minigame Points!");
+      this.tools.showToast(this.tools.block_breaker[this.tools.lang]?.notEnoughMinigameCoins || "Not enough Minigame Points!");
       this.tools.playSound("sfx_8");
     }
   }
@@ -45515,7 +45738,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
       return;
     this.gameState = "DIG";
     this.bedrockHit = false;
-    this.actionBtnText = this.tools.minigames[this.tools.lang]?.digging || "DIGGING...";
+    this.actionBtnText = this.tools.block_breaker[this.tools.lang]?.digging || "DIGGING...";
     this.activeTools = [];
     for (let i = 0; i < this.grid.length; i++) {
       if (this.grid[i] !== null) {
@@ -45691,17 +45914,17 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
   endDigging() {
     this.overlayHidden = false;
     if (this.bedrockHit) {
-      this.overlayTitleText = this.tools.minigames[this.tools.lang]?.levelCleared || "Level Cleared!";
-      this.overlayDescText = this.tools.minigames[this.tools.lang]?.levelClearedDesc || "You successfully broke through to the bedrock.";
-      this.overlayBtnText = this.tools.minigames[this.tools.lang]?.nextLevel || "Next Level";
+      this.overlayTitleText = this.tools.block_breaker[this.tools.lang]?.levelCleared || "Level Cleared!";
+      this.overlayDescText = this.tools.block_breaker[this.tools.lang]?.levelClearedDesc || "You successfully broke through to the bedrock.";
+      this.overlayBtnText = this.tools.block_breaker[this.tools.lang]?.nextLevel || "Next Level";
       this.overlaySuccess = true;
       this.overlayDanger = false;
       this.playerLevel++;
       this.saveLevel();
     } else {
-      this.overlayTitleText = this.tools.minigames[this.tools.lang]?.levelFailed || "Level Failed";
-      this.overlayDescText = this.tools.minigames[this.tools.lang]?.levelFailedDesc || "Your tools broke before reaching the bottom.";
-      this.overlayBtnText = this.tools.minigames[this.tools.lang]?.tryAgain || "Try Again";
+      this.overlayTitleText = this.tools.block_breaker[this.tools.lang]?.levelFailed || "Level Failed";
+      this.overlayDescText = this.tools.block_breaker[this.tools.lang]?.levelFailedDesc || "Your tools broke before reaching the bottom.";
+      this.overlayBtnText = this.tools.block_breaker[this.tools.lang]?.tryAgain || "Try Again";
       this.overlaySuccess = false;
       this.overlayDanger = true;
     }
@@ -45712,7 +45935,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     this.buildLevel();
     this.drawCanvasStatic();
     this.gameState = "MERGE";
-    this.actionBtnText = this.tools.minigames[this.tools.lang]?.dropTools || "DROP TOOLS!";
+    this.actionBtnText = this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
   }
   drawCanvasStatic() {
     if (!this.ctx || !this.canvas)
@@ -45784,7 +46007,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
   static \u0275fac = function BlockBreakerComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _BlockBreakerComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlockBreakerComponent, selectors: [["app-block-breaker"]], decls: 52, vars: 35, consts: [[1, "level-title"], ["id", "game-container"], ["id", "resultOverlay", 1, "overlay"], ["id", "overlayTitle"], ["id", "overlayDesc"], ["id", "overlayBtn", 3, "click"], [1, "ui-header"], [1, "stats-display"], [1, "stat-box", "coins"], [1, "stat-box", "lvl"], [1, "lvl-up-btn", 3, "click", "disabled"], [1, "buy-controls"], [1, "buy-btn", 3, "disabled"], ["id", "trash-can", 1, "trash-slot", 3, "click", "drop", "dragover", "dragleave"], [1, "lane-markers"], ["id", "merge-grid"], [1, "grid-slot", 3, "selected", "drag-over"], ["id", "actionBtn", 2, "width", "420px", "max-width", "100%", "padding", "15px", "font-size", "1.2em", 3, "click", "disabled"], ["id", "dig-canvas", "width", "420", "height", "480"], [1, "modal-overlay"], [1, "buy-btn", 3, "click", "disabled"], [1, "grid-slot", 3, "click", "dragover", "dragleave", "drop"], [1, "tool", 3, "backgroundImage", "draggable"], [1, "tool", 3, "dragstart", "dragend", "draggable"], [1, "modal-buttons"], [1, "confirm-btn", "yes-btn", 3, "click"], [1, "confirm-btn", "no-btn", 3, "click"]], template: function BlockBreakerComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlockBreakerComponent, selectors: [["app-block-breaker"]], decls: 50, vars: 32, consts: [[1, "level-title"], ["id", "game-container"], ["id", "resultOverlay", 1, "overlay"], ["id", "overlayTitle"], ["id", "overlayDesc"], ["id", "overlayBtn", 3, "click"], [1, "ui-header"], [1, "stats-display"], [1, "stat-box", "coins"], [1, "stat-box", "lvl"], [1, "buy-controls"], [1, "buy-btn", 3, "disabled"], ["id", "trash-can", 1, "trash-slot", 3, "click", "drop", "dragover", "dragleave"], [1, "lane-markers"], ["id", "merge-grid"], [1, "grid-slot", 3, "selected", "drag-over"], ["id", "actionBtn", 2, "width", "420px", "max-width", "100%", "padding", "15px", "font-size", "1.2em", 3, "click", "disabled"], ["id", "dig-canvas", "width", "420", "height", "480"], [1, "modal-overlay"], [1, "buy-btn", 3, "click", "disabled"], [1, "grid-slot", 3, "click", "dragover", "dragleave", "drop"], [1, "tool", 3, "backgroundImage", "draggable"], [1, "tool", 3, "dragstart", "dragend", "draggable"], [1, "modal-buttons"], [1, "confirm-btn", "yes-btn", 3, "click"], [1, "confirm-btn", "no-btn", 3, "click"]], template: function BlockBreakerComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div")(1, "h1");
       \u0275\u0275text(2);
@@ -45815,31 +46038,28 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
       \u0275\u0275text(22);
       \u0275\u0275elementStart(23, "span");
       \u0275\u0275text(24);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(25, "button", 10);
-      \u0275\u0275listener("click", function BlockBreakerComponent_Template_button_click_25_listener() {
-        return ctx.openSellLevelConfirm();
-      });
-      \u0275\u0275text(26);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(27, "div", 11);
-      \u0275\u0275repeaterCreate(28, BlockBreakerComponent_For_29_Template, 5, 3, "button", 12, \u0275\u0275repeaterTrackByIdentity);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(25, "div", 10);
+      \u0275\u0275repeaterCreate(26, BlockBreakerComponent_For_27_Template, 5, 3, "button", 11, \u0275\u0275repeaterTrackByIdentity);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(30, "div", 13);
-      \u0275\u0275listener("click", function BlockBreakerComponent_Template_div_click_30_listener() {
+      \u0275\u0275elementStart(28, "div", 12);
+      \u0275\u0275listener("click", function BlockBreakerComponent_Template_div_click_28_listener() {
         return ctx.sellSelectedTool();
-      })("drop", function BlockBreakerComponent_Template_div_drop_30_listener($event) {
+      })("drop", function BlockBreakerComponent_Template_div_drop_28_listener($event) {
         return ctx.dropTrash($event);
-      })("dragover", function BlockBreakerComponent_Template_div_dragover_30_listener($event) {
+      })("dragover", function BlockBreakerComponent_Template_div_dragover_28_listener($event) {
         return ctx.allowDrop($event);
-      })("dragleave", function BlockBreakerComponent_Template_div_dragleave_30_listener($event) {
+      })("dragleave", function BlockBreakerComponent_Template_div_dragleave_28_listener($event) {
         return ctx.leaveTrash($event);
       });
-      \u0275\u0275text(31, " \u{1F5D1}\uFE0F");
-      \u0275\u0275element(32, "br");
-      \u0275\u0275text(33);
+      \u0275\u0275text(29, " \u{1F5D1}\uFE0F");
+      \u0275\u0275element(30, "br");
+      \u0275\u0275text(31);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(34, "div", 14)(35, "span");
+      \u0275\u0275elementStart(32, "div", 13)(33, "span");
+      \u0275\u0275text(34);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(35, "span");
       \u0275\u0275text(36);
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(37, "span");
@@ -45850,29 +46070,26 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(41, "span");
       \u0275\u0275text(42);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(43, "span");
-      \u0275\u0275text(44);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(45, "div", 15);
-      \u0275\u0275repeaterCreate(46, BlockBreakerComponent_For_47_Template, 2, 5, "div", 16, \u0275\u0275repeaterTrackByIndex);
+      \u0275\u0275elementStart(43, "div", 14);
+      \u0275\u0275repeaterCreate(44, BlockBreakerComponent_For_45_Template, 2, 5, "div", 15, \u0275\u0275repeaterTrackByIndex);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(48, "button", 17);
-      \u0275\u0275listener("click", function BlockBreakerComponent_Template_button_click_48_listener() {
+      \u0275\u0275elementStart(46, "button", 16);
+      \u0275\u0275listener("click", function BlockBreakerComponent_Template_button_click_46_listener() {
         return ctx.startDigging();
       });
-      \u0275\u0275text(49);
+      \u0275\u0275text(47);
       \u0275\u0275elementEnd();
-      \u0275\u0275element(50, "canvas", 18);
-      \u0275\u0275template(51, BlockBreakerComponent_Conditional_51_Template, 11, 9, "div", 19);
+      \u0275\u0275element(48, "canvas", 17);
+      \u0275\u0275template(49, BlockBreakerComponent_Conditional_49_Template, 11, 9, "div", 18);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("block-breaker-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].title) || "Merge Diggers");
+      \u0275\u0275textInterpolate((ctx.tools.block_breaker[ctx.tools.lang] == null ? null : ctx.tools.block_breaker[ctx.tools.lang].title) || "Merge Diggers");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].playerLevel) || "Player Level: ");
+      \u0275\u0275textInterpolate((ctx.tools.block_breaker[ctx.tools.lang] == null ? null : ctx.tools.block_breaker[ctx.tools.lang].playerLevel) || "Player Level: ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.playerLevel);
       \u0275\u0275advance(2);
@@ -45886,29 +46103,25 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
       \u0275\u0275advance(6);
       \u0275\u0275textInterpolate(ctx.getFloorCoins());
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("\u2B50 ", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lvl) || "Lvl ", "");
+      \u0275\u0275textInterpolate1("\u2B50 ", (ctx.tools.block_breaker[ctx.tools.lang] == null ? null : ctx.tools.block_breaker[ctx.tools.lang].lvl) || "Lvl ", "");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.playerLevel);
-      \u0275\u0275advance();
-      \u0275\u0275property("disabled", ctx.playerLevel <= 1);
-      \u0275\u0275advance();
-      \u0275\u0275textInterpolate2(" \u2B50 ", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].sellLevel) || "Sell Level", " (+", ctx.playerLevel * 20, " \u{1F3AE}) ");
       \u0275\u0275advance(2);
       \u0275\u0275repeater(ctx.getToolKeys());
       \u0275\u0275advance(2);
       \u0275\u0275classProp("drag-over", ctx.isTrashDragOver)("highlight", ctx.selectedSlotIndex !== null);
       \u0275\u0275advance(3);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].sell) || "SELL / TRASH", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.block_breaker[ctx.tools.lang] == null ? null : ctx.tools.block_breaker[ctx.tools.lang].sell) || "SELL", " ");
       \u0275\u0275advance(3);
-      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane1) || "\u25BC Lane 1");
+      \u0275\u0275textInterpolate((ctx.tools.block_breaker[ctx.tools.lang] == null ? null : ctx.tools.block_breaker[ctx.tools.lang].lane1) || "\u25BC Lane 1");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane2) || "\u25BC Lane 2");
+      \u0275\u0275textInterpolate((ctx.tools.block_breaker[ctx.tools.lang] == null ? null : ctx.tools.block_breaker[ctx.tools.lang].lane2) || "\u25BC Lane 2");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane3) || "\u25BC Lane 3");
+      \u0275\u0275textInterpolate((ctx.tools.block_breaker[ctx.tools.lang] == null ? null : ctx.tools.block_breaker[ctx.tools.lang].lane3) || "\u25BC Lane 3");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane4) || "\u25BC Lane 4");
+      \u0275\u0275textInterpolate((ctx.tools.block_breaker[ctx.tools.lang] == null ? null : ctx.tools.block_breaker[ctx.tools.lang].lane4) || "\u25BC Lane 4");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].lane5) || "\u25BC Lane 5");
+      \u0275\u0275textInterpolate((ctx.tools.block_breaker[ctx.tools.lang] == null ? null : ctx.tools.block_breaker[ctx.tools.lang].lane5) || "\u25BC Lane 5");
       \u0275\u0275advance(2);
       \u0275\u0275repeater(ctx.grid);
       \u0275\u0275advance(2);
@@ -45916,7 +46129,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
       \u0275\u0275advance();
       \u0275\u0275textInterpolate1(" ", ctx.actionBtnText, " ");
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(ctx.showLevelUpModal ? 51 : -1);
+      \u0275\u0275conditional(ctx.showLevelUpModal ? 49 : -1);
     }
   }, styles: ['\n\n[_ngcontent-%COMP%]:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper[_ngcontent-%COMP%] {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1[_ngcontent-%COMP%] {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title[_ngcontent-%COMP%] {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container[_ngcontent-%COMP%] {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n}\n.ui-header[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins[_ngcontent-%COMP%] {\n  color: #FFD700;\n}\n.lvl[_ngcontent-%COMP%] {\n  color: #00FFFF;\n}\n.buy-controls[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton[_ngcontent-%COMP%] {\n  background: var(--accent);\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  background: #45a049;\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\nbutton[_ngcontent-%COMP%]:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background: #2196F3;\n}\n.buy-btn[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.trash-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over[_ngcontent-%COMP%] {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight[_ngcontent-%COMP%] {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(5, 80px);\n  grid-template-rows: repeat(2, 80px);\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 430px;\n  max-width: 100%;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers[_ngcontent-%COMP%] {\n  display: flex;\n  width: 430px;\n  max-width: 100%;\n  justify-content: space-around;\n  color: #888;\n  font-size: 0.85em;\n  margin-bottom: 2px;\n}\n.grid-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected[_ngcontent-%COMP%] {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over[_ngcontent-%COMP%] {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool[_ngcontent-%COMP%] {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool[_ngcontent-%COMP%]:active {\n  cursor: grabbing;\n}\n#dig-canvas[_ngcontent-%COMP%] {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 420px;\n  height: auto;\n  min-height: 480px;\n  max-width: 100%;\n  display: block;\n}\n.overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\n.overlay[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.lvl-up-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal[_ngcontent-%COMP%] {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn[_ngcontent-%COMP%] {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn[_ngcontent-%COMP%] {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn[_ngcontent-%COMP%]:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn[_ngcontent-%COMP%] {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn[_ngcontent-%COMP%]:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */'] });
 };
@@ -45924,8 +46137,8 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BlockBreakerComponent, [{
     type: Component,
     args: [{ selector: "app-block-breaker", imports: [], template: `<div class="block-breaker-wrapper {{tools.themeColor}} {{tools.fontSize}}">
-    <h1>{{tools.minigames[tools.lang]?.title || 'Merge Diggers'}}</h1>
-    <div class="level-title">{{tools.minigames[tools.lang]?.playerLevel || 'Player Level: '}}<span>{{ playerLevel }}</span></div>
+    <h1>{{tools.block_breaker[tools.lang]?.title || 'Merge Diggers'}}</h1>
+    <div class="level-title">{{tools.block_breaker[tools.lang]?.playerLevel || 'Player Level: '}}<span>{{ playerLevel }}</span></div>
     
     <div id="game-container">
         <!-- Win / Loss Screen -->
@@ -45942,10 +46155,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
         <div class="ui-header">
             <div class="stats-display">
                 <div class="stat-box coins">\u{1FA99} <span>{{ getFloorCoins() }}</span></div>
-                <div class="stat-box lvl">\u2B50 {{tools.minigames[tools.lang]?.lvl || 'Lvl '}}<span>{{ playerLevel }}</span></div>
-                <button class="lvl-up-btn" (click)="openSellLevelConfirm()" [disabled]="playerLevel <= 1">
-                    \u2B50 {{tools.minigames[tools.lang]?.sellLevel || 'Sell Level'}} (+{{ playerLevel * 20 }} \u{1F3AE})
-                </button>
+                <div class="stat-box lvl">\u2B50 {{tools.block_breaker[tools.lang]?.lvl || 'Lvl '}}<span>{{ playerLevel }}</span></div>
             </div>
             
             <div class="buy-controls">
@@ -45967,12 +46177,12 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
                  (drop)="dropTrash($event)"
                  (dragover)="allowDrop($event)"
                  (dragleave)="leaveTrash($event)">
-                \u{1F5D1}\uFE0F<br>{{tools.minigames[tools.lang]?.sell || 'SELL / TRASH'}}
+                \u{1F5D1}\uFE0F<br>{{tools.block_breaker[tools.lang]?.sell || 'SELL'}}
             </div>
         </div>
 
         <div class="lane-markers">
-            <span>{{tools.minigames[tools.lang]?.lane1 || '\u25BC Lane 1'}}</span><span>{{tools.minigames[tools.lang]?.lane2 || '\u25BC Lane 2'}}</span><span>{{tools.minigames[tools.lang]?.lane3 || '\u25BC Lane 3'}}</span><span>{{tools.minigames[tools.lang]?.lane4 || '\u25BC Lane 4'}}</span><span>{{tools.minigames[tools.lang]?.lane5 || '\u25BC Lane 5'}}</span>
+            <span>{{tools.block_breaker[tools.lang]?.lane1 || '\u25BC Lane 1'}}</span><span>{{tools.block_breaker[tools.lang]?.lane2 || '\u25BC Lane 2'}}</span><span>{{tools.block_breaker[tools.lang]?.lane3 || '\u25BC Lane 3'}}</span><span>{{tools.block_breaker[tools.lang]?.lane4 || '\u25BC Lane 4'}}</span><span>{{tools.block_breaker[tools.lang]?.lane5 || '\u25BC Lane 5'}}</span>
         </div>
         
         <div id="merge-grid">
@@ -46009,11 +46219,11 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
         @if (showLevelUpModal) {
             <div class="modal-overlay">
                 <div class="confirm-modal {{tools.themeColor}}">
-                    <h3>\u2B50 {{tools.minigames[tools.lang]?.sellLevel || 'Sell Level'}}</h3>
-                    <p>{{tools.minigames[tools.lang]?.confirmSellLevelMsg || 'Do you want to reset your level to Level 1 and get'}} +{{ playerLevel * 20 }} \u{1F3AE}?</p>
+                    <h3>\u2B50 {{tools.block_breaker[tools.lang]?.sellLevel || 'Sell Level'}}</h3>
+                    <p>{{tools.block_breaker[tools.lang]?.confirmSellLevelMsg || 'Do you want to reset your level to Level 1 and get'}} +{{ playerLevel * 20 }} \u{1F3AE}?</p>
                     <div class="modal-buttons">
-                        <button class="confirm-btn yes-btn" (click)="confirmSellLevel()">{{tools.minigames[tools.lang]?.yes || 'Yes'}} (+{{ playerLevel * 20 }} \u{1F3AE})</button>
-                        <button class="confirm-btn no-btn" (click)="closeSellLevelConfirm()">{{tools.minigames[tools.lang]?.no || 'No'}}</button>
+                        <button class="confirm-btn yes-btn" (click)="confirmSellLevel()">{{tools.block_breaker[tools.lang]?.yes || 'Yes'}} (+{{ playerLevel * 20 }} \u{1F3AE})</button>
+                        <button class="confirm-btn no-btn" (click)="closeSellLevelConfirm()">{{tools.block_breaker[tools.lang]?.no || 'No'}}</button>
                     </div>
                 </div>
             </div>
@@ -74135,11 +74345,11 @@ function AttackHoleComponent_Conditional_20_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].attack_hole_title) || "Attack Hole");
+    \u0275\u0275textInterpolate((ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].attack_hole_title) || "Attack Hole");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].attack_hole_inst) || "Move the hole to swallow weapons and defeat the giant boss!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].attack_hole_inst) || "Move the hole to swallow weapons and defeat the giant boss!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
+    \u0275\u0275textInterpolate((ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].startGame) || "Start Game");
   }
 }
 function AttackHoleComponent_Conditional_21_Template(rf, ctx) {
@@ -74177,7 +74387,7 @@ function AttackHoleComponent_Conditional_22_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].attack_hole_attack) || "Attack!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].attack_hole_attack) || "Attack!");
   }
 }
 function AttackHoleComponent_Conditional_23_Template(rf, ctx) {
@@ -74201,11 +74411,11 @@ function AttackHoleComponent_Conditional_23_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].victory) || "Victory!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].victory) || "Victory!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].playAgain) || "Play Again");
+    \u0275\u0275textInterpolate((ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].playAgain) || "Play Again");
   }
 }
 function AttackHoleComponent_Conditional_24_Template(rf, ctx) {
@@ -74229,11 +74439,11 @@ function AttackHoleComponent_Conditional_24_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].gameOver) || "Game Over");
+    \u0275\u0275textInterpolate((ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].gameOver) || "Game Over");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].tryAgain) || "Try Again");
+    \u0275\u0275textInterpolate((ctx_r1.tools.attack_hole[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.attack_hole[ctx_r1.tools.lang].tryAgain) || "Try Again");
   }
 }
 var AttackHoleComponent = class _AttackHoleComponent {
@@ -74752,8 +74962,14 @@ var AttackHoleComponent = class _AttackHoleComponent {
       this.hole.position.z += (this.targetPosition.z - this.hole.position.z) * 0.15;
       this.ring.position.x = this.hole.position.x;
       this.ring.position.z = this.hole.position.z;
+      const currentFloorScale = this.currentLevelConfig ? (this.currentLevelConfig.floorSize || 100) / 100 : 1;
       const growthFactor = this.currentLevelConfig ? (this.currentLevelConfig.HoleSizeIncreasePercentage || 100) / 100 : 1;
-      const targetScale = 1 + this.gamePoints / 800 * growthFactor;
+      let targetScale = 1 + this.gamePoints / 800 * (growthFactor / currentFloorScale);
+      const maxHoleRadius = 24 * currentFloorScale;
+      const maxTargetScale = maxHoleRadius / 1.8;
+      if (targetScale > maxTargetScale) {
+        targetScale = maxTargetScale;
+      }
       const currentScale = this.hole.scale.x;
       const newScale = currentScale + (targetScale - currentScale) * 0.1;
       this.hole.scale.set(newScale, newScale, 1);
@@ -75010,11 +75226,11 @@ var AttackHoleComponent = class _AttackHoleComponent {
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("attack-hole-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(7);
-      \u0275\u0275textInterpolate(((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].attack_hole_level) || "Level {0}").replace("{0}", ctx.level.toString()));
+      \u0275\u0275textInterpolate(((ctx.tools.attack_hole[ctx.tools.lang] == null ? null : ctx.tools.attack_hole[ctx.tools.lang].attack_hole_level) || "Level {0}").replace("{0}", ctx.level.toString()));
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].attack_hole_session_points) || "Session: {0}").replace("{0}", ctx.sessionPoints.toString()));
+      \u0275\u0275textInterpolate(((ctx.tools.attack_hole[ctx.tools.lang] == null ? null : ctx.tools.attack_hole[ctx.tools.lang].attack_hole_session_points) || "Session: {0}").replace("{0}", ctx.sessionPoints.toString()));
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(((ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].attack_hole_level_points) || "Points: {0}").replace("{0}", ctx.levelPoints.toString()));
+      \u0275\u0275textInterpolate(((ctx.tools.attack_hole[ctx.tools.lang] == null ? null : ctx.tools.attack_hole[ctx.tools.lang].attack_hole_level_points) || "Points: {0}").replace("{0}", ctx.levelPoints.toString()));
       \u0275\u0275advance(5);
       \u0275\u0275textInterpolate(ctx.timeLeftFormatted);
       \u0275\u0275advance(2);
@@ -75041,9 +75257,9 @@ var AttackHoleComponent = class _AttackHoleComponent {
   <div class="ui-layer">
     <div class="hud">
       <div class="stats-top">
-        <div>{{ (tools.minigames[tools.lang]?.attack_hole_level || 'Level {0}').replace('{0}', level.toString()) }}</div>
-        <div>{{ (tools.minigames[tools.lang]?.attack_hole_session_points || 'Session: {0}').replace('{0}', sessionPoints.toString()) }}</div>
-        <div>{{ (tools.minigames[tools.lang]?.attack_hole_level_points || 'Points: {0}').replace('{0}', levelPoints.toString()) }}</div>
+        <div>{{ (tools.attack_hole[tools.lang]?.attack_hole_level || 'Level {0}').replace('{0}', level.toString()) }}</div>
+        <div>{{ (tools.attack_hole[tools.lang]?.attack_hole_session_points || 'Session: {0}').replace('{0}', sessionPoints.toString()) }}</div>
+        <div>{{ (tools.attack_hole[tools.lang]?.attack_hole_level_points || 'Points: {0}').replace('{0}', levelPoints.toString()) }}</div>
       </div>
     </div>
     
@@ -75061,9 +75277,9 @@ var AttackHoleComponent = class _AttackHoleComponent {
 
   @if (gameState === 'START') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.attack_hole_title || 'Attack Hole'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.attack_hole_inst || 'Move the hole to swallow weapons and defeat the giant boss!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      <h1>{{tools.attack_hole[tools.lang]?.attack_hole_title || 'Attack Hole'}}</h1>
+      <p>{{tools.attack_hole[tools.lang]?.attack_hole_inst || 'Move the hole to swallow weapons and defeat the giant boss!'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.attack_hole[tools.lang]?.startGame || 'Start Game'}}</button>
     </div>
   }
 
@@ -75078,23 +75294,23 @@ var AttackHoleComponent = class _AttackHoleComponent {
 
   @if (gameState === 'ATTACK_READY') {
     <div class="screen attack-ready-screen" (click)="triggerAttack()">
-      <h1 class="attack-text flashing">{{tools.minigames[tools.lang]?.attack_hole_attack || 'Attack!'}}</h1>
+      <h1 class="attack-text flashing">{{tools.attack_hole[tools.lang]?.attack_hole_attack || 'Attack!'}}</h1>
     </div>
   }
 
   @if (gameState === 'WIN') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.victory || 'Victory!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.playAgain || 'Play Again'}}</button>
+      <h1>{{tools.attack_hole[tools.lang]?.victory || 'Victory!'}}</h1>
+      <p>{{tools.attack_hole[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.attack_hole[tools.lang]?.playAgain || 'Play Again'}}</button>
     </div>
   }
 
   @if (gameState === 'LOSE') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+      <h1>{{tools.attack_hole[tools.lang]?.gameOver || 'Game Over'}}</h1>
+      <p>{{tools.attack_hole[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.attack_hole[tools.lang]?.tryAgain || 'Try Again'}}</button>
     </div>
   }
 </div>
@@ -75133,11 +75349,11 @@ function DogeRescueComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].doge_rescue_title) || "Doge Rescue");
+    \u0275\u0275textInterpolate((ctx_r1.tools.doge_rescue[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.doge_rescue[ctx_r1.tools.lang].doge_rescue_title) || "Doge Rescue");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].doge_rescue_inst) || "Draw a line to protect Doge from the bees!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.doge_rescue[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.doge_rescue[ctx_r1.tools.lang].doge_rescue_inst) || "Draw a line to protect Doge from the bees!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
+    \u0275\u0275textInterpolate((ctx_r1.tools.doge_rescue[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.doge_rescue[ctx_r1.tools.lang].startGame) || "Start Game");
   }
 }
 function DogeRescueComponent_Conditional_18_Template(rf, ctx) {
@@ -75161,11 +75377,11 @@ function DogeRescueComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].victory) || "Victory!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.doge_rescue[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.doge_rescue[ctx_r1.tools.lang].victory) || "Victory!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r1.tools.doge_rescue[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.doge_rescue[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].nextLevel) || "Next Level");
+    \u0275\u0275textInterpolate((ctx_r1.tools.doge_rescue[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.doge_rescue[ctx_r1.tools.lang].nextLevel) || "Next Level");
   }
 }
 function DogeRescueComponent_Conditional_19_Template(rf, ctx) {
@@ -75189,11 +75405,11 @@ function DogeRescueComponent_Conditional_19_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].gameOver) || "Game Over");
+    \u0275\u0275textInterpolate((ctx_r1.tools.doge_rescue[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.doge_rescue[ctx_r1.tools.lang].gameOver) || "Game Over");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r1.tools.doge_rescue[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.doge_rescue[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].tryAgain) || "Try Again");
+    \u0275\u0275textInterpolate((ctx_r1.tools.doge_rescue[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.doge_rescue[ctx_r1.tools.lang].tryAgain) || "Try Again");
   }
 }
 var DogeRescueComponent = class _DogeRescueComponent {
@@ -75702,7 +75918,7 @@ var DogeRescueComponent = class _DogeRescueComponent {
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("doge-rescue-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(8);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].level) || "Level ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.doge_rescue[ctx.tools.lang] == null ? null : ctx.tools.doge_rescue[ctx.tools.lang].level) || "Level ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.level);
       \u0275\u0275advance();
@@ -75729,7 +75945,7 @@ var DogeRescueComponent = class _DogeRescueComponent {
 
     <div class="ui-layer">
       <div class="hud">
-        <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+        <div>{{tools.doge_rescue[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
         <div class="timer-box" [style.visibility]="gameState === 'ATTACK' ? 'visible' : 'hidden'">
           \u23F3 {{timerDisplay}}
         </div>
@@ -75739,25 +75955,25 @@ var DogeRescueComponent = class _DogeRescueComponent {
 
     @if (gameState === 'START') {
       <div class="screen">
-        <h1>{{tools.minigames[tools.lang]?.doge_rescue_title || 'Doge Rescue'}}</h1>
-        <p>{{tools.minigames[tools.lang]?.doge_rescue_inst || 'Draw a line to protect Doge from the bees!'}}</p>
-        <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+        <h1>{{tools.doge_rescue[tools.lang]?.doge_rescue_title || 'Doge Rescue'}}</h1>
+        <p>{{tools.doge_rescue[tools.lang]?.doge_rescue_inst || 'Draw a line to protect Doge from the bees!'}}</p>
+        <button class="btn" (click)="startLevel()">{{tools.doge_rescue[tools.lang]?.startGame || 'Start Game'}}</button>
       </div>
     }
 
     @if (gameState === 'WIN') {
       <div class="screen">
-        <h1>{{tools.minigames[tools.lang]?.victory || 'Victory!'}}</h1>
-        <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-        <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+        <h1>{{tools.doge_rescue[tools.lang]?.victory || 'Victory!'}}</h1>
+        <p>{{tools.doge_rescue[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+        <button class="btn" (click)="nextLevel()">{{tools.doge_rescue[tools.lang]?.nextLevel || 'Next Level'}}</button>
       </div>
     }
 
     @if (gameState === 'LOSE') {
       <div class="screen">
-        <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-        <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-        <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+        <h1>{{tools.doge_rescue[tools.lang]?.gameOver || 'Game Over'}}</h1>
+        <p>{{tools.doge_rescue[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+        <button class="btn" (click)="startLevel()">{{tools.doge_rescue[tools.lang]?.tryAgain || 'Try Again'}}</button>
       </div>
     }
   </div>
@@ -76467,7 +76683,7 @@ function HelixJumpComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1("", (ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].time) || "Time: ", " ");
+    \u0275\u0275textInterpolate1("", (ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].time) || "Time: ", " ");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r0.timeLeft);
   }
@@ -76493,11 +76709,11 @@ function HelixJumpComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].helix_jump_title) || "Helix Jump");
+    \u0275\u0275textInterpolate((ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].helix_jump_title) || "Helix Jump");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].helix_jump_inst) || "Rotate the tower to drop the bouncing ball to the bottom!");
+    \u0275\u0275textInterpolate((ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].helix_jump_inst) || "Rotate the tower to drop the bouncing ball to the bottom!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].startGame) || "Start Game");
+    \u0275\u0275textInterpolate((ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].startGame) || "Start Game");
   }
 }
 function HelixJumpComponent_Conditional_15_Template(rf, ctx) {
@@ -76521,11 +76737,11 @@ function HelixJumpComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].levelCleared) || "Level Cleared!");
+    \u0275\u0275textInterpolate((ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].levelCleared) || "Level Cleared!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].score) || "Score: ", " ", ctx_r0.levelPoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].score) || "Score: ", " ", ctx_r0.levelPoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].nextLevel) || "Next Level");
+    \u0275\u0275textInterpolate((ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].nextLevel) || "Next Level");
   }
 }
 function HelixJumpComponent_Conditional_16_Template(rf, ctx) {
@@ -76549,11 +76765,11 @@ function HelixJumpComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].gameOver) || "Game Over");
+    \u0275\u0275textInterpolate((ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].gameOver) || "Game Over");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].score) || "Score: ", " ", ctx_r0.levelPoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].score) || "Score: ", " ", ctx_r0.levelPoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r0.tools.minigames[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.minigames[ctx_r0.tools.lang].tryAgain) || "Try Again");
+    \u0275\u0275textInterpolate((ctx_r0.tools.helix_jump[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.helix_jump[ctx_r0.tools.lang].tryAgain) || "Try Again");
   }
 }
 var HelixJumpComponent = class _HelixJumpComponent {
@@ -77104,11 +77320,11 @@ var HelixJumpComponent = class _HelixJumpComponent {
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("helix-jump-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(6);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].score) || "Score: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.helix_jump[ctx.tools.lang] == null ? null : ctx.tools.helix_jump[ctx.tools.lang].score) || "Score: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.gamePoints);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].level) || "Level ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.helix_jump[ctx.tools.lang] == null ? null : ctx.tools.helix_jump[ctx.tools.lang].level) || "Level ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.level);
       \u0275\u0275advance();
@@ -77130,35 +77346,35 @@ var HelixJumpComponent = class _HelixJumpComponent {
 
   <div class="ui-layer">
     <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+      <div>{{tools.helix_jump[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
+      <div>{{tools.helix_jump[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
       @if (timeLeft > 0) {
-        <div>{{tools.minigames[tools.lang]?.time || 'Time: '}} <span>{{timeLeft}}</span></div>
+        <div>{{tools.helix_jump[tools.lang]?.time || 'Time: '}} <span>{{timeLeft}}</span></div>
       }
     </div>
   </div>
 
   @if (gameState === 'START') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.helix_jump_title || 'Helix Jump'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.helix_jump_inst || 'Rotate the tower to drop the bouncing ball to the bottom!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      <h1>{{tools.helix_jump[tools.lang]?.helix_jump_title || 'Helix Jump'}}</h1>
+      <p>{{tools.helix_jump[tools.lang]?.helix_jump_inst || 'Rotate the tower to drop the bouncing ball to the bottom!'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.helix_jump[tools.lang]?.startGame || 'Start Game'}}</button>
     </div>
   }
 
   @if (gameState === 'WIN') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
-      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+      <h1>{{tools.helix_jump[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
+      <p>{{tools.helix_jump[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
+      <button class="btn" (click)="nextLevel()">{{tools.helix_jump[tools.lang]?.nextLevel || 'Next Level'}}</button>
     </div>
   }
 
   @if (gameState === 'LOSE') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+      <h1>{{tools.helix_jump[tools.lang]?.gameOver || 'Game Over'}}</h1>
+      <p>{{tools.helix_jump[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.helix_jump[tools.lang]?.tryAgain || 'Try Again'}}</button>
     </div>
   }
 </div>
@@ -77531,11 +77747,11 @@ function MobControlComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].mob_control_title) || "Mob Control");
+    \u0275\u0275textInterpolate((ctx_r1.tools.mob_control[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.mob_control[ctx_r1.tools.lang].mob_control_title) || "Mob Control");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].mob_control_inst) || "Shoot and multiply your mob to overwhelm the enemy!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.mob_control[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.mob_control[ctx_r1.tools.lang].mob_control_inst) || "Shoot and multiply your mob to overwhelm the enemy!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
+    \u0275\u0275textInterpolate((ctx_r1.tools.mob_control[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.mob_control[ctx_r1.tools.lang].startGame) || "Start Game");
   }
 }
 function MobControlComponent_Conditional_16_Template(rf, ctx) {
@@ -77559,11 +77775,11 @@ function MobControlComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].victory) || "Victory!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.mob_control[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.mob_control[ctx_r1.tools.lang].victory) || "Victory!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r1.tools.mob_control[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.mob_control[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].nextLevel) || "Next Level");
+    \u0275\u0275textInterpolate((ctx_r1.tools.mob_control[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.mob_control[ctx_r1.tools.lang].nextLevel) || "Next Level");
   }
 }
 function MobControlComponent_Conditional_17_Template(rf, ctx) {
@@ -77587,11 +77803,11 @@ function MobControlComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].gameOver) || "Game Over");
+    \u0275\u0275textInterpolate((ctx_r1.tools.mob_control[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.mob_control[ctx_r1.tools.lang].gameOver) || "Game Over");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r1.tools.mob_control[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.mob_control[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].tryAgain) || "Try Again");
+    \u0275\u0275textInterpolate((ctx_r1.tools.mob_control[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.mob_control[ctx_r1.tools.lang].tryAgain) || "Try Again");
   }
 }
 var MobControlComponent = class _MobControlComponent {
@@ -77891,7 +78107,7 @@ var MobControlComponent = class _MobControlComponent {
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("mob-control-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(8);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].level) || "Level ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.mob_control[ctx.tools.lang] == null ? null : ctx.tools.mob_control[ctx.tools.lang].level) || "Level ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.level);
       \u0275\u0275advance(4);
@@ -77914,32 +78130,32 @@ var MobControlComponent = class _MobControlComponent {
 
     <div class="ui-layer">
       <div class="hud">
-        <div>{{tools.minigames[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+        <div>{{tools.mob_control[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
         <div>\u{1FA99} <span>{{gamePoints}}</span></div>
       </div>
     </div>
 
     @if (gameState === 'START') {
       <div class="screen">
-        <h1>{{tools.minigames[tools.lang]?.mob_control_title || 'Mob Control'}}</h1>
-        <p>{{tools.minigames[tools.lang]?.mob_control_inst || 'Shoot and multiply your mob to overwhelm the enemy!'}}</p>
-        <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+        <h1>{{tools.mob_control[tools.lang]?.mob_control_title || 'Mob Control'}}</h1>
+        <p>{{tools.mob_control[tools.lang]?.mob_control_inst || 'Shoot and multiply your mob to overwhelm the enemy!'}}</p>
+        <button class="btn" (click)="startLevel()">{{tools.mob_control[tools.lang]?.startGame || 'Start Game'}}</button>
       </div>
     }
 
     @if (gameState === 'WIN') {
       <div class="screen">
-        <h1>{{tools.minigames[tools.lang]?.victory || 'Victory!'}}</h1>
-        <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-        <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.nextLevel || 'Next Level'}}</button>
+        <h1>{{tools.mob_control[tools.lang]?.victory || 'Victory!'}}</h1>
+        <p>{{tools.mob_control[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+        <button class="btn" (click)="nextLevel()">{{tools.mob_control[tools.lang]?.nextLevel || 'Next Level'}}</button>
       </div>
     }
 
     @if (gameState === 'LOSE') {
       <div class="screen">
-        <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-        <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-        <button class="btn" (click)="startLevel()">{{tools.minigames[tools.lang]?.tryAgain || 'Try Again'}}</button>
+        <h1>{{tools.mob_control[tools.lang]?.gameOver || 'Game Over'}}</h1>
+        <p>{{tools.mob_control[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+        <button class="btn" (click)="startLevel()">{{tools.mob_control[tools.lang]?.tryAgain || 'Try Again'}}</button>
       </div>
     }
   </div>
@@ -78011,11 +78227,11 @@ function PaperIoComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].paper_io_title) || "Paper.io");
+    \u0275\u0275textInterpolate((ctx_r1.tools.paper_io[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.paper_io[ctx_r1.tools.lang].paper_io_title) || "Paper.io");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].paper_io_inst) || "Conquer territory by enclosing loops and defeat opponents!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.paper_io[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.paper_io[ctx_r1.tools.lang].paper_io_inst) || "Conquer territory by enclosing loops and defeat opponents!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "Start Game");
+    \u0275\u0275textInterpolate((ctx_r1.tools.paper_io[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.paper_io[ctx_r1.tools.lang].startGame) || "Start Game");
   }
 }
 function PaperIoComponent_Conditional_13_Template(rf, ctx) {
@@ -78039,11 +78255,11 @@ function PaperIoComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].gameOver) || "Game Over");
+    \u0275\u0275textInterpolate((ctx_r1.tools.paper_io[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.paper_io[ctx_r1.tools.lang].gameOver) || "Game Over");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
+    \u0275\u0275textInterpolate2("", (ctx_r1.tools.paper_io[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.paper_io[ctx_r1.tools.lang].score) || "Score: ", " ", ctx_r1.gamePoints, "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].playAgain) || "Play Again");
+    \u0275\u0275textInterpolate((ctx_r1.tools.paper_io[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.paper_io[ctx_r1.tools.lang].playAgain) || "Play Again");
   }
 }
 var PaperIoComponent = class _PaperIoComponent {
@@ -78189,7 +78405,7 @@ var PaperIoComponent = class _PaperIoComponent {
       let safe = true;
       if (!human.isDead) {
         let distToHuman = Math.hypot(sx - human.x, sy - human.y);
-        if (distToHuman < radius + 15) {
+        if (distToHuman < radius + 40) {
           safe = false;
         }
       }
@@ -78329,15 +78545,59 @@ var PaperIoComponent = class _PaperIoComponent {
     if (!p || p.isDead)
       return;
     p.isDead = true;
+    let validKiller = killerId !== void 0 && killerId !== id;
+    let isTouching = false;
+    if (validKiller) {
+      for (let x = 0; x < this.GRID_SIZE; x++) {
+        for (let y = 0; y < this.GRID_SIZE; y++) {
+          if (this.grid[x][y] === id) {
+            for (let d of this.DIRS) {
+              let nx = x + d.x, ny = y + d.y;
+              if (nx >= 0 && nx < this.GRID_SIZE && ny >= 0 && ny < this.GRID_SIZE) {
+                if (this.grid[nx][ny] === killerId) {
+                  isTouching = true;
+                  break;
+                }
+              }
+            }
+          }
+          if (isTouching)
+            break;
+        }
+        if (isTouching)
+          break;
+      }
+    }
+    let shouldTransfer = validKiller && isTouching;
     for (let x = 0; x < this.GRID_SIZE; x++) {
       for (let y = 0; y < this.GRID_SIZE; y++) {
-        if (this.grid[x][y] === id)
-          this.grid[x][y] = -1;
-        if (this.trailGrid[x][y] === id)
+        if (this.grid[x][y] === id) {
+          this.grid[x][y] = shouldTransfer ? killerId : -1;
+        }
+        if (this.trailGrid[x][y] === id) {
           this.trailGrid[x][y] = -1;
+        }
       }
     }
     p.scoreCount = 0;
+    if (validKiller) {
+      let killer = this.players.find((kp) => kp.id === killerId);
+      if (killer && !killer.isDead) {
+        let count = 0;
+        for (let x = 0; x < this.GRID_SIZE; x++) {
+          for (let y = 0; y < this.GRID_SIZE; y++) {
+            if (this.grid[x][y] === killerId)
+              count++;
+          }
+        }
+        killer.scoreCount = count;
+        if (killer.id === 0) {
+          this.ngZone.run(() => {
+            this.gamePoints = killer.scoreCount * 2;
+          });
+        }
+      }
+    }
     if (id === 0) {
       this.ngZone.run(() => {
         this.tools.sessionPoints += this.gamePoints;
@@ -78403,6 +78663,25 @@ var PaperIoComponent = class _PaperIoComponent {
           }
         }
         p.scoreCount = count;
+        if (p.scoreCount === 0) {
+          this.killPlayer(p.id, player.id);
+        } else if (p.state === "DRAWING" && p.trail.length > 0) {
+          let start = p.trail[0];
+          let isConnected = false;
+          for (let d of this.DIRS) {
+            let nx = start.x + d.x;
+            let ny = start.y + d.y;
+            if (nx >= 0 && nx < this.GRID_SIZE && ny >= 0 && ny < this.GRID_SIZE) {
+              if (this.grid[nx][ny] === p.id) {
+                isConnected = true;
+                break;
+              }
+            }
+          }
+          if (!isConnected) {
+            this.killPlayer(p.id, player.id);
+          }
+        }
       }
     });
     if (player.id === 0) {
@@ -78852,7 +79131,7 @@ var PaperIoComponent = class _PaperIoComponent {
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("paper-io-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(8);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].score) || "Score: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.paper_io[ctx.tools.lang] == null ? null : ctx.tools.paper_io[ctx.tools.lang].score) || "Score: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.gamePoints);
       \u0275\u0275advance();
@@ -78874,7 +79153,7 @@ var PaperIoComponent = class _PaperIoComponent {
 
   <div class="ui-layer">
     <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
+      <div>{{tools.paper_io[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
     </div>
 
     @if (gameState === 'PLAYING') {
@@ -78891,17 +79170,17 @@ var PaperIoComponent = class _PaperIoComponent {
 
   @if (gameState === 'START') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.paper_io_title || 'Paper.io'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.paper_io_inst || 'Conquer territory by enclosing loops and defeat opponents!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      <h1>{{tools.paper_io[tools.lang]?.paper_io_title || 'Paper.io'}}</h1>
+      <p>{{tools.paper_io[tools.lang]?.paper_io_inst || 'Conquer territory by enclosing loops and defeat opponents!'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.paper_io[tools.lang]?.startGame || 'Start Game'}}</button>
     </div>
   }
 
   @if (gameState === 'GAMEOVER') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.playAgain || 'Play Again'}}</button>
+      <h1>{{tools.paper_io[tools.lang]?.gameOver || 'Game Over'}}</h1>
+      <p>{{tools.paper_io[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.paper_io[tools.lang]?.playAgain || 'Play Again'}}</button>
     </div>
   }
 </div>
@@ -78941,11 +79220,11 @@ function SpiralRollComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_title) || "Spiral Roll");
+    \u0275\u0275textInterpolate((ctx_r1.tools.spiral_roll[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.spiral_roll[ctx_r1.tools.lang].spiral_roll_title) || "Spiral Roll");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_inst_orig) || "Hold to carve a spiral.\nRelease to launch it!\nBigger rolls = More points.");
+    \u0275\u0275textInterpolate((ctx_r1.tools.spiral_roll[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.spiral_roll[ctx_r1.tools.lang].spiral_roll_inst_orig) || "Hold to carve a spiral.\nRelease to launch it!\nBigger rolls = More points.");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].startGame) || "START");
+    \u0275\u0275textInterpolate((ctx_r1.tools.spiral_roll[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.spiral_roll[ctx_r1.tools.lang].startGame) || "START");
   }
 }
 function SpiralRollComponent_Conditional_18_Template(rf, ctx) {
@@ -78971,13 +79250,13 @@ function SpiralRollComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_cleared) || "LEVEL CLEARED!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.spiral_roll[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.spiral_roll[ctx_r1.tools.lang].spiral_roll_cleared) || "LEVEL CLEARED!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_final_score) || "Final Score: ", " ");
+    \u0275\u0275textInterpolate1("", (ctx_r1.tools.spiral_roll[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.spiral_roll[ctx_r1.tools.lang].spiral_roll_final_score) || "Final Score: ", " ");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.levelPoints);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_next_level) || "NEXT LEVEL");
+    \u0275\u0275textInterpolate((ctx_r1.tools.spiral_roll[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.spiral_roll[ctx_r1.tools.lang].spiral_roll_next_level) || "NEXT LEVEL");
   }
 }
 function SpiralRollComponent_Conditional_19_Template(rf, ctx) {
@@ -79003,13 +79282,13 @@ function SpiralRollComponent_Conditional_19_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_crashed) || "CRASHED!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.spiral_roll[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.spiral_roll[ctx_r1.tools.lang].spiral_roll_crashed) || "CRASHED!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_final_score) || "Final Score: ", " ");
+    \u0275\u0275textInterpolate1("", (ctx_r1.tools.spiral_roll[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.spiral_roll[ctx_r1.tools.lang].spiral_roll_final_score) || "Final Score: ", " ");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.levelPoints);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].spiral_roll_try_again) || "TRY AGAIN");
+    \u0275\u0275textInterpolate((ctx_r1.tools.spiral_roll[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.spiral_roll[ctx_r1.tools.lang].spiral_roll_try_again) || "TRY AGAIN");
   }
 }
 var SpiralRollComponent = class _SpiralRollComponent {
@@ -79488,7 +79767,7 @@ var SpiralRollComponent = class _SpiralRollComponent {
               this.levelPoints += bonusPoints;
               this.tools.playSound("sfx_4");
             });
-            const bonusStr = this.tools.minigames[this.tools.lang]?.spiral_roll_bonus || "BONUS!";
+            const bonusStr = this.tools.spiral_roll[this.tools.lang]?.spiral_roll_bonus || "BONUS!";
             this.createFloatingText(`+${bonusPoints} ${bonusStr}`, r.mesh.position, "#2ecc71");
             this.scene.remove(r.mesh);
             this.launchedRolls.splice(i, 1);
@@ -79641,15 +79920,15 @@ var SpiralRollComponent = class _SpiralRollComponent {
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("spiral-roll-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(6);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].spiral_roll_session) || "Session: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.spiral_roll[ctx.tools.lang] == null ? null : ctx.tools.spiral_roll[ctx.tools.lang].spiral_roll_session) || "Session: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.sessionPoints);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].spiral_roll_score) || "Score: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.spiral_roll[ctx.tools.lang] == null ? null : ctx.tools.spiral_roll[ctx.tools.lang].spiral_roll_score) || "Score: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.levelPoints);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].spiral_roll_level_lbl) || "Level: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.spiral_roll[ctx.tools.lang] == null ? null : ctx.tools.spiral_roll[ctx.tools.lang].spiral_roll_level_lbl) || "Level: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.level);
       \u0275\u0275advance();
@@ -79669,33 +79948,33 @@ var SpiralRollComponent = class _SpiralRollComponent {
 
   <div class="ui-layer">
     <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.spiral_roll_session || 'Session: '}} <span id="sessionUI">{{sessionPoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.spiral_roll_score || 'Score: '}} <span id="scoreUI">{{levelPoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.spiral_roll_level_lbl || 'Level: '}} <span id="levelUI">{{level}}</span></div>
+      <div>{{tools.spiral_roll[tools.lang]?.spiral_roll_session || 'Session: '}} <span id="sessionUI">{{sessionPoints}}</span></div>
+      <div>{{tools.spiral_roll[tools.lang]?.spiral_roll_score || 'Score: '}} <span id="scoreUI">{{levelPoints}}</span></div>
+      <div>{{tools.spiral_roll[tools.lang]?.spiral_roll_level_lbl || 'Level: '}} <span id="levelUI">{{level}}</span></div>
     </div>
   </div>
 
   @if (gameState === 'START') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.spiral_roll_title || 'Spiral Roll'}}</h1>
-      <p style="white-space: pre-line; text-align: center;">{{tools.minigames[tools.lang]?.spiral_roll_inst_orig || 'Hold to carve a spiral.\\nRelease to launch it!\\nBigger rolls = More points.'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'START'}}</button>
+      <h1>{{tools.spiral_roll[tools.lang]?.spiral_roll_title || 'Spiral Roll'}}</h1>
+      <p style="white-space: pre-line; text-align: center;">{{tools.spiral_roll[tools.lang]?.spiral_roll_inst_orig || 'Hold to carve a spiral.\\nRelease to launch it!\\nBigger rolls = More points.'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.spiral_roll[tools.lang]?.startGame || 'START'}}</button>
     </div>
   }
 
   @if (gameState === 'WIN') {
     <div class="screen">
-      <h1 style="color: #4CAF50">{{tools.minigames[tools.lang]?.spiral_roll_cleared || 'LEVEL CLEARED!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.spiral_roll_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
-      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.spiral_roll_next_level || 'NEXT LEVEL'}}</button>
+      <h1 style="color: #4CAF50">{{tools.spiral_roll[tools.lang]?.spiral_roll_cleared || 'LEVEL CLEARED!'}}</h1>
+      <p>{{tools.spiral_roll[tools.lang]?.spiral_roll_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="nextLevel()">{{tools.spiral_roll[tools.lang]?.spiral_roll_next_level || 'NEXT LEVEL'}}</button>
     </div>
   }
 
   @if (gameState === 'LOSE') {
     <div class="screen">
-      <h1 style="color: #F44336">{{tools.minigames[tools.lang]?.spiral_roll_crashed || 'CRASHED!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.spiral_roll_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.spiral_roll_try_again || 'TRY AGAIN'}}</button>
+      <h1 style="color: #F44336">{{tools.spiral_roll[tools.lang]?.spiral_roll_crashed || 'CRASHED!'}}</h1>
+      <p>{{tools.spiral_roll[tools.lang]?.spiral_roll_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="startGame()">{{tools.spiral_roll[tools.lang]?.spiral_roll_try_again || 'TRY AGAIN'}}</button>
     </div>
   }
 </div>
@@ -79736,11 +80015,11 @@ function StackColorsComponent_Conditional_21_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_tap_kick) || "TAP TO KICK!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_tap_kick) || "TAP TO KICK!");
     \u0275\u0275advance(2);
     \u0275\u0275styleProp("width", ctx_r1.kickPower, "%");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_kick_btn) || "KICK!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_kick_btn) || "KICK!");
   }
 }
 function StackColorsComponent_Conditional_22_Template(rf, ctx) {
@@ -79764,11 +80043,11 @@ function StackColorsComponent_Conditional_22_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_title) || "Stack Colors!");
+    \u0275\u0275textInterpolate((ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_title) || "Stack Colors!");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_inst) || "Drag to move.\nCollect matching colors.\nAvoid wrong colors.");
+    \u0275\u0275textInterpolate((ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_inst) || "Drag to move.\nCollect matching colors.\nAvoid wrong colors.");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_start_run) || "START RUN");
+    \u0275\u0275textInterpolate((ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_start_run) || "START RUN");
   }
 }
 function StackColorsComponent_Conditional_23_Template(rf, ctx) {
@@ -79794,13 +80073,13 @@ function StackColorsComponent_Conditional_23_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_level_complete) || "LEVEL COMPLETE");
+    \u0275\u0275textInterpolate((ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_level_complete) || "LEVEL COMPLETE");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_final_score) || "Final Score: ", " ");
+    \u0275\u0275textInterpolate1("", (ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_final_score) || "Final Score: ", " ");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.levelPoints);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_play_again) || "PLAY AGAIN");
+    \u0275\u0275textInterpolate((ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_play_again) || "PLAY AGAIN");
   }
 }
 function StackColorsComponent_Conditional_24_Template(rf, ctx) {
@@ -79826,13 +80105,13 @@ function StackColorsComponent_Conditional_24_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_game_over) || "GAME OVER");
+    \u0275\u0275textInterpolate((ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_game_over) || "GAME OVER");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1("", (ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_final_score) || "Final Score: ", " ");
+    \u0275\u0275textInterpolate1("", (ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_final_score) || "Final Score: ", " ");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.levelPoints);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r1.tools.minigames[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.minigames[ctx_r1.tools.lang].stack_colors_play_again) || "PLAY AGAIN");
+    \u0275\u0275textInterpolate((ctx_r1.tools.stack_colors[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.stack_colors[ctx_r1.tools.lang].stack_colors_play_again) || "PLAY AGAIN");
   }
 }
 var StackColorsComponent = class _StackColorsComponent {
@@ -80253,7 +80532,7 @@ var StackColorsComponent = class _StackColorsComponent {
                 if (popped)
                   this.playerGroup.remove(popped);
                 this.updateCharacterHeight();
-                this.tools.playSound("sfx_8");
+                this.tools.playSound("sfx_1");
               } else {
                 this.gameOver();
               }
@@ -80297,7 +80576,7 @@ var StackColorsComponent = class _StackColorsComponent {
           }
         });
         this.ngZone.run(() => {
-          const bonusStr = this.tools.minigames[this.tools.lang]?.stack_colors_bonus || "BONUS!";
+          const bonusStr = this.tools.stack_colors[this.tools.lang]?.stack_colors_bonus || "BONUS!";
           const bonusPts = mult * 200;
           this.levelPoints += bonusPts;
           this.sessionPoints += this.levelPoints;
@@ -80382,19 +80661,19 @@ var StackColorsComponent = class _StackColorsComponent {
     if (rf & 2) {
       \u0275\u0275classMapInterpolate2("stack-colors-wrapper ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
       \u0275\u0275advance(6);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].stack_colors_session) || "Session: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.stack_colors[ctx.tools.lang] == null ? null : ctx.tools.stack_colors[ctx.tools.lang].stack_colors_session) || "Session: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.sessionPoints);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].stack_colors_score) || "Score: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.stack_colors[ctx.tools.lang] == null ? null : ctx.tools.stack_colors[ctx.tools.lang].stack_colors_score) || "Score: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.levelPoints);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].stack_colors_level_lbl) || "Level: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.stack_colors[ctx.tools.lang] == null ? null : ctx.tools.stack_colors[ctx.tools.lang].stack_colors_level_lbl) || "Level: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.level);
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate1("", (ctx.tools.minigames[ctx.tools.lang] == null ? null : ctx.tools.minigames[ctx.tools.lang].stack_colors_stack) || "Stack: ", " ");
+      \u0275\u0275textInterpolate1("", (ctx.tools.stack_colors[ctx.tools.lang] == null ? null : ctx.tools.stack_colors[ctx.tools.lang].stack_colors_stack) || "Stack: ", " ");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.stack.length);
       \u0275\u0275advance();
@@ -80416,44 +80695,44 @@ var StackColorsComponent = class _StackColorsComponent {
 
   <div class="ui-layer">
     <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.stack_colors_session || 'Session: '}} <span id="sessionUI">{{sessionPoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.stack_colors_score || 'Score: '}} <span id="scoreUI">{{levelPoints}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.stack_colors_level_lbl || 'Level: '}} <span id="levelUI">{{level}}</span></div>
-      <div>{{tools.minigames[tools.lang]?.stack_colors_stack || 'Stack: '}} <span id="stackUI">{{stack.length}}</span></div>
+      <div>{{tools.stack_colors[tools.lang]?.stack_colors_session || 'Session: '}} <span id="sessionUI">{{sessionPoints}}</span></div>
+      <div>{{tools.stack_colors[tools.lang]?.stack_colors_score || 'Score: '}} <span id="scoreUI">{{levelPoints}}</span></div>
+      <div>{{tools.stack_colors[tools.lang]?.stack_colors_level_lbl || 'Level: '}} <span id="levelUI">{{level}}</span></div>
+      <div>{{tools.stack_colors[tools.lang]?.stack_colors_stack || 'Stack: '}} <span id="stackUI">{{stack.length}}</span></div>
     </div>
 
     @if (gameState === 'PREP_KICK') {
       <div id="kickUI">
-        <h2 style="color: white; text-shadow: 1px 1px 2px black; margin: 0 0 10px 0;">{{tools.minigames[tools.lang]?.stack_colors_tap_kick || 'TAP TO KICK!'}}</h2>
+        <h2 style="color: white; text-shadow: 1px 1px 2px black; margin: 0 0 10px 0;">{{tools.stack_colors[tools.lang]?.stack_colors_tap_kick || 'TAP TO KICK!'}}</h2>
         <div class="power-bar-container">
             <div id="powerBar" [style.width.%]="kickPower"></div>
         </div>
-        <button class="kick-btn" (mousedown)="addKickPower($event)" (touchstart)="addKickPower($event)">{{tools.minigames[tools.lang]?.stack_colors_kick_btn || 'KICK!'}}</button>
+        <button class="kick-btn" (mousedown)="addKickPower($event)" (touchstart)="addKickPower($event)">{{tools.stack_colors[tools.lang]?.stack_colors_kick_btn || 'KICK!'}}</button>
       </div>
     }
   </div>
 
   @if (gameState === 'START') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.stack_colors_title || 'Stack Colors!'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.stack_colors_inst || 'Drag to move.\\nCollect matching colors.\\nAvoid wrong colors.'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.stack_colors_start_run || 'START RUN'}}</button>
+      <h1>{{tools.stack_colors[tools.lang]?.stack_colors_title || 'Stack Colors!'}}</h1>
+      <p>{{tools.stack_colors[tools.lang]?.stack_colors_inst || 'Drag to move.\\nCollect matching colors.\\nAvoid wrong colors.'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.stack_colors[tools.lang]?.stack_colors_start_run || 'START RUN'}}</button>
     </div>
   }
 
   @if (gameState === 'WIN') {
     <div class="screen">
-      <h1 style="color: #4CAF50">{{tools.minigames[tools.lang]?.stack_colors_level_complete || 'LEVEL COMPLETE'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
-      <button class="btn" (click)="nextLevel()">{{tools.minigames[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
+      <h1 style="color: #4CAF50">{{tools.stack_colors[tools.lang]?.stack_colors_level_complete || 'LEVEL COMPLETE'}}</h1>
+      <p>{{tools.stack_colors[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="nextLevel()">{{tools.stack_colors[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
     </div>
   }
 
   @if (gameState === 'LOSE') {
     <div class="screen">
-      <h1 style="color: #F44336">{{tools.minigames[tools.lang]?.stack_colors_game_over || 'GAME OVER'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
+      <h1 style="color: #F44336">{{tools.stack_colors[tools.lang]?.stack_colors_game_over || 'GAME OVER'}}</h1>
+      <p>{{tools.stack_colors[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="startGame()">{{tools.stack_colors[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
     </div>
   }
 </div>
@@ -80504,7 +80783,7 @@ function MinigamesComponent_For_3_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275property("src", ctx_r2.tools.isMinigameUnlocked(game_r2.id) ? "img/icons/play-svgrepo-com.svg" : "img/icons/lock-keyhole-minimalistic-svgrepo-com.svg", \u0275\u0275sanitizeUrl)("alt", game_r2.defaultTitle);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate((ctx_r2.tools.minigames[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.minigames[ctx_r2.tools.lang][game_r2.key]) || game_r2.defaultTitle);
+    \u0275\u0275textInterpolate((ctx_r2.tools[game_r2.id] == null ? null : ctx_r2.tools[game_r2.id][ctx_r2.tools.lang] == null ? null : ctx_r2.tools[game_r2.id][ctx_r2.tools.lang]["title"]) || game_r2.defaultTitle);
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r2.tools.isMinigameUnlocked(game_r2.id) ? 5 : -1);
   }
@@ -80563,7 +80842,7 @@ var MinigamesComponent = class _MinigamesComponent {
                      class="menu-icon coin-glow"
                      [alt]="game.defaultTitle">
                 <div class="card-content">
-                    <div class="card-title">{{tools.minigames[tools.lang]?.[game.key] || game.defaultTitle}}</div>
+                    <div class="card-title">{{$any(tools)[game.id]?.[tools.lang]?.['title'] || game.defaultTitle}}</div>
                     @if (!tools.isMinigameUnlocked(game.id)) {
                         <div class="card-sub">\u{1F512} {{tools.closet[tools.lang]?.locked || 'Locked'}}</div>
                     }
@@ -80818,14 +81097,26 @@ function GalleryComponent_Conditional_12_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.unlockedCheemsSkins.length > 0 ? 0 : 1);
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Conditional_9_Template(rf, ctx) {
+function GalleryComponent_Conditional_13_Conditional_0_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275element(1, "img", 25);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275property("src", ctx_r1.currentAudioCover, \u0275\u0275sanitizeUrl);
+  }
+}
+function GalleryComponent_Conditional_13_Conditional_0_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 20)(1, "span");
+    \u0275\u0275elementStart(0, "div", 21)(1, "span");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "input", 24);
-    \u0275\u0275listener("input", function GalleryComponent_Conditional_13_Conditional_0_Conditional_9_Template_input_input_3_listener($event) {
+    \u0275\u0275elementStart(3, "input", 26);
+    \u0275\u0275listener("input", function GalleryComponent_Conditional_13_Conditional_0_Conditional_10_Template_input_input_3_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.onSeek($event));
@@ -80845,11 +81136,11 @@ function GalleryComponent_Conditional_13_Conditional_0_Conditional_9_Template(rf
     \u0275\u0275textInterpolate(ctx_r1.formatTime(ctx_r1.duration));
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Conditional_13_Template(rf, ctx) {
+function GalleryComponent_Conditional_13_Conditional_0_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Conditional_13_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Conditional_14_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.skip(-10));
@@ -80862,11 +81153,11 @@ function GalleryComponent_Conditional_13_Conditional_0_Conditional_13_Template(r
     \u0275\u0275classMapInterpolate1("control-btn secondary-btn ", ctx_r1.tools.themeColor, "");
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Conditional_16_Template(rf, ctx) {
+function GalleryComponent_Conditional_13_Conditional_0_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Conditional_16_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Conditional_17_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.skip(10));
@@ -80879,14 +81170,14 @@ function GalleryComponent_Conditional_13_Conditional_0_Conditional_16_Template(r
     \u0275\u0275classMapInterpolate1("control-btn secondary-btn ", ctx_r1.tools.themeColor, "");
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Conditional_19_Template(rf, ctx) {
+function GalleryComponent_Conditional_13_Conditional_0_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 22)(1, "span", 25);
+    \u0275\u0275elementStart(0, "div", 23)(1, "span", 27);
     \u0275\u0275text(2, "\u{1F50A}");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "input", 26);
-    \u0275\u0275listener("input", function GalleryComponent_Conditional_13_Conditional_0_Conditional_19_Template_input_input_3_listener($event) {
+    \u0275\u0275elementStart(3, "input", 28);
+    \u0275\u0275listener("input", function GalleryComponent_Conditional_13_Conditional_0_Conditional_20_Template_input_input_3_listener($event) {
       \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.onVolumeChange($event));
@@ -80908,60 +81199,62 @@ function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
     \u0275\u0275elementStart(4, "p", 10);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 18)(7, "audio", 19, 0);
-    \u0275\u0275listener("timeupdate", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_timeupdate_7_listener($event) {
+    \u0275\u0275elementStart(6, "div", 18);
+    \u0275\u0275template(7, GalleryComponent_Conditional_13_Conditional_0_Conditional_7_Template, 2, 1, "div", 19);
+    \u0275\u0275elementStart(8, "audio", 20, 0);
+    \u0275\u0275listener("timeupdate", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_timeupdate_8_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onTimeUpdate($event));
-    })("loadedmetadata", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_loadedmetadata_7_listener($event) {
+    })("loadedmetadata", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_loadedmetadata_8_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onLoadedMetadata($event));
-    })("play", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_play_7_listener() {
+    })("play", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_play_8_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onAudioPlay());
-    })("pause", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_pause_7_listener() {
+    })("pause", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_pause_8_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onAudioPause());
-    })("ended", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_ended_7_listener() {
+    })("ended", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_ended_8_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onAudioEnded());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275template(9, GalleryComponent_Conditional_13_Conditional_0_Conditional_9_Template, 6, 4, "div", 20);
-    \u0275\u0275elementStart(10, "div", 21)(11, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_11_listener() {
+    \u0275\u0275template(10, GalleryComponent_Conditional_13_Conditional_0_Conditional_10_Template, 6, 4, "div", 21);
+    \u0275\u0275elementStart(11, "div", 22)(12, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.prevItem());
     });
-    \u0275\u0275text(12, "\u25C0");
+    \u0275\u0275text(13, "\u25C0");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(13, GalleryComponent_Conditional_13_Conditional_0_Conditional_13_Template, 2, 3, "button", 7);
-    \u0275\u0275elementStart(14, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_14_listener() {
+    \u0275\u0275template(14, GalleryComponent_Conditional_13_Conditional_0_Conditional_14_Template, 2, 3, "button", 7);
+    \u0275\u0275elementStart(15, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.togglePlay());
     });
-    \u0275\u0275text(15);
+    \u0275\u0275text(16);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(16, GalleryComponent_Conditional_13_Conditional_0_Conditional_16_Template, 2, 3, "button", 7);
-    \u0275\u0275elementStart(17, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_17_listener() {
+    \u0275\u0275template(17, GalleryComponent_Conditional_13_Conditional_0_Conditional_17_Template, 2, 3, "button", 7);
+    \u0275\u0275elementStart(18, "button", 4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_18_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.nextItem());
     });
-    \u0275\u0275text(18, "\u25B6");
+    \u0275\u0275text(19, "\u25B6");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(19, GalleryComponent_Conditional_13_Conditional_0_Conditional_19_Template, 4, 1, "div", 22);
+    \u0275\u0275template(20, GalleryComponent_Conditional_13_Conditional_0_Conditional_20_Template, 4, 1, "div", 23);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "div", 23)(21, "span", 17);
-    \u0275\u0275text(22);
+    \u0275\u0275elementStart(21, "div", 24)(22, "span", 17);
+    \u0275\u0275text(23);
     \u0275\u0275elementEnd()()()();
   }
   if (rf & 2) {
@@ -80972,23 +81265,25 @@ function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r1.currentAudioDesc);
     \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.currentAudioCover ? 7 : -1);
+    \u0275\u0275advance();
     \u0275\u0275property("src", ctx_r1.currentAudioSrc, \u0275\u0275sanitizeUrl);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 9 : -1);
+    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 10 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 13 : -1);
+    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 14 : -1);
     \u0275\u0275advance();
     \u0275\u0275classMapInterpolate1("control-btn play-btn ", ctx_r1.tools.themeColor, "");
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", ctx_r1.activeSection === "sfx" ? (ctx_r1.tools.gallery[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.gallery[ctx_r1.tools.lang].play) || "Play" : ctx_r1.isPlaying ? (ctx_r1.tools.gallery[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.gallery[ctx_r1.tools.lang].pause) || "Pause" : (ctx_r1.tools.gallery[ctx_r1.tools.lang] == null ? null : ctx_r1.tools.gallery[ctx_r1.tools.lang].play) || "Play", " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 16 : -1);
+    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 17 : -1);
     \u0275\u0275advance();
     \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 19 : -1);
+    \u0275\u0275conditional(ctx_r1.activeSection !== "sfx" ? 20 : -1);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate2(" ", ctx_r1.currentIndex + 1, " / ", ctx_r1.activeSection === "sfx" ? ctx_r1.unlockedSoundEffects.length : ctx_r1.unlockedMusicTracks.length, " ");
   }
@@ -81002,7 +81297,7 @@ function GalleryComponent_Conditional_13_Conditional_1_Template(rf, ctx) {
 }
 function GalleryComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, GalleryComponent_Conditional_13_Conditional_0_Template, 23, 22, "div", 7)(1, GalleryComponent_Conditional_13_Conditional_1_Template, 2, 0, "p", 8);
+    \u0275\u0275template(0, GalleryComponent_Conditional_13_Conditional_0_Template, 24, 23, "div", 7)(1, GalleryComponent_Conditional_13_Conditional_1_Template, 2, 0, "p", 8);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -81125,6 +81420,12 @@ var GalleryComponent = class _GalleryComponent {
     }
     return "";
   }
+  get currentAudioCover() {
+    if (this.activeSection === "music" && this.unlockedMusicTracks.length > 0) {
+      return this.unlockedMusicTracks[this.currentIndex].cover || "img/music/no_image.png";
+    }
+    return null;
+  }
   get currentAudioDesc() {
     if (this.activeSection === "sfx" && this.unlockedSoundEffects.length > 0) {
       return this.tools.getSoundDescription(this.unlockedSoundEffects[this.currentIndex]);
@@ -81205,7 +81506,7 @@ var GalleryComponent = class _GalleryComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.audioPlayer = _t.first);
     }
-  }, decls: 14, vars: 31, consts: [["audioPlayer", ""], [1, "container"], [1, "fullscreen-overlay"], [1, "header"], [3, "click"], [1, "fullscreen-overlay", 3, "click"], ["alt", "Fullscreen Image", 1, "fullscreen-img", 3, "src"], [3, "class"], [1, "no-items"], [1, "viewer-header"], [1, "desc"], [1, "skins-display"], [1, "skin-box"], [1, "skin-label"], ["alt", "Normal Skin", 1, "viewer-img", "clickable", 3, "click", "src"], ["alt", "Hit Skin", 1, "viewer-img", "clickable", 3, "click", "src"], [1, "viewer-controls"], [1, "counter"], [1, "audio-player"], [3, "timeupdate", "loadedmetadata", "play", "pause", "ended", "src"], [1, "time-slider-container"], [1, "audio-controls"], [1, "volume-slider-container"], [1, "counter-display"], ["type", "range", "min", "0", 1, "time-slider", 3, "input", "max", "value"], [1, "vol-icon"], ["type", "range", "min", "0", "max", "1", "step", "0.01", 1, "volume-slider", 3, "input", "value"]], template: function GalleryComponent_Template(rf, ctx) {
+  }, decls: 14, vars: 31, consts: [["audioPlayer", ""], [1, "container"], [1, "fullscreen-overlay"], [1, "header"], [3, "click"], [1, "fullscreen-overlay", 3, "click"], ["alt", "Fullscreen Image", 1, "fullscreen-img", 3, "src"], [3, "class"], [1, "no-items"], [1, "viewer-header"], [1, "desc"], [1, "skins-display"], [1, "skin-box"], [1, "skin-label"], ["alt", "Normal Skin", 1, "viewer-img", "clickable", 3, "click", "src"], ["alt", "Hit Skin", 1, "viewer-img", "clickable", 3, "click", "src"], [1, "viewer-controls"], [1, "counter"], [1, "audio-player"], [1, "cover-container", 2, "text-align", "center", "margin-bottom", "20px"], [3, "timeupdate", "loadedmetadata", "play", "pause", "ended", "src"], [1, "time-slider-container"], [1, "audio-controls"], [1, "volume-slider-container"], [1, "counter-display"], ["alt", "Music Cover", 2, "width", "160px", "height", "160px", "object-fit", "cover", "border-radius", "12px", "box-shadow", "0 4px 12px rgba(0,0,0,0.3)", 3, "src"], ["type", "range", "min", "0", 1, "time-slider", 3, "input", "max", "value"], [1, "vol-icon"], ["type", "range", "min", "0", "max", "1", "step", "0.01", 1, "volume-slider", 3, "input", "value"]], template: function GalleryComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 1);
       \u0275\u0275template(1, GalleryComponent_Conditional_1_Template, 2, 1, "div", 2);
@@ -81340,6 +81641,12 @@ var GalleryComponent = class _GalleryComponent {
                 </div>
 
                 <div class="audio-player">
+                    @if (currentAudioCover) {
+                        <div class="cover-container" style="text-align: center; margin-bottom: 20px;">
+                            <img [src]="currentAudioCover" alt="Music Cover" style="width: 160px; height: 160px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                        </div>
+                    }
+
                     <audio #audioPlayer 
                            [src]="currentAudioSrc" 
                            (timeupdate)="onTimeUpdate($event)" 
