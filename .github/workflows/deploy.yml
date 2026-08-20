@@ -216,7 +216,9 @@ jobs:
           fs.writeFileSync('electron/electron-builder.config.json', elec);
           "
           mkdir -p assets electron/assets
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon-only.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon-foreground.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon-background.png
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
 
@@ -568,7 +570,9 @@ jobs:
           fs.writeFileSync('electron/electron-builder.config.json', JSON.stringify(elec, null, 2));
           "
           mkdir -p assets electron/assets
-          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon-only.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon-foreground.png
+          cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/icon-background.png
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png assets/splash.png
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png electron/assets/icon.png
 
