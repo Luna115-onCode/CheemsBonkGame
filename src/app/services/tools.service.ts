@@ -27,7 +27,15 @@ import {
   OFFLINE_CATEGORIES,
   ShopItem,
   flappy_dunkText,
-  magic_sortText
+  magic_sortText,
+  attack_holeText,
+  block_breakerText,
+  doge_rescueText,
+  helix_jumpText,
+  mob_controlText,
+  paper_ioText,
+  spiral_rollText,
+  stack_colorsText
 } from './constants.service';
 
 @Injectable({
@@ -75,11 +83,20 @@ export class ToolsService {
   offline: any = createLangMap(offlineText);
   shop: any = {};
   gallery: any = {};
+  licensesPage: any = {};
   minigames: any = createLangMap(minigamesText);
   stats: any = createLangMap(statsText);
   pageName: any = createLangMap(pageName);
   flappy_dunk: any = createLangMap(flappy_dunkText);
   magic_sort: any = createLangMap(magic_sortText);
+  attack_hole: any = createLangMap(attack_holeText);
+  block_breaker: any = createLangMap(block_breakerText);
+  doge_rescue: any = createLangMap(doge_rescueText);
+  helix_jump: any = createLangMap(helix_jumpText);
+  mob_control: any = createLangMap(mob_controlText);
+  paper_io: any = createLangMap(paper_ioText);
+  spiral_roll: any = createLangMap(spiral_rollText);
+  stack_colors: any = createLangMap(stack_colorsText);
   offlineCategories: Array<OfflineCategory> = OFFLINE_CATEGORIES;
   shopItemsText: Record<string, Record<string, string>> = {};
   itemsText: Record<string, Record<string, string>> = {};
@@ -191,7 +208,16 @@ export class ToolsService {
         if (data.minigames) this.minigames[langCode] = { ...this.minigames[langCode], ...data.minigames };
         if (data.flappy_dunk) this.flappy_dunk[langCode] = { ...this.flappy_dunk[langCode], ...data.flappy_dunk };
         if (data.magic_sort) this.magic_sort[langCode] = { ...this.magic_sort[langCode], ...data.magic_sort };
+        if (data.attack_hole) this.attack_hole[langCode] = { ...this.attack_hole[langCode], ...data.attack_hole };
+        if (data.block_breaker) this.block_breaker[langCode] = { ...this.block_breaker[langCode], ...data.block_breaker };
+        if (data.doge_rescue) this.doge_rescue[langCode] = { ...this.doge_rescue[langCode], ...data.doge_rescue };
+        if (data.helix_jump) this.helix_jump[langCode] = { ...this.helix_jump[langCode], ...data.helix_jump };
+        if (data.mob_control) this.mob_control[langCode] = { ...this.mob_control[langCode], ...data.mob_control };
+        if (data.paper_io) this.paper_io[langCode] = { ...this.paper_io[langCode], ...data.paper_io };
+        if (data.spiral_roll) this.spiral_roll[langCode] = { ...this.spiral_roll[langCode], ...data.spiral_roll };
+        if (data.stack_colors) this.stack_colors[langCode] = { ...this.stack_colors[langCode], ...data.stack_colors };
         if (data.gallery) this.gallery[langCode] = { ...this.gallery[langCode], ...data.gallery };
+        if (data.licensesPage) this.licensesPage[langCode] = { ...this.licensesPage[langCode], ...data.licensesPage };
         if (data.shopItemsText) this.shopItemsText[langCode] = { ...this.shopItemsText[langCode], ...data.shopItemsText };
         if (data.itemsText) this.itemsText[langCode] = { ...this.itemsText[langCode], ...data.itemsText };
       }

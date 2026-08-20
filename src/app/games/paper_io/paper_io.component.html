@@ -5,7 +5,7 @@
 
   <div class="ui-layer">
     <div class="hud">
-      <div>{{tools.minigames[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
+      <div>{{tools.paper_io[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
     </div>
 
     @if (gameState === 'PLAYING') {
@@ -22,17 +22,17 @@
 
   @if (gameState === 'START') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.paper_io_title || 'Paper.io'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.paper_io_inst || 'Conquer territory by enclosing loops and defeat opponents!'}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.startGame || 'Start Game'}}</button>
+      <h1>{{tools.paper_io[tools.lang]?.paper_io_title || 'Paper.io'}}</h1>
+      <p>{{tools.paper_io[tools.lang]?.paper_io_inst || 'Conquer territory by enclosing loops and defeat opponents!'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.paper_io[tools.lang]?.startGame || 'Start Game'}}</button>
     </div>
   }
 
   @if (gameState === 'GAMEOVER') {
     <div class="screen">
-      <h1>{{tools.minigames[tools.lang]?.gameOver || 'Game Over'}}</h1>
-      <p>{{tools.minigames[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
-      <button class="btn" (click)="startGame()">{{tools.minigames[tools.lang]?.playAgain || 'Play Again'}}</button>
+      <h1>{{tools.paper_io[tools.lang]?.gameOver || 'Game Over'}}</h1>
+      <p>{{tools.paper_io[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.paper_io[tools.lang]?.playAgain || 'Play Again'}}</button>
     </div>
   }
 </div>

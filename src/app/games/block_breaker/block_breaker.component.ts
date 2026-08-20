@@ -127,10 +127,10 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   overlayHidden = true;
   overlaySuccess = false;
   overlayDanger = false;
-  overlayTitleText = this.tools.minigames[this.tools.lang]?.title || "Title";
+  overlayTitleText = this.tools.block_breaker[this.tools.lang]?.title || "Title";
   overlayDescText = "Description goes here";
   overlayBtnText = "Continue";
-  actionBtnText = this.tools.minigames[this.tools.lang]?.dropTools || "DROP TOOLS!";
+  actionBtnText = this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
   showLevelUpModal = false;
 
   private canvas!: HTMLCanvasElement;
@@ -398,7 +398,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.tools.playSound('sfx_8');
       }
     } else {
-      this.tools.showToast(this.tools.minigames[this.tools.lang]?.notEnoughMinigameCoins || "Not enough Minigame Points!");
+      this.tools.showToast(this.tools.block_breaker[this.tools.lang]?.notEnoughMinigameCoins || "Not enough Minigame Points!");
       this.tools.playSound('sfx_8');
     }
   }
@@ -561,7 +561,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.gameState = 'DIG';
     this.bedrockHit = false;
-    this.actionBtnText = this.tools.minigames[this.tools.lang]?.digging || "DIGGING...";
+    this.actionBtnText = this.tools.block_breaker[this.tools.lang]?.digging || "DIGGING...";
     this.activeTools = [];
 
     for (let i = 0; i < this.grid.length; i++) {
@@ -767,17 +767,17 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.overlayHidden = false;
 
     if (this.bedrockHit) {
-      this.overlayTitleText = this.tools.minigames[this.tools.lang]?.levelCleared || "Level Cleared!";
-      this.overlayDescText = this.tools.minigames[this.tools.lang]?.levelClearedDesc || "You successfully broke through to the bedrock.";
-      this.overlayBtnText = this.tools.minigames[this.tools.lang]?.nextLevel || "Next Level";
+      this.overlayTitleText = this.tools.block_breaker[this.tools.lang]?.levelCleared || "Level Cleared!";
+      this.overlayDescText = this.tools.block_breaker[this.tools.lang]?.levelClearedDesc || "You successfully broke through to the bedrock.";
+      this.overlayBtnText = this.tools.block_breaker[this.tools.lang]?.nextLevel || "Next Level";
       this.overlaySuccess = true;
       this.overlayDanger = false;
       this.playerLevel++;
       this.saveLevel();
     } else {
-      this.overlayTitleText = this.tools.minigames[this.tools.lang]?.levelFailed || "Level Failed";
-      this.overlayDescText = this.tools.minigames[this.tools.lang]?.levelFailedDesc || "Your tools broke before reaching the bottom.";
-      this.overlayBtnText = this.tools.minigames[this.tools.lang]?.tryAgain || "Try Again";
+      this.overlayTitleText = this.tools.block_breaker[this.tools.lang]?.levelFailed || "Level Failed";
+      this.overlayDescText = this.tools.block_breaker[this.tools.lang]?.levelFailedDesc || "Your tools broke before reaching the bottom.";
+      this.overlayBtnText = this.tools.block_breaker[this.tools.lang]?.tryAgain || "Try Again";
       this.overlaySuccess = false;
       this.overlayDanger = true;
     }
@@ -791,7 +791,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.drawCanvasStatic();
 
     this.gameState = 'MERGE';
-    this.actionBtnText = this.tools.minigames[this.tools.lang]?.dropTools || "DROP TOOLS!";
+    this.actionBtnText = this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
   }
 
   drawCanvasStatic(): void {

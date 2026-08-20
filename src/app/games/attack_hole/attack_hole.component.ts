@@ -588,8 +588,20 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
       this.ring.position.x = this.hole.position.x;
       this.ring.position.z = this.hole.position.z;
 
+      const currentFloorScale = this.currentLevelConfig ? (this.currentLevelConfig.floorSize || 100) / 100 : 1;
+      
       const growthFactor = this.currentLevelConfig ? ((this.currentLevelConfig.HoleSizeIncreasePercentage || 100) / 100) : 1.0;
-      const targetScale = 1 + ((this.gamePoints / 800) * growthFactor);
+      
+      // Calculate growth relative to the map size so it stays proportional across all levels
+      let targetScale = 1 + ((this.gamePoints / 800) * (growthFactor / currentFloorScale));
+
+      // Prevent the hole from growing larger than the map boundaries just in case
+      const maxHoleRadius = 24 * currentFloorScale; 
+      const maxTargetScale = maxHoleRadius / 1.8;
+      
+      if (targetScale > maxTargetScale) {
+        targetScale = maxTargetScale;
+      }
       const currentScale = this.hole.scale.x;
       const newScale = currentScale + (targetScale - currentScale) * 0.1;
       

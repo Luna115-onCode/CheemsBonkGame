@@ -141,6 +141,13 @@ export class GalleryComponent implements OnInit, OnDestroy {
     return '';
   }
 
+  get currentAudioCover(): string | null {
+    if (this.activeSection === 'music' && this.unlockedMusicTracks.length > 0) {
+      return this.unlockedMusicTracks[this.currentIndex].cover || 'img/music/no_image.png';
+    }
+    return null;
+  }
+
   get currentAudioDesc(): string {
     if (this.activeSection === 'sfx' && this.unlockedSoundEffects.length > 0) {
       return this.tools.getSoundDescription(this.unlockedSoundEffects[this.currentIndex]);

@@ -76,7 +76,7 @@
                     @if (track.id === 0) {
                         <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else {
-                        <img src="img/icons/music-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
+                        <img [src]="track.cover || 'img/music/no_image.png'" class="item-icon" [alt]="tools.getMusicName(track)" style="border-radius: 8px; object-fit: cover;">
                     }
                     <div class="item-info">
                         <span class="item-name">{{tools.getMusicName(track)}}</span>

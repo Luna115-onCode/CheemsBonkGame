@@ -198,7 +198,7 @@ export class PaperIoComponent implements OnInit, AfterViewInit, OnDestroy {
 
           if (!human.isDead) {
               let distToHuman = Math.hypot(sx - human.x, sy - human.y);
-              if (distToHuman < radius + 15) {
+              if (distToHuman < radius + 40) {
                   safe = false;
               }
           }
@@ -353,13 +353,62 @@ export class PaperIoComponent implements OnInit, AfterViewInit, OnDestroy {
       if(!p || p.isDead) return;
       p.isDead = true;
 
+      let validKiller = killerId !== undefined && killerId !== id;
+      let isTouching = false;
+
+      if (validKiller) {
+          for (let x = 0; x < this.GRID_SIZE; x++) {
+              for (let y = 0; y < this.GRID_SIZE; y++) {
+                  if (this.grid[x][y] === id) {
+                      for (let d of this.DIRS) {
+                          let nx = x + d.x, ny = y + d.y;
+                          if (nx >= 0 && nx < this.GRID_SIZE && ny >= 0 && ny < this.GRID_SIZE) {
+                              if (this.grid[nx][ny] === killerId) {
+                                  isTouching = true;
+                                  break;
+                              }
+                          }
+                      }
+                  }
+                  if (isTouching) break;
+              }
+              if (isTouching) break;
+          }
+      }
+
+      let shouldTransfer = validKiller && isTouching;
+
       for(let x=0; x<this.GRID_SIZE; x++){
           for(let y=0; y<this.GRID_SIZE; y++){
-              if(this.grid[x][y] === id) this.grid[x][y] = -1;
-              if(this.trailGrid[x][y] === id) this.trailGrid[x][y] = -1;
+              if(this.grid[x][y] === id) {
+                  this.grid[x][y] = shouldTransfer ? killerId! : -1;
+              }
+              if(this.trailGrid[x][y] === id) {
+                  this.trailGrid[x][y] = -1;
+              }
           }
       }
       p.scoreCount = 0;
+      
+      if (validKiller) {
+          // Recalculate score for the killer
+          let killer = this.players.find(kp => kp.id === killerId);
+          if (killer && !killer.isDead) {
+              let count = 0;
+              for (let x = 0; x < this.GRID_SIZE; x++) {
+                  for (let y = 0; y < this.GRID_SIZE; y++) {
+                      if (this.grid[x][y] === killerId) count++;
+                  }
+              }
+              killer.scoreCount = count;
+              
+              if (killer.id === 0) {
+                  this.ngZone.run(() => {
+                      this.gamePoints = killer!.scoreCount * 2;
+                  });
+              }
+          }
+      }
 
       if (id === 0) {
           this.ngZone.run(() => {
@@ -433,6 +482,29 @@ export class PaperIoComponent implements OnInit, AfterViewInit, OnDestroy {
                   }
               }
               p.scoreCount = count;
+              
+              // 2. Lost all territory
+              if (p.scoreCount === 0) {
+                  this.killPlayer(p.id, player.id);
+              } 
+              // 3. Connection is cut (trail no longer connects to their territory)
+              else if (p.state === 'DRAWING' && p.trail.length > 0) {
+                  let start = p.trail[0];
+                  let isConnected = false;
+                  for (let d of this.DIRS) {
+                      let nx = start.x + d.x;
+                      let ny = start.y + d.y;
+                      if (nx >= 0 && nx < this.GRID_SIZE && ny >= 0 && ny < this.GRID_SIZE) {
+                          if (this.grid[nx][ny] === p.id) {
+                              isConnected = true;
+                              break;
+                          }
+                      }
+                  }
+                  if (!isConnected) {
+                      this.killPlayer(p.id, player.id);
+                  }
+              }
           }
       });
 

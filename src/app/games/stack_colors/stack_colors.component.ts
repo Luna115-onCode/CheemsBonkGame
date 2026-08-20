@@ -504,7 +504,7 @@ export class StackColorsComponent implements OnInit, AfterViewInit, OnDestroy {
                 const popped = this.stack.pop();
                 if (popped) this.playerGroup.remove(popped);
                 this.updateCharacterHeight();
-                this.tools.playSound('sfx_8');
+                this.tools.playSound('sfx_1');
               } else {
                 this.gameOver();
               }
@@ -563,7 +563,7 @@ export class StackColorsComponent implements OnInit, AfterViewInit, OnDestroy {
           });
 
           this.ngZone.run(() => {
-              const bonusStr = this.tools.minigames[this.tools.lang]?.stack_colors_bonus || 'BONUS!';
+              const bonusStr = this.tools.stack_colors[this.tools.lang]?.stack_colors_bonus || 'BONUS!';
               const bonusPts = mult * 200;
               this.levelPoints += bonusPts;
               this.sessionPoints += this.levelPoints;

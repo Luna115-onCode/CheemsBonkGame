@@ -573,7 +573,7 @@ export class SpiralRollComponent implements OnInit, AfterViewInit, OnDestroy {
                     this.levelPoints += bonusPoints;
                     this.tools.playSound('sfx_4');
                 });
-                const bonusStr = this.tools.minigames[this.tools.lang]?.spiral_roll_bonus || 'BONUS!';
+                const bonusStr = this.tools.spiral_roll[this.tools.lang]?.spiral_roll_bonus || 'BONUS!';
                 this.createFloatingText(`+${bonusPoints} ${bonusStr}`, r.mesh.position, "#2ecc71");
                 this.scene.remove(r.mesh);
                 this.launchedRolls.splice(i, 1);

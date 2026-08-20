@@ -71,6 +71,12 @@
                 </div>
 
                 <div class="audio-player">
+                    @if (currentAudioCover) {
+                        <div class="cover-container" style="text-align: center; margin-bottom: 20px;">
+                            <img [src]="currentAudioCover" alt="Music Cover" style="width: 160px; height: 160px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                        </div>
+                    }
+
                     <audio #audioPlayer 
                            [src]="currentAudioSrc" 
                            (timeupdate)="onTimeUpdate($event)" 

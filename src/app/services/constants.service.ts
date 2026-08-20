@@ -75,6 +75,7 @@ export interface MusicTrackItem {
   cost?: number;
   storageKey: string;
   description?: string;
+  cover?: string;
 }
 
 export interface LanguageItem {
@@ -484,3 +485,35 @@ export interface ShopItem {
 export class TranslationsService {
   constructor() { }
 }
+
+export const attack_holeText = {
+  title: ""
+};
+
+export const block_breakerText = {
+  title: ""
+};
+
+export const doge_rescueText = {
+  title: ""
+};
+
+export const helix_jumpText = {
+  title: ""
+};
+
+export const mob_controlText = {
+  title: ""
+};
+
+export const paper_ioText = {
+  title: ""
+};
+
+export const spiral_rollText = {
+  title: ""
+};
+
+export const stack_colorsText = {
+  title: ""
+};

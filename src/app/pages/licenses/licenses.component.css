@@ -6,6 +6,7 @@
     max-width: 800px;
     height: 70vh;
     overflow-y: auto;
+    display: block; /* Override .group flex centering to fix top overflow cutoff */
 }
 
 .licenses-title {

@@ -1,6 +1,6 @@
 <div class="block-breaker-wrapper {{tools.themeColor}} {{tools.fontSize}}">
-    <h1>{{tools.minigames[tools.lang]?.title || 'Merge Diggers'}}</h1>
-    <div class="level-title">{{tools.minigames[tools.lang]?.playerLevel || 'Player Level: '}}<span>{{ playerLevel }}</span></div>
+    <h1>{{tools.block_breaker[tools.lang]?.title || 'Merge Diggers'}}</h1>
+    <div class="level-title">{{tools.block_breaker[tools.lang]?.playerLevel || 'Player Level: '}}<span>{{ playerLevel }}</span></div>
     
     <div id="game-container">
         <!-- Win / Loss Screen -->
@@ -17,10 +17,7 @@
         <div class="ui-header">
             <div class="stats-display">
                 <div class="stat-box coins">🪙 <span>{{ getFloorCoins() }}</span></div>
-                <div class="stat-box lvl">⭐ {{tools.minigames[tools.lang]?.lvl || 'Lvl '}}<span>{{ playerLevel }}</span></div>
-                <button class="lvl-up-btn" (click)="openSellLevelConfirm()" [disabled]="playerLevel <= 1">
-                    ⭐ {{tools.minigames[tools.lang]?.sellLevel || 'Sell Level'}} (+{{ playerLevel * 20 }} 🎮)
-                </button>
+                <div class="stat-box lvl">⭐ {{tools.block_breaker[tools.lang]?.lvl || 'Lvl '}}<span>{{ playerLevel }}</span></div>
             </div>
             
             <div class="buy-controls">
@@ -42,12 +39,12 @@
                  (drop)="dropTrash($event)"
                  (dragover)="allowDrop($event)"
                  (dragleave)="leaveTrash($event)">
-                🗑️<br>{{tools.minigames[tools.lang]?.sell || 'SELL / TRASH'}}
+                🗑️<br>{{tools.block_breaker[tools.lang]?.sell || 'SELL'}}
             </div>
         </div>
 
         <div class="lane-markers">
-            <span>{{tools.minigames[tools.lang]?.lane1 || '▼ Lane 1'}}</span><span>{{tools.minigames[tools.lang]?.lane2 || '▼ Lane 2'}}</span><span>{{tools.minigames[tools.lang]?.lane3 || '▼ Lane 3'}}</span><span>{{tools.minigames[tools.lang]?.lane4 || '▼ Lane 4'}}</span><span>{{tools.minigames[tools.lang]?.lane5 || '▼ Lane 5'}}</span>
+            <span>{{tools.block_breaker[tools.lang]?.lane1 || '▼ Lane 1'}}</span><span>{{tools.block_breaker[tools.lang]?.lane2 || '▼ Lane 2'}}</span><span>{{tools.block_breaker[tools.lang]?.lane3 || '▼ Lane 3'}}</span><span>{{tools.block_breaker[tools.lang]?.lane4 || '▼ Lane 4'}}</span><span>{{tools.block_breaker[tools.lang]?.lane5 || '▼ Lane 5'}}</span>
         </div>
         
         <div id="merge-grid">
@@ -84,11 +81,11 @@
         @if (showLevelUpModal) {
             <div class="modal-overlay">
                 <div class="confirm-modal {{tools.themeColor}}">
-                    <h3>⭐ {{tools.minigames[tools.lang]?.sellLevel || 'Sell Level'}}</h3>
-                    <p>{{tools.minigames[tools.lang]?.confirmSellLevelMsg || 'Do you want to reset your level to Level 1 and get'}} +{{ playerLevel * 20 }} 🎮?</p>
+                    <h3>⭐ {{tools.block_breaker[tools.lang]?.sellLevel || 'Sell Level'}}</h3>
+                    <p>{{tools.block_breaker[tools.lang]?.confirmSellLevelMsg || 'Do you want to reset your level to Level 1 and get'}} +{{ playerLevel * 20 }} 🎮?</p>
                     <div class="modal-buttons">
-                        <button class="confirm-btn yes-btn" (click)="confirmSellLevel()">{{tools.minigames[tools.lang]?.yes || 'Yes'}} (+{{ playerLevel * 20 }} 🎮)</button>
-                        <button class="confirm-btn no-btn" (click)="closeSellLevelConfirm()">{{tools.minigames[tools.lang]?.no || 'No'}}</button>
+                        <button class="confirm-btn yes-btn" (click)="confirmSellLevel()">{{tools.block_breaker[tools.lang]?.yes || 'Yes'}} (+{{ playerLevel * 20 }} 🎮)</button>
+                        <button class="confirm-btn no-btn" (click)="closeSellLevelConfirm()">{{tools.block_breaker[tools.lang]?.no || 'No'}}</button>
                     </div>
                 </div>
             </div>
