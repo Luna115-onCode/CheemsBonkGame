@@ -66,9 +66,9 @@ export class ShopComponent implements OnInit, OnDestroy {
         if (item.minigameCoinsGiven) {
           this.tools.addMinigameCoins(item.minigameCoinsGiven);
         }
-        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
-        localStorage.setItem("CheemsAppLiMinigameCoins", JSON.stringify(this.tools.minigameCoins));
+        this.tools.saveData("points", String(this.tools.points));
+        this.tools.saveData("dg", String(this.tools.dogeCoins));
+        this.tools.saveData("mg", String(this.tools.minigameCoins));
         this.tools.recordDailyPurchase(item.id);
         this.tools.showToast(this.tools.closet[this.tools.lang]?.purchased || "Purchased!");
         this.tools.playSound('sfx_4');
@@ -83,12 +83,12 @@ export class ShopComponent implements OnInit, OnDestroy {
         this.tools.points -= ptsCost;
         this.tools.dogeCoins -= coinCost;
         this.tools.minigameCoins -= mgCost;
-        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
-        localStorage.setItem("CheemsAppLiMinigameCoins", JSON.stringify(this.tools.minigameCoins));
+        this.tools.saveData("points", String(this.tools.points));
+        this.tools.saveData("dg", String(this.tools.dogeCoins));
+        this.tools.saveData("mg", String(this.tools.minigameCoins));
         const target = String(item.targetId || item.id);
         this.tools.unlockedMinigames[target] = true;
-        localStorage.setItem("CheemsAppLiMinigame_" + target, "true");
+        this.tools.saveUnlockedMinigames();
         this.tools.recordLifetimePurchase(item.id);
         this.tools.showToast(this.tools.closet[this.tools.lang]?.purchased || "Purchased!");
         this.tools.playSound('sfx_4');
@@ -111,8 +111,8 @@ export class ShopComponent implements OnInit, OnDestroy {
         }
         this.tools.points -= ptsCost;
         this.tools.dogeCoins -= coinCost;
-        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
+        this.tools.saveData("points", String(this.tools.points));
+        this.tools.saveData("dg", String(this.tools.dogeCoins));
         this.tools.recordDailyPurchase(item.id);
         this.tools.activateBooster(item.multiplier || 1, item.durationMin || 0);
       } else {

@@ -116,7 +116,8 @@
     "itemBought": "¡Comprado con éxito!",
     "itemSelected": "¡Seleccionado!",
     "inShop": "En Tienda",
-    "buyInShop": "¡Compra este artículo en la Tienda!"
+    "buyInShop": "¡Compra este artículo en la Tienda!",
+    "locked": "Bloqueado"
   },
   "dev": {
     "title": "Opciones de desarrollo",
@@ -279,15 +280,15 @@
     "cheems_realistic_desc": "Este es cheems, pero en 4K (El juego debía de vender, ¿ok?).",
     "sfx_1": "Golpe (Bonk)",
     "sfx_1_desc": "Bonk, bonk, bonk...",
-    "sfx_2": "Dañado Minecraft",
+    "sfx_2": "Daño Minecraft",
     "sfx_2_desc": "Uh, ¿Recuerdas este sonido?",
-    "sfx_3": "Dañado Roblox",
+    "sfx_3": "Daño Roblox",
     "sfx_3_desc": "Oh no, amigo. (Espero no ser demandado)",
     "sfx_4": "Subir de nivel",
     "sfx_4_desc": "¡Te estás haciendo más fuerte!",
     "sfx_5": "Discord",
     "sfx_5_desc": "Discord, buen gamer.",
-    "sfx_6": "Hola",
+    "sfx_6": "Hola (Hello)",
     "sfx_6_desc": "Ella es la única animatronica que usa shorts, lo que la hace hermosa para la comunidad",
     "sfx_7": "Golpe Minecraft",
     "sfx_7_desc": "Golpe género-neutral.",
