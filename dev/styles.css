@@ -1,44 +1,264 @@
 /* src/styles.css */
-@font-face {
-  font-family: "Kalam";
-  src: url(/CheemsBonkGame/development/fonts/Kalam-Regular.ttf) format("truetype");
-}
-html {
-  -webkit-user-select: none;
-  user-select: none;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   font-family:
-    Kalam,
-    Arial,
-    Helvetica,
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
     sans-serif;
 }
-.icon {
-  height: 100%;
-  width: auto;
-}
-.text-normal {
-  font-size: 14pt;
-}
-.text-big {
-  font-size: 18pt;
-}
-.text-bigger {
-  font-size: 24pt;
-}
-.text-small {
-  font-size: 12pt;
+body {
+  min-height: 100vh;
+  overflow-x: clip;
+  transition: background 0.3s ease, color 0.3s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .text-smaller {
-  font-size: 8pt;
+  font-size: 0.8rem;
 }
-.color-text.theme-contrast {
-  color: rgb(255, 255, 0);
+.text-small {
+  font-size: 0.95rem;
+}
+.text-normal {
+  font-size: 1.1rem;
+}
+.text-big {
+  font-size: 1.35rem;
+}
+.text-max {
+  font-size: 1.6rem;
+}
+body.text-smaller {
+  font-size: 0.8rem;
+}
+body.text-small {
+  font-size: 0.95rem;
+}
+body.text-normal {
+  font-size: 1.1rem;
+}
+body.text-big {
+  font-size: 1.35rem;
+}
+body.text-max {
+  font-size: 1.6rem;
+}
+button,
+input,
+select,
+textarea {
+  font-size: 1em;
+}
+body.theme-dark {
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgb(45, 40, 35) 0%,
+      rgb(24, 21, 18) 100%);
+  color: rgb(240, 235, 225);
+}
+body.theme-light {
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgb(255, 250, 240) 0%,
+      rgb(235, 220, 195) 100%);
+  color: rgb(50, 35, 20);
+}
+body.theme-contrast {
+  background: #000000;
+  color: #ffffff;
 }
 .color-text.theme-dark {
-  color: rgb(145, 145, 72);
+  color: #ffd166;
 }
 .color-text.theme-light {
-  color: rgb(194, 194, 72);
+  color: #9c5c14;
+}
+.color-text.theme-contrast {
+  color: #ffff00;
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  max-width: 850px;
+  margin: 1.5rem auto;
+  padding: 1.75rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+.group.theme-dark {
+  background: rgba(65, 55, 45, 0.65);
+  border: 2px solid rgba(255, 209, 102, 0.25);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+}
+.group.theme-light {
+  background: rgba(255, 248, 235, 0.75);
+  border: 2px solid rgba(156, 92, 20, 0.3);
+  box-shadow: 0 12px 36px rgba(100, 70, 30, 0.15);
+}
+.group.theme-contrast {
+  background: #000000;
+  border: 2px solid #ffffff;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  color: #ffffff;
+}
+.container {
+  width: 100%;
+  min-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 1rem;
+}
+.flex-right {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  margin: 0.75rem 0;
+  gap: 1rem;
+}
+.flex-right.center {
+  justify-content: center;
+}
+.btn-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 14px;
+  font-weight: bold;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+.btn-card:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+.btn-card:active {
+  transform: translateY(1px) scale(0.98);
+}
+.btn-card.theme-dark {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(90, 75, 55, 0.9),
+      rgba(65, 50, 35, 0.95));
+  border: 1px solid rgba(255, 209, 102, 0.4);
+  color: #ffd166;
+}
+.btn-card.theme-light {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 235, 200, 0.9),
+      rgba(245, 215, 165, 0.95));
+  border: 1px solid rgba(156, 92, 20, 0.5);
+  color: #5a3505;
+}
+.btn-card.theme-contrast {
+  background: #000000;
+  border: 2px solid #ffff00;
+  color: #ffff00;
+  box-shadow: none;
+}
+.btn-card.theme-contrast:hover {
+  background: #ffff00;
+  color: #000000;
+}
+.selected-cheems {
+  border-radius: 50%;
+  transform: scale(1.15);
+  box-shadow: 0 0 25px rgba(255, 209, 102, 0.8);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.selected-cheems.theme-dark {
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 209, 102, 0.4) 0%,
+      transparent 70%);
+}
+.selected-cheems.theme-light {
+  background:
+    radial-gradient(
+      circle,
+      rgba(156, 92, 20, 0.3) 0%,
+      transparent 70%);
+  box-shadow: 0 0 25px rgba(156, 92, 20, 0.6);
+}
+.selected-cheems.theme-contrast {
+  border: 2px solid #ffff00;
+  box-shadow: none;
+}
+.toast-popup {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 22, 18, 0.95);
+  color: #ffd166;
+  border: 2px solid #ffd166;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-weight: 900;
+  font-size: 1em;
+  z-index: 9999;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: slideUpToast 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.toast-popup.theme-light {
+  background: rgba(255, 245, 230, 0.95);
+  color: #9c5c14;
+  border-color: #9c5c14;
+}
+.toast-popup.theme-contrast {
+  background: #000000;
+  color: #ffff00;
+  border: 2px solid #ffff00;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+@keyframes slideUpToast {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
 }
 
 /* angular:styles/global:styles */
