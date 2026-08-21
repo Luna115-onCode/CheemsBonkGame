@@ -1,0 +1,868 @@
+[
+  {
+    "_comment": "--- Currencies ---"
+  },
+  {
+    "id": "dogecoin_1",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_special_name",
+    "descKey": "shop_dogecoin_special_desc",
+    "cost": "${daily_price} / 2",
+    "costCoins": 0,
+    "coinsGiven": 1,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": "${daily_price_4} / 100 + 1"
+  },
+  {
+    "id": "dogecoin_2",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_1_name",
+    "descKey": "shop_dogecoin_1_desc",
+    "cost": "${daily_price}",
+    "costCoins": 0,
+    "coinsGiven": 1,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": 0
+  },
+  {
+    "id": "dogecoin_3",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_2_name",
+    "descKey": "shop_dogecoin_2_desc",
+    "cost": "${daily_price} * 1.8",
+    "costCoins": 0,
+    "coinsGiven": 2,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": 0
+  },
+  {
+    "id": "dogecoin_4",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_5_name",
+    "descKey": "shop_dogecoin_5_desc",
+    "cost": "${daily_price} * 10 - ${daily_price} - ${daily_price_2}",
+    "costCoins": 0,
+    "coinsGiven": 5,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": "${daily_price_4} / 10 + 1"
+  },
+  {
+    "id": "dogecoin_5",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_10_name",
+    "descKey": "shop_dogecoin_10_desc",
+    "cost": "${daily_price} * 10 - ${daily_price} - ${daily_price_3} * 2",
+    "costCoins": 0,
+    "coinsGiven": 10,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": "${daily_price_2} / 10 + 1"
+  },
+  {
+    "id": "dogecoin_6",
+    "type": "dogecoin",
+    "nameKey": "shop_dogecoin_20_name",
+    "descKey": "shop_dogecoin_20_desc",
+    "cost": "${daily_price} * 20 - ${daily_price} - ${daily_price_4} * 2",
+    "costCoins": 0,
+    "coinsGiven": 20,
+    "multiplier": 1,
+    "durationMin": 0,
+    "icon": "img/dogecoin-min.png",
+    "dailyLimit": "${daily_price_3} / 10 + 1"
+  },
+  {
+    "id": "curr_dgc_to_mg",
+    "type": "currency",
+    "nameKey": "shop_curr_dgc_to_mg_name",
+    "descKey": "shop_curr_dgc_to_mg_desc",
+    "cost": 0,
+    "costCoins": 1,
+    "costMinigames": 0,
+    "minigameCoinsGiven": 10,
+    "icon": "img/icons/play-svgrepo-com.svg"
+  },
+  {
+    "id": "curr_mg_to_dgc",
+    "type": "currency",
+    "nameKey": "shop_curr_mg_to_dgc_name",
+    "descKey": "shop_curr_mg_to_dgc_desc",
+    "cost": 0,
+    "costCoins": 0,
+    "costMinigames": 10,
+    "coinsGiven": 1,
+    "icon": "img/dogecoin-min.png"
+  },
+  {
+    "_comment": "--- Boosters ---"
+  },
+  {
+    "id": "boost_2x_free",
+    "type": "booster",
+    "nameKey": "shop_boost_2x_5m_name",
+    "descKey": "shop_boost_2x_5m_desc",
+    "cost": 0,
+    "costCoins": 0,
+    "multiplier": 2,
+    "durationMin": 5,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": "${daily_price} / 100 + 1"
+  },
+  {
+    "id": "boost_3x_free",
+    "type": "booster",
+    "nameKey": "shop_boost_3x_5m_name",
+    "descKey": "shop_boost_3x_5m_desc",
+    "cost": 0,
+    "costCoins": 0,
+    "multiplier": 3,
+    "durationMin": 5,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": "${daily_price_2} / 100 + 1"
+  },
+  {
+    "id": "boost_10x_free",
+    "type": "booster",
+    "nameKey": "shop_boost_10x_3m_name",
+    "descKey": "shop_boost_10x_3m_desc",
+    "cost": 0,
+    "costCoins": 0,
+    "multiplier": 10,
+    "durationMin": 3,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": "${daily_price_3} / 100 + 1"
+  },
+  {
+    "id": "boost_2x_5m",
+    "type": "booster",
+    "nameKey": "shop_boost_2x_5m_name",
+    "descKey": "shop_boost_2x_5m_desc",
+    "cost": 1000,
+    "costCoins": 0,
+    "multiplier": 2,
+    "durationMin": 5,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "boost_2x_10m",
+    "type": "booster",
+    "nameKey": "shop_boost_2x_10m_name",
+    "descKey": "shop_boost_2x_10m_desc",
+    "cost": 1800,
+    "costCoins": 0,
+    "multiplier": 2,
+    "durationMin": 10,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "boost_2x_20m",
+    "type": "booster",
+    "nameKey": "shop_boost_2x_20m_name",
+    "descKey": "shop_boost_2x_20m_desc",
+    "cost": 3000,
+    "costCoins": 0,
+    "multiplier": 2,
+    "durationMin": 20,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "boost_3x_5m",
+    "type": "booster",
+    "nameKey": "shop_boost_3x_5m_name",
+    "descKey": "shop_boost_3x_5m_desc",
+    "cost": 0,
+    "costCoins": 150,
+    "multiplier": 3,
+    "durationMin": 5,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "boost_3x_10m",
+    "type": "booster",
+    "nameKey": "shop_boost_3x_10m_name",
+    "descKey": "shop_boost_3x_10m_desc",
+    "cost": 0,
+    "costCoins": 250,
+    "multiplier": 3,
+    "durationMin": 10,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "boost_3x_20m",
+    "type": "booster",
+    "nameKey": "shop_boost_3x_20m_name",
+    "descKey": "shop_boost_3x_20m_desc",
+    "cost": 0,
+    "costCoins": 450,
+    "multiplier": 3,
+    "durationMin": 20,
+    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "_comment": "--- Characters ---"
+  },
+  {
+    "id": "cheems_little",
+    "type": "cheems",
+    "nameKey": "cheems_little",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/cheems/little.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_adult",
+    "type": "cheems",
+    "nameKey": "cheems_adult",
+    "cost": 0,
+    "costCoins": 800,
+    "costMinigames": 0,
+    "icon": "img/cheems/adult.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_kid",
+    "type": "cheems",
+    "nameKey": "cheems_kid",
+    "cost": 0,
+    "costCoins": 1000,
+    "costMinigames": 0,
+    "icon": "img/cheems/kid.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_mamado",
+    "type": "cheems",
+    "nameKey": "cheems_mamado",
+    "cost": 0,
+    "costCoins": 2000,
+    "costMinigames": 0,
+    "icon": "img/cheems/mamado.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_pixelart",
+    "type": "cheems",
+    "nameKey": "cheems_pixelart",
+    "cost": 0,
+    "costCoins": 3000,
+    "costMinigames": 0,
+    "icon": "img/cheems/pixelart.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_elegant",
+    "type": "cheems",
+    "nameKey": "cheems_elegant",
+    "cost": 0,
+    "costCoins": 3500,
+    "costMinigames": 0,
+    "icon": "img/cheems/elegant.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_3d",
+    "type": "cheems",
+    "nameKey": "cheems_3d",
+    "cost": 0,
+    "costCoins": 2500,
+    "costMinigames": 0,
+    "icon": "img/cheems/3d.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_black",
+    "type": "cheems",
+    "nameKey": "cheems_black",
+    "cost": 0,
+    "costCoins": 2800,
+    "costMinigames": 0,
+    "icon": "img/cheems/black.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_not_ai",
+    "type": "cheems",
+    "nameKey": "cheems_not_ai",
+    "cost": 0,
+    "costCoins": 2600,
+    "costMinigames": 0,
+    "icon": "img/cheems/not_ai.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_realistic",
+    "type": "cheems",
+    "nameKey": "cheems_realistic",
+    "cost": 0,
+    "costCoins": 5000,
+    "costMinigames": 0,
+    "icon": "img/cheems/realistic.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_not_a_dog",
+    "type": "cheems",
+    "nameKey": "cheems_not_a_dog",
+    "cost": 0,
+    "costCoins": 3200,
+    "costMinigames": 0,
+    "icon": "img/cheems/not_a_dog.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_not_a_plumber",
+    "type": "cheems",
+    "nameKey": "cheems_not_a_plumber",
+    "cost": 0,
+    "costCoins": 4500,
+    "costMinigames": 3000,
+    "icon": "img/cheems/not_a_plumber.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "cheems_minecraft",
+    "type": "cheems",
+    "nameKey": "cheems_minecraft",
+    "cost": 0,
+    "costCoins": 3500,
+    "costMinigames": 2500,
+    "icon": "img/cheems/cubes.png",
+    "oneTimePurchase": true
+  },
+  {
+    "_comment": "--- Sounds ---"
+  },
+  {
+    "id": "sfx_2",
+    "type": "sound",
+    "nameKey": "sfx_2",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 2000,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_3",
+    "type": "sound",
+    "nameKey": "sfx_3",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 2000,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_4",
+    "type": "sound",
+    "nameKey": "sfx_4",
+    "cost": 0,
+    "costCoins": 1500,
+    "costMinigames": 2500,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_5",
+    "type": "sound",
+    "nameKey": "sfx_5",
+    "cost": 0,
+    "costCoins": 1500,
+    "costMinigames": 2500,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_6",
+    "type": "sound",
+    "nameKey": "sfx_6",
+    "cost": 0,
+    "costCoins": 800,
+    "costMinigames": 1500,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_7",
+    "type": "sound",
+    "nameKey": "sfx_7",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 2000,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_8",
+    "type": "sound",
+    "nameKey": "sfx_8",
+    "cost": 0,
+    "costCoins": 400,
+    "costMinigames": 0,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_9",
+    "type": "sound",
+    "nameKey": "sfx_9",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_10",
+    "type": "sound",
+    "nameKey": "sfx_10",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_11",
+    "type": "sound",
+    "nameKey": "sfx_11",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "sfx_12",
+    "type": "sound",
+    "nameKey": "sfx_12",
+    "cost": 0,
+    "costCoins": 1000,
+    "costMinigames": 0,
+    "icon": "img/icons/sound-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "_comment": "--- Music ---"
+  },
+  {
+    "id": "music_2",
+    "type": "music",
+    "nameKey": "music_2",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_3",
+    "type": "music",
+    "nameKey": "music_3",
+    "cost": 0,
+    "costCoins": 600,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_4",
+    "type": "music",
+    "nameKey": "music_4",
+    "cost": 0,
+    "costCoins": 600,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_5",
+    "type": "music",
+    "nameKey": "music_5",
+    "cost": 0,
+    "costCoins": 600,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_6",
+    "type": "music",
+    "nameKey": "music_6",
+    "cost": 0,
+    "costCoins": 600,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_7",
+    "type": "music",
+    "nameKey": "music_7",
+    "cost": 0,
+    "costCoins": 1500,
+    "costMinigames": 3000,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_8",
+    "type": "music",
+    "nameKey": "music_8",
+    "cost": 0,
+    "costCoins": 600,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_9",
+    "type": "music",
+    "nameKey": "music_9",
+    "cost": 0,
+    "costCoins": 900,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_10",
+    "type": "music",
+    "nameKey": "music_10",
+    "cost": 0,
+    "costCoins": 900,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_11",
+    "type": "music",
+    "nameKey": "music_11",
+    "cost": 0,
+    "costCoins": 900,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_12",
+    "type": "music",
+    "nameKey": "music_12",
+    "cost": 0,
+    "costCoins": 600,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_13",
+    "type": "music",
+    "nameKey": "music_13",
+    "cost": 0,
+    "costCoins": 600,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_14",
+    "type": "music",
+    "nameKey": "music_14",
+    "cost": 0,
+    "costCoins": 900,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_15",
+    "type": "music",
+    "nameKey": "music_15",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_16",
+    "type": "music",
+    "nameKey": "music_16",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_17",
+    "type": "music",
+    "nameKey": "music_17",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 2500,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_18",
+    "type": "music",
+    "nameKey": "music_18",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 2500,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_19",
+    "type": "music",
+    "nameKey": "music_19",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 2500,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_20",
+    "type": "music",
+    "nameKey": "music_20",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_21",
+    "type": "music",
+    "nameKey": "music_21",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_22",
+    "type": "music",
+    "nameKey": "music_22",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 2500,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_23",
+    "type": "music",
+    "nameKey": "music_23",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 2500,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_24",
+    "type": "music",
+    "nameKey": "music_24",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 2500,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_25",
+    "type": "music",
+    "nameKey": "music_25",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_26",
+    "type": "music",
+    "nameKey": "music_26",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_27",
+    "type": "music",
+    "nameKey": "music_27",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_28",
+    "type": "music",
+    "nameKey": "music_28",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_29",
+    "type": "music",
+    "nameKey": "music_29",
+    "cost": 0,
+    "costCoins": 1200,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "_comment": "--- Minigames ---"
+  },
+  {
+    "id": "minigame_block_breaker",
+    "type": "minigame",
+    "targetId": "block_breaker",
+    "nameKey": "shop_minigame_block_breaker_name",
+    "descKey": "shop_minigame_block_breaker_desc",
+    "cost": 0,
+    "costCoins": 1500,
+    "costMinigames": 3500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_attack_hole",
+    "type": "minigame",
+    "targetId": "attack_hole",
+    "nameKey": "shop_minigame_attack_hole_name",
+    "descKey": "shop_minigame_attack_hole_desc",
+    "cost": 0,
+    "costCoins": 2500,
+    "costMinigames": 2000,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_doge_rescue",
+    "type": "minigame",
+    "targetId": "doge_rescue",
+    "nameKey": "shop_minigame_doge_rescue_name",
+    "descKey": "shop_minigame_doge_rescue_desc",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 4000,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_flappy_dunk",
+    "type": "minigame",
+    "targetId": "flappy_dunk",
+    "nameKey": "shop_minigame_flappy_dunk_name",
+    "descKey": "shop_minigame_flappy_dunk_desc",
+    "cost": 0,
+    "costCoins": 2000,
+    "costMinigames": 3000,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_helix_jump",
+    "type": "minigame",
+    "targetId": "helix_jump",
+    "nameKey": "shop_minigame_helix_jump_name",
+    "descKey": "shop_minigame_helix_jump_desc",
+    "cost": 0,
+    "costCoins": 1000,
+    "costMinigames": 4500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_magic_sort",
+    "type": "minigame",
+    "targetId": "magic_sort",
+    "nameKey": "shop_minigame_magic_sort_name",
+    "descKey": "shop_minigame_magic_sort_desc",
+    "cost": 0,
+    "costCoins": 1000,
+    "costMinigames": 5000,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_mob_control",
+    "type": "minigame",
+    "targetId": "mob_control",
+    "nameKey": "shop_minigame_mob_control_name",
+    "descKey": "shop_minigame_mob_control_desc",
+    "cost": 0,
+    "costCoins": 1500,
+    "costMinigames": 3500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_paper_io",
+    "type": "minigame",
+    "targetId": "paper_io",
+    "nameKey": "shop_minigame_paper_io_name",
+    "descKey": "shop_minigame_paper_io_desc",
+    "cost": 0,
+    "costCoins": 3000,
+    "costMinigames": 5000,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_spiral_roll",
+    "type": "minigame",
+    "targetId": "spiral_roll",
+    "nameKey": "shop_minigame_spiral_roll_name",
+    "descKey": "shop_minigame_spiral_roll_desc",
+    "cost": 0,
+    "costCoins": 1000,
+    "costMinigames": 4500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_stack_colors",
+    "type": "minigame",
+    "targetId": "stack_colors",
+    "nameKey": "shop_minigame_stack_colors_name",
+    "descKey": "shop_minigame_stack_colors_desc",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 2500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  }
+]

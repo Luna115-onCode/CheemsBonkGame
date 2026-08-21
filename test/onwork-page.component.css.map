@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/pages/onwork-page/onwork-page.component.css"],
+  "sourcesContent": [".work-box {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    gap: 1.5rem;\n    max-width: 500px;\n    margin: 3rem auto;\n    text-align: center;\n    padding: 2.5rem;\n}\n\n.work-img {\n    width: 150px;\n    height: 150px;\n    object-fit: contain;\n    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.4));\n}\n\n.work-title {\n    font-weight: 900;\n    font-size: 1.5em;\n}\n\n.work-msg {\n    opacity: 0.85;\n    line-height: 1.4;\n}\n\n.work-btn {\n    margin-top: 1rem;\n    padding: 0.75rem 2rem;\n}\n"],
+  "mappings": ";AAAA,CAAC;AACG,WAAS;AACT,kBAAgB;AAChB,eAAa;AACb,OAAK;AACL,aAAW;AACX,UAAQ,KAAK;AACb,cAAY;AACZ,WAAS;AACb;AAEA,CAAC;AACG,SAAO;AACP,UAAQ;AACR,cAAY;AACZ,UAAQ,YAAY,EAAE,KAAK,KAAK,KAAK,CAAC,EAAE,CAAC,EAAE,CAAC,EAAE;AAClD;AAEA,CAAC;AACG,eAAa;AACb,aAAW;AACf;AAEA,CAAC;AACG,WAAS;AACT,eAAa;AACjB;AAEA,CAAC;AACG,cAAY;AACZ,WAAS,QAAQ;AACrB;",
+  "names": []
+}
