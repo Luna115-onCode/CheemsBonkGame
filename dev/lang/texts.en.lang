@@ -116,7 +116,8 @@
     "itemBought": "Successfully purchased!",
     "itemSelected": "Selected!",
     "inShop": "In Shop",
-    "buyInShop": "Buy this item in the Shop!"
+    "buyInShop": "Buy this item in the Shop!",
+    "locked": "Locked"
   },
   "dev": {
     "title": "Developer Options",

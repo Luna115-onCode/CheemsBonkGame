@@ -40996,6 +40996,68 @@ var ToolsService = class _ToolsService {
     document.addEventListener("touchstart", resumeMusicOnInteraction, { passive: true });
     document.addEventListener("keydown", resumeMusicOnInteraction, { passive: true });
   }
+  PREFIX = "CheemsBonkGame115_";
+  saveData(key, value) {
+    localStorage.setItem(this.PREFIX + key, value);
+  }
+  loadData(key) {
+    return localStorage.getItem(this.PREFIX + key);
+  }
+  deleteData(key) {
+    localStorage.removeItem(this.PREFIX + key);
+  }
+  parseArrayString(str) {
+    if (!str)
+      return [];
+    return str.split(";").filter((s) => s.trim().length > 0);
+  }
+  stringifyArray(arr) {
+    if (!arr || arr.length === 0)
+      return "";
+    return arr.join(";");
+  }
+  parseObjectString(str) {
+    if (!str)
+      return {};
+    const obj = {};
+    const pairs = str.split(",");
+    for (const p of pairs) {
+      if (!p)
+        continue;
+      const idx = p.indexOf(":");
+      if (idx !== -1) {
+        obj[p.substring(0, idx)] = p.substring(idx + 1);
+      }
+    }
+    return obj;
+  }
+  stringifyObject(obj) {
+    if (!obj)
+      return "";
+    const pairs = [];
+    for (const key of Object.keys(obj)) {
+      pairs.push(`${key}:${obj[key]}`);
+    }
+    return pairs.join(",");
+  }
+  parseArrayOfObjectsString(str) {
+    if (!str)
+      return [];
+    const items = str.split(";");
+    const result = [];
+    for (const item of items) {
+      if (item.trim().length > 0) {
+        result.push(this.parseObjectString(item));
+      }
+    }
+    return result;
+  }
+  stringifyArrayOfObjects(arr) {
+    if (!arr || arr.length === 0)
+      return "";
+    const strings = arr.map((obj) => this.stringifyObject(obj));
+    return strings.join(";") + (strings.length > 0 ? ";" : "");
+  }
   setTitle(page) {
     let title = this.pageName[this.lang]?.[page] || "Cheems Bonk Game";
     this.titleInt.setTitle(title);
@@ -41008,7 +41070,7 @@ var ToolsService = class _ToolsService {
   setLanguage(key) {
     if (this.availableLanguages.some((l) => l.key === key)) {
       this.lang = key;
-      localStorage.setItem("CheemsBonkLang", this.lang);
+      this.saveData("language", this.lang);
       this.loadLanguageFile(this.lang);
       this.setTitle(this.actPage);
     }
@@ -41191,25 +41253,22 @@ var ToolsService = class _ToolsService {
     if (this.actScore > this.highScore) {
       this.highScore = this.actScore;
     }
-    localStorage.setItem("CheemsAppLiActPoints", JSON.stringify(this.actScore));
-    localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
-    localStorage.setItem("CheemsAppLiTotalCounter", JSON.stringify(this.totalScore));
-    localStorage.setItem("CheemsAppLiMaxCounter", JSON.stringify(this.highScore));
-    localStorage.setItem("CheemsAppLiTotalPointsEarned", JSON.stringify(this.totalPointsEarned));
-    localStorage.setItem("CheemsBonkTotalScore", JSON.stringify(this.totalScore));
-    localStorage.setItem("CheemsBonkHighScore", JSON.stringify(this.highScore));
+    this.saveData("points", String(this.points));
+    this.saveData("total_score", String(this.totalScore));
+    this.saveData("high_score", String(this.highScore));
+    this.saveData("lifetime_points", String(this.totalPointsEarned));
   }
   addMinigameCoins(amount) {
     this.minigameCoins = Math.floor(this.minigameCoins + amount);
     this.totalMinigameCoinsEarned += amount;
-    localStorage.setItem("CheemsAppLiMinigameCoins", String(this.minigameCoins));
-    localStorage.setItem("CheemsAppLiTotalMinigameCoinsEarned", String(this.totalMinigameCoinsEarned));
+    this.saveData("mg", String(this.minigameCoins));
+    this.saveData("lifetime_mg", String(this.totalMinigameCoinsEarned));
     document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
   }
   spendMinigameCoins(amount) {
     if (this.minigameCoins >= amount) {
       this.minigameCoins = Math.floor(this.minigameCoins - amount);
-      localStorage.setItem("CheemsAppLiMinigameCoins", String(this.minigameCoins));
+      this.saveData("mg", String(this.minigameCoins));
       document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
       return true;
     }
@@ -41292,9 +41351,9 @@ var ToolsService = class _ToolsService {
       this.points -= cost;
       this.dogeCoins += coinsToAdd;
       this.totalDogeCoinsEarned += coinsToAdd;
-      localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
-      localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
-      localStorage.setItem("CheemsAppLiTotalDogeCoinsEarned", JSON.stringify(this.totalDogeCoinsEarned));
+      this.saveData("points", String(this.points));
+      this.saveData("dg", String(this.dogeCoins));
+      this.saveData("lifetime_dg", String(this.totalDogeCoinsEarned));
       this.recordDailyPurchase(itemId);
       let successMsg = this.menu[this.lang]?.buyDogeCoinSuccess || `You bought ${coinsToAdd} DogeCoin(s)!`;
       if (coinsToAdd !== 1) {
@@ -41313,7 +41372,7 @@ var ToolsService = class _ToolsService {
     this.devClickCount++;
     if (this.devClickCount === 5) {
       this.devMenuUnlocked = !this.devMenuUnlocked;
-      localStorage.setItem("CheemsAppLiDevMenu", JSON.stringify(this.devMenuUnlocked));
+      this.saveData("dev_menu", String(this.devMenuUnlocked));
       if (this.devMenuUnlocked) {
         this.showToast(this.dev[this.lang].unlocked);
       } else {
@@ -41441,7 +41500,7 @@ var ToolsService = class _ToolsService {
     if (this.musicGain && this.audioCtx) {
       this.musicGain.gain.value = this.musVol / 100;
     }
-    localStorage.setItem("CheemsAppLiMusicVolume", String(this.musVol));
+    this.saveData("music_volume", String(this.musVol));
     if (this.musVol === 0) {
       if (this.audioCtx && this.audioCtx.state === "running") {
         this.audioCtx.suspend().catch(() => {
@@ -41461,7 +41520,7 @@ var ToolsService = class _ToolsService {
   }
   setEffectVolume(vol) {
     this.effVol = Math.max(0, Math.min(100, vol));
-    localStorage.setItem("CheemsAppLiEffectsVolume", String(this.effVol));
+    this.saveData("sfx_volume", String(this.effVol));
   }
   switchTheme(themeIndex) {
     switch (themeIndex) {
@@ -41478,7 +41537,7 @@ var ToolsService = class _ToolsService {
         this.themeColor = "theme-dark";
         break;
     }
-    localStorage.setItem("CheemsAppLiActTheme", String(themeIndex));
+    this.saveData("app_theme", String(themeIndex));
     document.body.className = `${this.themeColor} ${this.fontSize}`;
   }
   setAccessibility(sizeIndex) {
@@ -41502,7 +41561,7 @@ var ToolsService = class _ToolsService {
         this.fontSize = "text-normal";
         break;
     }
-    localStorage.setItem("CheemsAppLiFontSize", String(sizeIndex));
+    this.saveData("font_size", String(sizeIndex));
     const sizeMap = ["12px", "14px", "16px", "19px", "22px"];
     document.documentElement.style.fontSize = sizeMap[sizeIndex] || "16px";
     document.body.className = `${this.themeColor} ${this.fontSize}`;
@@ -41518,8 +41577,7 @@ var ToolsService = class _ToolsService {
   buyOrSelectCheems(skin) {
     if (this.isCheemsUnlocked(skin.id)) {
       this.selectedCheems = skin.id;
-      localStorage.setItem("CheemsAppLiSelCheems", skin.id);
-      localStorage.setItem("CheemsBonkCheems", skin.id);
+      this.saveData("selected_cheems", skin.id);
       this.showToast(this.closet[this.lang]?.itemSelected || "Selected!");
       this.playSound();
       return true;
@@ -41540,8 +41598,7 @@ var ToolsService = class _ToolsService {
   buyOrSelectSound(sound) {
     if (this.isSoundUnlocked(sound.id)) {
       this.selectedSound = sound.id;
-      localStorage.setItem("CheemsAppLiSelSound", sound.id);
-      localStorage.setItem("CheemsBonkSound", sound.id);
+      this.saveData("selected_sfx", sound.id);
       this.showToast(this.closet[this.lang]?.itemSelected || "Selected!");
       this.playSound(sound.id);
       return true;
@@ -41571,7 +41628,7 @@ var ToolsService = class _ToolsService {
   }
   selectMusic(track) {
     this.selectedMusic = track.id;
-    localStorage.setItem("CheemsAppLiSelMusic", String(track.id));
+    this.saveData("selected_music", String(track.id));
     this.playMusic(track.id);
     this.showToast(this.closet[this.lang].itemSelected);
   }
@@ -41585,26 +41642,26 @@ var ToolsService = class _ToolsService {
     const allMinigames = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
     allMinigames.forEach((id) => {
       this.unlockedMinigames[id] = true;
-      localStorage.setItem("CheemsAppLiMinigame_" + id, "true");
     });
-    localStorage.setItem("CheemsAppLiMinigameCoins", "999999");
+    this.saveUnlockedMinigames();
+    this.minigameCoins = 999999;
+    this.saveData("mg", "999999");
     this.cheemsSkins.forEach((s) => {
       this.unlockedCheems[s.storageKey] = true;
-      localStorage.setItem(s.storageKey, JSON.stringify(true));
     });
+    this.saveUnlockedCheems();
     this.soundEffects.forEach((s) => {
       this.unlockedSounds[s.storageKey] = true;
-      localStorage.setItem(s.storageKey, JSON.stringify(true));
     });
+    this.saveUnlockedSounds();
     this.musicTracks.forEach((s) => {
       this.unlockedMusic[s.storageKey] = true;
-      localStorage.setItem(s.storageKey, JSON.stringify(true));
     });
-    localStorage.setItem("CheemsAppLiActPoints", JSON.stringify(this.actScore));
-    localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
-    localStorage.setItem("CheemsAppLiTotalCounter", JSON.stringify(this.totalScore));
-    localStorage.setItem("CheemsAppLiMaxCounter", JSON.stringify(this.highScore));
-    localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
+    this.saveUnlockedMusic();
+    this.saveData("points", String(this.points));
+    this.saveData("total_score", String(this.totalScore));
+    this.saveData("high_score", String(this.highScore));
+    this.saveData("dg", String(this.dogeCoins));
     this.showToast(this.dev[this.lang].success);
     this.playSound("sfx_4");
   }
@@ -41614,16 +41671,13 @@ var ToolsService = class _ToolsService {
     this.totalScore = 0;
     this.highScore = 0;
     this.dogeCoins = 0;
-    this.minigameCoins = 50;
+    this.minigameCoins = 0;
     this.totalPointsEarned = 0;
     this.totalDogeCoinsEarned = 0;
     this.totalMinigameCoinsEarned = 0;
     this.unlockedMinigames = {};
-    localStorage.setItem("CheemsAppLiMinigameCoins", "50");
-    const allMinigames = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
-    allMinigames.forEach((id) => {
-      localStorage.removeItem("CheemsAppLiMinigame_" + id);
-    });
+    this.saveData("mg", "0");
+    this.deleteData("unlocked_minigames");
     this.selectedCheems = "cheems_normal";
     this.selectedSound = "sfx_1";
     this.selectedMusic = "music_1";
@@ -41637,35 +41691,42 @@ var ToolsService = class _ToolsService {
     this.cheemsSkins.forEach((s) => {
       const isDef = !s.default;
       this.unlockedCheems[s.storageKey] = !isDef;
-      localStorage.setItem(s.storageKey, JSON.stringify(!isDef));
     });
+    this.saveUnlockedCheems();
     this.soundEffects.forEach((s) => {
       const isDef = !s.default;
       this.unlockedSounds[s.storageKey] = !isDef;
-      localStorage.setItem(s.storageKey, JSON.stringify(!isDef));
     });
+    this.saveUnlockedSounds();
     this.musicTracks.forEach((s) => {
       const isDef = s.default || s.cost === 0;
       this.unlockedMusic[s.storageKey] = isDef;
-      localStorage.setItem(s.storageKey, JSON.stringify(isDef));
     });
-    localStorage.setItem("CheemsAppLiActPoints", "0");
-    localStorage.setItem("CheemsAppLiPoints", "0");
-    localStorage.setItem("CheemsAppLiTotalCounter", "0");
-    localStorage.setItem("CheemsAppLiMaxCounter", "0");
-    localStorage.setItem("CheemsAppLiDogecoins", "0");
-    localStorage.setItem("CheemsAppLiTotalPointsEarned", "0");
-    localStorage.setItem("CheemsAppLiTotalDogeCoinsEarned", "0");
-    localStorage.setItem("CheemsAppLiTotalMinigameCoinsEarned", "0");
-    localStorage.setItem("CheemsAppLiSelCheems", "cheems_normal");
-    localStorage.setItem("CheemsAppLiSelSound", "sfx_1");
-    localStorage.setItem("CheemsAppLiSelMusic", "music_1");
-    localStorage.setItem("CheemsAppLiMusicVolume", "50");
-    localStorage.setItem("CheemsAppLiEffectsVolume", "100");
-    localStorage.setItem("CheemsAppLiActTheme", "1");
-    localStorage.setItem("CheemsAppLiFontSize", "2");
+    this.saveUnlockedMusic();
+    this.saveData("points", "0");
+    this.saveData("total_score", "0");
+    this.saveData("high_score", "0");
+    this.saveData("dg", "0");
+    this.saveData("lifetime_points", "0");
+    this.saveData("lifetime_dg", "0");
+    this.saveData("lifetime_mg", "0");
+    this.deleteData("lifetime_purchases");
+    this.deleteData("daily_purchases_limit");
+    this.boosterMultiplier = 1;
+    this.boosterEndTime = 0;
+    this.saveData("active_booster", "multiplier:1,end_time:0");
+    this.saveData("selected_cheems", "cheems_normal");
+    this.saveData("selected_sfx", "sfx_1");
+    this.saveData("selected_music", "music_1");
+    this.saveData("music_volume", "50");
+    this.saveData("sfx_volume", "100");
+    this.saveData("app_theme", "1");
+    this.saveData("font_size", "2");
     this.showToast(this.dev[this.lang].success);
     this.playSound();
+    this.currentMusicFile = "";
+    this.playMusic();
+    this.redirect("game");
   }
   loadApp() {
     this.loadSettings();
@@ -41683,90 +41744,94 @@ var ToolsService = class _ToolsService {
     this.loadDevMenu();
   }
   loadSettings() {
-    const savedLang = localStorage.getItem("CheemsBonkLang");
+    const savedLang = this.loadData("language");
     this.lang = savedLang && this.availableLanguages.some((l) => l.key === savedLang) ? savedLang : "es";
-    const savedTheme = localStorage.getItem("CheemsAppLiActTheme");
+    const savedTheme = this.loadData("app_theme");
     const themeIdx = savedTheme !== null ? +savedTheme : 1;
     this.switchTheme(themeIdx);
-    const savedSize = localStorage.getItem("CheemsAppLiFontSize");
+    const savedSize = this.loadData("font_size");
     const sizeIdx = savedSize !== null ? +savedSize : 2;
     this.setAccessibility(sizeIdx);
-    const savedMusVol = localStorage.getItem("CheemsAppLiMusicVolume");
+    const savedMusVol = this.loadData("music_volume");
     this.musVol = savedMusVol !== null ? +savedMusVol : 50;
-    const savedEffVol = localStorage.getItem("CheemsAppLiEffectsVolume");
+    const savedEffVol = this.loadData("sfx_volume");
     this.effVol = savedEffVol !== null ? +savedEffVol : 100;
   }
   loadCheems() {
-    const savedCheems = localStorage.getItem("CheemsAppLiSelCheems") || localStorage.getItem("CheemsBonkCheems");
+    const savedCheems = this.loadData("selected_cheems");
     this.selectedCheems = savedCheems ? savedCheems.replace(/"/g, "") : "cheems_normal";
   }
   loadSounds() {
-    const savedSound = localStorage.getItem("CheemsAppLiSelSound") || localStorage.getItem("CheemsBonkSound");
+    const savedSound = this.loadData("selected_sfx");
     this.selectedSound = savedSound ? savedSound.replace(/"/g, "") : "sfx_1";
   }
   loadMusic() {
-    const savedMusic = localStorage.getItem("CheemsAppLiSelMusic");
+    const savedMusic = this.loadData("selected_music");
     this.selectedMusic = savedMusic ? savedMusic.replace(/"/g, "") : "music_1";
     this.playMusic(this.selectedMusic);
   }
   loadScore() {
-    const totalScore = localStorage.getItem("CheemsBonkTotalScore") || localStorage.getItem("CheemsAppLiTotalCounter");
-    const highScore = localStorage.getItem("CheemsBonkHighScore") || localStorage.getItem("CheemsAppLiMaxCounter");
-    const savedPoints = localStorage.getItem("CheemsAppLiPoints");
-    const dogeCoins = localStorage.getItem("CheemsBonkDogeCoins") || localStorage.getItem("CheemsAppLiDogecoins");
+    const totalScore = this.loadData("total_score");
+    const highScore = this.loadData("high_score");
+    const savedPoints = this.loadData("points");
+    const dogeCoins = this.loadData("dg");
     this.highScore = highScore ? this.parseNumber(highScore) : 0;
     this.totalScore = totalScore ? this.parseNumber(totalScore) : 0;
     this.points = savedPoints ? this.parseNumber(savedPoints) : 0;
     this.dogeCoins = dogeCoins ? this.parseNumber(dogeCoins) : 0;
-    const tPoints = localStorage.getItem("CheemsAppLiTotalPointsEarned");
+    const tPoints = this.loadData("lifetime_points");
     this.totalPointsEarned = tPoints ? this.parseNumber(tPoints) : this.totalScore;
-    const tDGC = localStorage.getItem("CheemsAppLiTotalDogeCoinsEarned");
+    const tDGC = this.loadData("lifetime_dg");
     this.totalDogeCoinsEarned = tDGC ? this.parseNumber(tDGC) : this.dogeCoins;
-    const tMG = localStorage.getItem("CheemsAppLiTotalMinigameCoinsEarned");
+    const tMG = this.loadData("lifetime_mg");
     this.totalMinigameCoinsEarned = tMG ? this.parseNumber(tMG) : this.minigameCoins;
-    let mgCoins = localStorage.getItem("CheemsAppLiMinigameCoins");
+    let mgCoins = this.loadData("mg");
     if (!mgCoins) {
       const match2 = document.cookie.match(/(^| )CheemsAppLiMinigameCoins=([^;]+)/);
       if (match2)
         mgCoins = match2[2];
     }
-    this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 50;
+    this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 0;
     this.actScore = 0;
     localStorage.setItem("CheemsAppLiActPoints", "0");
   }
   loadUnlocks() {
     const allMinigames = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
+    const unlockedMgs = this.parseArrayString(this.loadData("unlocked_minigames") || "");
     allMinigames.forEach((id) => {
-      const stored = localStorage.getItem("CheemsAppLiMinigame_" + id);
-      this.unlockedMinigames[id] = stored ? stored.replace(/"/g, "") === "true" : false;
+      this.unlockedMinigames[id] = unlockedMgs.includes(id);
     });
+    const unlockedChms = this.parseArrayString(this.loadData("unlocked_cheems") || "");
     this.cheemsSkins.forEach((s) => {
-      const stored = localStorage.getItem(s.storageKey);
-      if (s.default) {
-        this.unlockedCheems[s.storageKey] = true;
-      } else {
-        this.unlockedCheems[s.storageKey] = stored ? stored.replace(/"/g, "") === "true" : false;
-      }
+      this.unlockedCheems[s.storageKey] = s.default || unlockedChms.includes(s.id);
     });
+    const unlockedSnds = this.parseArrayString(this.loadData("unlocked_sfx") || "");
     this.soundEffects.forEach((s) => {
-      const stored = localStorage.getItem(s.storageKey);
-      if (s.default) {
-        this.unlockedSounds[s.storageKey] = true;
-      } else {
-        this.unlockedSounds[s.storageKey] = stored ? stored.replace(/"/g, "") === "true" : false;
-      }
+      this.unlockedSounds[s.storageKey] = s.default || unlockedSnds.includes(String(s.id));
     });
+    const unlockedMsc = this.parseArrayString(this.loadData("unlocked_music") || "");
     this.musicTracks.forEach((s) => {
-      const stored = localStorage.getItem(s.storageKey);
-      if (s.default || s.cost === 0) {
-        this.unlockedMusic[s.storageKey] = true;
-      } else {
-        this.unlockedMusic[s.storageKey] = stored ? stored.replace(/"/g, "") === "true" : false;
-      }
+      this.unlockedMusic[s.storageKey] = s.default || s.cost === 0 || unlockedMsc.includes(String(s.id));
     });
   }
+  saveUnlockedMinigames() {
+    const list = Object.keys(this.unlockedMinigames).filter((k) => this.unlockedMinigames[k]);
+    this.saveData("unlocked_minigames", this.stringifyArray(list));
+  }
+  saveUnlockedCheems() {
+    const list = this.cheemsSkins.filter((s) => this.unlockedCheems[s.storageKey] && !s.default).map((s) => s.id);
+    this.saveData("unlocked_cheems", this.stringifyArray(list));
+  }
+  saveUnlockedSounds() {
+    const list = this.soundEffects.filter((s) => this.unlockedSounds[s.storageKey] && !s.default).map((s) => String(s.id));
+    this.saveData("unlocked_sfx", this.stringifyArray(list));
+  }
+  saveUnlockedMusic() {
+    const list = this.musicTracks.filter((s) => this.unlockedMusic[s.storageKey] && !s.default && s.cost !== 0).map((s) => String(s.id));
+    this.saveData("unlocked_music", this.stringifyArray(list));
+  }
   loadDevMenu() {
-    const stored = localStorage.getItem("CheemsAppLiDevMenu");
+    const stored = this.loadData("dev_menu");
     this.devMenuUnlocked = stored ? stored.replace(/"/g, "") === "true" : false;
   }
   parseNumber(value) {
@@ -41828,10 +41893,15 @@ var ToolsService = class _ToolsService {
     });
   }
   loadBoosterState() {
-    const storedEndTime = localStorage.getItem("CheemsAppLiBoosterEndTime");
-    const storedMultiplier = localStorage.getItem("CheemsAppLiBoosterMultiplier");
-    this.boosterEndTime = storedEndTime ? +storedEndTime : 0;
-    this.boosterMultiplier = storedMultiplier ? +storedMultiplier : 1;
+    const multStr = this.loadData("active_booster");
+    if (multStr) {
+      const b = this.parseObjectString(multStr);
+      this.boosterMultiplier = b["multiplier"] ? parseInt(b["multiplier"]) : 1;
+      this.boosterEndTime = b["end_time"] ? parseInt(b["end_time"]) : 0;
+    } else {
+      this.boosterMultiplier = 1;
+      this.boosterEndTime = 0;
+    }
   }
   loadShopItems() {
     return __async(this, null, function* () {
@@ -41887,8 +41957,7 @@ var ToolsService = class _ToolsService {
     } else if (this.boosterEndTime !== 0) {
       this.boosterEndTime = 0;
       this.boosterMultiplier = 1;
-      localStorage.setItem("CheemsAppLiBoosterEndTime", "0");
-      localStorage.setItem("CheemsAppLiBoosterMultiplier", "1");
+      this.saveData("active_booster", "multiplier:1,end_time:0");
     }
     return 1;
   }
@@ -41927,40 +41996,38 @@ var ToolsService = class _ToolsService {
       this.boosterEndTime = now + durationMs;
       this.boosterMultiplier = multiplier;
     }
-    localStorage.setItem("CheemsAppLiBoosterEndTime", String(this.boosterEndTime));
-    localStorage.setItem("CheemsAppLiBoosterMultiplier", String(this.boosterMultiplier));
+    this.saveData("active_booster", `multiplier:${this.boosterMultiplier},end_time:${this.boosterEndTime}`);
     this.showToast(this.shop[this.lang]?.boosterActivated || "Booster activated!");
     this.playSound();
   }
   getDailyPurchaseCount(itemId) {
     const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-    try {
-      const stored = localStorage.getItem("CheemsAppLiShopDailyPurchases");
-      if (stored) {
-        const data = JSON.parse(stored);
-        if (data && data.date === today && data.purchases) {
-          return data.purchases[itemId] || 0;
-        }
-      }
-    } catch (e) {
+    const storedStr = this.loadData("daily_purchases_limit");
+    if (!storedStr)
+      return 0;
+    const purchasesArr = this.parseArrayOfObjectsString(storedStr);
+    const itemData = purchasesArr.find((p) => p["id"] === itemId);
+    if (itemData && itemData["date"] === today) {
+      return parseInt(itemData["count"]) || 0;
     }
     return 0;
   }
   recordDailyPurchase(itemId) {
     const today = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-    let purchases = {};
-    try {
-      const stored = localStorage.getItem("CheemsAppLiShopDailyPurchases");
-      if (stored) {
-        const data = JSON.parse(stored);
-        if (data && data.date === today && data.purchases) {
-          purchases = data.purchases;
-        }
+    const storedStr = this.loadData("daily_purchases_limit");
+    const purchasesArr = this.parseArrayOfObjectsString(storedStr || "");
+    const itemData = purchasesArr.find((p) => p["id"] === itemId);
+    if (itemData) {
+      if (itemData["date"] === today) {
+        itemData["count"] = String((parseInt(itemData["count"]) || 0) + 1);
+      } else {
+        itemData["date"] = today;
+        itemData["count"] = "1";
       }
-    } catch (e) {
+    } else {
+      purchasesArr.push({ id: itemId, count: "1", date: today });
     }
-    purchases[itemId] = (purchases[itemId] || 0) + 1;
-    localStorage.setItem("CheemsAppLiShopDailyPurchases", JSON.stringify({ date: today, purchases }));
+    this.saveData("daily_purchases_limit", this.stringifyArrayOfObjects(purchasesArr));
   }
   canBuyDailyLimit(item) {
     if (!item.dailyLimit || item.dailyLimit <= 0) {
@@ -41975,25 +42042,16 @@ var ToolsService = class _ToolsService {
     return Math.max(0, item.dailyLimit - this.getDailyPurchaseCount(item.id));
   }
   getLifetimePurchaseCount(itemId) {
-    try {
-      const stored = localStorage.getItem("CheemsAppLiShopLifetimePurchases");
-      if (stored) {
-        const data = JSON.parse(stored);
-        if (data && data[itemId]) {
-          return data[itemId];
-        }
-      }
-    } catch (e) {
-    }
-    return 0;
+    const stored = this.loadData("lifetime_purchases");
+    const arr = this.parseArrayString(stored || "");
+    return arr.includes(itemId) ? 1 : 0;
   }
   recordLifetimePurchase(itemId) {
-    try {
-      const stored = localStorage.getItem("CheemsAppLiShopLifetimePurchases");
-      const data = stored ? JSON.parse(stored) : {};
-      data[itemId] = (data[itemId] || 0) + 1;
-      localStorage.setItem("CheemsAppLiShopLifetimePurchases", JSON.stringify(data));
-    } catch (e) {
+    const stored = this.loadData("lifetime_purchases");
+    const arr = this.parseArrayString(stored || "");
+    if (!arr.includes(itemId)) {
+      arr.push(itemId);
+      this.saveData("lifetime_purchases", this.stringifyArray(arr));
     }
   }
   isLifetimeLimitReached(item) {
@@ -42071,28 +42129,28 @@ var ToolsService = class _ToolsService {
     if (this.points >= ptsCost && this.dogeCoins >= coinCost) {
       this.points -= ptsCost;
       this.dogeCoins -= coinCost;
-      localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.points));
-      localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.dogeCoins));
+      this.saveData("points", String(this.points));
+      this.saveData("dg", String(this.dogeCoins));
       if (item.type === "cheems") {
         const targetId = String(item.targetId !== void 0 ? item.targetId : item.id);
         const skin = this.cheemsSkins.find((s) => s.id === targetId);
         if (skin) {
           this.unlockedCheems[skin.storageKey] = true;
-          localStorage.setItem(skin.storageKey, JSON.stringify(true));
+          this.saveUnlockedCheems();
         }
       } else if (item.type === "sound") {
         const targetId = String(item.targetId !== void 0 ? item.targetId : item.id);
-        const sound = this.soundEffects.find((s) => s.id === targetId);
+        const sound = this.soundEffects.find((s) => String(s.id) === targetId);
         if (sound) {
           this.unlockedSounds[sound.storageKey] = true;
-          localStorage.setItem(sound.storageKey, JSON.stringify(true));
+          this.saveUnlockedSounds();
         }
       } else if (item.type === "music") {
         const targetId = String(item.targetId !== void 0 ? item.targetId : item.id);
         const track = this.musicTracks.find((m) => String(m.id) === targetId);
         if (track) {
           this.unlockedMusic[track.storageKey] = true;
-          localStorage.setItem(track.storageKey, JSON.stringify(true));
+          this.saveUnlockedMusic();
         }
       }
       this.recordDailyPurchase(item.id);
@@ -42234,7 +42292,7 @@ var ToolsService = class _ToolsService {
     const saveData = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && (key.startsWith("CheemsAppLi") || key.startsWith("CheemsBonk"))) {
+      if (key && key.startsWith(this.PREFIX)) {
         saveData[key] = localStorage.getItem(key) || "";
       }
     }
@@ -42257,9 +42315,16 @@ var ToolsService = class _ToolsService {
         const result = e.target?.result;
         const jsonStr = decodeURIComponent(atob(result));
         const saveData = JSON.parse(jsonStr);
-        localStorage.clear();
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith(this.PREFIX)) {
+            localStorage.removeItem(key);
+          }
+        }
         for (const key of Object.keys(saveData)) {
-          localStorage.setItem(key, saveData[key]);
+          if (key.startsWith(this.PREFIX)) {
+            localStorage.setItem(key, saveData[key]);
+          }
         }
         this.showToast(this.dev[this.lang].success || "Success");
         setTimeout(() => {
@@ -43007,9 +43072,13 @@ var DevSettingsComponent = class _DevSettingsComponent {
   }
   modifyDogeCoins(amount) {
     this.tools.dogeCoins += amount;
+    if (amount > 0) {
+      this.tools.totalDogeCoinsEarned += amount;
+      this.tools.saveData("lifetime_dg", String(this.tools.totalDogeCoinsEarned));
+    }
     if (this.tools.dogeCoins < 0)
       this.tools.dogeCoins = 0;
-    localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
+    this.tools.saveData("dg", String(this.tools.dogeCoins));
     this.tools.showToast(this.tools.dev[this.tools.lang].success || "Success");
     this.tools.playSound("4");
   }
@@ -43020,16 +43089,20 @@ var DevSettingsComponent = class _DevSettingsComponent {
       this.tools.points += amount;
       if (this.tools.points < 0)
         this.tools.points = 0;
-      localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
+      this.tools.saveData("points", String(this.tools.points));
     }
     this.tools.showToast(this.tools.dev[this.tools.lang].success || "Success");
     this.tools.playSound("4");
   }
   modifyMinigameCoins(amount) {
-    this.tools.minigameCoins += amount;
-    if (this.tools.minigameCoins < 0)
-      this.tools.minigameCoins = 0;
-    localStorage.setItem("CheemsAppLiMinigameCoins", String(this.tools.minigameCoins));
+    if (amount > 0) {
+      this.tools.addMinigameCoins(amount);
+    } else {
+      this.tools.minigameCoins += amount;
+      if (this.tools.minigameCoins < 0)
+        this.tools.minigameCoins = 0;
+      this.tools.saveData("mg", String(this.tools.minigameCoins));
+    }
     this.tools.showToast(this.tools.dev[this.tools.lang].success || "Success");
     this.tools.playSound("4");
   }
@@ -44674,9 +44747,9 @@ var ShopComponent = class _ShopComponent {
         if (item.minigameCoinsGiven) {
           this.tools.addMinigameCoins(item.minigameCoinsGiven);
         }
-        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
-        localStorage.setItem("CheemsAppLiMinigameCoins", JSON.stringify(this.tools.minigameCoins));
+        this.tools.saveData("points", String(this.tools.points));
+        this.tools.saveData("dg", String(this.tools.dogeCoins));
+        this.tools.saveData("mg", String(this.tools.minigameCoins));
         this.tools.recordDailyPurchase(item.id);
         this.tools.showToast(this.tools.closet[this.tools.lang]?.purchased || "Purchased!");
         this.tools.playSound("sfx_4");
@@ -44691,12 +44764,12 @@ var ShopComponent = class _ShopComponent {
         this.tools.points -= ptsCost;
         this.tools.dogeCoins -= coinCost;
         this.tools.minigameCoins -= mgCost;
-        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
-        localStorage.setItem("CheemsAppLiMinigameCoins", JSON.stringify(this.tools.minigameCoins));
+        this.tools.saveData("points", String(this.tools.points));
+        this.tools.saveData("dg", String(this.tools.dogeCoins));
+        this.tools.saveData("mg", String(this.tools.minigameCoins));
         const target = String(item.targetId || item.id);
         this.tools.unlockedMinigames[target] = true;
-        localStorage.setItem("CheemsAppLiMinigame_" + target, "true");
+        this.tools.saveUnlockedMinigames();
         this.tools.recordLifetimePurchase(item.id);
         this.tools.showToast(this.tools.closet[this.tools.lang]?.purchased || "Purchased!");
         this.tools.playSound("sfx_4");
@@ -44717,8 +44790,8 @@ var ShopComponent = class _ShopComponent {
         }
         this.tools.points -= ptsCost;
         this.tools.dogeCoins -= coinCost;
-        localStorage.setItem("CheemsAppLiPoints", JSON.stringify(this.tools.points));
-        localStorage.setItem("CheemsAppLiDogecoins", JSON.stringify(this.tools.dogeCoins));
+        this.tools.saveData("points", String(this.tools.points));
+        this.tools.saveData("dg", String(this.tools.dogeCoins));
         this.tools.recordDailyPurchase(item.id);
         this.tools.activateBooster(item.multiplier || 1, item.durationMin || 0);
       } else {
@@ -80868,7 +80941,7 @@ var StatsComponent = class _StatsComponent {
   static \u0275fac = function StatsComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _StatsComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatsComponent, selectors: [["app-stats"]], decls: 30, vars: 29, consts: [[1, "container"], [1, "stats-title"], [1, "stats-grid"], [1, "stat-label"], [1, "stat-value"], [1, "stat-value", "text-gold"], [1, "stat-value", "text-orange"], [1, "stat-value", "text-blue"]], template: function StatsComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatsComponent, selectors: [["app-stats"]], decls: 25, vars: 24, consts: [[1, "container"], [1, "stats-title"], [1, "stats-grid"], [1, "stat-label"], [1, "stat-value"], [1, "stat-value", "text-gold"], [1, "stat-value", "text-orange"], [1, "stat-value", "text-blue"]], template: function StatsComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "h2", 1);
       \u0275\u0275text(3);
@@ -80882,26 +80955,20 @@ var StatsComponent = class _StatsComponent {
       \u0275\u0275elementStart(10, "div")(11, "div", 3);
       \u0275\u0275text(12);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(13, "div", 4);
+      \u0275\u0275elementStart(13, "div", 5);
       \u0275\u0275text(14);
       \u0275\u0275elementEnd()();
       \u0275\u0275elementStart(15, "div")(16, "div", 3);
       \u0275\u0275text(17);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(18, "div", 5);
+      \u0275\u0275elementStart(18, "div", 6);
       \u0275\u0275text(19);
       \u0275\u0275elementEnd()();
       \u0275\u0275elementStart(20, "div")(21, "div", 3);
       \u0275\u0275text(22);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(23, "div", 6);
+      \u0275\u0275elementStart(23, "div", 7);
       \u0275\u0275text(24);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(25, "div")(26, "div", 3);
-      \u0275\u0275text(27);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(28, "div", 7);
-      \u0275\u0275text(29);
       \u0275\u0275elementEnd()()()()();
     }
     if (rf & 2) {
@@ -80921,12 +80988,6 @@ var StatsComponent = class _StatsComponent {
       \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].totalTouches) || "Total Touches");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.tools.totalScore);
-      \u0275\u0275advance();
-      \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].lifetimePoints) || "Lifetime Points");
-      \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.tools.totalPointsEarned);
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(2);
@@ -80959,13 +81020,7 @@ var StatsComponent = class _StatsComponent {
             <!-- Total Touches -->
             <div class="stat-card {{tools.themeColor}}">
                 <div class="stat-label">{{tools.stats[tools.lang]?.totalTouches || 'Total Touches'}}</div>
-                <div class="stat-value">{{tools.totalScore}}</div>
-            </div>
-
-            <!-- Lifetime Points -->
-            <div class="stat-card {{tools.themeColor}}">
-                <div class="stat-label">{{tools.stats[tools.lang]?.lifetimePoints || 'Lifetime Points'}}</div>
-                <div class="stat-value text-gold">{{tools.totalPointsEarned}}</div>
+                <div class="stat-value text-gold">{{tools.totalScore}}</div>
             </div>
 
             <!-- Lifetime DogeCoins -->
