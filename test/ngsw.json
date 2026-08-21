@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1787293693742,
+  "timestamp": 1787331928287,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -667,7 +667,7 @@
     "/sound/sfx/peluche.ogg": "107c91760bff598807708b0ab04691556114797b",
     "/sound/sfx/splat.ogg": "1692cf037af84fa26ff5b15bc52e135af6d5c8b8",
     "/sound/sfx/windows-error.ogg": "d6bbe76606cc0768fddcd56f4d192de6a29f5385",
-    "/styles.css": "ad746b37f4823574d323c5e79d976f8b96d4da4e"
+    "/styles.css": "df75c31f650e67c822035975464a24b2e0b5eb96"
   },
   "navigationUrls": [
     {
