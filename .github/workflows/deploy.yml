@@ -79,6 +79,7 @@ jobs:
           cp .pwa/favicon-$build_prefix.ico public/img/favicon.ico
           rm -f public/manifest.webmanifest
           cp .pwa/manifest-$build_prefix.webmanifest public/manifest.webmanifest
+          cp .pwa/styles-$build_prefix.css src/styles.css
 
       - name: Build Web
         env:
