@@ -1,0 +1,37 @@
+<div class="helix-jump-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+  <div id="game-container" #gameContainer></div>
+
+  <div class="ui-layer">
+    <div class="hud">
+      <div>{{tools.helix_jump[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
+      <div>{{tools.helix_jump[tools.lang]?.level || 'Level '}} <span>{{level}}</span></div>
+      @if (timeLeft > 0) {
+        <div>{{tools.helix_jump[tools.lang]?.time || 'Time: '}} <span>{{timeLeft}}</span></div>
+      }
+    </div>
+  </div>
+
+  @if (gameState === 'START') {
+    <div class="screen">
+      <h1>{{tools.helix_jump[tools.lang]?.helix_jump_title || 'Helix Jump'}}</h1>
+      <p>{{tools.helix_jump[tools.lang]?.helix_jump_inst || 'Rotate the tower to drop the bouncing ball to the bottom!'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.helix_jump[tools.lang]?.startGame || 'Start Game'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'WIN') {
+    <div class="screen">
+      <h1>{{tools.helix_jump[tools.lang]?.levelCleared || 'Level Cleared!'}}</h1>
+      <p>{{tools.helix_jump[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
+      <button class="btn" (click)="nextLevel()">{{tools.helix_jump[tools.lang]?.nextLevel || 'Next Level'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'LOSE') {
+    <div class="screen">
+      <h1>{{tools.helix_jump[tools.lang]?.gameOver || 'Game Over'}}</h1>
+      <p>{{tools.helix_jump[tools.lang]?.score || 'Score: '}} {{levelPoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.helix_jump[tools.lang]?.tryAgain || 'Try Again'}}</button>
+    </div>
+  }
+</div>

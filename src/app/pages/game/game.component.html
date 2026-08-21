@@ -1,7 +1,25 @@
-<div class="img-container" (click)="onClick(true)">
-    @if (clicked) {
-        <img src="img/hit/{{tools.selectedCheems}}.png">
-    } @else {
-        <img src="img/cheems/{{tools.selectedCheems}}.png">
+<div class="game-container" (click)="onClick(true, $event)" (touchstart)="onClick(true, $event)">
+    <div class="img-wrapper" [class.bonked]="clicked">
+        @if (clicked) {
+            <img [src]="tools.getCheemsHitImg(tools.selectedCheems)"
+                 class="cheems-img hit-img"
+                 alt="Cheems Hit">
+        } @else {
+            <img [src]="tools.getCheemsImg(tools.selectedCheems)"
+                 class="cheems-img"
+                 alt="Cheems">
+        }
+    </div>
+
+    <div class="hint-text color-text {{tools.themeColor}} {{tools.fontSize}}">
+        {{tools.game[tools.lang].tapToBonk}}
+    </div>
+
+    @for (score of floatingScores; track score.id) {
+        <div class="floating-plus {{tools.themeColor}}"
+             [style.left.px]="score.x"
+             [style.top.px]="score.y">
+            +{{score.value}}
+        </div>
     }
 </div>

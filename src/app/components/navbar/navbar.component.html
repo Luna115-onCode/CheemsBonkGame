@@ -1,25 +1,51 @@
 <nav class="{{tools.themeColor}} {{tools.fontSize}}">
-    <span class="text">
-        <img src="img/dogecoin-min.svg"
-        (click)="enableDevOption()"
-        class="icon">
-        @if (tools.actPage === "game") {
-            <span class="color-text {{tools.themeColor}} {{tools.fontSize}}">0</span>
-        }
+    <div class="counters-group">
+        <span class="text count-badge">
+            <img src="img/dogecoin-min.png"
+                 (click)="onDogeCoinClick()"
+                 class="icon logo-coin"
+                 title="DogeCoins"
+                 alt="DogeCoins">
+            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.dogeCoins}}</span>
+        </span>
+
+        <span class="text count-badge">
+            <img src="img/icons/trophy-svgrepo-com.svg"
+                 class="icon logo-coin pts-icon"
+                 title="Puntos"
+                 alt="Puntos">
+            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.points}}</span>
+        </span>
+    </div>
+
+    <span class="preventive text color-text {{tools.themeColor}} {{tools.fontSize}} title-text">
+        {{tools.pageName[tools.lang][tools.actPage]}}
     </span>
-    <span class="preventive text color-text {{tools.themeColor}} {{tools.fontSize}}">{{tools.pageName[tools.lang][tools.actPage]}}</span>
-    <span class="text" (click)="tools.redirectBack()">
+
+    <span class="text nav-action" (click)="tools.redirectBack()">
         @if (tools.actPage !== "game") {
-            <img src="img/icons/front-page-svgrepo-com.svg" class="icon">
+            <img src="img/icons/front-page-svgrepo-com.svg" class="icon nav-icon" alt="Back" title="Back">
         } @else {
-            <img src="img/icons/menu-svgrepo-com.svg" class="icon">
+            <img src="img/icons/menu-svgrepo-com.svg" class="icon nav-icon" alt="Menu" title="Menu">
         }
     </span>
 </nav>
+
 @if (tools.actPage === "game") {
     <div class="upper-container {{tools.themeColor}} {{tools.fontSize}}" id="upper-container">
-        <span>{{tools.game[tools.lang].navbar.highScore}}:<br>{{tools.highScore}}</span>
-        <span>{{tools.game[tools.lang].navbar.totalScore}}:<br>{{tools.totalScore}}</span>
-        <span>{{tools.game[tools.lang].navbar.actScore}}:<br>{{tools.actScore}}</span>
+        <div class="score-box">
+            <span class="score-label">{{tools.game[tools.lang].navbar.highScore}}</span>
+            <span class="score-value">{{tools.highScore}}</span>
+        </div>
+        <div class="score-box">
+            @if (tools.boosterEndTime !== 0 && tools.getBoosterRemainingSeconds() > 0) {
+                <span class="score-label booster-nav-label">⚡ x{{tools.boosterMultiplier}} {{tools.game[tools.lang]?.navbar?.booster || 'Booster'}}</span>
+                <span class="score-value booster-nav-value">{{tools.getBoosterFormattedTime()}}</span>
+            }
+        </div>
+        <div class="score-box">
+            <span class="score-label">{{tools.game[tools.lang].navbar.actScore}}</span>
+            <span class="score-value">{{tools.actScore}}</span>
+        </div>
     </div>
 }

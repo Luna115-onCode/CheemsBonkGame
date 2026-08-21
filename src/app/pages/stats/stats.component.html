@@ -1,0 +1,31 @@
+<div class="container">
+    <div class="group {{tools.themeColor}} stats-box">
+        <h2 class="stats-title">{{tools.stats[tools.lang]?.title || 'Statistics'}}</h2>
+        
+        <div class="stats-grid">
+            <!-- Highest Combo -->
+            <div class="stat-card {{tools.themeColor}}">
+                <div class="stat-label">{{tools.stats[tools.lang]?.highScore || 'Highest Combo'}}</div>
+                <div class="stat-value">{{tools.highScore}}</div>
+            </div>
+
+            <!-- Total Touches -->
+            <div class="stat-card {{tools.themeColor}}">
+                <div class="stat-label">{{tools.stats[tools.lang]?.totalTouches || 'Total Touches'}}</div>
+                <div class="stat-value text-gold">{{tools.totalScore}}</div>
+            </div>
+
+            <!-- Lifetime DogeCoins -->
+            <div class="stat-card {{tools.themeColor}}">
+                <div class="stat-label">{{tools.stats[tools.lang]?.lifetimeDogeCoins || 'Lifetime DogeCoins'}}</div>
+                <div class="stat-value text-orange">{{tools.totalDogeCoinsEarned}}</div>
+            </div>
+
+            <!-- Lifetime Minigame Coins -->
+            <div class="stat-card {{tools.themeColor}}">
+                <div class="stat-label">{{tools.stats[tools.lang]?.lifetimeMinigameCoins || 'Lifetime MG Coins'}}</div>
+                <div class="stat-value text-blue">{{tools.totalMinigameCoinsEarned}}</div>
+            </div>
+        </div>
+    </div>
+</div>

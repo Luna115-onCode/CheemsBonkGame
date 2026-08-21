@@ -1,0 +1,38 @@
+<div class="paper-io-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+  <div id="game-container" #gameContainer>
+    <canvas #canvas></canvas>
+  </div>
+
+  <div class="ui-layer">
+    <div class="hud">
+      <div>{{tools.paper_io[tools.lang]?.score || 'Score: '}} <span>{{gamePoints}}</span></div>
+    </div>
+
+    @if (gameState === 'PLAYING') {
+      <div class="leaderboard">
+        @for (entry of leaderboard; track $index) {
+          <div class="lb-entry" [style.color]="entry.color">
+            <span>{{entry.name}}</span>
+            <span>{{entry.pct}}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (gameState === 'START') {
+    <div class="screen">
+      <h1>{{tools.paper_io[tools.lang]?.paper_io_title || 'Paper.io'}}</h1>
+      <p>{{tools.paper_io[tools.lang]?.paper_io_inst || 'Conquer territory by enclosing loops and defeat opponents!'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.paper_io[tools.lang]?.startGame || 'Start Game'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'GAMEOVER') {
+    <div class="screen">
+      <h1>{{tools.paper_io[tools.lang]?.gameOver || 'Game Over'}}</h1>
+      <p>{{tools.paper_io[tools.lang]?.score || 'Score: '}} {{gamePoints}}</p>
+      <button class="btn" (click)="startGame()">{{tools.paper_io[tools.lang]?.playAgain || 'Play Again'}}</button>
+    </div>
+  }
+</div>

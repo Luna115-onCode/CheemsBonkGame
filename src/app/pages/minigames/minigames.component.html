@@ -1,0 +1,17 @@
+<div class="container">
+    <div class="group {{tools.themeColor}} menu-grid">
+        @for (game of gamesList; track game.id) {
+            <div class="menu-card {{tools.themeColor}}" (click)="openMinigame(game.id)">
+                <img [src]="tools.isMinigameUnlocked(game.id) ? 'img/icons/play-svgrepo-com.svg' : 'img/icons/lock-keyhole-minimalistic-svgrepo-com.svg'"
+                     class="menu-icon coin-glow"
+                     [alt]="game.defaultTitle">
+                <div class="card-content">
+                    <div class="card-title">{{$any(tools)[game.id]?.[tools.lang]?.['title'] || game.defaultTitle}}</div>
+                    @if (!tools.isMinigameUnlocked(game.id)) {
+                        <div class="card-sub">🔒 {{tools.closet[tools.lang]?.locked || 'Locked'}}</div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>

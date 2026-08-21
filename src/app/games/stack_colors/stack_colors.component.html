@@ -1,0 +1,46 @@
+<div class="stack-colors-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+  <div id="game-container" #gameContainer></div>
+
+  <div class="ui-layer">
+    <div class="hud">
+      <div>{{tools.stack_colors[tools.lang]?.stack_colors_session || 'Session: '}} <span id="sessionUI">{{sessionPoints}}</span></div>
+      <div>{{tools.stack_colors[tools.lang]?.stack_colors_score || 'Score: '}} <span id="scoreUI">{{levelPoints}}</span></div>
+      <div>{{tools.stack_colors[tools.lang]?.stack_colors_level_lbl || 'Level: '}} <span id="levelUI">{{level}}</span></div>
+      <div>{{tools.stack_colors[tools.lang]?.stack_colors_stack || 'Stack: '}} <span id="stackUI">{{stack.length}}</span></div>
+    </div>
+
+    @if (gameState === 'PREP_KICK') {
+      <div id="kickUI">
+        <h2 style="color: white; text-shadow: 1px 1px 2px black; margin: 0 0 10px 0;">{{tools.stack_colors[tools.lang]?.stack_colors_tap_kick || 'TAP TO KICK!'}}</h2>
+        <div class="power-bar-container">
+            <div id="powerBar" [style.width.%]="kickPower"></div>
+        </div>
+        <button class="kick-btn" (mousedown)="addKickPower($event)" (touchstart)="addKickPower($event)">{{tools.stack_colors[tools.lang]?.stack_colors_kick_btn || 'KICK!'}}</button>
+      </div>
+    }
+  </div>
+
+  @if (gameState === 'START') {
+    <div class="screen">
+      <h1>{{tools.stack_colors[tools.lang]?.stack_colors_title || 'Stack Colors!'}}</h1>
+      <p>{{tools.stack_colors[tools.lang]?.stack_colors_inst || 'Drag to move.\nCollect matching colors.\nAvoid wrong colors.'}}</p>
+      <button class="btn" (click)="startGame()">{{tools.stack_colors[tools.lang]?.stack_colors_start_run || 'START RUN'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'WIN') {
+    <div class="screen">
+      <h1 style="color: #4CAF50">{{tools.stack_colors[tools.lang]?.stack_colors_level_complete || 'LEVEL COMPLETE'}}</h1>
+      <p>{{tools.stack_colors[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="nextLevel()">{{tools.stack_colors[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
+    </div>
+  }
+
+  @if (gameState === 'LOSE') {
+    <div class="screen">
+      <h1 style="color: #F44336">{{tools.stack_colors[tools.lang]?.stack_colors_game_over || 'GAME OVER'}}</h1>
+      <p>{{tools.stack_colors[tools.lang]?.stack_colors_final_score || 'Final Score: '}} <span style="color: #FFEB3B; font-weight: bold;">{{levelPoints}}</span></p>
+      <button class="btn" (click)="startGame()">{{tools.stack_colors[tools.lang]?.stack_colors_play_again || 'PLAY AGAIN'}}</button>
+    </div>
+  }
+</div>

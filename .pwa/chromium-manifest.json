@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "${AppName}",
+  "version": "1.0.0",
+  "description": "Play Cheems Bonk Game",
+  "action": {},
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}

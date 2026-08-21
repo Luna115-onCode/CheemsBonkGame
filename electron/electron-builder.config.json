@@ -1,0 +1,70 @@
+{
+  "appId": "com.cheems.app",
+  "productName": "Cheems Bonk Game",
+  "executableName": "CheemsBonkGame",
+  "directories": {
+    "output": "dist",
+    "buildResources": "assets"
+  },
+  "files": [
+    "build/**/*",
+    "node_modules/**/*",
+    "package.json"
+  ],
+  "extraMetadata": {
+    "main": "build/src/index.js"
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "msi",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "assets/icon.png",
+    "certificateFile": null,
+    "certificatePassword": null,
+    "signingHashAlgorithms": ["sha256"]
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Cheems Bonk Game"
+  },
+  "msi": {
+    "oneClick": false,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Cheems Bonk Game"
+  },
+  "linux": {
+    "target": ["deb", "rpm", "AppImage"],
+    "category": "Game"
+  },
+  "mac": {
+    "target": [
+      {
+        "target": "dmg",
+        "arch": ["x64"]
+      },
+      {
+        "target": "dmg",
+        "arch": ["arm64"]
+      },
+      {
+        "target": "zip",
+        "arch": ["x64"]
+      },
+      {
+        "target": "zip",
+        "arch": ["arm64"]
+      }
+    ]
+  }
+}

@@ -1,0 +1,96 @@
+<div class="container">
+    <div class="tabs-header {{tools.themeColor}}">
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}"
+                [class.active]="activeTab === 'cheems'"
+                (click)="setTab('cheems')">
+            {{tools.closet[tools.lang].cheemsSection}}
+        </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}"
+                [class.active]="activeTab === 'sounds'"
+                (click)="setTab('sounds')">
+            {{tools.closet[tools.lang].soundsSection}}
+        </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}"
+                [class.active]="activeTab === 'music'"
+                (click)="setTab('music')">
+            {{tools.closet[tools.lang].musicSection}}
+        </button>
+    </div>
+
+    @if (activeTab === 'cheems') {
+        <div class="shop-grid">
+            @for (skin of unlockedCheemsSkins; track $index) {
+                <div class="shop-card {{tools.themeColor}}"
+                     [class.selected-cheems]="tools.selectedCheems === skin.id"
+                     (click)="onSelectCheems(skin)">
+                    <img [src]="tools.getCheemsImg(skin.id)"
+                         class="item-img"
+                         [alt]="skin.id">
+                    <div class="item-info">
+                        <span class="item-name">{{tools.getCheemsName(skin)}}</span>
+                        @if (tools.getCheemsDescription(skin)) {
+                            <span class="item-desc">{{tools.getCheemsDescription(skin)}}</span>
+                        }
+                        @if (tools.selectedCheems === skin.id) {
+                            <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
+                        } @else {
+                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (activeTab === 'sounds') {
+        <div class="shop-grid">
+            @for (sound of unlockedSoundEffects; track $index) {
+                <div class="shop-card {{tools.themeColor}}"
+                     [class.selected-cheems]="tools.selectedSound === sound.id"
+                     (click)="onSelectSound(sound)">
+                    <img src="img/icons/sound-svgrepo-com.svg"
+                         class="item-icon"
+                         [alt]="tools.getSoundName(sound)">
+                    <div class="item-info">
+                        <span class="item-name">{{tools.getSoundName(sound)}}</span>
+                        @if (tools.getSoundDescription(sound)) {
+                            <span class="item-desc">{{tools.getSoundDescription(sound)}}</span>
+                        }
+                        @if (tools.selectedSound === sound.id) {
+                            <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
+                        } @else {
+                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (activeTab === 'music') {
+        <div class="shop-grid">
+            @for (track of unlockedMusicTracks; track $index) {
+                <div class="shop-card {{tools.themeColor}}"
+                     [class.selected-cheems]="tools.selectedMusic === track.id"
+                     (click)="onSelectMusic(track)">
+                    @if (track.id === 0) {
+                        <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
+                    } @else {
+                        <img [src]="track.cover || 'img/music/no_image.png'" class="item-icon" [alt]="tools.getMusicName(track)" style="border-radius: 8px; object-fit: cover;">
+                    }
+                    <div class="item-info">
+                        <span class="item-name">{{tools.getMusicName(track)}}</span>
+                        @if (tools.getMusicDescription(track)) {
+                            <span class="item-desc">{{tools.getMusicDescription(track)}}</span>
+                        }
+                        @if (tools.selectedMusic === track.id) {
+                            <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
+                        } @else {
+                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

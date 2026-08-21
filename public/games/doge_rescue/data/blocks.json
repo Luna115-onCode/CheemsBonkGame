@@ -1,0 +1,22 @@
+{
+  "dirt": {
+    "src": "games/doge_rescue/assets/dirt.png",
+    "solid": true
+  },
+  "grass": {
+    "src": "games/doge_rescue/assets/grass.png",
+    "solid": true
+  },
+  "bee_nest": {
+    "src": "games/doge_rescue/assets/bee_nest.png",
+    "solid": true,
+    "spawn": "bees"
+  },
+  "doge_spawn": {
+    "solid": false,
+    "spawn": "doge"
+  },
+  "air": {
+    "solid": false
+  }
+}

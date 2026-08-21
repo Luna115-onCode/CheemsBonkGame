@@ -1,1 +1,98 @@
-<button (click)="changeLanguage()">{{tools.options[tools.lang].changeLang.button}}</button>
+<div class="container">
+    <div class="group {{tools.themeColor}} settings-box">
+        <!-- Language Switcher -->
+        <div class="setting-row">
+            <span class="setting-label">{{tools.options[tools.lang].changeLang.button}}</span>
+            <select class="btn-card lang-select {{tools.themeColor}}" [value]="tools.lang" (change)="onLanguageChange($event)">
+                @for (langItem of tools.availableLanguages; track langItem.key) {
+                    <option [value]="langItem.key" [selected]="langItem.key === tools.lang">{{langItem.name}}</option>
+                }
+            </select>
+        </div>
+
+        <!-- Music Volume -->
+        <div class="setting-row">
+            <span class="setting-label">{{tools.options[tools.lang].musicVolume}} ({{tools.musVol}}%)</span>
+            <input type="range"
+                   min="0"
+                   max="100"
+                   [value]="tools.musVol"
+                   (input)="onMusicVolumeChange($event)">
+        </div>
+
+        <!-- Effects Volume -->
+        <div class="setting-row">
+            <span class="setting-label">{{tools.options[tools.lang].effectsVolume}} ({{tools.effVol}}%)</span>
+            <input type="range"
+                   min="0"
+                   max="100"
+                   [value]="tools.effVol"
+                   (input)="onEffectsVolumeChange($event)">
+        </div>
+
+        <!-- App Theme -->
+        <div class="setting-row">
+            <span class="setting-label">{{tools.options[tools.lang].appTheme}}</span>
+            <div class="options-group">
+                <button class="btn-card theme-btn"
+                        [class.active-opt]="tools.themeColor === 'theme-light'"
+                        (click)="selectTheme(0)">
+                    {{tools.options[tools.lang].themes.light}}
+                </button>
+                <button class="btn-card theme-btn"
+                        [class.active-opt]="tools.themeColor === 'theme-dark'"
+                        (click)="selectTheme(1)">
+                    {{tools.options[tools.lang].themes.dark}}
+                </button>
+                <button class="btn-card theme-btn"
+                        [class.active-opt]="tools.themeColor === 'theme-contrast'"
+                        (click)="selectTheme(2)">
+                    {{tools.options[tools.lang].themes.contrast}}
+                </button>
+            </div>
+        </div>
+
+        <!-- Font Size -->
+        <div class="setting-row">
+            <span class="setting-label">{{tools.options[tools.lang].fontSize}}</span>
+            <div class="options-group">
+                <button class="btn-card font-btn"
+                        [class.active-opt]="tools.fontSize === 'text-smaller'"
+                        (click)="selectFontSize(0)">
+                    {{tools.options[tools.lang].sizes.smaller}}
+                </button>
+                <button class="btn-card font-btn"
+                        [class.active-opt]="tools.fontSize === 'text-small'"
+                        (click)="selectFontSize(1)">
+                    {{tools.options[tools.lang].sizes.small}}
+                </button>
+                <button class="btn-card font-btn"
+                        [class.active-opt]="tools.fontSize === 'text-normal'"
+                        (click)="selectFontSize(2)">
+                    {{tools.options[tools.lang].sizes.normal}}
+                </button>
+                <button class="btn-card font-btn"
+                        [class.active-opt]="tools.fontSize === 'text-big'"
+                        (click)="selectFontSize(3)">
+                    {{tools.options[tools.lang].sizes.big}}
+                </button>
+                <button class="btn-card font-btn"
+                        [class.active-opt]="tools.fontSize === 'text-max'"
+                        (click)="selectFontSize(4)">
+                    {{tools.options[tools.lang].sizes.max}}
+                </button>
+            </div>
+        </div>
+
+        <!-- Save Management -->
+        <div class="setting-row">
+            <span class="setting-label">{{tools.options[tools.lang].saveManagement}}</span>
+            <div class="options-group">
+                <button class="btn-card theme-btn" style="color: #ff4a4a;" (click)="deleteProgress()">{{tools.options[tools.lang].deleteProgress}}</button>
+                <button class="btn-card theme-btn" (click)="exportSave()">{{tools.options[tools.lang].exportSave}}</button>
+                <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" accept=".dat">
+                <button class="btn-card theme-btn" (click)="fileInput.click()">{{tools.options[tools.lang].importSave}}</button>
+            </div>
+        </div>
+    </div>
+</div>

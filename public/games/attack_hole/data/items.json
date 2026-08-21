@@ -1,0 +1,82 @@
+[
+  {
+    "id": "gun",
+    "emojiCounter": "🔫",
+    "model": "games/attack_hole/data/models/gun.geo.json",
+    "texture": "games/attack_hole/assets/gun_bullet.png",
+    "points": 10,
+    "category": "ammo"
+  },
+  {
+    "id": "magnum",
+    "emojiCounter": "🤠",
+    "model": "games/attack_hole/data/models/magnum.geo.json",
+    "texture": "games/attack_hole/assets/magnum_bullet.png",
+    "points": 50,
+    "category": "ammo"
+  },
+  {
+    "id": "tmp",
+    "emojiCounter": "🪖",
+    "model": "games/attack_hole/data/models/tmp.geo.json",
+    "texture": "games/attack_hole/assets/tmp_bullet.png",
+    "points": 5,
+    "category": "ammo"
+  },
+  {
+    "id": "shotgun",
+    "emojiCounter": "🪤",
+    "model": "games/attack_hole/data/models/shotgun.geo.json",
+    "texture": "games/attack_hole/assets/shotgun_bullet.png",
+    "points": 25,
+    "category": "ammo"
+  },
+  {
+    "id": "sniper",
+    "emojiCounter": "🎯",
+    "model": "games/attack_hole/data/models/sniper.geo.json",
+    "texture": "games/attack_hole/assets/sniper_bullet.png",
+    "points": 35,
+    "category": "ammo"
+  },
+  {
+    "id": "rocket",
+    "emojiCounter": "🚀",
+    "model": "games/attack_hole/data/models/rocket.geo.json",
+    "texture": "games/attack_hole/assets/rocket_bullet.png",
+    "points": 100,
+    "category": "ammo"
+  },
+  {
+    "id": "grenade",
+    "emojiCounter": "💣",
+    "model": "games/attack_hole/data/models/grenade.geo.json",
+    "texture": "games/attack_hole/assets/grenade_bomb.png",
+    "points": 60,
+    "category": "bomb"
+  },
+  {
+    "id": "flash_grenade",
+    "emojiCounter": "⚡",
+    "model": "games/attack_hole/data/models/flash_grenade.geo.json",
+    "texture": "games/attack_hole/assets/flash_grenade_bomb.png",
+    "points": 50,
+    "category": "bomb"
+  },
+  {
+    "id": "fire_grenade",
+    "emojiCounter": "🔥",
+    "model": "games/attack_hole/data/models/fire_grenade.geo.json",
+    "texture": "games/attack_hole/assets/fire_grenade_bomb.png",
+    "points": 70,
+    "category": "bomb"
+  },
+  {
+    "id": "big_grenade",
+    "emojiCounter": "💥",
+    "model": "games/attack_hole/data/models/big_grenade.geo.json",
+    "texture": "games/attack_hole/assets/big_grenade_bomb.png",
+    "points": 150,
+    "category": "bomb"
+  }
+]

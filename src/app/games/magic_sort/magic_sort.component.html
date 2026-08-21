@@ -1,0 +1,38 @@
+<!-- Background Stars will be appended to this container -->
+<div class="magic-sort-wrapper">
+    <div class="hud">
+        <div class="level-text">{{tools.magic_sort[tools.lang]?.levelPrefix || 'LEVEL '}} <span id="levelUI">{{level}}</span></div>
+        <div class="controls">
+            <button class="btn" (click)="restartLevel()">{{tools.magic_sort[tools.lang]?.restart || 'Restart'}}</button>
+        </div>
+    </div>
+
+    <div id="game-board">
+        @for (tube of tubes; track $index) {
+            <div 
+                class="tube-wrapper" 
+                [class.selected]="selectedTubeIndex === $index"
+                (click)="onTubeClick($index)">
+                <div class="tube">
+                    @for (color of tube; track $index) {
+                        <div class="segment" [style.background-color]="color"></div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (gameState === 'START') {
+        <div class="screen">
+            <h1>{{tools.magic_sort[tools.lang]?.title || 'Magic Sort'}}</h1>
+            <p>{{tools.magic_sort[tools.lang]?.instructions || 'Pour colored liquids between bottles until each is one color!'}}</p>
+            <button class="btn big-btn" (click)="startLevel()">{{tools.magic_sort[tools.lang]?.startGame || 'START GAME'}}</button>
+        </div>
+    }
+
+    <!-- Win Screen -->
+    <div id="winScreen" class="screen" [class.hidden]="gameState !== 'WIN'">
+        <h2>{{tools.magic_sort[tools.lang]?.levelCleared || 'MAGIC SORTED!'}}</h2>
+        <button class="btn big-btn" (click)="nextLevel()">{{tools.magic_sort[tools.lang]?.nextLevel || 'NEXT LEVEL'}}</button>
+    </div>
+</div>

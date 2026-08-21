@@ -1,0 +1,60 @@
+.licenses-box {
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    margin: 20px auto;
+    max-width: 800px;
+    height: 70vh;
+    overflow-y: auto;
+    display: block; /* Override .group flex centering to fix top overflow cutoff */
+}
+
+.licenses-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.licenses-content {
+    padding: 0 10px;
+}
+
+.licenses-content h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 5px;
+}
+
+.theme-light .licenses-content h3 {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.licenses-content ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.licenses-content li {
+    margin-bottom: 12px;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.licenses-content a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.licenses-content a:hover {
+    text-decoration: underline;
+}
+
+.theme-dark .licenses-content a {
+    color: #5dade2;
+}
+
+.theme-light .licenses-content a {
+    color: #2980b9;
+}

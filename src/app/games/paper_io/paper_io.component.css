@@ -1,0 +1,121 @@
+.paper-io-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  background-color: #f0f4f8;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
+  touch-action: none;
+}
+
+#game-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ui-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  z-index: 10;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 25px;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #2c3e50;
+  background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, transparent 100%);
+}
+
+.leaderboard {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  pointer-events: auto;
+  min-width: 160px;
+  max-height: 40vh;
+  overflow-y: auto;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.lb-entry {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 0.95em;
+}
+
+.screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(5px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: auto;
+  z-index: 20;
+}
+
+.screen h1 {
+  font-size: 3em;
+  color: #fff;
+  margin-bottom: 15px;
+  text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+.screen p {
+  font-size: 1.3em;
+  color: #ddd;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.btn {
+  padding: 14px 40px;
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transition: transform 0.1s;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.btn:active {
+  transform: scale(0.95);
+}

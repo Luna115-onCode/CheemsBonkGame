@@ -1,0 +1,94 @@
+<div class="block-breaker-wrapper {{tools.themeColor}} {{tools.fontSize}}">
+    <h1>{{tools.block_breaker[tools.lang]?.title || 'Merge Diggers'}}</h1>
+    <div class="level-title">{{tools.block_breaker[tools.lang]?.playerLevel || 'Player Level: '}}<span>{{ playerLevel }}</span></div>
+    
+    <div id="game-container">
+        <!-- Win / Loss Screen -->
+        <div id="resultOverlay"
+             class="overlay"
+             [class.hidden]="overlayHidden"
+             [class.success]="overlaySuccess"
+             [class.danger]="overlayDanger">
+            <h2 id="overlayTitle">{{overlayTitleText}}</h2>
+            <p id="overlayDesc">{{overlayDescText}}</p>
+            <button (click)="closeOverlay()" id="overlayBtn">{{overlayBtnText}}</button>
+        </div>
+
+        <div class="ui-header">
+            <div class="stats-display">
+                <div class="stat-box coins">🪙 <span>{{ getFloorCoins() }}</span></div>
+                <div class="stat-box lvl">⭐ {{tools.block_breaker[tools.lang]?.lvl || 'Lvl '}}<span>{{ playerLevel }}</span></div>
+            </div>
+            
+            <div class="buy-controls">
+                @for (toolKey of getToolKeys(); track toolKey) {
+                    <button class="buy-btn"
+                            [disabled]="isBuyToolDisabled(toolKey)"
+                            (click)="buyTool(toolKey)">
+                        {{ getToolBuyLabel(toolKey) }} (🪙 <span>{{ currentCost[toolKey] }}</span>)
+                    </button>
+                }
+            </div>
+
+            <!-- Trash Can -->
+            <div id="trash-can"
+                 class="trash-slot"
+                 [class.drag-over]="isTrashDragOver"
+                 [class.highlight]="selectedSlotIndex !== null"
+                 (click)="sellSelectedTool()"
+                 (drop)="dropTrash($event)"
+                 (dragover)="allowDrop($event)"
+                 (dragleave)="leaveTrash($event)">
+                🗑️<br>{{tools.block_breaker[tools.lang]?.sell || 'SELL'}}
+            </div>
+        </div>
+
+        <div class="lane-markers">
+            <span>{{tools.block_breaker[tools.lang]?.lane1 || '▼ Lane 1'}}</span><span>{{tools.block_breaker[tools.lang]?.lane2 || '▼ Lane 2'}}</span><span>{{tools.block_breaker[tools.lang]?.lane3 || '▼ Lane 3'}}</span><span>{{tools.block_breaker[tools.lang]?.lane4 || '▼ Lane 4'}}</span><span>{{tools.block_breaker[tools.lang]?.lane5 || '▼ Lane 5'}}</span>
+        </div>
+        
+        <div id="merge-grid">
+            @for (item of grid; track $index) {
+                <div class="grid-slot"
+                     [class.selected]="selectedSlotIndex === $index"
+                     [class.drag-over]="isDragOver[$index]"
+                     (click)="clickSlot($index)"
+                     (dragover)="onDragOver($event, $index)"
+                     (dragleave)="onDragLeave($event, $index)"
+                     (drop)="onDrop($event, $index)">
+                    @if (item) {
+                        <div class="tool"
+                             [style.backgroundImage]="'url(\'' + getToolImage(item) + '\')'"
+                             [draggable]="gameState === 'MERGE'"
+                             (dragstart)="onDragStart($event, $index)"
+                             (dragend)="onDragEnd($event, $index)">
+                            Lv{{item.level}}<br>{{getToolDamage(item)}} DMG
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        <button id="actionBtn"
+                [disabled]="isActionDisabled()"
+                (click)="startDigging()"
+                style="width: 420px; max-width: 100%; padding: 15px; font-size: 1.2em;">
+            {{ actionBtnText }}
+        </button>
+
+        <canvas id="dig-canvas" width="420" height="480"></canvas>
+
+        @if (showLevelUpModal) {
+            <div class="modal-overlay">
+                <div class="confirm-modal {{tools.themeColor}}">
+                    <h3>⭐ {{tools.block_breaker[tools.lang]?.sellLevel || 'Sell Level'}}</h3>
+                    <p>{{tools.block_breaker[tools.lang]?.confirmSellLevelMsg || 'Do you want to reset your level to Level 1 and get'}} +{{ playerLevel * 20 }} 🎮?</p>
+                    <div class="modal-buttons">
+                        <button class="confirm-btn yes-btn" (click)="confirmSellLevel()">{{tools.block_breaker[tools.lang]?.yes || 'Yes'}} (+{{ playerLevel * 20 }} 🎮)</button>
+                        <button class="confirm-btn no-btn" (click)="closeSellLevelConfirm()">{{tools.block_breaker[tools.lang]?.no || 'No'}}</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

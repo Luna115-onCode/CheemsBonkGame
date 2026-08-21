@@ -1,0 +1,133 @@
+<div class="container">
+    @if (fullScreenImg) {
+        <div class="fullscreen-overlay" (click)="closeFullScreen()">
+            <img [src]="fullScreenImg" class="fullscreen-img" alt="Fullscreen Image">
+        </div>
+    }
+    <div class="header">
+        <h1 class="{{tools.fontSize}}">{{tools.gallery[tools.lang]?.title || 'Gallery'}}</h1>
+    </div>
+
+    <div class="tabs-header {{tools.themeColor}}">
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}" 
+                [class.active]="activeSection === 'skins'"
+                (click)="openSection('skins')">
+            {{tools.gallery[tools.lang]?.skinsSection || 'Skins'}}
+        </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}" 
+                [class.active]="activeSection === 'sfx'"
+                (click)="openSection('sfx')">
+            {{tools.gallery[tools.lang]?.soundsSection || 'Sound Effects'}}
+        </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}" 
+                [class.active]="activeSection === 'music'"
+                (click)="openSection('music')">
+            {{tools.gallery[tools.lang]?.musicSection || 'Music'}}
+        </button>
+    </div>
+
+    @if (activeSection === 'skins') {
+        @if (unlockedCheemsSkins.length > 0) {
+            <div class="viewer-container {{tools.themeColor}}">
+                <div class="viewer-header">
+                    <h2>{{tools.getCheemsName(unlockedCheemsSkins[currentIndex])}}</h2>
+                    <p class="desc">{{tools.getCheemsDescription(unlockedCheemsSkins[currentIndex])}}</p>
+                </div>
+                
+                <div class="skins-display">
+                    <div class="skin-box">
+                        <span class="skin-label">{{tools.gallery[tools.lang]?.normalSkin || 'Normal'}}</span>
+                        <img [src]="tools.getCheemsImg(unlockedCheemsSkins[currentIndex].id)" 
+                             class="viewer-img clickable" 
+                             alt="Normal Skin"
+                             (click)="openFullScreen(tools.getCheemsImg(unlockedCheemsSkins[currentIndex].id))">
+                    </div>
+                    <div class="skin-box">
+                        <span class="skin-label">{{tools.gallery[tools.lang]?.hitSkin || 'Hit'}}</span>
+                        <img [src]="tools.getCheemsHitImg(unlockedCheemsSkins[currentIndex].id)" 
+                             class="viewer-img clickable" 
+                             alt="Hit Skin"
+                             (click)="openFullScreen(tools.getCheemsHitImg(unlockedCheemsSkins[currentIndex].id))">
+                    </div>
+                </div>
+
+                <div class="viewer-controls">
+                    <button class="control-btn {{tools.themeColor}}" (click)="prevItem()">◀</button>
+                    <span class="counter">{{currentIndex + 1}} / {{unlockedCheemsSkins.length}}</span>
+                    <button class="control-btn {{tools.themeColor}}" (click)="nextItem()">▶</button>
+                </div>
+            </div>
+        } @else {
+            <p class="no-items">No skins unlocked yet.</p>
+        }
+    }
+
+    @if (activeSection === 'sfx' || activeSection === 'music') {
+        @if ((activeSection === 'sfx' && unlockedSoundEffects.length > 0) || (activeSection === 'music' && unlockedMusicTracks.length > 0)) {
+            <div class="viewer-container {{tools.themeColor}}">
+                <div class="viewer-header">
+                    <h2>{{currentAudioName}}</h2>
+                    <p class="desc">{{currentAudioDesc}}</p>
+                </div>
+
+                <div class="audio-player">
+                    @if (currentAudioCover) {
+                        <div class="cover-container" style="text-align: center; margin-bottom: 20px;">
+                            <img [src]="currentAudioCover" alt="Music Cover" style="width: 160px; height: 160px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                        </div>
+                    }
+
+                    <audio #audioPlayer 
+                           [src]="currentAudioSrc" 
+                           (timeupdate)="onTimeUpdate($event)" 
+                           (loadedmetadata)="onLoadedMetadata($event)"
+                           (play)="onAudioPlay()"
+                           (pause)="onAudioPause()"
+                           (ended)="onAudioEnded()">
+                    </audio>
+                    
+                    @if (activeSection !== 'sfx') {
+                        <div class="time-slider-container">
+                            <span>{{formatTime(currentTime)}}</span>
+                            <input type="range" class="time-slider" min="0" [max]="duration || 100" [value]="currentTime" (input)="onSeek($event)">
+                            <span>{{formatTime(duration)}}</span>
+                        </div>
+                    }
+
+                    <div class="audio-controls">
+                        <button class="control-btn {{tools.themeColor}}" (click)="prevItem()">◀</button>
+                        
+                        @if (activeSection !== 'sfx') {
+                            <button class="control-btn secondary-btn {{tools.themeColor}}" (click)="skip(-10)">-10s</button>
+                        }
+                        
+                        <button class="control-btn play-btn {{tools.themeColor}}" (click)="togglePlay()">
+                            {{ (activeSection === 'sfx') ? (tools.gallery[tools.lang]?.play || 'Play') : (isPlaying ? (tools.gallery[tools.lang]?.pause || 'Pause') : (tools.gallery[tools.lang]?.play || 'Play')) }}
+                        </button>
+                        
+                        @if (activeSection !== 'sfx') {
+                            <button class="control-btn secondary-btn {{tools.themeColor}}" (click)="skip(10)">+10s</button>
+                        }
+                        
+                        <button class="control-btn {{tools.themeColor}}" (click)="nextItem()">▶</button>
+
+                        @if (activeSection !== 'sfx') {
+                            <div class="volume-slider-container">
+                                <span class="vol-icon">🔊</span>
+                                <input type="range" class="volume-slider" min="0" max="1" step="0.01" [value]="currentVolume" (input)="onVolumeChange($event)">
+                            </div>
+                        }
+                    </div>
+
+                    <div class="counter-display">
+                        <span class="counter">
+                            {{currentIndex + 1}} / {{activeSection === 'sfx' ? unlockedSoundEffects.length : unlockedMusicTracks.length}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        } @else {
+            <p class="no-items">No media unlocked yet.</p>
+        }
+    }
+</div>
