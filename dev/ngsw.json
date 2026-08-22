@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1787295130357,
+  "timestamp": 1787375794754,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -352,7 +352,7 @@
     "/data/closet.json": "ac7fec189bd3b0e5ee70539c723c099b78313739",
     "/data/minigames.json": "d14088830e9faa1fd9c05c4aa6b196fede3f31fb",
     "/data/music.json": "124ca06b6e63d0ec1520ddd67e7082a00731145c",
-    "/data/shop.json": "67c399a7969bfc6b2e6dd70340338b2fc91b0b6c",
+    "/data/shop.json": "a32cdbe51fc9fb50015a7c99e2b90e96407f18a9",
     "/data/sound_effects.json": "de8380ae22417ab3e9592972324b49b61e661bfc",
     "/fonts/Kalam-Regular.ttf": "8780563680372a86968c46c50cba05143654fe49",
     "/games/attack_hole/assets/big_grenade_bomb.png": "953a9a1b9c2aab622b1f98c189715b69a348e27b",
