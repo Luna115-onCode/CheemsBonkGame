@@ -17,15 +17,28 @@
       }
     },
     {
-      "name": "assets",
+      "name": "essential-assets",
       "installMode": "prefetch",
       "updateMode": "prefetch",
       "resources": {
         "files": [
-          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2|txt|json|xml|csv|ico|ogg|mp3|wav|m4a|lang)",
           "/closet.json",
           "/items/*.json",
           "/lang/*.lang",
+          "/sound/music/A_Jazz_Piano.ogg",
+          "/sound/sfx/hit.ogg",
+          "/img/cheems/normal.png",
+          "/**/*.(svg|cur|woff|woff2|ttf|otf)"
+        ]
+      }
+    },
+    {
+      "name": "lazy-assets",
+      "installMode": "lazy",
+      "updateMode": "lazy",
+      "resources": {
+        "files": [
+          "/**/*.(jpg|jpeg|png|apng|webp|avif|gif|txt|xml|csv|ico|ogg|mp3|wav|m4a)",
           "/sound/**/*",
           "/img/**/*",
           "/games/**/*"
