@@ -15,7 +15,7 @@ export class AppComponent implements OnInit {
   constructor (private platformLocation: PlatformLocation) {}
 
   ngOnInit(): void {
-    //!document.oncontextmenu = function(){return false};
+    document.oncontextmenu = function(){return false};
     document.ondragstart = function(){return false};
     document.onselectstart = function(){return false};
 
