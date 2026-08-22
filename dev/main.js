@@ -82567,10 +82567,60 @@ var AppComponent = class _AppComponent {
       event.preventDefault();
     }
   }
+  // --- PWA Offline Caching Logic ---
+  onAppInstalled() {
+    console.log("PWA installed! Initiating automated asset download...");
+    this.downloadRemainingAssets();
+  }
+  downloadRemainingAssets() {
+    return __async(this, null, function* () {
+      try {
+        const urlsToCache = /* @__PURE__ */ new Set();
+        const [sfxRes, musicRes, cheemsRes] = yield Promise.all([
+          fetch("/items/sound_effects.json"),
+          fetch("/items/music.json"),
+          fetch("/items/cheems.json")
+        ]);
+        const sfxData = yield sfxRes.json();
+        const musicData = yield musicRes.json();
+        const cheemsData = yield cheemsRes.json();
+        sfxData.forEach((sfx) => {
+          if (sfx.file)
+            urlsToCache.add(`/sound/${sfx.file}`);
+          if (sfx.files)
+            sfx.files.forEach((file) => urlsToCache.add(`/sound/${file}`));
+        });
+        musicData.forEach((music) => {
+          if (music.file && music.basePath)
+            urlsToCache.add(`/${music.basePath}${music.file}`);
+          if (music.cover)
+            urlsToCache.add(`/${music.cover}`);
+        });
+        cheemsData.forEach((cheems) => {
+          if (cheems.img)
+            urlsToCache.add(`/img/cheems/${cheems.img}`);
+          if (cheems.hitImg)
+            urlsToCache.add(`/img/cheems/${cheems.hitImg}`);
+        });
+        console.log(`Found ${urlsToCache.size} unique assets to cache.`);
+        const fetchPromises = Array.from(urlsToCache).map((url) => fetch(url, { mode: "no-cors" }).catch((err) => console.error(`Failed to cache: ${url}`, err)));
+        yield Promise.all(fetchPromises);
+        console.log("All assets successfully cached for offline use!");
+      } catch (error2) {
+        console.error("Error during automated offline resource download:", error2);
+      }
+    });
+  }
   static \u0275fac = function AppComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _AppComponent)(\u0275\u0275directiveInject(PlatformLocation));
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 3, vars: 1, consts: [[3, "class"]], template: function AppComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], hostBindings: function AppComponent_HostBindings(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275listener("appinstalled", function AppComponent_appinstalled_HostBindingHandler($event) {
+        return ctx.onAppInstalled($event);
+      }, false, \u0275\u0275resolveWindow);
+    }
+  }, decls: 3, vars: 1, consts: [[3, "class"]], template: function AppComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275element(0, "app-navbar")(1, "router-outlet");
       \u0275\u0275template(2, AppComponent_Conditional_2_Template, 2, 5, "div", 0);
@@ -82585,7 +82635,10 @@ var AppComponent = class _AppComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AppComponent, [{
     type: Component,
     args: [{ selector: "app-root", imports: [RouterOutlet, CommonModule, NavbarComponent], template: '<app-navbar/>\n<router-outlet />\n@if (tools.toastMessage) {\n    <div class="toast-popup {{tools.themeColor}} {{tools.fontSize}}">\n        {{tools.toastMessage}}\n    </div>\n}' }]
-  }], () => [{ type: PlatformLocation }], null);
+  }], () => [{ type: PlatformLocation }], { onAppInstalled: [{
+    type: HostListener,
+    args: ["window:appinstalled", ["$event"]]
+  }] });
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src/app/app.component.ts", lineNumber: 13 });
