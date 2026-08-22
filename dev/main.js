@@ -82537,6 +82537,9 @@ var AppComponent = class _AppComponent {
     this.platformLocation = platformLocation;
   }
   ngOnInit() {
+    document.oncontextmenu = function() {
+      return false;
+    };
     document.ondragstart = function() {
       return false;
     };
@@ -82590,7 +82593,6 @@ var AppComponent = class _AppComponent {
 
 // src/main.ts
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//!document.oncontextmenu = function(){return false};
 /*! Bundled license information:
 
 matter-js/build/matter.js:
