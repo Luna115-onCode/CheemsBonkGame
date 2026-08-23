@@ -12,7 +12,7 @@ def batch_convert_png_to_webp(folder_path, quality=85):
                 img.save(webp_path, "webp", quality=quality)
             print(f"Converted: {filename} -> {webp_filename}")
 
-batch_convert_png_to_webp("./public/images/cheems")
-batch_convert_png_to_webp("./public/images/hit")
-batch_convert_png_to_webp("./public/images/music")
+batch_convert_png_to_webp("public/img/cheems", 100)
+batch_convert_png_to_webp("public/img/hit", 100)
+batch_convert_png_to_webp("public/img/music", 100)
 
