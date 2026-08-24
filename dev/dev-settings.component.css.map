@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/pages/dev-settings/dev-settings.component.css"],
-  "sourcesContent": [".dev-box {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    gap: 2rem;\n    width: 90%;\n    max-width: 650px;\n    margin: 2.5rem auto;\n    padding: 2.5rem;\n}\n\n.dev-title {\n    font-weight: 900;\n    font-size: 1.5em;\n    text-align: center;\n}\n\n.dev-actions {\n    display: flex;\n    flex-direction: column;\n    gap: 1.25rem;\n    width: 100%;\n    max-width: 400px;\n}\n\n.dev-btn {\n    width: 100%;\n    padding: 1rem 1.5rem;\n    font-size: 1.1em;\n}\n"],
-  "mappings": ";AAAA,CAAC;AACG,WAAS;AACT,kBAAgB;AAChB,eAAa;AACb,OAAK;AACL,SAAO;AACP,aAAW;AACX,UAAQ,OAAO;AACf,WAAS;AACb;AAEA,CAAC;AACG,eAAa;AACb,aAAW;AACX,cAAY;AAChB;AAEA,CAAC;AACG,WAAS;AACT,kBAAgB;AAChB,OAAK;AACL,SAAO;AACP,aAAW;AACf;AAEA,CAAC;AACG,SAAO;AACP,WAAS,KAAK;AACd,aAAW;AACf;",
-  "names": []
-}

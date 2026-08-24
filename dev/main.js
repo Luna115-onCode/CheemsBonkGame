@@ -5120,7 +5120,7 @@ function createComputed(computation, equal) {
   if (equal !== void 0) {
     node.equal = equal;
   }
-  const computed = () => {
+  const computed2 = () => {
     producerUpdateValueVersion(node);
     producerAccessed(node);
     if (node.value === ERRORED) {
@@ -5128,8 +5128,8 @@ function createComputed(computation, equal) {
     }
     return node.value;
   };
-  computed[SIGNAL] = node;
-  return computed;
+  computed2[SIGNAL] = node;
+  return computed2;
 }
 var UNSET = /* @__PURE__ */ Symbol("UNSET");
 var COMPUTING = /* @__PURE__ */ Symbol("COMPUTING");
@@ -6744,6 +6744,45 @@ function defer(observableFactory) {
   return new Observable((subscriber) => {
     innerFrom(observableFactory()).subscribe(subscriber);
   });
+}
+
+// node_modules/rxjs/dist/esm/internal/observable/forkJoin.js
+function forkJoin(...args) {
+  const resultSelector = popResultSelector(args);
+  const {
+    args: sources,
+    keys
+  } = argsArgArrayOrObject(args);
+  const result = new Observable((subscriber) => {
+    const {
+      length
+    } = sources;
+    if (!length) {
+      subscriber.complete();
+      return;
+    }
+    const values = new Array(length);
+    let remainingCompletions = length;
+    let remainingEmissions = length;
+    for (let sourceIndex = 0; sourceIndex < length; sourceIndex++) {
+      let hasValue = false;
+      innerFrom(sources[sourceIndex]).subscribe(createOperatorSubscriber(subscriber, (value) => {
+        if (!hasValue) {
+          hasValue = true;
+          remainingEmissions--;
+        }
+        values[sourceIndex] = value;
+      }, () => remainingCompletions--, void 0, () => {
+        if (!remainingCompletions || !hasValue) {
+          if (!remainingEmissions) {
+            subscriber.next(keys ? createObject(keys, values) : values);
+          }
+          subscriber.complete();
+        }
+      }));
+    }
+  });
+  return resultSelector ? result.pipe(mapOneOrManyArgs(resultSelector)) : result;
 }
 
 // node_modules/rxjs/dist/esm/internal/observable/never.js
@@ -28132,6 +28171,14 @@ function numberAttribute(value, fallbackValue = NaN) {
 function untracked2(nonReactiveReadsFn) {
   return untracked(nonReactiveReadsFn);
 }
+function computed(computation, options) {
+  const getter = createComputed(computation, options?.equal);
+  if (ngDevMode) {
+    getter.toString = () => `[Computed: ${getter()}]`;
+    getter[SIGNAL].debugName = options?.debugName;
+  }
+  return getter;
+}
 var EffectRefImpl = class {
   [SIGNAL];
   constructor(node) {
@@ -40506,7 +40553,7 @@ var AVAILABLE_LANGUAGES = [
 ];
 var pageName = {
   closet: "",
-  devSettings: "",
+  redeem: "",
   game: "",
   menu: "",
   onWork: "",
@@ -40536,7 +40583,7 @@ var menuText = {
   closet: "",
   stats: "",
   licenses: "",
-  devMenu: "",
+  redeem: "",
   buyDogeCoin: "",
   buyDogeCoinSub: "",
   buyDogeCoinSuccess: "",
@@ -40657,15 +40704,14 @@ var closetText = {
   itemBought: "",
   itemSelected: ""
 };
-var devText = {
+var redeemText = {
   title: "",
-  resetToZero: "",
-  unlockAll: "",
-  giveDogeCoins: "",
-  givePoints: "",
-  success: "",
-  unlocked: "",
-  locked: ""
+  enterCode: "",
+  redeemBtn: "",
+  history: "",
+  invalidCode: "",
+  alreadyRedeemed: "",
+  success: ""
 };
 var onWorkText = {
   title: "",
@@ -40714,133 +40760,6 @@ var offlineText = {
   minigamesTitle: "",
   minigamesDesc: ""
 };
-var OFFLINE_CATEGORIES = [
-  {
-    id: "essentials",
-    titleKey: "essentialsTitle",
-    descKey: "essentialsDesc",
-    sizeLabel: "~9.5 MB",
-    urls: [
-      "/",
-      "index.html",
-      "favicon.ico",
-      "manifest.webmanifest",
-      "data/closet.json",
-      "data/cheems.json",
-      "data/sound_effects.json",
-      "data/music.json",
-      "lang/texts.en.lang",
-      "lang/texts.es.lang",
-      "img/dogecoin-min.png",
-      "img/dogecoin-min.svg",
-      "img/dogecoin.png",
-      "img/dogecoin.svg",
-      "img/favicon.ico",
-      "img/cheems/3d.png",
-      "img/cheems/adult.png",
-      "img/cheems/black.png",
-      "img/cheems/elegant.png",
-      "img/cheems/kid.png",
-      "img/cheems/little.png",
-      "img/cheems/locked-cheems.png",
-      "img/cheems/mamado.png",
-      "img/cheems/normal.png",
-      "img/cheems/pixelart.png",
-      "img/hit/3d.png",
-      "img/hit/adult.png",
-      "img/hit/black.png",
-      "img/hit/elegant.png",
-      "img/hit/kid.png",
-      "img/hit/little.png",
-      "img/hit/mamado.png",
-      "img/hit/normal.png",
-      "img/hit/pixelart.png",
-      "img/icons/application-svgrepo-com.svg",
-      "img/icons/black-music-svgrepo-com.svg",
-      "img/icons/black-sound-svgrepo-com.svg",
-      "img/icons/earphone-svgrepo-com.svg",
-      "img/icons/front-page-svgrepo-com.svg",
-      "img/icons/link-svgrepo-com.svg",
-      "img/icons/lock-keyhole-minimalistic-svgrepo-com.svg",
-      "img/icons/lock-keyhole-minimalistic-unlocked-svgrepo-com.svg",
-      "img/icons/menu-svgrepo-com.svg",
-      "img/icons/music-svgrepo-com.svg",
-      "img/icons/personal-svgrepo-com.svg",
-      "img/icons/picture-svgrepo-com.svg",
-      "img/icons/play-svgrepo-com.svg",
-      "img/icons/report-svgrepo-com.svg",
-      "img/icons/set-up-svgrepo-com.svg",
-      "img/icons/shopping-svgrepo-com.svg",
-      "img/icons/sound-svgrepo-com.svg",
-      "img/icons/the-internet-svgrepo-com.svg",
-      "img/icons/trophy-svgrepo-com.svg",
-      "img/icons/volume-cross-svgrepo-com.svg",
-      "img/icons/volume-loud-svgrepo-com.svg",
-      "img/icons/volume-small-svgrepo-com.svg",
-      "img/icons/pwa/icon-144x144.png",
-      "img/icons/pwa/icon-192x192.png",
-      "img/icons/pwa/icon-512x512.png",
-      "img/icons/pwa/icon-72x72.png"
-    ]
-  },
-  {
-    id: "sfx",
-    titleKey: "sfxTitle",
-    descKey: "sfxDesc",
-    sizeLabel: "~550 KB",
-    urls: [
-      "sound/discord-connect.ogg",
-      "sound/discord-disconnect.ogg",
-      "sound/discord-msg.ogg",
-      "sound/hello.ogg",
-      "sound/hit-minecraft.ogg",
-      "sound/hit.ogg",
-      "sound/hurt-minecraft.ogg",
-      "sound/hurt-roblox.ogg",
-      "sound/levelup1.ogg",
-      "sound/levelup2.ogg",
-      "sound/no.ogg",
-      "sound/pato.ogg",
-      "sound/peluche.ogg",
-      "sound/splat.ogg",
-      "sound/windows-error.ogg",
-      "sound/menu/Desaparecer.ogg",
-      "sound/menu/deslis.ogg",
-      "sound/menu/teclas.ogg"
-    ]
-  },
-  {
-    id: "music",
-    titleKey: "musicTitle",
-    descKey: "musicDesc",
-    sizeLabel: "~119 MB",
-    urls: [
-      "sound/music/A_Jazz_Piano.ogg",
-      "sound/music/Jack_Bootleg.ogg",
-      "sound/music/Magic_night.ogg",
-      "sound/music/Minimalism_No10.ogg",
-      "sound/music/Minimalism_No9.ogg",
-      "sound/music/TETRIS (Joey iLLah Bootleg) (Final).wav",
-      "sound/music/When_you_smile.ogg",
-      "sound/music/believe-me-143530.mp3",
-      "sound/music/city-streets-background-version-166003.mp3",
-      "sound/music/coffee-shop-189585.mp3",
-      "sound/music/electro-summer-positive-party-141081.mp3",
-      "sound/music/separation-185196.mp3",
-      "sound/music/titanium-170190.mp3",
-      "sound/music/trap-future-bass-royalty-free-music-167020.mp3"
-    ]
-  },
-  {
-    id: "minigames",
-    titleKey: "minigamesTitle",
-    descKey: "minigamesDesc",
-    sizeLabel: "~500 KB",
-    urls: [
-      "games/paper_io/data/bots.json"
-    ]
-  }
-];
 var CHEEMS_SKINS = [];
 var SOUND_EFFECTS = [];
 var MUSIC_TRACKS = [];
@@ -40906,10 +40825,13 @@ var ToolsService = class _ToolsService {
   totalPointsEarned = 0;
   totalDogeCoinsEarned = 0;
   totalMinigameCoinsEarned = 0;
+  idlePoints = 0;
+  idleTime = 1;
+  idleTimer = null;
+  purchasedUpgrades = {};
   effVol = 100;
   musVol = 50;
-  devMenuUnlocked = false;
-  devClickCount = 0;
+  redeemedCodes = [];
   unlockedCheems = {};
   unlockedSounds = {};
   unlockedMusic = {};
@@ -40918,7 +40840,7 @@ var ToolsService = class _ToolsService {
   options = createLangMap(optionsText);
   menu = createLangMap(menuText);
   closet = createLangMap(closetText);
-  dev = createLangMap(devText);
+  redeem = createLangMap(redeemText);
   onWork = createLangMap(onWorkText);
   p404 = createLangMap(p404Text);
   offline = createLangMap(offlineText);
@@ -40938,7 +40860,6 @@ var ToolsService = class _ToolsService {
   paper_io = createLangMap(paper_ioText);
   spiral_roll = createLangMap(spiral_rollText);
   stack_colors = createLangMap(stack_colorsText);
-  offlineCategories = OFFLINE_CATEGORIES;
   shopItemsText = {};
   itemsText = {};
   shopItems = [];
@@ -41097,8 +41018,8 @@ var ToolsService = class _ToolsService {
             this.menu[langCode] = __spreadValues(__spreadValues({}, this.menu[langCode]), data.menu);
           if (data.closet)
             this.closet[langCode] = __spreadValues(__spreadValues({}, this.closet[langCode]), data.closet);
-          if (data.dev)
-            this.dev[langCode] = __spreadValues(__spreadValues({}, this.dev[langCode]), data.dev);
+          if (data.redeemText)
+            this.redeem[langCode] = __spreadValues(__spreadValues({}, this.redeem[langCode]), data.redeemText);
           if (data.onWork)
             this.onWork[langCode] = __spreadValues(__spreadValues({}, this.onWork[langCode]), data.onWork);
           if (data.p404)
@@ -41227,7 +41148,7 @@ var ToolsService = class _ToolsService {
     const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
     if (minigamePages.includes(this.actPage)) {
       this.redirect("minigames");
-    } else if (["devSettings", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage)) {
+    } else if (["redeem", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage)) {
       this.redirect("game");
@@ -41263,13 +41184,11 @@ var ToolsService = class _ToolsService {
     this.totalMinigameCoinsEarned += amount;
     this.saveData("mg", String(this.minigameCoins));
     this.saveData("lifetime_mg", String(this.totalMinigameCoinsEarned));
-    document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
   }
   spendMinigameCoins(amount) {
     if (this.minigameCoins >= amount) {
       this.minigameCoins = Math.floor(this.minigameCoins - amount);
       this.saveData("mg", String(this.minigameCoins));
-      document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
       return true;
     }
     return false;
@@ -41368,19 +41287,26 @@ var ToolsService = class _ToolsService {
       return false;
     }
   }
-  registerDevClick() {
-    this.devClickCount++;
-    if (this.devClickCount === 5) {
-      this.devMenuUnlocked = !this.devMenuUnlocked;
-      this.saveData("dev_menu", String(this.devMenuUnlocked));
-      if (this.devMenuUnlocked) {
-        this.showToast(this.dev[this.lang].unlocked);
-      } else {
-        this.showToast(this.dev[this.lang].locked);
-      }
-      this.devClickCount = 0;
+  buyUpgrade(item, currentCost, coinsCost) {
+    if (this.points >= currentCost && this.dogeCoins >= coinsCost) {
+      this.points -= currentCost;
+      this.dogeCoins -= coinsCost;
+      this.saveData("points", String(this.points));
+      this.saveData("dg", String(this.dogeCoins));
+      const times = this.purchasedUpgrades[item.id] || 0;
+      this.purchasedUpgrades[item.id] = times + 1;
+      this.saveData("upgrades", this.stringifyObject(this.purchasedUpgrades));
+      this.recalculateIdleStats();
+      this.recordDailyPurchase(item.id);
+      this.showToast(this.closet[this.lang]?.purchased || "Purchased!");
       this.playSound("sfx_4");
+    } else {
+      this.showToast(this.shop[this.lang]?.notEnoughCoins || "Not enough currency!");
+      this.playSound("sfx_8");
     }
+  }
+  saveRedeemedCodes() {
+    this.saveData("redeemed_codes", JSON.stringify(this.redeemedCodes));
   }
   playSound(customSoundId) {
     if (this.isWindowBlurred)
@@ -41662,7 +41588,7 @@ var ToolsService = class _ToolsService {
     this.saveData("total_score", String(this.totalScore));
     this.saveData("high_score", String(this.highScore));
     this.saveData("dg", String(this.dogeCoins));
-    this.showToast(this.dev[this.lang].success);
+    this.showToast(this.redeem[this.lang]?.success || "Success");
     this.playSound("sfx_4");
   }
   resetToZero() {
@@ -41712,6 +41638,12 @@ var ToolsService = class _ToolsService {
     this.saveData("lifetime_mg", "0");
     this.deleteData("lifetime_purchases");
     this.deleteData("daily_purchases_limit");
+    this.deleteData("upgrades");
+    this.deleteData("idle_points");
+    this.deleteData("redeemed_codes");
+    this.purchasedUpgrades = {};
+    this.redeemedCodes = [];
+    this.recalculateIdleStats();
     this.boosterMultiplier = 1;
     this.boosterEndTime = 0;
     this.saveData("active_booster", "multiplier:1,end_time:0");
@@ -41722,7 +41654,7 @@ var ToolsService = class _ToolsService {
     this.saveData("sfx_volume", "100");
     this.saveData("app_theme", "1");
     this.saveData("font_size", "2");
-    this.showToast(this.dev[this.lang].success);
+    this.showToast(this.redeem[this.lang]?.success || "Success");
     this.playSound();
     this.currentMusicFile = "";
     this.playMusic();
@@ -41741,7 +41673,8 @@ var ToolsService = class _ToolsService {
     this.loadMusic();
     this.loadScore();
     this.loadUnlocks();
-    this.loadDevMenu();
+    this.initIdlePoints();
+    this.loadRedeemedCodes();
   }
   loadSettings() {
     const savedLang = this.loadData("language");
@@ -41785,15 +41718,12 @@ var ToolsService = class _ToolsService {
     this.totalDogeCoinsEarned = tDGC ? this.parseNumber(tDGC) : this.dogeCoins;
     const tMG = this.loadData("lifetime_mg");
     this.totalMinigameCoinsEarned = tMG ? this.parseNumber(tMG) : this.minigameCoins;
-    let mgCoins = this.loadData("mg");
-    if (!mgCoins) {
-      const match2 = document.cookie.match(/(^| )CheemsAppLiMinigameCoins=([^;]+)/);
-      if (match2)
-        mgCoins = match2[2];
-    }
-    this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 0;
+    this.loadMinigameCoins();
     this.actScore = 0;
-    localStorage.setItem("CheemsAppLiActPoints", "0");
+  }
+  loadMinigameCoins() {
+    const mgCoins = this.loadData("mg");
+    this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 0;
   }
   loadUnlocks() {
     const allMinigames = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
@@ -41830,9 +41760,17 @@ var ToolsService = class _ToolsService {
     const list = this.musicTracks.filter((s) => this.unlockedMusic[s.storageKey] && !s.default && s.cost !== 0).map((s) => String(s.id));
     this.saveData("unlocked_music", this.stringifyArray(list));
   }
-  loadDevMenu() {
-    const stored = this.loadData("dev_menu");
-    this.devMenuUnlocked = stored ? stored.replace(/"/g, "") === "true" : false;
+  loadRedeemedCodes() {
+    const stored = this.loadData("redeemed_codes");
+    if (stored) {
+      try {
+        this.redeemedCodes = JSON.parse(stored);
+      } catch (e) {
+        this.redeemedCodes = [];
+      }
+    } else {
+      this.redeemedCodes = [];
+    }
   }
   parseNumber(value) {
     return +value.replace(/"/g, "") || 0;
@@ -41843,53 +41781,6 @@ var ToolsService = class _ToolsService {
   sleep(time) {
     return __async(this, null, function* () {
       return new Promise((resolve) => setTimeout(resolve, time));
-    });
-  }
-  checkCategoryCached(category) {
-    return __async(this, null, function* () {
-      if (!("caches" in window))
-        return false;
-      try {
-        const cache = yield caches.open("cheems-bonk-offline-v1");
-        for (const url of category.urls) {
-          const match2 = yield cache.match(url);
-          if (!match2) {
-            return localStorage.getItem(`cheems_offline_cached_${category.id}`) === "true";
-          }
-        }
-        return true;
-      } catch {
-        return localStorage.getItem(`cheems_offline_cached_${category.id}`) === "true";
-      }
-    });
-  }
-  cacheCategory(category, onProgress) {
-    return __async(this, null, function* () {
-      if (!("caches" in window))
-        return false;
-      try {
-        const cache = yield caches.open("cheems-bonk-offline-v1");
-        let completed = 0;
-        for (const url of category.urls) {
-          try {
-            const res = yield fetch(url);
-            if (res.ok) {
-              yield cache.put(url, res);
-            }
-          } catch (e) {
-            console.warn(`Failed to cache ${url}`, e);
-          }
-          completed++;
-          if (onProgress) {
-            onProgress(Math.round(completed / category.urls.length * 100));
-          }
-        }
-        localStorage.setItem(`cheems_offline_cached_${category.id}`, "true");
-        return true;
-      } catch (err) {
-        console.error("Error caching category:", err);
-        return false;
-      }
     });
   }
   loadBoosterState() {
@@ -41920,6 +41811,7 @@ var ToolsService = class _ToolsService {
         console.warn("Could not load data/shop.json", err);
       }
       this.appendUnlockableShopItems();
+      this.recalculateIdleStats();
     });
   }
   evaluatePriceExpression(expression) {
@@ -42189,6 +42081,7 @@ var ToolsService = class _ToolsService {
     if (this.isWindowBlurred)
       return;
     this.isWindowBlurred = true;
+    this.saveData("last_active_time", String(Date.now()));
     if (this.audioCtx && this.audioCtx.state === "running") {
       this.audioCtx.suspend().catch(() => {
       });
@@ -42201,6 +42094,7 @@ var ToolsService = class _ToolsService {
     if (!this.isWindowBlurred)
       return;
     this.isWindowBlurred = false;
+    this.calculateIdleCatchup();
     this.resumeBackground();
   }
   pauseBackground() {
@@ -42229,13 +42123,15 @@ var ToolsService = class _ToolsService {
     const skin = this.cheemsSkins.find((s) => s.id === id);
     if (skin?.imgUrl)
       return skin.imgUrl;
-    return "img/cheems/" + (skin?.img || id + ".png");
+    const fallbackId = id.replace("cheems_", "");
+    return "img/cheems/" + (skin?.img || fallbackId + ".webp");
   }
   getCheemsHitImg(id) {
     const skin = this.cheemsSkins.find((s) => s.id === id);
     if (skin?.hitImgUrl)
       return skin.hitImgUrl;
-    return "img/hit/" + (skin?.hitImg || skin?.img || id + ".png");
+    const fallbackId = id.replace("cheems_", "");
+    return "img/hit/" + (skin?.hitImg || skin?.img || fallbackId + ".webp");
   }
   getShopItemName(item) {
     if (item.nameKey && this.shopItemsText[this.lang]?.[item.nameKey]) {
@@ -42326,7 +42222,7 @@ var ToolsService = class _ToolsService {
             localStorage.setItem(key, saveData[key]);
           }
         }
-        this.showToast(this.dev[this.lang].success || "Success");
+        this.showToast(this.redeem[this.lang]?.success || "Success");
         setTimeout(() => {
           location.reload();
         }, 1e3);
@@ -42336,6 +42232,85 @@ var ToolsService = class _ToolsService {
       }
     };
     reader.readAsText(file);
+  }
+  initIdlePoints() {
+    const idleConfigStr = this.loadData("idle_points");
+    if (idleConfigStr) {
+      const cfg = this.parseObjectString(idleConfigStr);
+      if (cfg["points"])
+        this.idlePoints = parseFloat(cfg["points"]);
+      this.idleTime = 1;
+    } else {
+      this.saveData("idle_points", this.stringifyObject({ points: 0, time: 1 }));
+    }
+    const upgradesStr = this.loadData("upgrades");
+    if (upgradesStr) {
+      this.purchasedUpgrades = this.parseObjectString(upgradesStr);
+      for (const key of Object.keys(this.purchasedUpgrades)) {
+        this.purchasedUpgrades[key] = parseInt(this.purchasedUpgrades[key], 10) || 0;
+      }
+    } else {
+      this.purchasedUpgrades = {};
+    }
+    this.recalculateIdleStats();
+    this.calculateIdleCatchup();
+    this.startIdleTimer();
+  }
+  recalculateIdleStats() {
+    let basePoints = 0;
+    let baseTime = 1;
+    const idleConfigStr = this.loadData("idle_points");
+    if (idleConfigStr) {
+      const cfg = this.parseObjectString(idleConfigStr);
+      if (cfg["points"])
+        basePoints = parseFloat(cfg["points"]);
+      if (cfg["time"])
+        baseTime = parseInt(cfg["time"], 10);
+    }
+    if (this.shopItems && this.shopItems.length > 0) {
+      for (const upgradeId of Object.keys(this.purchasedUpgrades)) {
+        const times = this.purchasedUpgrades[upgradeId];
+        if (times > 0) {
+          const item = this.shopItems.find((i) => i.id === upgradeId);
+          if (item && item.type === "upgrade" && item.upgradeValue) {
+            if (item.upgradeType === "quantity") {
+              basePoints += item.upgradeValue * times;
+            }
+          }
+        }
+      }
+    }
+    this.idlePoints = basePoints;
+    this.idleTime = 1;
+    this.startIdleTimer();
+  }
+  startIdleTimer() {
+    if (this.idleTimer)
+      clearInterval(this.idleTimer);
+    this.idleTimer = setInterval(() => {
+      if (!this.isWindowBlurred) {
+        this.updateScore(Math.floor(this.idlePoints));
+        this.saveData("last_active_time", String(Date.now()));
+      }
+    }, this.idleTime * 1e3);
+  }
+  calculateIdleCatchup() {
+    const lastActiveStr = this.loadData("last_active_time");
+    const now = Date.now();
+    if (lastActiveStr) {
+      const lastActive = parseInt(lastActiveStr, 10);
+      const diffMs = now - lastActive;
+      const offlineIntervalMs = this.idleTime * 1e3;
+      if (diffMs >= offlineIntervalMs) {
+        const missedOfflineIntervals = Math.floor(diffMs / offlineIntervalMs);
+        const offlinePoints = Math.floor(missedOfflineIntervals * (this.idlePoints / 4));
+        if (offlinePoints > 0) {
+          this.updateScore(offlinePoints);
+          this.showToast(`Idle Bonus: +${offlinePoints} pts while you were away!`);
+        }
+      }
+    }
+    this.saveData("last_active_time", String(now));
   }
   static \u0275fac = function ToolsService_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ToolsService)(\u0275\u0275inject(Title), \u0275\u0275inject(Router));
@@ -42386,12 +42361,80 @@ function GameComponent_For_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" +", score_r2.value, " ");
   }
 }
+function GameComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8);
+    \u0275\u0275listener("click", function GameComponent_Conditional_10_Template_div_click_0_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.toggleStatsModal($event));
+    })("touchstart", function GameComponent_Conditional_10_Template_div_touchstart_0_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.toggleStatsModal($event));
+    });
+    \u0275\u0275elementStart(1, "div", 5);
+    \u0275\u0275listener("click", function GameComponent_Conditional_10_Template_div_click_1_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      return \u0275\u0275resetView($event.stopPropagation());
+    })("touchstart", function GameComponent_Conditional_10_Template_div_touchstart_1_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      return \u0275\u0275resetView($event.stopPropagation());
+    });
+    \u0275\u0275elementStart(2, "h2", 9);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 10)(5, "span", 11);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "span", 12);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "number");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(10, "div", 10)(11, "span", 11);
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(13, "span", 12);
+    \u0275\u0275text(14);
+    \u0275\u0275pipe(15, "number");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(16, "button", 13);
+    \u0275\u0275listener("click", function GameComponent_Conditional_10_Template_button_click_16_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.toggleStatsModal($event));
+    });
+    \u0275\u0275text(17);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275classMapInterpolate1("modal-content ", ctx_r0.tools.themeColor, "");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].idleStats) || "Idle Stats");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate((ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].activeAppOpen) || "Active (App Open):");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2("", \u0275\u0275pipeBind2(9, 14, ctx_r0.activeStats.value, "1.0-2"), " ", ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang][ctx_r0.activeStats.unitKey], "");
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate((ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].offlineBackground) || "Offline (Background):");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2("", \u0275\u0275pipeBind2(15, 17, ctx_r0.offlineStats.value, "1.0-2"), " ", ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang][ctx_r0.offlineStats.unitKey], "");
+    \u0275\u0275advance(2);
+    \u0275\u0275classMapInterpolate1("close-btn ", ctx_r0.tools.themeColor, "");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate((ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].close) || "Close");
+  }
+}
 var GameComponent = class _GameComponent {
   tools = inject(ToolsService);
   clicked = false;
   floatingScores = [];
   nextScoreId = 0;
   clickTimeout = null;
+  showStatsModal = false;
   onKeyUpBound = this.onKeyUp.bind(this);
   ngOnInit() {
     this.tools.setTitle("game");
@@ -42443,10 +42486,53 @@ var GameComponent = class _GameComponent {
       this.clicked = false;
     }, 250);
   }
+  get pointsPerHour() {
+    return 3600 / this.tools.idleTime * this.tools.idlePoints;
+  }
+  get offlinePointsPerHour() {
+    return this.pointsPerHour / 4;
+  }
+  getFormattedPoints(ptsPerHour) {
+    const perSec = ptsPerHour / 3600;
+    if (perSec >= 1e3) {
+      return { value: perSec, unitKey: "ptsPerSec" };
+    }
+    const perMin = ptsPerHour / 60;
+    if (perMin >= 1e3) {
+      return { value: perMin, unitKey: "ptsPerMin" };
+    }
+    return { value: ptsPerHour, unitKey: "ptsPerHr" };
+  }
+  get activeStats() {
+    return this.getFormattedPoints(this.pointsPerHour);
+  }
+  get offlineStats() {
+    return this.getFormattedPoints(this.offlinePointsPerHour);
+  }
+  formatDuration(seconds) {
+    if (seconds < 60)
+      return `${Math.ceil(seconds)}s`;
+    const m = Math.floor(seconds / 60);
+    const s = Math.ceil(seconds % 60);
+    return `${m}m ${s}s`;
+  }
+  get onlineIntervalStr() {
+    return this.formatDuration(this.tools.idleTime);
+  }
+  get offlineIntervalStr() {
+    return this.formatDuration(this.tools.idleTime);
+  }
+  toggleStatsModal(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showStatsModal = !this.showStatsModal;
+  }
   static \u0275fac = function GameComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _GameComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GameComponent, selectors: [["app-game"]], decls: 8, vars: 8, consts: [[1, "game-container", 3, "click", "touchstart"], [1, "img-wrapper"], ["alt", "Cheems Hit", 1, "cheems-img", "hit-img", 3, "src"], ["alt", "Cheems", 1, "cheems-img", 3, "src"], [3, "class", "left", "top"]], template: function GameComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GameComponent, selectors: [["app-game"]], decls: 11, vars: 12, consts: [[1, "game-container", 3, "click", "touchstart"], [1, "img-wrapper"], ["alt", "Cheems Hit", 1, "cheems-img", "hit-img", 3, "src"], ["alt", "Cheems", 1, "cheems-img", 3, "src"], [3, "class", "left", "top"], [3, "click", "touchstart"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "icon", "stats-icon"], [1, "modal-backdrop"], [1, "modal-backdrop", 3, "click", "touchstart"], [1, "modal-title"], [1, "stat-row"], [1, "stat-label"], [1, "stat-value"], [3, "click"]], template: function GameComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0);
       \u0275\u0275listener("click", function GameComponent_Template_div_click_0_listener($event) {
@@ -42461,6 +42547,15 @@ var GameComponent = class _GameComponent {
       \u0275\u0275text(5);
       \u0275\u0275elementEnd();
       \u0275\u0275repeaterCreate(6, GameComponent_For_7_Template, 2, 8, "div", 4, _forTrack0);
+      \u0275\u0275elementStart(8, "button", 5);
+      \u0275\u0275listener("click", function GameComponent_Template_button_click_8_listener($event) {
+        return ctx.toggleStatsModal($event);
+      })("touchstart", function GameComponent_Template_button_touchstart_8_listener($event) {
+        return ctx.toggleStatsModal($event);
+      });
+      \u0275\u0275element(9, "img", 6);
+      \u0275\u0275elementEnd();
+      \u0275\u0275template(10, GameComponent_Conditional_10_Template, 18, 20, "div", 7);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
@@ -42474,41 +42569,69 @@ var GameComponent = class _GameComponent {
       \u0275\u0275textInterpolate1(" ", ctx.tools.game[ctx.tools.lang].tapToBonk, " ");
       \u0275\u0275advance();
       \u0275\u0275repeater(ctx.floatingScores);
+      \u0275\u0275advance(2);
+      \u0275\u0275classMapInterpolate1("stats-btn ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275conditional(ctx.showStatsModal ? 10 : -1);
     }
-  }, styles: ["\n\n.game-container[_ngcontent-%COMP%] {\n  width: 100%;\n  min-height: calc(100vh - 150px);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  cursor: pointer;\n  user-select: none;\n  -webkit-user-select: none;\n  overflow: hidden;\n  padding: 2rem;\n}\n.img-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 70vw;\n  max-width: 420px;\n  height: 60vh;\n  max-height: 420px;\n  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);\n  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));\n}\n.img-wrapper.bonked[_ngcontent-%COMP%] {\n  transform: scale(0.92) rotate(-3deg);\n}\n.cheems-img[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  pointer-events: none;\n}\n.hint-text[_ngcontent-%COMP%] {\n  margin-top: 1.5rem;\n  font-weight: 900;\n  opacity: 0.85;\n  text-align: center;\n  letter-spacing: 0.5px;\n  animation: _ngcontent-%COMP%_pulseHint 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_pulseHint {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 0.85;\n  }\n  50% {\n    transform: scale(1.05);\n    opacity: 1;\n  }\n}\n.floating-plus[_ngcontent-%COMP%] {\n  position: fixed;\n  pointer-events: none;\n  font-weight: 900;\n  font-size: 2.2rem;\n  z-index: 1000;\n  transform: translate(-50%, -50%);\n  animation: _ngcontent-%COMP%_floatUp 0.8s ease-out forwards;\n  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);\n}\n.floating-plus.theme-dark[_ngcontent-%COMP%] {\n  color: #ffd166;\n}\n.floating-plus.theme-light[_ngcontent-%COMP%] {\n  color: #9c5c14;\n}\n.floating-plus.theme-contrast[_ngcontent-%COMP%] {\n  color: #00ffff;\n}\n@keyframes _ngcontent-%COMP%_floatUp {\n  0% {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(0.8);\n  }\n  50% {\n    transform: translate(-50%, -100px) scale(1.3);\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-50%, -150px) scale(1);\n  }\n}\n/*# sourceMappingURL=game.component.css.map */"] });
+  }, dependencies: [CommonModule, DecimalPipe], styles: ["\n\n.game-container[_ngcontent-%COMP%] {\n  width: 100%;\n  min-height: calc(100vh - 150px);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  cursor: pointer;\n  user-select: none;\n  -webkit-user-select: none;\n  overflow: hidden;\n  padding: 2rem;\n}\n.img-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 70vw;\n  max-width: 420px;\n  height: 60vh;\n  max-height: 420px;\n  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);\n  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));\n}\n.img-wrapper.bonked[_ngcontent-%COMP%] {\n  transform: scale(0.92) rotate(-3deg);\n}\n.cheems-img[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  pointer-events: none;\n}\n.hint-text[_ngcontent-%COMP%] {\n  margin-top: 1.5rem;\n  font-weight: 900;\n  opacity: 0.85;\n  text-align: center;\n  letter-spacing: 0.5px;\n  animation: _ngcontent-%COMP%_pulseHint 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_pulseHint {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 0.85;\n  }\n  50% {\n    transform: scale(1.05);\n    opacity: 1;\n  }\n}\n.floating-plus[_ngcontent-%COMP%] {\n  position: fixed;\n  pointer-events: none;\n  font-weight: 900;\n  font-size: 2.2rem;\n  z-index: 1000;\n  transform: translate(-50%, -50%);\n  animation: _ngcontent-%COMP%_floatUp 0.8s ease-out forwards;\n  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);\n}\n.floating-plus.theme-dark[_ngcontent-%COMP%] {\n  color: #ffd166;\n}\n.floating-plus.theme-light[_ngcontent-%COMP%] {\n  color: #9c5c14;\n}\n.floating-plus.theme-contrast[_ngcontent-%COMP%] {\n  color: #00ffff;\n}\n@keyframes _ngcontent-%COMP%_floatUp {\n  0% {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(0.8);\n  }\n  50% {\n    transform: translate(-50%, -100px) scale(1.3);\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-50%, -150px) scale(1);\n  }\n}\n.stats-btn[_ngcontent-%COMP%] {\n  position: absolute;\n  bottom: 20px;\n  right: 20px;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  background: rgba(0, 0, 0, 0.4);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);\n  transition: transform 0.2s, background 0.2s;\n  z-index: 50;\n}\n.stats-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.1);\n  background: rgba(0, 0, 0, 0.6);\n}\n.stats-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  filter: invert(1);\n}\n.modal-backdrop[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.6);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  z-index: 9999;\n}\n.modal-content[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(40, 40, 40, 0.95),\n      rgba(20, 20, 20, 0.95));\n  border: 2px solid rgba(255, 255, 255, 0.1);\n  border-radius: 16px;\n  padding: 2rem;\n  width: 90%;\n  max-width: 400px;\n  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);\n  text-align: center;\n  color: white;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.modal-content.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.95),\n      rgba(240, 225, 200, 0.95));\n  border-color: rgba(0, 0, 0, 0.1);\n  color: #4a3b2c;\n}\n.modal-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  margin: 0;\n  font-size: 1.5rem;\n}\n.stat-row[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.2);\n  padding: 1rem;\n  border-radius: 8px;\n  font-weight: bold;\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .stat-row[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.5);\n}\n.stat-label[_ngcontent-%COMP%] {\n  opacity: 0.9;\n  font-size: 0.9rem;\n}\n.stat-value[_ngcontent-%COMP%] {\n  font-size: 1.2rem;\n  color: #ffd166;\n  text-shadow: 0 0 5px rgba(255, 209, 102, 0.3);\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .stat-value[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.close-btn[_ngcontent-%COMP%] {\n  margin-top: 0.5rem;\n  padding: 0.8rem;\n  border-radius: 8px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  background: rgba(255, 255, 255, 0.1);\n  color: inherit;\n  transition: background 0.2s;\n}\n.close-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 255, 255, 0.2);\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .close-btn[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.05);\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .close-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 0, 0, 0.1);\n}\n/*# sourceMappingURL=game.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GameComponent, [{
     type: Component,
-    args: [{ selector: "app-game", imports: [], template: '<div class="game-container" (click)="onClick(true, $event)" (touchstart)="onClick(true, $event)">\n    <div class="img-wrapper" [class.bonked]="clicked">\n        @if (clicked) {\n            <img [src]="tools.getCheemsHitImg(tools.selectedCheems)"\n                 class="cheems-img hit-img"\n                 alt="Cheems Hit">\n        } @else {\n            <img [src]="tools.getCheemsImg(tools.selectedCheems)"\n                 class="cheems-img"\n                 alt="Cheems">\n        }\n    </div>\n\n    <div class="hint-text color-text {{tools.themeColor}} {{tools.fontSize}}">\n        {{tools.game[tools.lang].tapToBonk}}\n    </div>\n\n    @for (score of floatingScores; track score.id) {\n        <div class="floating-plus {{tools.themeColor}}"\n             [style.left.px]="score.x"\n             [style.top.px]="score.y">\n            +{{score.value}}\n        </div>\n    }\n</div>', styles: ["/* src/app/pages/game/game.component.css */\n.game-container {\n  width: 100%;\n  min-height: calc(100vh - 150px);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  cursor: pointer;\n  user-select: none;\n  -webkit-user-select: none;\n  overflow: hidden;\n  padding: 2rem;\n}\n.img-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 70vw;\n  max-width: 420px;\n  height: 60vh;\n  max-height: 420px;\n  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);\n  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));\n}\n.img-wrapper.bonked {\n  transform: scale(0.92) rotate(-3deg);\n}\n.cheems-img {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  pointer-events: none;\n}\n.hint-text {\n  margin-top: 1.5rem;\n  font-weight: 900;\n  opacity: 0.85;\n  text-align: center;\n  letter-spacing: 0.5px;\n  animation: pulseHint 2s infinite ease-in-out;\n}\n@keyframes pulseHint {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 0.85;\n  }\n  50% {\n    transform: scale(1.05);\n    opacity: 1;\n  }\n}\n.floating-plus {\n  position: fixed;\n  pointer-events: none;\n  font-weight: 900;\n  font-size: 2.2rem;\n  z-index: 1000;\n  transform: translate(-50%, -50%);\n  animation: floatUp 0.8s ease-out forwards;\n  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);\n}\n.floating-plus.theme-dark {\n  color: #ffd166;\n}\n.floating-plus.theme-light {\n  color: #9c5c14;\n}\n.floating-plus.theme-contrast {\n  color: #00ffff;\n}\n@keyframes floatUp {\n  0% {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(0.8);\n  }\n  50% {\n    transform: translate(-50%, -100px) scale(1.3);\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-50%, -150px) scale(1);\n  }\n}\n/*# sourceMappingURL=game.component.css.map */\n"] }]
+    args: [{ selector: "app-game", imports: [CommonModule], template: `<div class="game-container" (click)="onClick(true, $event)" (touchstart)="onClick(true, $event)">
+    <div class="img-wrapper" [class.bonked]="clicked">
+        @if (clicked) {
+            <img [src]="tools.getCheemsHitImg(tools.selectedCheems)"
+                 class="cheems-img hit-img"
+                 alt="Cheems Hit">
+        } @else {
+            <img [src]="tools.getCheemsImg(tools.selectedCheems)"
+                 class="cheems-img"
+                 alt="Cheems">
+        }
+    </div>
+
+    <div class="hint-text color-text {{tools.themeColor}} {{tools.fontSize}}">
+        {{tools.game[tools.lang].tapToBonk}}
+    </div>
+
+    @for (score of floatingScores; track score.id) {
+        <div class="floating-plus {{tools.themeColor}}"
+             [style.left.px]="score.x"
+             [style.top.px]="score.y">
+            +{{score.value}}
+        </div>
+    }
+
+    <button class="stats-btn {{tools.themeColor}}" (click)="toggleStatsModal($event)" (touchstart)="toggleStatsModal($event)">
+        <img src="img/icons/report-svgrepo-com.svg" alt="Stats" class="icon stats-icon">
+    </button>
+
+    @if (showStatsModal) {
+        <div class="modal-backdrop" (click)="toggleStatsModal($event)" (touchstart)="toggleStatsModal($event)">
+            <div class="modal-content {{tools.themeColor}}" (click)="$event.stopPropagation()" (touchstart)="$event.stopPropagation()">
+                <h2 class="modal-title">{{tools.game[tools.lang]?.idleStats || 'Idle Stats'}}</h2>
+                <div class="stat-row">
+                    <span class="stat-label">{{tools.game[tools.lang]?.activeAppOpen || 'Active (App Open):'}}</span>
+                    <span class="stat-value">{{activeStats.value | number:'1.0-2'}} {{tools.game[tools.lang]?.[activeStats.unitKey]}}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">{{tools.game[tools.lang]?.offlineBackground || 'Offline (Background):'}}</span>
+                    <span class="stat-value">{{offlineStats.value | number:'1.0-2'}} {{tools.game[tools.lang]?.[offlineStats.unitKey]}}</span>
+                </div>
+                <button class="close-btn {{tools.themeColor}}" (click)="toggleStatsModal($event)">{{tools.game[tools.lang]?.close || 'Close'}}</button>
+            </div>
+        </div>
+    }
+</div>`, styles: ["/* src/app/pages/game/game.component.css */\n.game-container {\n  width: 100%;\n  min-height: calc(100vh - 150px);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  cursor: pointer;\n  user-select: none;\n  -webkit-user-select: none;\n  overflow: hidden;\n  padding: 2rem;\n}\n.img-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 70vw;\n  max-width: 420px;\n  height: 60vh;\n  max-height: 420px;\n  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);\n  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));\n}\n.img-wrapper.bonked {\n  transform: scale(0.92) rotate(-3deg);\n}\n.cheems-img {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  pointer-events: none;\n}\n.hint-text {\n  margin-top: 1.5rem;\n  font-weight: 900;\n  opacity: 0.85;\n  text-align: center;\n  letter-spacing: 0.5px;\n  animation: pulseHint 2s infinite ease-in-out;\n}\n@keyframes pulseHint {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 0.85;\n  }\n  50% {\n    transform: scale(1.05);\n    opacity: 1;\n  }\n}\n.floating-plus {\n  position: fixed;\n  pointer-events: none;\n  font-weight: 900;\n  font-size: 2.2rem;\n  z-index: 1000;\n  transform: translate(-50%, -50%);\n  animation: floatUp 0.8s ease-out forwards;\n  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);\n}\n.floating-plus.theme-dark {\n  color: #ffd166;\n}\n.floating-plus.theme-light {\n  color: #9c5c14;\n}\n.floating-plus.theme-contrast {\n  color: #00ffff;\n}\n@keyframes floatUp {\n  0% {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(0.8);\n  }\n  50% {\n    transform: translate(-50%, -100px) scale(1.3);\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-50%, -150px) scale(1);\n  }\n}\n.stats-btn {\n  position: absolute;\n  bottom: 20px;\n  right: 20px;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  background: rgba(0, 0, 0, 0.4);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);\n  transition: transform 0.2s, background 0.2s;\n  z-index: 50;\n}\n.stats-btn:hover {\n  transform: scale(1.1);\n  background: rgba(0, 0, 0, 0.6);\n}\n.stats-icon {\n  width: 24px;\n  height: 24px;\n  filter: invert(1);\n}\n.modal-backdrop {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.6);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  z-index: 9999;\n}\n.modal-content {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(40, 40, 40, 0.95),\n      rgba(20, 20, 20, 0.95));\n  border: 2px solid rgba(255, 255, 255, 0.1);\n  border-radius: 16px;\n  padding: 2rem;\n  width: 90%;\n  max-width: 400px;\n  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);\n  text-align: center;\n  color: white;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.modal-content.theme-light {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.95),\n      rgba(240, 225, 200, 0.95));\n  border-color: rgba(0, 0, 0, 0.1);\n  color: #4a3b2c;\n}\n.modal-title {\n  font-weight: 900;\n  margin: 0;\n  font-size: 1.5rem;\n}\n.stat-row {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.2);\n  padding: 1rem;\n  border-radius: 8px;\n  font-weight: bold;\n}\n.modal-content.theme-light .stat-row {\n  background: rgba(255, 255, 255, 0.5);\n}\n.stat-label {\n  opacity: 0.9;\n  font-size: 0.9rem;\n}\n.stat-value {\n  font-size: 1.2rem;\n  color: #ffd166;\n  text-shadow: 0 0 5px rgba(255, 209, 102, 0.3);\n}\n.modal-content.theme-light .stat-value {\n  color: #d97706;\n}\n.close-btn {\n  margin-top: 0.5rem;\n  padding: 0.8rem;\n  border-radius: 8px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  background: rgba(255, 255, 255, 0.1);\n  color: inherit;\n  transition: background 0.2s;\n}\n.close-btn:hover {\n  background: rgba(255, 255, 255, 0.2);\n}\n.modal-content.theme-light .close-btn {\n  background: rgba(0, 0, 0, 0.05);\n}\n.modal-content.theme-light .close-btn:hover {\n  background: rgba(0, 0, 0, 0.1);\n}\n/*# sourceMappingURL=game.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GameComponent, { className: "GameComponent", filePath: "src/app/pages/game/game.component.ts", lineNumber: 17 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(GameComponent, { className: "GameComponent", filePath: "src/app/pages/game/game.component.ts", lineNumber: 18 });
 })();
 
 // src/app/pages/menu/menu.component.ts
-function MenuComponent_Conditional_37_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("click", function MenuComponent_Conditional_37_Template_div_click_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.tools.redirect("devSettings"));
-    });
-    \u0275\u0275element(1, "img", 12);
-    \u0275\u0275elementStart(2, "div", 3)(3, "div", 4);
-    \u0275\u0275text(4);
-    \u0275\u0275elementEnd()()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classMapInterpolate1("menu-card dev-card ", ctx_r1.tools.themeColor, "");
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(ctx_r1.tools.menu[ctx_r1.tools.lang].devMenu);
-  }
-}
 var MenuComponent = class _MenuComponent {
   tools = inject(ToolsService);
   dailyPrice = 100;
@@ -42523,7 +42646,7 @@ var MenuComponent = class _MenuComponent {
   static \u0275fac = function MenuComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MenuComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 38, vars: 32, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/picture-svgrepo-com.svg", "alt", "Gallery", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], [3, "class"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Dev Settings", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 42, vars: 35, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/picture-svgrepo-com.svg", "alt", "Gallery", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Redeem Code", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_2_listener() {
@@ -42581,8 +42704,14 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275elementStart(34, "div", 3)(35, "div", 4);
       \u0275\u0275text(36);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(37, MenuComponent_Conditional_37_Template, 5, 4, "div", 11);
-      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(37, "div", 1);
+      \u0275\u0275listener("click", function MenuComponent_Template_div_click_37_listener() {
+        return ctx.tools.redirect("redeem");
+      });
+      \u0275\u0275element(38, "img", 11);
+      \u0275\u0275elementStart(39, "div", 3)(40, "div", 4);
+      \u0275\u0275text(41);
+      \u0275\u0275elementEnd()()()()();
     }
     if (rf & 2) {
       \u0275\u0275advance();
@@ -42616,7 +42745,9 @@ var MenuComponent = class _MenuComponent {
       \u0275\u0275advance(4);
       \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].licenses);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.tools.devMenuUnlocked ? 37 : -1);
+      \u0275\u0275classMapInterpolate1("menu-card ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate(ctx.tools.menu[ctx.tools.lang].redeem || "Redeem Code");
     }
   }, styles: ["\n\n.menu-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));\n  gap: 1.25rem;\n  width: 95%;\n  max-width: 900px;\n  margin: 2rem auto;\n  padding: 2rem;\n}\n.menu-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  gap: 1rem;\n  padding: 1.15rem;\n  border-radius: 16px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid transparent;\n}\n.menu-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);\n}\n.menu-card[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.98);\n}\n.menu-icon[_ngcontent-%COMP%] {\n  width: 44px;\n  height: 44px;\n  object-fit: contain;\n  flex-shrink: 0;\n}\n.coin-glow[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.7));\n}\n.card-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.card-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.card-sub[_ngcontent-%COMP%] {\n  font-size: 0.85em;\n  opacity: 0.8;\n}\n.menu-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(80, 68, 55, 0.85),\n      rgba(50, 42, 33, 0.95));\n  border: 1px solid rgba(255, 209, 102, 0.25);\n  color: rgb(245, 235, 220);\n}\n.menu-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.9),\n      rgba(240, 225, 195, 0.95));\n  border: 1px solid rgba(156, 92, 20, 0.3);\n  color: rgb(70, 45, 20);\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.menu-card.theme-contrast[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dogecoin-card.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(120, 95, 40, 0.9),\n      rgba(75, 55, 20, 0.95));\n  border-color: #ffd166;\n}\n.dogecoin-card.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 225, 160, 0.95),\n      rgba(245, 205, 130, 0.95));\n  border-color: #9c5c14;\n}\n.dogecoin-card.theme-contrast[_ngcontent-%COMP%] {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dev-card[_ngcontent-%COMP%] {\n  border-style: dashed !important;\n}\n@media (max-width: 600px) {\n  .menu-grid[_ngcontent-%COMP%] {\n    grid-template-columns: 1fr;\n    padding: 1.25rem;\n  }\n}\n/*# sourceMappingURL=menu.component.css.map */"] });
 };
@@ -42681,15 +42812,13 @@ var MenuComponent = class _MenuComponent {
             </div>
         </div>
 
-        <!-- Developer Options (Hidden unless unlocked) -->
-        @if (tools.devMenuUnlocked) {
-            <div class="menu-card dev-card {{tools.themeColor}}" (click)="tools.redirect('devSettings')">
-                <img src="img/icons/application-svgrepo-com.svg" class="menu-icon" alt="Dev Settings">
-                <div class="card-content">
-                    <div class="card-title">{{tools.menu[tools.lang].devMenu}}</div>
-                </div>
+        <!-- Redeem Code -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('redeem')">
+            <img src="img/icons/application-svgrepo-com.svg" class="menu-icon" alt="Redeem Code">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].redeem || 'Redeem Code'}}</div>
             </div>
-        }
+        </div>
     </div>
 </div>`, styles: ["/* src/app/pages/menu/menu.component.css */\n.menu-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));\n  gap: 1.25rem;\n  width: 95%;\n  max-width: 900px;\n  margin: 2rem auto;\n  padding: 2rem;\n}\n.menu-card {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  gap: 1rem;\n  padding: 1.15rem;\n  border-radius: 16px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);\n  border: 1px solid transparent;\n}\n.menu-card:hover {\n  transform: translateY(-4px) scale(1.02);\n  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);\n}\n.menu-card:active {\n  transform: translateY(1px) scale(0.98);\n}\n.menu-icon {\n  width: 44px;\n  height: 44px;\n  object-fit: contain;\n  flex-shrink: 0;\n}\n.coin-glow {\n  filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.7));\n}\n.card-content {\n  display: flex;\n  flex-direction: column;\n}\n.card-title {\n  font-weight: 900;\n  font-size: 1.1em;\n}\n.card-sub {\n  font-size: 0.85em;\n  opacity: 0.8;\n}\n.menu-card.theme-dark {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(80, 68, 55, 0.85),\n      rgba(50, 42, 33, 0.95));\n  border: 1px solid rgba(255, 209, 102, 0.25);\n  color: rgb(245, 235, 220);\n}\n.menu-card.theme-light {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.9),\n      rgba(240, 225, 195, 0.95));\n  border: 1px solid rgba(156, 92, 20, 0.3);\n  color: rgb(70, 45, 20);\n}\n.menu-card.theme-contrast {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.menu-card.theme-contrast:hover {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dogecoin-card.theme-dark {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(120, 95, 40, 0.9),\n      rgba(75, 55, 20, 0.95));\n  border-color: #ffd166;\n}\n.dogecoin-card.theme-light {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 225, 160, 0.95),\n      rgba(245, 205, 130, 0.95));\n  border-color: #9c5c14;\n}\n.dogecoin-card.theme-contrast {\n  border-color: #ffff00;\n  color: #ffff00;\n}\n.dev-card {\n  border-style: dashed !important;\n}\n@media (max-width: 600px) {\n  .menu-grid {\n    grid-template-columns: 1fr;\n    padding: 1.25rem;\n  }\n}\n/*# sourceMappingURL=menu.component.css.map */\n"] }]
   }], null, null);
@@ -43057,207 +43186,6782 @@ var SettingsComponent = class _SettingsComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsComponent, { className: "SettingsComponent", filePath: "src/app/pages/settings/settings.component.ts", lineNumber: 10 });
 })();
 
-// src/app/pages/dev-settings/dev-settings.component.ts
-var DevSettingsComponent = class _DevSettingsComponent {
-  tools = inject(ToolsService);
+// src/app/pages/redeem/codes.json
+var codes_default = {
+  code_add_dg: {
+    code: "DEV-ADD-DG",
+    dg: 9999,
+    one_time_redeem: false
+  },
+  code_wipe_dg: {
+    code: "DEV-WIPE-DG",
+    dg: -9999,
+    one_time_redeem: false
+  },
+  code_add_mg: {
+    code: "DEV-ADD-MG",
+    mg: 9999,
+    one_time_redeem: false
+  },
+  code_wipe_mg: {
+    code: "DEV-WIPE-MG",
+    mg: -9999,
+    one_time_redeem: false
+  },
+  code_add_pt: {
+    code: "DEV-ADD-PT",
+    pt: 999999,
+    one_time_redeem: false
+  },
+  code_wipe_pt: {
+    code: "DEV-WIPE-PT",
+    pt: -999999,
+    one_time_redeem: false
+  },
+  code_unlock_all: {
+    code: "DEV-UNLOCK-ALL",
+    cheems: [
+      "c1",
+      "c2",
+      "c3",
+      "c4",
+      "c5",
+      "c6",
+      "c7",
+      "c8",
+      "c9",
+      "c10",
+      "c11",
+      "c12",
+      "c13",
+      "c14"
+    ],
+    sfx: [
+      "s1",
+      "s2",
+      "s3",
+      "s4",
+      "s5",
+      "s6",
+      "s7",
+      "s8",
+      "s9",
+      "s10",
+      "s11",
+      "s12"
+    ],
+    music: [
+      "m0",
+      "m1",
+      "m2",
+      "m3",
+      "m4",
+      "m5",
+      "m6",
+      "m7",
+      "m8",
+      "m9",
+      "m10",
+      "m11",
+      "m12",
+      "m13",
+      "m14",
+      "m15",
+      "m16",
+      "m17",
+      "m18",
+      "m19",
+      "m20",
+      "m21",
+      "m22",
+      "m23",
+      "m24",
+      "m25",
+      "m26",
+      "m27",
+      "m28",
+      "m29"
+    ],
+    one_time_redeem: false
+  },
+  code_starter_pack: {
+    code: "STARTER-PACK",
+    dg: 100,
+    mg: 100,
+    pt: 1e3,
+    one_time_redeem: true
+  },
+  minecraft_fan: {
+    code: "MINECRAFT-FAN",
+    cheems: ["c10"],
+    sfx: ["s2", "s4", "s7"],
+    music: ["m28"],
+    one_time_redeem: true
+  }
+};
+
+// node_modules/@angular/forms/fesm2022/forms.mjs
+var BaseControlValueAccessor = class _BaseControlValueAccessor {
+  _renderer;
+  _elementRef;
+  /**
+   * The registered callback function called when a change or input event occurs on the input
+   * element.
+   * @docs-private
+   */
+  onChange = (_) => {
+  };
+  /**
+   * The registered callback function called when a blur event occurs on the input element.
+   * @docs-private
+   */
+  onTouched = () => {
+  };
+  constructor(_renderer, _elementRef) {
+    this._renderer = _renderer;
+    this._elementRef = _elementRef;
+  }
+  /**
+   * Helper method that sets a property on a target element using the current Renderer
+   * implementation.
+   * @docs-private
+   */
+  setProperty(key, value) {
+    this._renderer.setProperty(this._elementRef.nativeElement, key, value);
+  }
+  /**
+   * Registers a function called when the control is touched.
+   * @docs-private
+   */
+  registerOnTouched(fn) {
+    this.onTouched = fn;
+  }
+  /**
+   * Registers a function called when the control value changes.
+   * @docs-private
+   */
+  registerOnChange(fn) {
+    this.onChange = fn;
+  }
+  /**
+   * Sets the "disabled" property on the range input element.
+   * @docs-private
+   */
+  setDisabledState(isDisabled) {
+    this.setProperty("disabled", isDisabled);
+  }
+  static \u0275fac = function BaseControlValueAccessor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BaseControlValueAccessor)(\u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(ElementRef));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _BaseControlValueAccessor
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BaseControlValueAccessor, [{
+    type: Directive
+  }], () => [{
+    type: Renderer2
+  }, {
+    type: ElementRef
+  }], null);
+})();
+var BuiltInControlValueAccessor = class _BuiltInControlValueAccessor extends BaseControlValueAccessor {
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275BuiltInControlValueAccessor_BaseFactory;
+    return function BuiltInControlValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275BuiltInControlValueAccessor_BaseFactory || (\u0275BuiltInControlValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_BuiltInControlValueAccessor)))(__ngFactoryType__ || _BuiltInControlValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _BuiltInControlValueAccessor,
+    features: [\u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BuiltInControlValueAccessor, [{
+    type: Directive
+  }], null, null);
+})();
+var NG_VALUE_ACCESSOR = new InjectionToken(ngDevMode ? "NgValueAccessor" : "");
+var CHECKBOX_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => CheckboxControlValueAccessor),
+  multi: true
+};
+var CheckboxControlValueAccessor = class _CheckboxControlValueAccessor extends BuiltInControlValueAccessor {
+  /**
+   * Sets the "checked" property on the input element.
+   * @docs-private
+   */
+  writeValue(value) {
+    this.setProperty("checked", value);
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275CheckboxControlValueAccessor_BaseFactory;
+    return function CheckboxControlValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275CheckboxControlValueAccessor_BaseFactory || (\u0275CheckboxControlValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_CheckboxControlValueAccessor)))(__ngFactoryType__ || _CheckboxControlValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _CheckboxControlValueAccessor,
+    selectors: [["input", "type", "checkbox", "formControlName", ""], ["input", "type", "checkbox", "formControl", ""], ["input", "type", "checkbox", "ngModel", ""]],
+    hostBindings: function CheckboxControlValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function CheckboxControlValueAccessor_change_HostBindingHandler($event) {
+          return ctx.onChange($event.target.checked);
+        })("blur", function CheckboxControlValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([CHECKBOX_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CheckboxControlValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=checkbox][formControlName],input[type=checkbox][formControl],input[type=checkbox][ngModel]",
+      host: {
+        "(change)": "onChange($event.target.checked)",
+        "(blur)": "onTouched()"
+      },
+      providers: [CHECKBOX_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, null);
+})();
+var DEFAULT_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => DefaultValueAccessor),
+  multi: true
+};
+function _isAndroid() {
+  const userAgent = getDOM() ? getDOM().getUserAgent() : "";
+  return /android (\d+)/.test(userAgent.toLowerCase());
+}
+var COMPOSITION_BUFFER_MODE = new InjectionToken(ngDevMode ? "CompositionEventMode" : "");
+var DefaultValueAccessor = class _DefaultValueAccessor extends BaseControlValueAccessor {
+  _compositionMode;
+  /** Whether the user is creating a composition string (IME events). */
+  _composing = false;
+  constructor(renderer, elementRef, _compositionMode) {
+    super(renderer, elementRef);
+    this._compositionMode = _compositionMode;
+    if (this._compositionMode == null) {
+      this._compositionMode = !_isAndroid();
+    }
+  }
+  /**
+   * Sets the "value" property on the input element.
+   * @docs-private
+   */
+  writeValue(value) {
+    const normalizedValue = value == null ? "" : value;
+    this.setProperty("value", normalizedValue);
+  }
+  /** @internal */
+  _handleInput(value) {
+    if (!this._compositionMode || this._compositionMode && !this._composing) {
+      this.onChange(value);
+    }
+  }
+  /** @internal */
+  _compositionStart() {
+    this._composing = true;
+  }
+  /** @internal */
+  _compositionEnd(value) {
+    this._composing = false;
+    this._compositionMode && this.onChange(value);
+  }
+  static \u0275fac = function DefaultValueAccessor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DefaultValueAccessor)(\u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(COMPOSITION_BUFFER_MODE, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _DefaultValueAccessor,
+    selectors: [["input", "formControlName", "", 3, "type", "checkbox"], ["textarea", "formControlName", ""], ["input", "formControl", "", 3, "type", "checkbox"], ["textarea", "formControl", ""], ["input", "ngModel", "", 3, "type", "checkbox"], ["textarea", "ngModel", ""], ["", "ngDefaultControl", ""]],
+    hostBindings: function DefaultValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("input", function DefaultValueAccessor_input_HostBindingHandler($event) {
+          return ctx._handleInput($event.target.value);
+        })("blur", function DefaultValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        })("compositionstart", function DefaultValueAccessor_compositionstart_HostBindingHandler() {
+          return ctx._compositionStart();
+        })("compositionend", function DefaultValueAccessor_compositionend_HostBindingHandler($event) {
+          return ctx._compositionEnd($event.target.value);
+        });
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([DEFAULT_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DefaultValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input:not([type=checkbox])[formControlName],textarea[formControlName],input:not([type=checkbox])[formControl],textarea[formControl],input:not([type=checkbox])[ngModel],textarea[ngModel],[ngDefaultControl]",
+      // TODO: vsavkin replace the above selector with the one below it once
+      // https://github.com/angular/angular/issues/3011 is implemented
+      // selector: '[ngModel],[formControl],[formControlName]',
+      host: {
+        "(input)": "$any(this)._handleInput($event.target.value)",
+        "(blur)": "onTouched()",
+        "(compositionstart)": "$any(this)._compositionStart()",
+        "(compositionend)": "$any(this)._compositionEnd($event.target.value)"
+      },
+      providers: [DEFAULT_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], () => [{
+    type: Renderer2
+  }, {
+    type: ElementRef
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [COMPOSITION_BUFFER_MODE]
+    }]
+  }], null);
+})();
+function isEmptyInputValue(value) {
+  return value == null || lengthOrSize(value) === 0;
+}
+function lengthOrSize(value) {
+  if (value == null) {
+    return null;
+  } else if (Array.isArray(value) || typeof value === "string") {
+    return value.length;
+  } else if (value instanceof Set) {
+    return value.size;
+  }
+  return null;
+}
+var NG_VALIDATORS = new InjectionToken(ngDevMode ? "NgValidators" : "");
+var NG_ASYNC_VALIDATORS = new InjectionToken(ngDevMode ? "NgAsyncValidators" : "");
+var EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+function minValidator(min) {
+  return (control) => {
+    if (control.value == null || min == null) {
+      return null;
+    }
+    const value = parseFloat(control.value);
+    return !isNaN(value) && value < min ? {
+      "min": {
+        "min": min,
+        "actual": control.value
+      }
+    } : null;
+  };
+}
+function maxValidator(max) {
+  return (control) => {
+    if (control.value == null || max == null) {
+      return null;
+    }
+    const value = parseFloat(control.value);
+    return !isNaN(value) && value > max ? {
+      "max": {
+        "max": max,
+        "actual": control.value
+      }
+    } : null;
+  };
+}
+function requiredValidator(control) {
+  return isEmptyInputValue(control.value) ? {
+    "required": true
+  } : null;
+}
+function requiredTrueValidator(control) {
+  return control.value === true ? null : {
+    "required": true
+  };
+}
+function emailValidator(control) {
+  if (isEmptyInputValue(control.value)) {
+    return null;
+  }
+  return EMAIL_REGEXP.test(control.value) ? null : {
+    "email": true
+  };
+}
+function minLengthValidator(minLength) {
+  return (control) => {
+    const length = control.value?.length ?? lengthOrSize(control.value);
+    if (length === null || length === 0) {
+      return null;
+    }
+    return length < minLength ? {
+      "minlength": {
+        "requiredLength": minLength,
+        "actualLength": length
+      }
+    } : null;
+  };
+}
+function maxLengthValidator(maxLength) {
+  return (control) => {
+    const length = control.value?.length ?? lengthOrSize(control.value);
+    if (length !== null && length > maxLength) {
+      return {
+        "maxlength": {
+          "requiredLength": maxLength,
+          "actualLength": length
+        }
+      };
+    }
+    return null;
+  };
+}
+function patternValidator(pattern) {
+  if (!pattern) return nullValidator;
+  let regex;
+  let regexStr;
+  if (typeof pattern === "string") {
+    regexStr = "";
+    if (pattern.charAt(0) !== "^") regexStr += "^";
+    regexStr += pattern;
+    if (pattern.charAt(pattern.length - 1) !== "$") regexStr += "$";
+    regex = new RegExp(regexStr);
+  } else {
+    regexStr = pattern.toString();
+    regex = pattern;
+  }
+  return (control) => {
+    if (isEmptyInputValue(control.value)) {
+      return null;
+    }
+    const value = control.value;
+    return regex.test(value) ? null : {
+      "pattern": {
+        "requiredPattern": regexStr,
+        "actualValue": value
+      }
+    };
+  };
+}
+function nullValidator(control) {
+  return null;
+}
+function isPresent(o) {
+  return o != null;
+}
+function toObservable(value) {
+  const obs = isPromise2(value) ? from(value) : value;
+  if ((typeof ngDevMode === "undefined" || ngDevMode) && !isSubscribable(obs)) {
+    let errorMessage = `Expected async validator to return Promise or Observable.`;
+    if (typeof value === "object") {
+      errorMessage += " Are you using a synchronous validator where an async validator is expected?";
+    }
+    throw new RuntimeError(-1101, errorMessage);
+  }
+  return obs;
+}
+function mergeErrors(arrayOfErrors) {
+  let res = {};
+  arrayOfErrors.forEach((errors) => {
+    res = errors != null ? __spreadValues(__spreadValues({}, res), errors) : res;
+  });
+  return Object.keys(res).length === 0 ? null : res;
+}
+function executeValidators(control, validators) {
+  return validators.map((validator) => validator(control));
+}
+function isValidatorFn(validator) {
+  return !validator.validate;
+}
+function normalizeValidators(validators) {
+  return validators.map((validator) => {
+    return isValidatorFn(validator) ? validator : (c) => validator.validate(c);
+  });
+}
+function compose(validators) {
+  if (!validators) return null;
+  const presentValidators = validators.filter(isPresent);
+  if (presentValidators.length == 0) return null;
+  return function(control) {
+    return mergeErrors(executeValidators(control, presentValidators));
+  };
+}
+function composeValidators(validators) {
+  return validators != null ? compose(normalizeValidators(validators)) : null;
+}
+function composeAsync(validators) {
+  if (!validators) return null;
+  const presentValidators = validators.filter(isPresent);
+  if (presentValidators.length == 0) return null;
+  return function(control) {
+    const observables = executeValidators(control, presentValidators).map(toObservable);
+    return forkJoin(observables).pipe(map(mergeErrors));
+  };
+}
+function composeAsyncValidators(validators) {
+  return validators != null ? composeAsync(normalizeValidators(validators)) : null;
+}
+function mergeValidators(controlValidators, dirValidator) {
+  if (controlValidators === null) return [dirValidator];
+  return Array.isArray(controlValidators) ? [...controlValidators, dirValidator] : [controlValidators, dirValidator];
+}
+function getControlValidators(control) {
+  return control._rawValidators;
+}
+function getControlAsyncValidators(control) {
+  return control._rawAsyncValidators;
+}
+function makeValidatorsArray(validators) {
+  if (!validators) return [];
+  return Array.isArray(validators) ? validators : [validators];
+}
+function hasValidator(validators, validator) {
+  return Array.isArray(validators) ? validators.includes(validator) : validators === validator;
+}
+function addValidators(validators, currentValidators) {
+  const current = makeValidatorsArray(currentValidators);
+  const validatorsToAdd = makeValidatorsArray(validators);
+  validatorsToAdd.forEach((v) => {
+    if (!hasValidator(current, v)) {
+      current.push(v);
+    }
+  });
+  return current;
+}
+function removeValidators(validators, currentValidators) {
+  return makeValidatorsArray(currentValidators).filter((v) => !hasValidator(validators, v));
+}
+var AbstractControlDirective = class {
+  /**
+   * @description
+   * Reports the value of the control if it is present, otherwise null.
+   */
+  get value() {
+    return this.control ? this.control.value : null;
+  }
+  /**
+   * @description
+   * Reports whether the control is valid. A control is considered valid if no
+   * validation errors exist with the current value.
+   * If the control is not present, null is returned.
+   */
+  get valid() {
+    return this.control ? this.control.valid : null;
+  }
+  /**
+   * @description
+   * Reports whether the control is invalid, meaning that an error exists in the input value.
+   * If the control is not present, null is returned.
+   */
+  get invalid() {
+    return this.control ? this.control.invalid : null;
+  }
+  /**
+   * @description
+   * Reports whether a control is pending, meaning that async validation is occurring and
+   * errors are not yet available for the input value. If the control is not present, null is
+   * returned.
+   */
+  get pending() {
+    return this.control ? this.control.pending : null;
+  }
+  /**
+   * @description
+   * Reports whether the control is disabled, meaning that the control is disabled
+   * in the UI and is exempt from validation checks and excluded from aggregate
+   * values of ancestor controls. If the control is not present, null is returned.
+   */
+  get disabled() {
+    return this.control ? this.control.disabled : null;
+  }
+  /**
+   * @description
+   * Reports whether the control is enabled, meaning that the control is included in ancestor
+   * calculations of validity or value. If the control is not present, null is returned.
+   */
+  get enabled() {
+    return this.control ? this.control.enabled : null;
+  }
+  /**
+   * @description
+   * Reports the control's validation errors. If the control is not present, null is returned.
+   */
+  get errors() {
+    return this.control ? this.control.errors : null;
+  }
+  /**
+   * @description
+   * Reports whether the control is pristine, meaning that the user has not yet changed
+   * the value in the UI. If the control is not present, null is returned.
+   */
+  get pristine() {
+    return this.control ? this.control.pristine : null;
+  }
+  /**
+   * @description
+   * Reports whether the control is dirty, meaning that the user has changed
+   * the value in the UI. If the control is not present, null is returned.
+   */
+  get dirty() {
+    return this.control ? this.control.dirty : null;
+  }
+  /**
+   * @description
+   * Reports whether the control is touched, meaning that the user has triggered
+   * a `blur` event on it. If the control is not present, null is returned.
+   */
+  get touched() {
+    return this.control ? this.control.touched : null;
+  }
+  /**
+   * @description
+   * Reports the validation status of the control. Possible values include:
+   * 'VALID', 'INVALID', 'DISABLED', and 'PENDING'.
+   * If the control is not present, null is returned.
+   */
+  get status() {
+    return this.control ? this.control.status : null;
+  }
+  /**
+   * @description
+   * Reports whether the control is untouched, meaning that the user has not yet triggered
+   * a `blur` event on it. If the control is not present, null is returned.
+   */
+  get untouched() {
+    return this.control ? this.control.untouched : null;
+  }
+  /**
+   * @description
+   * Returns a multicasting observable that emits a validation status whenever it is
+   * calculated for the control. If the control is not present, null is returned.
+   */
+  get statusChanges() {
+    return this.control ? this.control.statusChanges : null;
+  }
+  /**
+   * @description
+   * Returns a multicasting observable of value changes for the control that emits every time the
+   * value of the control changes in the UI or programmatically.
+   * If the control is not present, null is returned.
+   */
+  get valueChanges() {
+    return this.control ? this.control.valueChanges : null;
+  }
+  /**
+   * @description
+   * Returns an array that represents the path from the top-level form to this control.
+   * Each index is the string name of the control on that level.
+   */
+  get path() {
+    return null;
+  }
+  /**
+   * Contains the result of merging synchronous validators into a single validator function
+   * (combined using `Validators.compose`).
+   */
+  _composedValidatorFn;
+  /**
+   * Contains the result of merging asynchronous validators into a single validator function
+   * (combined using `Validators.composeAsync`).
+   */
+  _composedAsyncValidatorFn;
+  /**
+   * Set of synchronous validators as they were provided while calling `setValidators` function.
+   * @internal
+   */
+  _rawValidators = [];
+  /**
+   * Set of asynchronous validators as they were provided while calling `setAsyncValidators`
+   * function.
+   * @internal
+   */
+  _rawAsyncValidators = [];
+  /**
+   * Sets synchronous validators for this directive.
+   * @internal
+   */
+  _setValidators(validators) {
+    this._rawValidators = validators || [];
+    this._composedValidatorFn = composeValidators(this._rawValidators);
+  }
+  /**
+   * Sets asynchronous validators for this directive.
+   * @internal
+   */
+  _setAsyncValidators(validators) {
+    this._rawAsyncValidators = validators || [];
+    this._composedAsyncValidatorFn = composeAsyncValidators(this._rawAsyncValidators);
+  }
+  /**
+   * @description
+   * Synchronous validator function composed of all the synchronous validators registered with this
+   * directive.
+   */
+  get validator() {
+    return this._composedValidatorFn || null;
+  }
+  /**
+   * @description
+   * Asynchronous validator function composed of all the asynchronous validators registered with
+   * this directive.
+   */
+  get asyncValidator() {
+    return this._composedAsyncValidatorFn || null;
+  }
+  /*
+   * The set of callbacks to be invoked when directive instance is being destroyed.
+   */
+  _onDestroyCallbacks = [];
+  /**
+   * Internal function to register callbacks that should be invoked
+   * when directive instance is being destroyed.
+   * @internal
+   */
+  _registerOnDestroy(fn) {
+    this._onDestroyCallbacks.push(fn);
+  }
+  /**
+   * Internal function to invoke all registered "on destroy" callbacks.
+   * Note: calling this function also clears the list of callbacks.
+   * @internal
+   */
+  _invokeOnDestroyCallbacks() {
+    this._onDestroyCallbacks.forEach((fn) => fn());
+    this._onDestroyCallbacks = [];
+  }
+  /**
+   * @description
+   * Resets the control with the provided value if the control is present.
+   */
+  reset(value = void 0) {
+    if (this.control) this.control.reset(value);
+  }
+  /**
+   * @description
+   * Reports whether the control with the given path has the error specified.
+   *
+   * @param errorCode The code of the error to check
+   * @param path A list of control names that designates how to move from the current control
+   * to the control that should be queried for errors.
+   *
+   * @usageNotes
+   * For example, for the following `FormGroup`:
+   *
+   * ```ts
+   * form = new FormGroup({
+   *   address: new FormGroup({ street: new FormControl() })
+   * });
+   * ```
+   *
+   * The path to the 'street' control from the root form would be 'address' -> 'street'.
+   *
+   * It can be provided to this method in one of two formats:
+   *
+   * 1. An array of string control names, e.g. `['address', 'street']`
+   * 1. A period-delimited list of control names in one string, e.g. `'address.street'`
+   *
+   * If no path is given, this method checks for the error on the current control.
+   *
+   * @returns whether the given error is present in the control at the given path.
+   *
+   * If the control is not present, false is returned.
+   */
+  hasError(errorCode, path) {
+    return this.control ? this.control.hasError(errorCode, path) : false;
+  }
+  /**
+   * @description
+   * Reports error data for the control with the given path.
+   *
+   * @param errorCode The code of the error to check
+   * @param path A list of control names that designates how to move from the current control
+   * to the control that should be queried for errors.
+   *
+   * @usageNotes
+   * For example, for the following `FormGroup`:
+   *
+   * ```ts
+   * form = new FormGroup({
+   *   address: new FormGroup({ street: new FormControl() })
+   * });
+   * ```
+   *
+   * The path to the 'street' control from the root form would be 'address' -> 'street'.
+   *
+   * It can be provided to this method in one of two formats:
+   *
+   * 1. An array of string control names, e.g. `['address', 'street']`
+   * 1. A period-delimited list of control names in one string, e.g. `'address.street'`
+   *
+   * @returns error data for that particular error. If the control or error is not present,
+   * null is returned.
+   */
+  getError(errorCode, path) {
+    return this.control ? this.control.getError(errorCode, path) : null;
+  }
+};
+var ControlContainer = class extends AbstractControlDirective {
+  /**
+   * @description
+   * The name for the control
+   */
+  name;
+  /**
+   * @description
+   * The top-level form directive for the control.
+   */
+  get formDirective() {
+    return null;
+  }
+  /**
+   * @description
+   * The path to this group.
+   */
+  get path() {
+    return null;
+  }
+};
+var NgControl = class extends AbstractControlDirective {
+  /**
+   * @description
+   * The parent form for the control.
+   *
+   * @internal
+   */
+  _parent = null;
+  /**
+   * @description
+   * The name for the control
+   */
+  name = null;
+  /**
+   * @description
+   * The value accessor for the control
+   */
+  valueAccessor = null;
+};
+var AbstractControlStatus = class {
+  _cd;
+  constructor(cd) {
+    this._cd = cd;
+  }
+  get isTouched() {
+    this._cd?.control?._touched?.();
+    return !!this._cd?.control?.touched;
+  }
+  get isUntouched() {
+    return !!this._cd?.control?.untouched;
+  }
+  get isPristine() {
+    this._cd?.control?._pristine?.();
+    return !!this._cd?.control?.pristine;
+  }
+  get isDirty() {
+    return !!this._cd?.control?.dirty;
+  }
+  get isValid() {
+    this._cd?.control?._status?.();
+    return !!this._cd?.control?.valid;
+  }
+  get isInvalid() {
+    return !!this._cd?.control?.invalid;
+  }
+  get isPending() {
+    return !!this._cd?.control?.pending;
+  }
+  get isSubmitted() {
+    this._cd?._submitted?.();
+    return !!this._cd?.submitted;
+  }
+};
+var ngControlStatusHost = {
+  "[class.ng-untouched]": "isUntouched",
+  "[class.ng-touched]": "isTouched",
+  "[class.ng-pristine]": "isPristine",
+  "[class.ng-dirty]": "isDirty",
+  "[class.ng-valid]": "isValid",
+  "[class.ng-invalid]": "isInvalid",
+  "[class.ng-pending]": "isPending"
+};
+var ngGroupStatusHost = __spreadProps(__spreadValues({}, ngControlStatusHost), {
+  "[class.ng-submitted]": "isSubmitted"
+});
+var NgControlStatus = class _NgControlStatus extends AbstractControlStatus {
+  constructor(cd) {
+    super(cd);
+  }
+  static \u0275fac = function NgControlStatus_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgControlStatus)(\u0275\u0275directiveInject(NgControl, 2));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgControlStatus,
+    selectors: [["", "formControlName", ""], ["", "ngModel", ""], ["", "formControl", ""]],
+    hostVars: 14,
+    hostBindings: function NgControlStatus_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275classProp("ng-untouched", ctx.isUntouched)("ng-touched", ctx.isTouched)("ng-pristine", ctx.isPristine)("ng-dirty", ctx.isDirty)("ng-valid", ctx.isValid)("ng-invalid", ctx.isInvalid)("ng-pending", ctx.isPending);
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgControlStatus, [{
+    type: Directive,
+    args: [{
+      selector: "[formControlName],[ngModel],[formControl]",
+      host: ngControlStatusHost,
+      standalone: false
+    }]
+  }], () => [{
+    type: NgControl,
+    decorators: [{
+      type: Self
+    }]
+  }], null);
+})();
+var NgControlStatusGroup = class _NgControlStatusGroup extends AbstractControlStatus {
+  constructor(cd) {
+    super(cd);
+  }
+  static \u0275fac = function NgControlStatusGroup_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgControlStatusGroup)(\u0275\u0275directiveInject(ControlContainer, 10));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgControlStatusGroup,
+    selectors: [["", "formGroupName", ""], ["", "formArrayName", ""], ["", "ngModelGroup", ""], ["", "formGroup", ""], ["form", 3, "ngNoForm", ""], ["", "ngForm", ""]],
+    hostVars: 16,
+    hostBindings: function NgControlStatusGroup_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275classProp("ng-untouched", ctx.isUntouched)("ng-touched", ctx.isTouched)("ng-pristine", ctx.isPristine)("ng-dirty", ctx.isDirty)("ng-valid", ctx.isValid)("ng-invalid", ctx.isInvalid)("ng-pending", ctx.isPending)("ng-submitted", ctx.isSubmitted);
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgControlStatusGroup, [{
+    type: Directive,
+    args: [{
+      selector: "[formGroupName],[formArrayName],[ngModelGroup],[formGroup],form:not([ngNoForm]),[ngForm]",
+      host: ngGroupStatusHost,
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }]
+  }], null);
+})();
+var formControlNameExample = `
+  <div [formGroup]="myGroup">
+    <input formControlName="firstName">
+  </div>
+
+  In your class:
+
+  this.myGroup = new FormGroup({
+      firstName: new FormControl()
+  });`;
+var formGroupNameExample = `
+  <div [formGroup]="myGroup">
+      <div formGroupName="person">
+        <input formControlName="firstName">
+      </div>
+  </div>
+
+  In your class:
+
+  this.myGroup = new FormGroup({
+      person: new FormGroup({ firstName: new FormControl() })
+  });`;
+var formArrayNameExample = `
+  <div [formGroup]="myGroup">
+    <div formArrayName="cities">
+      <div *ngFor="let city of cityArray.controls; index as i">
+        <input [formControlName]="i">
+      </div>
+    </div>
+  </div>
+
+  In your class:
+
+  this.cityArray = new FormArray([new FormControl('SF')]);
+  this.myGroup = new FormGroup({
+    cities: this.cityArray
+  });`;
+var ngModelGroupExample = `
+  <form>
+      <div ngModelGroup="person">
+        <input [(ngModel)]="person.name" name="firstName">
+      </div>
+  </form>`;
+var ngModelWithFormGroupExample = `
+  <div [formGroup]="myGroup">
+      <input formControlName="firstName">
+      <input [(ngModel)]="showMoreControls" [ngModelOptions]="{standalone: true}">
+  </div>
+`;
+function controlParentException(nameOrIndex) {
+  return new RuntimeError(1050, `formControlName must be used with a parent formGroup directive. You'll want to add a formGroup
+      directive and pass it an existing FormGroup instance (you can create one in your class).
+
+      ${describeFormControl(nameOrIndex)}
+
+    Example:
+
+    ${formControlNameExample}`);
+}
+function describeFormControl(nameOrIndex) {
+  if (nameOrIndex == null || nameOrIndex === "") {
+    return "";
+  }
+  const valueType = typeof nameOrIndex === "string" ? "name" : "index";
+  return `Affected Form Control ${valueType}: "${nameOrIndex}"`;
+}
+function ngModelGroupException() {
+  return new RuntimeError(1051, `formControlName cannot be used with an ngModelGroup parent. It is only compatible with parents
+      that also have a "form" prefix: formGroupName, formArrayName, or formGroup.
+
+      Option 1:  Update the parent to be formGroupName (reactive form strategy)
+
+      ${formGroupNameExample}
+
+      Option 2: Use ngModel instead of formControlName (template-driven strategy)
+
+      ${ngModelGroupExample}`);
+}
+function missingFormException() {
+  return new RuntimeError(1052, `formGroup expects a FormGroup instance. Please pass one in.
+
+      Example:
+
+      ${formControlNameExample}`);
+}
+function groupParentException() {
+  return new RuntimeError(1053, `formGroupName must be used with a parent formGroup directive.  You'll want to add a formGroup
+    directive and pass it an existing FormGroup instance (you can create one in your class).
+
+    Example:
+
+    ${formGroupNameExample}`);
+}
+function arrayParentException() {
+  return new RuntimeError(1054, `formArrayName must be used with a parent formGroup directive.  You'll want to add a formGroup
+      directive and pass it an existing FormGroup instance (you can create one in your class).
+
+      Example:
+
+      ${formArrayNameExample}`);
+}
+var disabledAttrWarning = `
+  It looks like you're using the disabled attribute with a reactive form directive. If you set disabled to true
+  when you set up this control in your component class, the disabled attribute will actually be set in the DOM for
+  you. We recommend using this approach to avoid 'changed after checked' errors.
+
+  Example:
+  // Specify the \`disabled\` property at control creation time:
+  form = new FormGroup({
+    first: new FormControl({value: 'Nancy', disabled: true}, Validators.required),
+    last: new FormControl('Drew', Validators.required)
+  });
+
+  // Controls can also be enabled/disabled after creation:
+  form.get('first')?.enable();
+  form.get('last')?.disable();
+`;
+var asyncValidatorsDroppedWithOptsWarning = `
+  It looks like you're constructing using a FormControl with both an options argument and an
+  async validators argument. Mixing these arguments will cause your async validators to be dropped.
+  You should either put all your validators in the options object, or in separate validators
+  arguments. For example:
+
+  // Using validators arguments
+  fc = new FormControl(42, Validators.required, myAsyncValidator);
+
+  // Using AbstractControlOptions
+  fc = new FormControl(42, {validators: Validators.required, asyncValidators: myAV});
+
+  // Do NOT mix them: async validators will be dropped!
+  fc = new FormControl(42, {validators: Validators.required}, /* Oops! */ myAsyncValidator);
+`;
+function ngModelWarning(directiveName) {
+  return `
+  It looks like you're using ngModel on the same form field as ${directiveName}.
+  Support for using the ngModel input property and ngModelChange event with
+  reactive form directives has been deprecated in Angular v6 and will be removed
+  in a future version of Angular.
+
+  For more information on this, see our API docs here:
+  https://angular.io/api/forms/${directiveName === "formControl" ? "FormControlDirective" : "FormControlName"}#use-with-ngmodel
+  `;
+}
+function describeKey(isFormGroup, key) {
+  return isFormGroup ? `with name: '${key}'` : `at index: ${key}`;
+}
+function noControlsError(isFormGroup) {
+  return `
+    There are no form controls registered with this ${isFormGroup ? "group" : "array"} yet. If you're using ngModel,
+    you may want to check next tick (e.g. use setTimeout).
+  `;
+}
+function missingControlError(isFormGroup, key) {
+  return `Cannot find form control ${describeKey(isFormGroup, key)}`;
+}
+function missingControlValueError(isFormGroup, key) {
+  return `Must supply a value for form control ${describeKey(isFormGroup, key)}`;
+}
+var VALID = "VALID";
+var INVALID = "INVALID";
+var PENDING = "PENDING";
+var DISABLED = "DISABLED";
+var ControlEvent = class {
+};
+var ValueChangeEvent = class extends ControlEvent {
+  value;
+  source;
+  constructor(value, source) {
+    super();
+    this.value = value;
+    this.source = source;
+  }
+};
+var PristineChangeEvent = class extends ControlEvent {
+  pristine;
+  source;
+  constructor(pristine, source) {
+    super();
+    this.pristine = pristine;
+    this.source = source;
+  }
+};
+var TouchedChangeEvent = class extends ControlEvent {
+  touched;
+  source;
+  constructor(touched, source) {
+    super();
+    this.touched = touched;
+    this.source = source;
+  }
+};
+var StatusChangeEvent = class extends ControlEvent {
+  status;
+  source;
+  constructor(status, source) {
+    super();
+    this.status = status;
+    this.source = source;
+  }
+};
+var FormSubmittedEvent = class extends ControlEvent {
+  source;
+  constructor(source) {
+    super();
+    this.source = source;
+  }
+};
+var FormResetEvent = class extends ControlEvent {
+  source;
+  constructor(source) {
+    super();
+    this.source = source;
+  }
+};
+function pickValidators(validatorOrOpts) {
+  return (isOptionsObj(validatorOrOpts) ? validatorOrOpts.validators : validatorOrOpts) || null;
+}
+function coerceToValidator(validator) {
+  return Array.isArray(validator) ? composeValidators(validator) : validator || null;
+}
+function pickAsyncValidators(asyncValidator, validatorOrOpts) {
+  if (typeof ngDevMode === "undefined" || ngDevMode) {
+    if (isOptionsObj(validatorOrOpts) && asyncValidator) {
+      console.warn(asyncValidatorsDroppedWithOptsWarning);
+    }
+  }
+  return (isOptionsObj(validatorOrOpts) ? validatorOrOpts.asyncValidators : asyncValidator) || null;
+}
+function coerceToAsyncValidator(asyncValidator) {
+  return Array.isArray(asyncValidator) ? composeAsyncValidators(asyncValidator) : asyncValidator || null;
+}
+function isOptionsObj(validatorOrOpts) {
+  return validatorOrOpts != null && !Array.isArray(validatorOrOpts) && typeof validatorOrOpts === "object";
+}
+function assertControlPresent(parent, isGroup, key) {
+  const controls = parent.controls;
+  const collection = isGroup ? Object.keys(controls) : controls;
+  if (!collection.length) {
+    throw new RuntimeError(1e3, typeof ngDevMode === "undefined" || ngDevMode ? noControlsError(isGroup) : "");
+  }
+  if (!controls[key]) {
+    throw new RuntimeError(1001, typeof ngDevMode === "undefined" || ngDevMode ? missingControlError(isGroup, key) : "");
+  }
+}
+function assertAllValuesPresent(control, isGroup, value) {
+  control._forEachChild((_, key) => {
+    if (value[key] === void 0) {
+      throw new RuntimeError(1002, typeof ngDevMode === "undefined" || ngDevMode ? missingControlValueError(isGroup, key) : "");
+    }
+  });
+}
+var AbstractControl = class {
+  /** @internal */
+  _pendingDirty = false;
+  /**
+   * Indicates that a control has its own pending asynchronous validation in progress.
+   * It also stores if the control should emit events when the validation status changes.
+   *
+   * @internal
+   */
+  _hasOwnPendingAsyncValidator = null;
+  /** @internal */
+  _pendingTouched = false;
+  /** @internal */
+  _onCollectionChange = () => {
+  };
+  /** @internal */
+  _updateOn;
+  _parent = null;
+  _asyncValidationSubscription;
+  /**
+   * Contains the result of merging synchronous validators into a single validator function
+   * (combined using `Validators.compose`).
+   *
+   * @internal
+   */
+  _composedValidatorFn;
+  /**
+   * Contains the result of merging asynchronous validators into a single validator function
+   * (combined using `Validators.composeAsync`).
+   *
+   * @internal
+   */
+  _composedAsyncValidatorFn;
+  /**
+   * Synchronous validators as they were provided:
+   *  - in `AbstractControl` constructor
+   *  - as an argument while calling `setValidators` function
+   *  - while calling the setter on the `validator` field (e.g. `control.validator = validatorFn`)
+   *
+   * @internal
+   */
+  _rawValidators;
+  /**
+   * Asynchronous validators as they were provided:
+   *  - in `AbstractControl` constructor
+   *  - as an argument while calling `setAsyncValidators` function
+   *  - while calling the setter on the `asyncValidator` field (e.g. `control.asyncValidator =
+   * asyncValidatorFn`)
+   *
+   * @internal
+   */
+  _rawAsyncValidators;
+  /**
+   * The current value of the control.
+   *
+   * * For a `FormControl`, the current value.
+   * * For an enabled `FormGroup`, the values of enabled controls as an object
+   * with a key-value pair for each member of the group.
+   * * For a disabled `FormGroup`, the values of all controls as an object
+   * with a key-value pair for each member of the group.
+   * * For a `FormArray`, the values of enabled controls as an array.
+   *
+   */
+  value;
+  /**
+   * Initialize the AbstractControl instance.
+   *
+   * @param validators The function or array of functions that is used to determine the validity of
+   *     this control synchronously.
+   * @param asyncValidators The function or array of functions that is used to determine validity of
+   *     this control asynchronously.
+   */
+  constructor(validators, asyncValidators) {
+    this._assignValidators(validators);
+    this._assignAsyncValidators(asyncValidators);
+  }
+  /**
+   * Returns the function that is used to determine the validity of this control synchronously.
+   * If multiple validators have been added, this will be a single composed function.
+   * See `Validators.compose()` for additional information.
+   */
+  get validator() {
+    return this._composedValidatorFn;
+  }
+  set validator(validatorFn) {
+    this._rawValidators = this._composedValidatorFn = validatorFn;
+  }
+  /**
+   * Returns the function that is used to determine the validity of this control asynchronously.
+   * If multiple validators have been added, this will be a single composed function.
+   * See `Validators.compose()` for additional information.
+   */
+  get asyncValidator() {
+    return this._composedAsyncValidatorFn;
+  }
+  set asyncValidator(asyncValidatorFn) {
+    this._rawAsyncValidators = this._composedAsyncValidatorFn = asyncValidatorFn;
+  }
+  /**
+   * The parent control.
+   */
+  get parent() {
+    return this._parent;
+  }
+  /**
+   * The validation status of the control.
+   *
+   * @see {@link FormControlStatus}
+   *
+   * These status values are mutually exclusive, so a control cannot be
+   * both valid AND invalid or invalid AND disabled.
+   */
+  get status() {
+    return untracked2(this.statusReactive);
+  }
+  set status(v) {
+    untracked2(() => this.statusReactive.set(v));
+  }
+  /** @internal */
+  _status = computed(() => this.statusReactive());
+  statusReactive = signal(void 0);
+  /**
+   * A control is `valid` when its `status` is `VALID`.
+   *
+   * @see {@link AbstractControl.status}
+   *
+   * @returns True if the control has passed all of its validation tests,
+   * false otherwise.
+   */
+  get valid() {
+    return this.status === VALID;
+  }
+  /**
+   * A control is `invalid` when its `status` is `INVALID`.
+   *
+   * @see {@link AbstractControl.status}
+   *
+   * @returns True if this control has failed one or more of its validation checks,
+   * false otherwise.
+   */
+  get invalid() {
+    return this.status === INVALID;
+  }
+  /**
+   * A control is `pending` when its `status` is `PENDING`.
+   *
+   * @see {@link AbstractControl.status}
+   *
+   * @returns True if this control is in the process of conducting a validation check,
+   * false otherwise.
+   */
+  get pending() {
+    return this.status == PENDING;
+  }
+  /**
+   * A control is `disabled` when its `status` is `DISABLED`.
+   *
+   * Disabled controls are exempt from validation checks and
+   * are not included in the aggregate value of their ancestor
+   * controls.
+   *
+   * @see {@link AbstractControl.status}
+   *
+   * @returns True if the control is disabled, false otherwise.
+   */
+  get disabled() {
+    return this.status === DISABLED;
+  }
+  /**
+   * A control is `enabled` as long as its `status` is not `DISABLED`.
+   *
+   * @returns True if the control has any status other than 'DISABLED',
+   * false if the status is 'DISABLED'.
+   *
+   * @see {@link AbstractControl.status}
+   *
+   */
+  get enabled() {
+    return this.status !== DISABLED;
+  }
+  /**
+   * An object containing any errors generated by failing validation,
+   * or null if there are no errors.
+   */
+  errors;
+  /**
+   * A control is `pristine` if the user has not yet changed
+   * the value in the UI.
+   *
+   * @returns True if the user has not yet changed the value in the UI; compare `dirty`.
+   * Programmatic changes to a control's value do not mark it dirty.
+   */
+  get pristine() {
+    return untracked2(this.pristineReactive);
+  }
+  set pristine(v) {
+    untracked2(() => this.pristineReactive.set(v));
+  }
+  /** @internal */
+  _pristine = computed(() => this.pristineReactive());
+  pristineReactive = signal(true);
+  /**
+   * A control is `dirty` if the user has changed the value
+   * in the UI.
+   *
+   * @returns True if the user has changed the value of this control in the UI; compare `pristine`.
+   * Programmatic changes to a control's value do not mark it dirty.
+   */
+  get dirty() {
+    return !this.pristine;
+  }
+  /**
+   * True if the control is marked as `touched`.
+   *
+   * A control is marked `touched` once the user has triggered
+   * a `blur` event on it.
+   */
+  get touched() {
+    return untracked2(this.touchedReactive);
+  }
+  set touched(v) {
+    untracked2(() => this.touchedReactive.set(v));
+  }
+  /** @internal */
+  _touched = computed(() => this.touchedReactive());
+  touchedReactive = signal(false);
+  /**
+   * True if the control has not been marked as touched
+   *
+   * A control is `untouched` if the user has not yet triggered
+   * a `blur` event on it.
+   */
+  get untouched() {
+    return !this.touched;
+  }
+  /**
+   * Exposed as observable, see below.
+   *
+   * @internal
+   */
+  _events = new Subject();
+  /**
+   * A multicasting observable that emits an event every time the state of the control changes.
+   * It emits for value, status, pristine or touched changes.
+   *
+   * **Note**: On value change, the emit happens right after a value of this control is updated. The
+   * value of a parent control (for example if this FormControl is a part of a FormGroup) is updated
+   * later, so accessing a value of a parent control (using the `value` property) from the callback
+   * of this event might result in getting a value that has not been updated yet. Subscribe to the
+   * `events` of the parent control instead.
+   * For other event types, the events are emitted after the parent control has been updated.
+   *
+   */
+  events = this._events.asObservable();
+  /**
+   * A multicasting observable that emits an event every time the value of the control changes, in
+   * the UI or programmatically. It also emits an event each time you call enable() or disable()
+   * without passing along {emitEvent: false} as a function argument.
+   *
+   * **Note**: the emit happens right after a value of this control is updated. The value of a
+   * parent control (for example if this FormControl is a part of a FormGroup) is updated later, so
+   * accessing a value of a parent control (using the `value` property) from the callback of this
+   * event might result in getting a value that has not been updated yet. Subscribe to the
+   * `valueChanges` event of the parent control instead.
+   */
+  valueChanges;
+  /**
+   * A multicasting observable that emits an event every time the validation `status` of the control
+   * recalculates.
+   *
+   * @see {@link FormControlStatus}
+   * @see {@link AbstractControl.status}
+   */
+  statusChanges;
+  /**
+   * Reports the update strategy of the `AbstractControl` (meaning
+   * the event on which the control updates itself).
+   * Possible values: `'change'` | `'blur'` | `'submit'`
+   * Default value: `'change'`
+   */
+  get updateOn() {
+    return this._updateOn ? this._updateOn : this.parent ? this.parent.updateOn : "change";
+  }
+  /**
+   * Sets the synchronous validators that are active on this control.  Calling
+   * this overwrites any existing synchronous validators.
+   *
+   * When you add or remove a validator at run time, you must call
+   * `updateValueAndValidity()` for the new validation to take effect.
+   *
+   * If you want to add a new validator without affecting existing ones, consider
+   * using `addValidators()` method instead.
+   */
+  setValidators(validators) {
+    this._assignValidators(validators);
+  }
+  /**
+   * Sets the asynchronous validators that are active on this control. Calling this
+   * overwrites any existing asynchronous validators.
+   *
+   * When you add or remove a validator at run time, you must call
+   * `updateValueAndValidity()` for the new validation to take effect.
+   *
+   * If you want to add a new validator without affecting existing ones, consider
+   * using `addAsyncValidators()` method instead.
+   */
+  setAsyncValidators(validators) {
+    this._assignAsyncValidators(validators);
+  }
+  /**
+   * Add a synchronous validator or validators to this control, without affecting other validators.
+   *
+   * When you add or remove a validator at run time, you must call
+   * `updateValueAndValidity()` for the new validation to take effect.
+   *
+   * Adding a validator that already exists will have no effect. If duplicate validator functions
+   * are present in the `validators` array, only the first instance would be added to a form
+   * control.
+   *
+   * @param validators The new validator function or functions to add to this control.
+   */
+  addValidators(validators) {
+    this.setValidators(addValidators(validators, this._rawValidators));
+  }
+  /**
+   * Add an asynchronous validator or validators to this control, without affecting other
+   * validators.
+   *
+   * When you add or remove a validator at run time, you must call
+   * `updateValueAndValidity()` for the new validation to take effect.
+   *
+   * Adding a validator that already exists will have no effect.
+   *
+   * @param validators The new asynchronous validator function or functions to add to this control.
+   */
+  addAsyncValidators(validators) {
+    this.setAsyncValidators(addValidators(validators, this._rawAsyncValidators));
+  }
+  /**
+   * Remove a synchronous validator from this control, without affecting other validators.
+   * Validators are compared by function reference; you must pass a reference to the exact same
+   * validator function as the one that was originally set. If a provided validator is not found,
+   * it is ignored.
+   *
+   * @usageNotes
+   *
+   * ### Reference to a ValidatorFn
+   *
+   * ```
+   * // Reference to the RequiredValidator
+   * const ctrl = new FormControl<string | null>('', Validators.required);
+   * ctrl.removeValidators(Validators.required);
+   *
+   * // Reference to anonymous function inside MinValidator
+   * const minValidator = Validators.min(3);
+   * const ctrl = new FormControl<string | null>('', minValidator);
+   * expect(ctrl.hasValidator(minValidator)).toEqual(true)
+   * expect(ctrl.hasValidator(Validators.min(3))).toEqual(false)
+   *
+   * ctrl.removeValidators(minValidator);
+   * ```
+   *
+   * When you add or remove a validator at run time, you must call
+   * `updateValueAndValidity()` for the new validation to take effect.
+   *
+   * @param validators The validator or validators to remove.
+   */
+  removeValidators(validators) {
+    this.setValidators(removeValidators(validators, this._rawValidators));
+  }
+  /**
+   * Remove an asynchronous validator from this control, without affecting other validators.
+   * Validators are compared by function reference; you must pass a reference to the exact same
+   * validator function as the one that was originally set. If a provided validator is not found, it
+   * is ignored.
+   *
+   * When you add or remove a validator at run time, you must call
+   * `updateValueAndValidity()` for the new validation to take effect.
+   *
+   * @param validators The asynchronous validator or validators to remove.
+   */
+  removeAsyncValidators(validators) {
+    this.setAsyncValidators(removeValidators(validators, this._rawAsyncValidators));
+  }
+  /**
+   * Check whether a synchronous validator function is present on this control. The provided
+   * validator must be a reference to the exact same function that was provided.
+   *
+   * @usageNotes
+   *
+   * ### Reference to a ValidatorFn
+   *
+   * ```
+   * // Reference to the RequiredValidator
+   * const ctrl = new FormControl<number | null>(0, Validators.required);
+   * expect(ctrl.hasValidator(Validators.required)).toEqual(true)
+   *
+   * // Reference to anonymous function inside MinValidator
+   * const minValidator = Validators.min(3);
+   * const ctrl = new FormControl<number | null>(0, minValidator);
+   * expect(ctrl.hasValidator(minValidator)).toEqual(true)
+   * expect(ctrl.hasValidator(Validators.min(3))).toEqual(false)
+   * ```
+   *
+   * @param validator The validator to check for presence. Compared by function reference.
+   * @returns Whether the provided validator was found on this control.
+   */
+  hasValidator(validator) {
+    return hasValidator(this._rawValidators, validator);
+  }
+  /**
+   * Check whether an asynchronous validator function is present on this control. The provided
+   * validator must be a reference to the exact same function that was provided.
+   *
+   * @param validator The asynchronous validator to check for presence. Compared by function
+   *     reference.
+   * @returns Whether the provided asynchronous validator was found on this control.
+   */
+  hasAsyncValidator(validator) {
+    return hasValidator(this._rawAsyncValidators, validator);
+  }
+  /**
+   * Empties out the synchronous validator list.
+   *
+   * When you add or remove a validator at run time, you must call
+   * `updateValueAndValidity()` for the new validation to take effect.
+   *
+   */
+  clearValidators() {
+    this.validator = null;
+  }
+  /**
+   * Empties out the async validator list.
+   *
+   * When you add or remove a validator at run time, you must call
+   * `updateValueAndValidity()` for the new validation to take effect.
+   *
+   */
+  clearAsyncValidators() {
+    this.asyncValidator = null;
+  }
+  markAsTouched(opts = {}) {
+    const changed = this.touched === false;
+    this.touched = true;
+    const sourceControl = opts.sourceControl ?? this;
+    if (this._parent && !opts.onlySelf) {
+      this._parent.markAsTouched(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new TouchedChangeEvent(true, sourceControl));
+    }
+  }
+  /**
+   * Marks the control and all its descendant controls as `touched`.
+   * @see {@link markAsTouched()}
+   *
+   * @param opts Configuration options that determine how the control propagates changes
+   * and emits events after marking is applied.
+   * * `emitEvent`: When true or not supplied (the default), the `events`
+   * observable emits a `TouchedChangeEvent` with the `touched` property being `true`.
+   * When false, no events are emitted.
+   */
+  markAllAsTouched(opts = {}) {
+    this.markAsTouched({
+      onlySelf: true,
+      emitEvent: opts.emitEvent,
+      sourceControl: this
+    });
+    this._forEachChild((control) => control.markAllAsTouched(opts));
+  }
+  markAsUntouched(opts = {}) {
+    const changed = this.touched === true;
+    this.touched = false;
+    this._pendingTouched = false;
+    const sourceControl = opts.sourceControl ?? this;
+    this._forEachChild((control) => {
+      control.markAsUntouched({
+        onlySelf: true,
+        emitEvent: opts.emitEvent,
+        sourceControl
+      });
+    });
+    if (this._parent && !opts.onlySelf) {
+      this._parent._updateTouched(opts, sourceControl);
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new TouchedChangeEvent(false, sourceControl));
+    }
+  }
+  markAsDirty(opts = {}) {
+    const changed = this.pristine === true;
+    this.pristine = false;
+    const sourceControl = opts.sourceControl ?? this;
+    if (this._parent && !opts.onlySelf) {
+      this._parent.markAsDirty(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new PristineChangeEvent(false, sourceControl));
+    }
+  }
+  markAsPristine(opts = {}) {
+    const changed = this.pristine === false;
+    this.pristine = true;
+    this._pendingDirty = false;
+    const sourceControl = opts.sourceControl ?? this;
+    this._forEachChild((control) => {
+      control.markAsPristine({
+        onlySelf: true,
+        emitEvent: opts.emitEvent
+      });
+    });
+    if (this._parent && !opts.onlySelf) {
+      this._parent._updatePristine(opts, sourceControl);
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new PristineChangeEvent(true, sourceControl));
+    }
+  }
+  markAsPending(opts = {}) {
+    this.status = PENDING;
+    const sourceControl = opts.sourceControl ?? this;
+    if (opts.emitEvent !== false) {
+      this._events.next(new StatusChangeEvent(this.status, sourceControl));
+      this.statusChanges.emit(this.status);
+    }
+    if (this._parent && !opts.onlySelf) {
+      this._parent.markAsPending(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+  }
+  disable(opts = {}) {
+    const skipPristineCheck = this._parentMarkedDirty(opts.onlySelf);
+    this.status = DISABLED;
+    this.errors = null;
+    this._forEachChild((control) => {
+      control.disable(__spreadProps(__spreadValues({}, opts), {
+        onlySelf: true
+      }));
+    });
+    this._updateValue();
+    const sourceControl = opts.sourceControl ?? this;
+    if (opts.emitEvent !== false) {
+      this._events.next(new ValueChangeEvent(this.value, sourceControl));
+      this._events.next(new StatusChangeEvent(this.status, sourceControl));
+      this.valueChanges.emit(this.value);
+      this.statusChanges.emit(this.status);
+    }
+    this._updateAncestors(__spreadProps(__spreadValues({}, opts), {
+      skipPristineCheck
+    }), this);
+    this._onDisabledChange.forEach((changeFn) => changeFn(true));
+  }
+  /**
+   * Enables the control. This means the control is included in validation checks and
+   * the aggregate value of its parent. Its status recalculates based on its value and
+   * its validators.
+   *
+   * By default, if the control has children, all children are enabled.
+   *
+   * @see {@link AbstractControl.status}
+   *
+   * @param opts Configure options that control how the control propagates changes and
+   * emits events when marked as untouched
+   * * `onlySelf`: When true, mark only this control. When false or not supplied,
+   * marks all direct ancestors. Default is false.
+   * * `emitEvent`: When true or not supplied (the default), the `statusChanges`,
+   * `valueChanges` and `events`
+   * observables emit events with the latest status and value when the control is enabled.
+   * When false, no events are emitted.
+   */
+  enable(opts = {}) {
+    const skipPristineCheck = this._parentMarkedDirty(opts.onlySelf);
+    this.status = VALID;
+    this._forEachChild((control) => {
+      control.enable(__spreadProps(__spreadValues({}, opts), {
+        onlySelf: true
+      }));
+    });
+    this.updateValueAndValidity({
+      onlySelf: true,
+      emitEvent: opts.emitEvent
+    });
+    this._updateAncestors(__spreadProps(__spreadValues({}, opts), {
+      skipPristineCheck
+    }), this);
+    this._onDisabledChange.forEach((changeFn) => changeFn(false));
+  }
+  _updateAncestors(opts, sourceControl) {
+    if (this._parent && !opts.onlySelf) {
+      this._parent.updateValueAndValidity(opts);
+      if (!opts.skipPristineCheck) {
+        this._parent._updatePristine({}, sourceControl);
+      }
+      this._parent._updateTouched({}, sourceControl);
+    }
+  }
+  /**
+   * Sets the parent of the control
+   *
+   * @param parent The new parent.
+   */
+  setParent(parent) {
+    this._parent = parent;
+  }
+  /**
+   * The raw value of this control. For most control implementations, the raw value will include
+   * disabled children.
+   */
+  getRawValue() {
+    return this.value;
+  }
+  updateValueAndValidity(opts = {}) {
+    this._setInitialStatus();
+    this._updateValue();
+    if (this.enabled) {
+      const shouldHaveEmitted = this._cancelExistingSubscription();
+      this.errors = this._runValidator();
+      this.status = this._calculateStatus();
+      if (this.status === VALID || this.status === PENDING) {
+        this._runAsyncValidator(shouldHaveEmitted, opts.emitEvent);
+      }
+    }
+    const sourceControl = opts.sourceControl ?? this;
+    if (opts.emitEvent !== false) {
+      this._events.next(new ValueChangeEvent(this.value, sourceControl));
+      this._events.next(new StatusChangeEvent(this.status, sourceControl));
+      this.valueChanges.emit(this.value);
+      this.statusChanges.emit(this.status);
+    }
+    if (this._parent && !opts.onlySelf) {
+      this._parent.updateValueAndValidity(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+  }
+  /** @internal */
+  _updateTreeValidity(opts = {
+    emitEvent: true
+  }) {
+    this._forEachChild((ctrl) => ctrl._updateTreeValidity(opts));
+    this.updateValueAndValidity({
+      onlySelf: true,
+      emitEvent: opts.emitEvent
+    });
+  }
+  _setInitialStatus() {
+    this.status = this._allControlsDisabled() ? DISABLED : VALID;
+  }
+  _runValidator() {
+    return this.validator ? this.validator(this) : null;
+  }
+  _runAsyncValidator(shouldHaveEmitted, emitEvent) {
+    if (this.asyncValidator) {
+      this.status = PENDING;
+      this._hasOwnPendingAsyncValidator = {
+        emitEvent: emitEvent !== false
+      };
+      const obs = toObservable(this.asyncValidator(this));
+      this._asyncValidationSubscription = obs.subscribe((errors) => {
+        this._hasOwnPendingAsyncValidator = null;
+        this.setErrors(errors, {
+          emitEvent,
+          shouldHaveEmitted
+        });
+      });
+    }
+  }
+  _cancelExistingSubscription() {
+    if (this._asyncValidationSubscription) {
+      this._asyncValidationSubscription.unsubscribe();
+      const shouldHaveEmitted = this._hasOwnPendingAsyncValidator?.emitEvent ?? false;
+      this._hasOwnPendingAsyncValidator = null;
+      return shouldHaveEmitted;
+    }
+    return false;
+  }
+  setErrors(errors, opts = {}) {
+    this.errors = errors;
+    this._updateControlsErrors(opts.emitEvent !== false, this, opts.shouldHaveEmitted);
+  }
+  /**
+   * Retrieves a child control given the control's name or path.
+   *
+   * @param path A dot-delimited string or array of string/number values that define the path to the
+   * control. If a string is provided, passing it as a string literal will result in improved type
+   * information. Likewise, if an array is provided, passing it `as const` will cause improved type
+   * information to be available.
+   *
+   * @usageNotes
+   * ### Retrieve a nested control
+   *
+   * For example, to get a `name` control nested within a `person` sub-group:
+   *
+   * * `this.form.get('person.name');`
+   *
+   * -OR-
+   *
+   * * `this.form.get(['person', 'name'] as const);` // `as const` gives improved typings
+   *
+   * ### Retrieve a control in a FormArray
+   *
+   * When accessing an element inside a FormArray, you can use an element index.
+   * For example, to get a `price` control from the first element in an `items` array you can use:
+   *
+   * * `this.form.get('items.0.price');`
+   *
+   * -OR-
+   *
+   * * `this.form.get(['items', 0, 'price']);`
+   */
+  get(path) {
+    let currPath = path;
+    if (currPath == null) return null;
+    if (!Array.isArray(currPath)) currPath = currPath.split(".");
+    if (currPath.length === 0) return null;
+    return currPath.reduce((control, name) => control && control._find(name), this);
+  }
+  /**
+   * @description
+   * Reports error data for the control with the given path.
+   *
+   * @param errorCode The code of the error to check
+   * @param path A list of control names that designates how to move from the current control
+   * to the control that should be queried for errors.
+   *
+   * @usageNotes
+   * For example, for the following `FormGroup`:
+   *
+   * ```ts
+   * form = new FormGroup({
+   *   address: new FormGroup({ street: new FormControl() })
+   * });
+   * ```
+   *
+   * The path to the 'street' control from the root form would be 'address' -> 'street'.
+   *
+   * It can be provided to this method in one of two formats:
+   *
+   * 1. An array of string control names, e.g. `['address', 'street']`
+   * 1. A period-delimited list of control names in one string, e.g. `'address.street'`
+   *
+   * @returns error data for that particular error. If the control or error is not present,
+   * null is returned.
+   */
+  getError(errorCode, path) {
+    const control = path ? this.get(path) : this;
+    return control && control.errors ? control.errors[errorCode] : null;
+  }
+  /**
+   * @description
+   * Reports whether the control with the given path has the error specified.
+   *
+   * @param errorCode The code of the error to check
+   * @param path A list of control names that designates how to move from the current control
+   * to the control that should be queried for errors.
+   *
+   * @usageNotes
+   * For example, for the following `FormGroup`:
+   *
+   * ```ts
+   * form = new FormGroup({
+   *   address: new FormGroup({ street: new FormControl() })
+   * });
+   * ```
+   *
+   * The path to the 'street' control from the root form would be 'address' -> 'street'.
+   *
+   * It can be provided to this method in one of two formats:
+   *
+   * 1. An array of string control names, e.g. `['address', 'street']`
+   * 1. A period-delimited list of control names in one string, e.g. `'address.street'`
+   *
+   * If no path is given, this method checks for the error on the current control.
+   *
+   * @returns whether the given error is present in the control at the given path.
+   *
+   * If the control is not present, false is returned.
+   */
+  hasError(errorCode, path) {
+    return !!this.getError(errorCode, path);
+  }
+  /**
+   * Retrieves the top-level ancestor of this control.
+   */
+  get root() {
+    let x = this;
+    while (x._parent) {
+      x = x._parent;
+    }
+    return x;
+  }
+  /** @internal */
+  _updateControlsErrors(emitEvent, changedControl, shouldHaveEmitted) {
+    this.status = this._calculateStatus();
+    if (emitEvent) {
+      this.statusChanges.emit(this.status);
+    }
+    if (emitEvent || shouldHaveEmitted) {
+      this._events.next(new StatusChangeEvent(this.status, changedControl));
+    }
+    if (this._parent) {
+      this._parent._updateControlsErrors(emitEvent, changedControl, shouldHaveEmitted);
+    }
+  }
+  /** @internal */
+  _initObservables() {
+    this.valueChanges = new EventEmitter();
+    this.statusChanges = new EventEmitter();
+  }
+  _calculateStatus() {
+    if (this._allControlsDisabled()) return DISABLED;
+    if (this.errors) return INVALID;
+    if (this._hasOwnPendingAsyncValidator || this._anyControlsHaveStatus(PENDING)) return PENDING;
+    if (this._anyControlsHaveStatus(INVALID)) return INVALID;
+    return VALID;
+  }
+  /** @internal */
+  _anyControlsHaveStatus(status) {
+    return this._anyControls((control) => control.status === status);
+  }
+  /** @internal */
+  _anyControlsDirty() {
+    return this._anyControls((control) => control.dirty);
+  }
+  /** @internal */
+  _anyControlsTouched() {
+    return this._anyControls((control) => control.touched);
+  }
+  /** @internal */
+  _updatePristine(opts, changedControl) {
+    const newPristine = !this._anyControlsDirty();
+    const changed = this.pristine !== newPristine;
+    this.pristine = newPristine;
+    if (this._parent && !opts.onlySelf) {
+      this._parent._updatePristine(opts, changedControl);
+    }
+    if (changed) {
+      this._events.next(new PristineChangeEvent(this.pristine, changedControl));
+    }
+  }
+  /** @internal */
+  _updateTouched(opts = {}, changedControl) {
+    this.touched = this._anyControlsTouched();
+    this._events.next(new TouchedChangeEvent(this.touched, changedControl));
+    if (this._parent && !opts.onlySelf) {
+      this._parent._updateTouched(opts, changedControl);
+    }
+  }
+  /** @internal */
+  _onDisabledChange = [];
+  /** @internal */
+  _registerOnCollectionChange(fn) {
+    this._onCollectionChange = fn;
+  }
+  /** @internal */
+  _setUpdateStrategy(opts) {
+    if (isOptionsObj(opts) && opts.updateOn != null) {
+      this._updateOn = opts.updateOn;
+    }
+  }
+  /**
+   * Check to see if parent has been marked artificially dirty.
+   *
+   * @internal
+   */
+  _parentMarkedDirty(onlySelf) {
+    const parentDirty = this._parent && this._parent.dirty;
+    return !onlySelf && !!parentDirty && !this._parent._anyControlsDirty();
+  }
+  /** @internal */
+  _find(name) {
+    return null;
+  }
+  /**
+   * Internal implementation of the `setValidators` method. Needs to be separated out into a
+   * different method, because it is called in the constructor and it can break cases where
+   * a control is extended.
+   */
+  _assignValidators(validators) {
+    this._rawValidators = Array.isArray(validators) ? validators.slice() : validators;
+    this._composedValidatorFn = coerceToValidator(this._rawValidators);
+  }
+  /**
+   * Internal implementation of the `setAsyncValidators` method. Needs to be separated out into a
+   * different method, because it is called in the constructor and it can break cases where
+   * a control is extended.
+   */
+  _assignAsyncValidators(validators) {
+    this._rawAsyncValidators = Array.isArray(validators) ? validators.slice() : validators;
+    this._composedAsyncValidatorFn = coerceToAsyncValidator(this._rawAsyncValidators);
+  }
+};
+var FormGroup = class extends AbstractControl {
+  /**
+   * Creates a new `FormGroup` instance.
+   *
+   * @param controls A collection of child controls. The key for each child is the name
+   * under which it is registered.
+   *
+   * @param validatorOrOpts A synchronous validator function, or an array of
+   * such functions, or an `AbstractControlOptions` object that contains validation functions
+   * and a validation trigger.
+   *
+   * @param asyncValidator A single async validator or array of async validator functions
+   *
+   */
+  constructor(controls, validatorOrOpts, asyncValidator) {
+    super(pickValidators(validatorOrOpts), pickAsyncValidators(asyncValidator, validatorOrOpts));
+    (typeof ngDevMode === "undefined" || ngDevMode) && validateFormGroupControls(controls);
+    this.controls = controls;
+    this._initObservables();
+    this._setUpdateStrategy(validatorOrOpts);
+    this._setUpControls();
+    this.updateValueAndValidity({
+      onlySelf: true,
+      // If `asyncValidator` is present, it will trigger control status change from `PENDING` to
+      // `VALID` or `INVALID`. The status should be broadcasted via the `statusChanges` observable,
+      // so we set `emitEvent` to `true` to allow that during the control creation process.
+      emitEvent: !!this.asyncValidator
+    });
+  }
+  controls;
+  registerControl(name, control) {
+    if (this.controls[name]) return this.controls[name];
+    this.controls[name] = control;
+    control.setParent(this);
+    control._registerOnCollectionChange(this._onCollectionChange);
+    return control;
+  }
+  addControl(name, control, options = {}) {
+    this.registerControl(name, control);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  /**
+   * Remove a control from this group. In a strongly-typed group, required controls cannot be
+   * removed.
+   *
+   * This method also updates the value and validity of the control.
+   *
+   * @param name The control name to remove from the collection
+   * @param options Specifies whether this FormGroup instance should emit events after a
+   *     control is removed.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges` observables emit events with the latest status and value when the control is
+   * removed. When false, no events are emitted.
+   */
+  removeControl(name, options = {}) {
+    if (this.controls[name]) this.controls[name]._registerOnCollectionChange(() => {
+    });
+    delete this.controls[name];
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  setControl(name, control, options = {}) {
+    if (this.controls[name]) this.controls[name]._registerOnCollectionChange(() => {
+    });
+    delete this.controls[name];
+    if (control) this.registerControl(name, control);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  contains(controlName) {
+    return this.controls.hasOwnProperty(controlName) && this.controls[controlName].enabled;
+  }
+  /**
+   * Sets the value of the `FormGroup`. It accepts an object that matches
+   * the structure of the group, with control names as keys.
+   *
+   * @usageNotes
+   * ### Set the complete value for the form group
+   *
+   * ```ts
+   * const form = new FormGroup({
+   *   first: new FormControl(),
+   *   last: new FormControl()
+   * });
+   *
+   * console.log(form.value);   // {first: null, last: null}
+   *
+   * form.setValue({first: 'Nancy', last: 'Drew'});
+   * console.log(form.value);   // {first: 'Nancy', last: 'Drew'}
+   * ```
+   *
+   * @throws When strict checks fail, such as setting the value of a control
+   * that doesn't exist or if you exclude a value of a control that does exist.
+   *
+   * @param value The new value for the control that matches the structure of the group.
+   * @param options Configuration options that determine how the control propagates changes
+   * and emits events after the value changes.
+   * The configuration options are passed to the {@link AbstractControl#updateValueAndValidity
+   * updateValueAndValidity} method.
+   *
+   * * `onlySelf`: When true, each change only affects this control, and not its parent. Default is
+   * false.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges`
+   * observables emit events with the latest status and value when the control value is updated.
+   * When false, no events are emitted.
+   */
+  setValue(value, options = {}) {
+    assertAllValuesPresent(this, true, value);
+    Object.keys(value).forEach((name) => {
+      assertControlPresent(this, true, name);
+      this.controls[name].setValue(value[name], {
+        onlySelf: true,
+        emitEvent: options.emitEvent
+      });
+    });
+    this.updateValueAndValidity(options);
+  }
+  /**
+   * Patches the value of the `FormGroup`. It accepts an object with control
+   * names as keys, and does its best to match the values to the correct controls
+   * in the group.
+   *
+   * It accepts both super-sets and sub-sets of the group without throwing an error.
+   *
+   * @usageNotes
+   * ### Patch the value for a form group
+   *
+   * ```ts
+   * const form = new FormGroup({
+   *    first: new FormControl(),
+   *    last: new FormControl()
+   * });
+   * console.log(form.value);   // {first: null, last: null}
+   *
+   * form.patchValue({first: 'Nancy'});
+   * console.log(form.value);   // {first: 'Nancy', last: null}
+   * ```
+   *
+   * @param value The object that matches the structure of the group.
+   * @param options Configuration options that determine how the control propagates changes and
+   * emits events after the value is patched.
+   * * `onlySelf`: When true, each change only affects this control and not its parent. Default is
+   * true.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges` observables emit events with the latest status and value when the control value
+   * is updated. When false, no events are emitted. The configuration options are passed to
+   * the {@link AbstractControl#updateValueAndValidity updateValueAndValidity} method.
+   */
+  patchValue(value, options = {}) {
+    if (value == null) return;
+    Object.keys(value).forEach((name) => {
+      const control = this.controls[name];
+      if (control) {
+        control.patchValue(
+          /* Guaranteed to be present, due to the outer forEach. */
+          value[name],
+          {
+            onlySelf: true,
+            emitEvent: options.emitEvent
+          }
+        );
+      }
+    });
+    this.updateValueAndValidity(options);
+  }
+  /**
+   * Resets the `FormGroup`, marks all descendants `pristine` and `untouched` and sets
+   * the value of all descendants to their default values, or null if no defaults were provided.
+   *
+   * You reset to a specific form state by passing in a map of states
+   * that matches the structure of your form, with control names as keys. The state
+   * is a standalone value or a form state object with both a value and a disabled
+   * status.
+   *
+   * @param value Resets the control with an initial value,
+   * or an object that defines the initial value and disabled state.
+   *
+   * @param options Configuration options that determine how the control propagates changes
+   * and emits events when the group is reset.
+   * * `onlySelf`: When true, each change only affects this control, and not its parent. Default is
+   * false.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges`
+   * observables emit events with the latest status and value when the control is reset.
+   * When false, no events are emitted.
+   * The configuration options are passed to the {@link AbstractControl#updateValueAndValidity
+   * updateValueAndValidity} method.
+   *
+   * @usageNotes
+   *
+   * ### Reset the form group values
+   *
+   * ```ts
+   * const form = new FormGroup({
+   *   first: new FormControl('first name'),
+   *   last: new FormControl('last name')
+   * });
+   *
+   * console.log(form.value);  // {first: 'first name', last: 'last name'}
+   *
+   * form.reset({ first: 'name', last: 'last name' });
+   *
+   * console.log(form.value);  // {first: 'name', last: 'last name'}
+   * ```
+   *
+   * ### Reset the form group values and disabled status
+   *
+   * ```ts
+   * const form = new FormGroup({
+   *   first: new FormControl('first name'),
+   *   last: new FormControl('last name')
+   * });
+   *
+   * form.reset({
+   *   first: {value: 'name', disabled: true},
+   *   last: 'last'
+   * });
+   *
+   * console.log(form.value);  // {last: 'last'}
+   * console.log(form.get('first').status);  // 'DISABLED'
+   * ```
+   */
+  reset(value = {}, options = {}) {
+    this._forEachChild((control, name) => {
+      control.reset(value ? value[name] : null, {
+        onlySelf: true,
+        emitEvent: options.emitEvent
+      });
+    });
+    this._updatePristine(options, this);
+    this._updateTouched(options, this);
+    this.updateValueAndValidity(options);
+  }
+  /**
+   * The aggregate value of the `FormGroup`, including any disabled controls.
+   *
+   * Retrieves all values regardless of disabled status.
+   */
+  getRawValue() {
+    return this._reduceChildren({}, (acc, control, name) => {
+      acc[name] = control.getRawValue();
+      return acc;
+    });
+  }
+  /** @internal */
+  _syncPendingControls() {
+    let subtreeUpdated = this._reduceChildren(false, (updated, child) => {
+      return child._syncPendingControls() ? true : updated;
+    });
+    if (subtreeUpdated) this.updateValueAndValidity({
+      onlySelf: true
+    });
+    return subtreeUpdated;
+  }
+  /** @internal */
+  _forEachChild(cb) {
+    Object.keys(this.controls).forEach((key) => {
+      const control = this.controls[key];
+      control && cb(control, key);
+    });
+  }
+  /** @internal */
+  _setUpControls() {
+    this._forEachChild((control) => {
+      control.setParent(this);
+      control._registerOnCollectionChange(this._onCollectionChange);
+    });
+  }
+  /** @internal */
+  _updateValue() {
+    this.value = this._reduceValue();
+  }
+  /** @internal */
+  _anyControls(condition) {
+    for (const [controlName, control] of Object.entries(this.controls)) {
+      if (this.contains(controlName) && condition(control)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  /** @internal */
+  _reduceValue() {
+    let acc = {};
+    return this._reduceChildren(acc, (acc2, control, name) => {
+      if (control.enabled || this.disabled) {
+        acc2[name] = control.value;
+      }
+      return acc2;
+    });
+  }
+  /** @internal */
+  _reduceChildren(initValue, fn) {
+    let res = initValue;
+    this._forEachChild((control, name) => {
+      res = fn(res, control, name);
+    });
+    return res;
+  }
+  /** @internal */
+  _allControlsDisabled() {
+    for (const controlName of Object.keys(this.controls)) {
+      if (this.controls[controlName].enabled) {
+        return false;
+      }
+    }
+    return Object.keys(this.controls).length > 0 || this.disabled;
+  }
+  /** @internal */
+  _find(name) {
+    return this.controls.hasOwnProperty(name) ? this.controls[name] : null;
+  }
+};
+function validateFormGroupControls(controls) {
+  const invalidKeys = Object.keys(controls).filter((key) => key.includes("."));
+  if (invalidKeys.length > 0) {
+    console.warn(`FormGroup keys cannot include \`.\`, please replace the keys for: ${invalidKeys.join(",")}.`);
+  }
+}
+var FormRecord = class extends FormGroup {
+};
+var CALL_SET_DISABLED_STATE = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "CallSetDisabledState" : "", {
+  providedIn: "root",
+  factory: () => setDisabledStateDefault
+});
+var setDisabledStateDefault = "always";
+function controlPath(name, parent) {
+  return [...parent.path, name];
+}
+function setUpControl(control, dir, callSetDisabledState = setDisabledStateDefault) {
+  if (typeof ngDevMode === "undefined" || ngDevMode) {
+    if (!control) _throwError(dir, "Cannot find control with");
+    if (!dir.valueAccessor) _throwMissingValueAccessorError(dir);
+  }
+  setUpValidators(control, dir);
+  dir.valueAccessor.writeValue(control.value);
+  if (control.disabled || callSetDisabledState === "always") {
+    dir.valueAccessor.setDisabledState?.(control.disabled);
+  }
+  setUpViewChangePipeline(control, dir);
+  setUpModelChangePipeline(control, dir);
+  setUpBlurPipeline(control, dir);
+  setUpDisabledChangeHandler(control, dir);
+}
+function cleanUpControl(control, dir, validateControlPresenceOnChange = true) {
+  const noop3 = () => {
+    if (validateControlPresenceOnChange && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      _noControlError(dir);
+    }
+  };
+  if (dir.valueAccessor) {
+    dir.valueAccessor.registerOnChange(noop3);
+    dir.valueAccessor.registerOnTouched(noop3);
+  }
+  cleanUpValidators(control, dir);
+  if (control) {
+    dir._invokeOnDestroyCallbacks();
+    control._registerOnCollectionChange(() => {
+    });
+  }
+}
+function registerOnValidatorChange(validators, onChange) {
+  validators.forEach((validator) => {
+    if (validator.registerOnValidatorChange) validator.registerOnValidatorChange(onChange);
+  });
+}
+function setUpDisabledChangeHandler(control, dir) {
+  if (dir.valueAccessor.setDisabledState) {
+    const onDisabledChange = (isDisabled) => {
+      dir.valueAccessor.setDisabledState(isDisabled);
+    };
+    control.registerOnDisabledChange(onDisabledChange);
+    dir._registerOnDestroy(() => {
+      control._unregisterOnDisabledChange(onDisabledChange);
+    });
+  }
+}
+function setUpValidators(control, dir) {
+  const validators = getControlValidators(control);
+  if (dir.validator !== null) {
+    control.setValidators(mergeValidators(validators, dir.validator));
+  } else if (typeof validators === "function") {
+    control.setValidators([validators]);
+  }
+  const asyncValidators = getControlAsyncValidators(control);
+  if (dir.asyncValidator !== null) {
+    control.setAsyncValidators(mergeValidators(asyncValidators, dir.asyncValidator));
+  } else if (typeof asyncValidators === "function") {
+    control.setAsyncValidators([asyncValidators]);
+  }
+  const onValidatorChange = () => control.updateValueAndValidity();
+  registerOnValidatorChange(dir._rawValidators, onValidatorChange);
+  registerOnValidatorChange(dir._rawAsyncValidators, onValidatorChange);
+}
+function cleanUpValidators(control, dir) {
+  let isControlUpdated = false;
+  if (control !== null) {
+    if (dir.validator !== null) {
+      const validators = getControlValidators(control);
+      if (Array.isArray(validators) && validators.length > 0) {
+        const updatedValidators = validators.filter((validator) => validator !== dir.validator);
+        if (updatedValidators.length !== validators.length) {
+          isControlUpdated = true;
+          control.setValidators(updatedValidators);
+        }
+      }
+    }
+    if (dir.asyncValidator !== null) {
+      const asyncValidators = getControlAsyncValidators(control);
+      if (Array.isArray(asyncValidators) && asyncValidators.length > 0) {
+        const updatedAsyncValidators = asyncValidators.filter((asyncValidator) => asyncValidator !== dir.asyncValidator);
+        if (updatedAsyncValidators.length !== asyncValidators.length) {
+          isControlUpdated = true;
+          control.setAsyncValidators(updatedAsyncValidators);
+        }
+      }
+    }
+  }
+  const noop3 = () => {
+  };
+  registerOnValidatorChange(dir._rawValidators, noop3);
+  registerOnValidatorChange(dir._rawAsyncValidators, noop3);
+  return isControlUpdated;
+}
+function setUpViewChangePipeline(control, dir) {
+  dir.valueAccessor.registerOnChange((newValue) => {
+    control._pendingValue = newValue;
+    control._pendingChange = true;
+    control._pendingDirty = true;
+    if (control.updateOn === "change") updateControl(control, dir);
+  });
+}
+function setUpBlurPipeline(control, dir) {
+  dir.valueAccessor.registerOnTouched(() => {
+    control._pendingTouched = true;
+    if (control.updateOn === "blur" && control._pendingChange) updateControl(control, dir);
+    if (control.updateOn !== "submit") control.markAsTouched();
+  });
+}
+function updateControl(control, dir) {
+  if (control._pendingDirty) control.markAsDirty();
+  control.setValue(control._pendingValue, {
+    emitModelToViewChange: false
+  });
+  dir.viewToModelUpdate(control._pendingValue);
+  control._pendingChange = false;
+}
+function setUpModelChangePipeline(control, dir) {
+  const onChange = (newValue, emitModelEvent) => {
+    dir.valueAccessor.writeValue(newValue);
+    if (emitModelEvent) dir.viewToModelUpdate(newValue);
+  };
+  control.registerOnChange(onChange);
+  dir._registerOnDestroy(() => {
+    control._unregisterOnChange(onChange);
+  });
+}
+function setUpFormContainer(control, dir) {
+  if (control == null && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "Cannot find control with");
+  setUpValidators(control, dir);
+}
+function cleanUpFormContainer(control, dir) {
+  return cleanUpValidators(control, dir);
+}
+function _noControlError(dir) {
+  return _throwError(dir, "There is no FormControl instance attached to form control element with");
+}
+function _throwError(dir, message) {
+  const messageEnd = _describeControlLocation(dir);
+  throw new Error(`${message} ${messageEnd}`);
+}
+function _describeControlLocation(dir) {
+  const path = dir.path;
+  if (path && path.length > 1) return `path: '${path.join(" -> ")}'`;
+  if (path?.[0]) return `name: '${path}'`;
+  return "unspecified name attribute";
+}
+function _throwMissingValueAccessorError(dir) {
+  const loc = _describeControlLocation(dir);
+  throw new RuntimeError(-1203, `No value accessor for form control ${loc}.`);
+}
+function _throwInvalidValueAccessorError(dir) {
+  const loc = _describeControlLocation(dir);
+  throw new RuntimeError(1200, `Value accessor was not provided as an array for form control with ${loc}. Check that the \`NG_VALUE_ACCESSOR\` token is configured as a \`multi: true\` provider.`);
+}
+function isPropertyUpdated(changes, viewModel) {
+  if (!changes.hasOwnProperty("model")) return false;
+  const change = changes["model"];
+  if (change.isFirstChange()) return true;
+  return !Object.is(viewModel, change.currentValue);
+}
+function isBuiltInAccessor(valueAccessor) {
+  return Object.getPrototypeOf(valueAccessor.constructor) === BuiltInControlValueAccessor;
+}
+function syncPendingControls(form, directives) {
+  form._syncPendingControls();
+  directives.forEach((dir) => {
+    const control = dir.control;
+    if (control.updateOn === "submit" && control._pendingChange) {
+      dir.viewToModelUpdate(control._pendingValue);
+      control._pendingChange = false;
+    }
+  });
+}
+function selectValueAccessor(dir, valueAccessors) {
+  if (!valueAccessors) return null;
+  if (!Array.isArray(valueAccessors) && (typeof ngDevMode === "undefined" || ngDevMode)) _throwInvalidValueAccessorError(dir);
+  let defaultAccessor = void 0;
+  let builtinAccessor = void 0;
+  let customAccessor = void 0;
+  valueAccessors.forEach((v) => {
+    if (v.constructor === DefaultValueAccessor) {
+      defaultAccessor = v;
+    } else if (isBuiltInAccessor(v)) {
+      if (builtinAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one built-in value accessor matches form control with");
+      builtinAccessor = v;
+    } else {
+      if (customAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one custom value accessor matches form control with");
+      customAccessor = v;
+    }
+  });
+  if (customAccessor) return customAccessor;
+  if (builtinAccessor) return builtinAccessor;
+  if (defaultAccessor) return defaultAccessor;
+  if (typeof ngDevMode === "undefined" || ngDevMode) {
+    _throwError(dir, "No valid value accessor for form control with");
+  }
+  return null;
+}
+function removeListItem$1(list, el) {
+  const index = list.indexOf(el);
+  if (index > -1) list.splice(index, 1);
+}
+function _ngModelWarning(name, type, instance, warningConfig) {
+  if (warningConfig === "never") return;
+  if ((warningConfig === null || warningConfig === "once") && !type._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
+    console.warn(ngModelWarning(name));
+    type._ngModelWarningSentOnce = true;
+    instance._ngModelWarningSent = true;
+  }
+}
+var formDirectiveProvider$1 = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => NgForm)
+};
+var resolvedPromise$1 = (() => Promise.resolve())();
+var NgForm = class _NgForm extends ControlContainer {
+  callSetDisabledState;
+  /**
+   * @description
+   * Returns whether the form submission has been triggered.
+   */
+  get submitted() {
+    return untracked2(this.submittedReactive);
+  }
+  /** @internal */
+  _submitted = computed(() => this.submittedReactive());
+  submittedReactive = signal(false);
+  _directives = /* @__PURE__ */ new Set();
+  /**
+   * @description
+   * The `FormGroup` instance created for this form.
+   */
+  form;
+  /**
+   * @description
+   * Event emitter for the "ngSubmit" event
+   */
+  ngSubmit = new EventEmitter();
+  /**
+   * @description
+   * Tracks options for the `NgForm` instance.
+   *
+   * **updateOn**: Sets the default `updateOn` value for all child `NgModels` below it
+   * unless explicitly set by a child `NgModel` using `ngModelOptions`). Defaults to 'change'.
+   * Possible values: `'change'` | `'blur'` | `'submit'`.
+   *
+   */
+  options;
+  constructor(validators, asyncValidators, callSetDisabledState) {
+    super();
+    this.callSetDisabledState = callSetDisabledState;
+    this.form = new FormGroup({}, composeValidators(validators), composeAsyncValidators(asyncValidators));
+  }
+  /** @docs-private */
+  ngAfterViewInit() {
+    this._setUpdateStrategy();
+  }
+  /**
+   * @description
+   * The directive instance.
+   */
+  get formDirective() {
+    return this;
+  }
+  /**
+   * @description
+   * The internal `FormGroup` instance.
+   */
+  get control() {
+    return this.form;
+  }
+  /**
+   * @description
+   * Returns an array representing the path to this group. Because this directive
+   * always lives at the top level of a form, it is always an empty array.
+   */
+  get path() {
+    return [];
+  }
+  /**
+   * @description
+   * Returns a map of the controls in this group.
+   */
+  get controls() {
+    return this.form.controls;
+  }
+  /**
+   * @description
+   * Method that sets up the control directive in this group, re-calculates its value
+   * and validity, and adds the instance to the internal list of directives.
+   *
+   * @param dir The `NgModel` directive instance.
+   */
+  addControl(dir) {
+    resolvedPromise$1.then(() => {
+      const container = this._findContainer(dir.path);
+      dir.control = container.registerControl(dir.name, dir.control);
+      setUpControl(dir.control, dir, this.callSetDisabledState);
+      dir.control.updateValueAndValidity({
+        emitEvent: false
+      });
+      this._directives.add(dir);
+    });
+  }
+  /**
+   * @description
+   * Retrieves the `FormControl` instance from the provided `NgModel` directive.
+   *
+   * @param dir The `NgModel` directive instance.
+   */
+  getControl(dir) {
+    return this.form.get(dir.path);
+  }
+  /**
+   * @description
+   * Removes the `NgModel` instance from the internal list of directives
+   *
+   * @param dir The `NgModel` directive instance.
+   */
+  removeControl(dir) {
+    resolvedPromise$1.then(() => {
+      const container = this._findContainer(dir.path);
+      if (container) {
+        container.removeControl(dir.name);
+      }
+      this._directives.delete(dir);
+    });
+  }
+  /**
+   * @description
+   * Adds a new `NgModelGroup` directive instance to the form.
+   *
+   * @param dir The `NgModelGroup` directive instance.
+   */
+  addFormGroup(dir) {
+    resolvedPromise$1.then(() => {
+      const container = this._findContainer(dir.path);
+      const group = new FormGroup({});
+      setUpFormContainer(group, dir);
+      container.registerControl(dir.name, group);
+      group.updateValueAndValidity({
+        emitEvent: false
+      });
+    });
+  }
+  /**
+   * @description
+   * Removes the `NgModelGroup` directive instance from the form.
+   *
+   * @param dir The `NgModelGroup` directive instance.
+   */
+  removeFormGroup(dir) {
+    resolvedPromise$1.then(() => {
+      const container = this._findContainer(dir.path);
+      if (container) {
+        container.removeControl(dir.name);
+      }
+    });
+  }
+  /**
+   * @description
+   * Retrieves the `FormGroup` for a provided `NgModelGroup` directive instance
+   *
+   * @param dir The `NgModelGroup` directive instance.
+   */
+  getFormGroup(dir) {
+    return this.form.get(dir.path);
+  }
+  /**
+   * Sets the new value for the provided `NgControl` directive.
+   *
+   * @param dir The `NgControl` directive instance.
+   * @param value The new value for the directive's control.
+   */
+  updateModel(dir, value) {
+    resolvedPromise$1.then(() => {
+      const ctrl = this.form.get(dir.path);
+      ctrl.setValue(value);
+    });
+  }
+  /**
+   * @description
+   * Sets the value for this `FormGroup`.
+   *
+   * @param value The new value
+   */
+  setValue(value) {
+    this.control.setValue(value);
+  }
+  /**
+   * @description
+   * Method called when the "submit" event is triggered on the form.
+   * Triggers the `ngSubmit` emitter to emit the "submit" event as its payload.
+   *
+   * @param $event The "submit" event object
+   */
+  onSubmit($event) {
+    this.submittedReactive.set(true);
+    syncPendingControls(this.form, this._directives);
+    this.ngSubmit.emit($event);
+    this.form._events.next(new FormSubmittedEvent(this.control));
+    return $event?.target?.method === "dialog";
+  }
+  /**
+   * @description
+   * Method called when the "reset" event is triggered on the form.
+   */
+  onReset() {
+    this.resetForm();
+  }
+  /**
+   * @description
+   * Resets the form to an initial value and resets its submitted status.
+   *
+   * @param value The new value for the form.
+   */
+  resetForm(value = void 0) {
+    this.form.reset(value);
+    this.submittedReactive.set(false);
+    this.form._events.next(new FormResetEvent(this.form));
+  }
+  _setUpdateStrategy() {
+    if (this.options && this.options.updateOn != null) {
+      this.form._updateOn = this.options.updateOn;
+    }
+  }
+  _findContainer(path) {
+    path.pop();
+    return path.length ? this.form.get(path) : this.form;
+  }
+  static \u0275fac = function NgForm_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgForm)(\u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgForm,
+    selectors: [["form", 3, "ngNoForm", "", 3, "formGroup", ""], ["ng-form"], ["", "ngForm", ""]],
+    hostBindings: function NgForm_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("submit", function NgForm_submit_HostBindingHandler($event) {
+          return ctx.onSubmit($event);
+        })("reset", function NgForm_reset_HostBindingHandler() {
+          return ctx.onReset();
+        });
+      }
+    },
+    inputs: {
+      options: [0, "ngFormOptions", "options"]
+    },
+    outputs: {
+      ngSubmit: "ngSubmit"
+    },
+    exportAs: ["ngForm"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formDirectiveProvider$1]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgForm, [{
+    type: Directive,
+    args: [{
+      selector: "form:not([ngNoForm]):not([formGroup]),ng-form,[ngForm]",
+      providers: [formDirectiveProvider$1],
+      host: {
+        "(submit)": "onSubmit($event)",
+        "(reset)": "onReset()"
+      },
+      outputs: ["ngSubmit"],
+      exportAs: "ngForm",
+      standalone: false
+    }]
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [CALL_SET_DISABLED_STATE]
+    }]
+  }], {
+    options: [{
+      type: Input,
+      args: ["ngFormOptions"]
+    }]
+  });
+})();
+function removeListItem(list, el) {
+  const index = list.indexOf(el);
+  if (index > -1) list.splice(index, 1);
+}
+function isFormControlState(formState) {
+  return typeof formState === "object" && formState !== null && Object.keys(formState).length === 2 && "value" in formState && "disabled" in formState;
+}
+var FormControl = class FormControl2 extends AbstractControl {
+  /** @publicApi */
+  defaultValue = null;
+  /** @internal */
+  _onChange = [];
+  /** @internal */
+  _pendingValue;
+  /** @internal */
+  _pendingChange = false;
+  constructor(formState = null, validatorOrOpts, asyncValidator) {
+    super(pickValidators(validatorOrOpts), pickAsyncValidators(asyncValidator, validatorOrOpts));
+    this._applyFormState(formState);
+    this._setUpdateStrategy(validatorOrOpts);
+    this._initObservables();
+    this.updateValueAndValidity({
+      onlySelf: true,
+      // If `asyncValidator` is present, it will trigger control status change from `PENDING` to
+      // `VALID` or `INVALID`.
+      // The status should be broadcasted via the `statusChanges` observable, so we set
+      // `emitEvent` to `true` to allow that during the control creation process.
+      emitEvent: !!this.asyncValidator
+    });
+    if (isOptionsObj(validatorOrOpts) && (validatorOrOpts.nonNullable || validatorOrOpts.initialValueIsDefault)) {
+      if (isFormControlState(formState)) {
+        this.defaultValue = formState.value;
+      } else {
+        this.defaultValue = formState;
+      }
+    }
+  }
+  setValue(value, options = {}) {
+    this.value = this._pendingValue = value;
+    if (this._onChange.length && options.emitModelToViewChange !== false) {
+      this._onChange.forEach((changeFn) => changeFn(this.value, options.emitViewToModelChange !== false));
+    }
+    this.updateValueAndValidity(options);
+  }
+  patchValue(value, options = {}) {
+    this.setValue(value, options);
+  }
+  reset(formState = this.defaultValue, options = {}) {
+    this._applyFormState(formState);
+    this.markAsPristine(options);
+    this.markAsUntouched(options);
+    this.setValue(this.value, options);
+    this._pendingChange = false;
+  }
+  /**  @internal */
+  _updateValue() {
+  }
+  /**  @internal */
+  _anyControls(condition) {
+    return false;
+  }
+  /**  @internal */
+  _allControlsDisabled() {
+    return this.disabled;
+  }
+  registerOnChange(fn) {
+    this._onChange.push(fn);
+  }
+  /** @internal */
+  _unregisterOnChange(fn) {
+    removeListItem(this._onChange, fn);
+  }
+  registerOnDisabledChange(fn) {
+    this._onDisabledChange.push(fn);
+  }
+  /** @internal */
+  _unregisterOnDisabledChange(fn) {
+    removeListItem(this._onDisabledChange, fn);
+  }
+  /** @internal */
+  _forEachChild(cb) {
+  }
+  /** @internal */
+  _syncPendingControls() {
+    if (this.updateOn === "submit") {
+      if (this._pendingDirty) this.markAsDirty();
+      if (this._pendingTouched) this.markAsTouched();
+      if (this._pendingChange) {
+        this.setValue(this._pendingValue, {
+          onlySelf: true,
+          emitModelToViewChange: false
+        });
+        return true;
+      }
+    }
+    return false;
+  }
+  _applyFormState(formState) {
+    if (isFormControlState(formState)) {
+      this.value = this._pendingValue = formState.value;
+      formState.disabled ? this.disable({
+        onlySelf: true,
+        emitEvent: false
+      }) : this.enable({
+        onlySelf: true,
+        emitEvent: false
+      });
+    } else {
+      this.value = this._pendingValue = formState;
+    }
+  }
+};
+var isFormControl = (control) => control instanceof FormControl;
+var AbstractFormGroupDirective = class _AbstractFormGroupDirective extends ControlContainer {
+  /**
+   * @description
+   * The parent control for the group
+   *
+   * @internal
+   */
+  _parent;
+  /** @docs-private */
   ngOnInit() {
-    this.tools.setTitle("devSettings");
-    this.tools.actPage = "devSettings";
+    this._checkParentType();
+    this.formDirective.addFormGroup(this);
   }
-  resetToZero() {
-    this.tools.resetToZero();
-  }
-  unlockAll() {
-    this.tools.unlockAll();
-  }
-  modifyDogeCoins(amount) {
-    this.tools.dogeCoins += amount;
-    if (amount > 0) {
-      this.tools.totalDogeCoinsEarned += amount;
-      this.tools.saveData("lifetime_dg", String(this.tools.totalDogeCoinsEarned));
+  /** @docs-private */
+  ngOnDestroy() {
+    if (this.formDirective) {
+      this.formDirective.removeFormGroup(this);
     }
-    if (this.tools.dogeCoins < 0)
-      this.tools.dogeCoins = 0;
-    this.tools.saveData("dg", String(this.tools.dogeCoins));
-    this.tools.showToast(this.tools.dev[this.tools.lang].success || "Success");
-    this.tools.playSound("4");
   }
-  modifyPoints(amount) {
-    if (amount > 0) {
-      this.tools.updateScore(amount);
-    } else {
-      this.tools.points += amount;
-      if (this.tools.points < 0)
-        this.tools.points = 0;
-      this.tools.saveData("points", String(this.tools.points));
+  /**
+   * @description
+   * The `FormGroup` bound to this directive.
+   */
+  get control() {
+    return this.formDirective.getFormGroup(this);
+  }
+  /**
+   * @description
+   * The path to this group from the top-level directive.
+   */
+  get path() {
+    return controlPath(this.name == null ? this.name : this.name.toString(), this._parent);
+  }
+  /**
+   * @description
+   * The top-level directive for this group if present, otherwise null.
+   */
+  get formDirective() {
+    return this._parent ? this._parent.formDirective : null;
+  }
+  /** @internal */
+  _checkParentType() {
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275AbstractFormGroupDirective_BaseFactory;
+    return function AbstractFormGroupDirective_Factory(__ngFactoryType__) {
+      return (\u0275AbstractFormGroupDirective_BaseFactory || (\u0275AbstractFormGroupDirective_BaseFactory = \u0275\u0275getInheritedFactory(_AbstractFormGroupDirective)))(__ngFactoryType__ || _AbstractFormGroupDirective);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _AbstractFormGroupDirective,
+    standalone: false,
+    features: [\u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AbstractFormGroupDirective, [{
+    type: Directive,
+    args: [{
+      standalone: false
+    }]
+  }], null, null);
+})();
+function modelParentException() {
+  return new RuntimeError(1350, `
+    ngModel cannot be used to register form controls with a parent formGroup directive.  Try using
+    formGroup's partner directive "formControlName" instead.  Example:
+
+    ${formControlNameExample}
+
+    Or, if you'd like to avoid registering this form control, indicate that it's standalone in ngModelOptions:
+
+    Example:
+
+    ${ngModelWithFormGroupExample}`);
+}
+function formGroupNameException() {
+  return new RuntimeError(1351, `
+    ngModel cannot be used to register form controls with a parent formGroupName or formArrayName directive.
+
+    Option 1: Use formControlName instead of ngModel (reactive strategy):
+
+    ${formGroupNameExample}
+
+    Option 2:  Update ngModel's parent be ngModelGroup (template-driven strategy):
+
+    ${ngModelGroupExample}`);
+}
+function missingNameException() {
+  return new RuntimeError(1352, `If ngModel is used within a form tag, either the name attribute must be set or the form
+    control must be defined as 'standalone' in ngModelOptions.
+
+    Example 1: <input [(ngModel)]="person.firstName" name="first">
+    Example 2: <input [(ngModel)]="person.firstName" [ngModelOptions]="{standalone: true}">`);
+}
+function modelGroupParentException() {
+  return new RuntimeError(1353, `
+    ngModelGroup cannot be used with a parent formGroup directive.
+
+    Option 1: Use formGroupName instead of ngModelGroup (reactive strategy):
+
+    ${formGroupNameExample}
+
+    Option 2:  Use a regular form tag instead of the formGroup directive (template-driven strategy):
+
+    ${ngModelGroupExample}`);
+}
+var modelGroupProvider = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => NgModelGroup)
+};
+var NgModelGroup = class _NgModelGroup extends AbstractFormGroupDirective {
+  /**
+   * @description
+   * Tracks the name of the `NgModelGroup` bound to the directive. The name corresponds
+   * to a key in the parent `NgForm`.
+   */
+  name = "";
+  constructor(parent, validators, asyncValidators) {
+    super();
+    this._parent = parent;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  /** @internal */
+  _checkParentType() {
+    if (!(this._parent instanceof _NgModelGroup) && !(this._parent instanceof NgForm) && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw modelGroupParentException();
     }
-    this.tools.showToast(this.tools.dev[this.tools.lang].success || "Success");
-    this.tools.playSound("4");
   }
-  modifyMinigameCoins(amount) {
-    if (amount > 0) {
-      this.tools.addMinigameCoins(amount);
+  static \u0275fac = function NgModelGroup_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgModelGroup)(\u0275\u0275directiveInject(ControlContainer, 5), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgModelGroup,
+    selectors: [["", "ngModelGroup", ""]],
+    inputs: {
+      name: [0, "ngModelGroup", "name"]
+    },
+    exportAs: ["ngModelGroup"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([modelGroupProvider]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgModelGroup, [{
+    type: Directive,
+    args: [{
+      selector: "[ngModelGroup]",
+      providers: [modelGroupProvider],
+      exportAs: "ngModelGroup",
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Host
+    }, {
+      type: SkipSelf
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }], {
+    name: [{
+      type: Input,
+      args: ["ngModelGroup"]
+    }]
+  });
+})();
+var formControlBinding$1 = {
+  provide: NgControl,
+  useExisting: forwardRef(() => NgModel)
+};
+var resolvedPromise = (() => Promise.resolve())();
+var NgModel = class _NgModel extends NgControl {
+  _changeDetectorRef;
+  callSetDisabledState;
+  control = new FormControl();
+  // At runtime we coerce arbitrary values assigned to the "disabled" input to a "boolean".
+  // This is not reflected in the type of the property because outside of templates, consumers
+  // should only deal with booleans. In templates, a string is allowed for convenience and to
+  // match the native "disabled attribute" semantics which can be observed on input elements.
+  // This static member tells the compiler that values of type "string" can also be assigned
+  // to the input in a template.
+  /** @docs-private */
+  static ngAcceptInputType_isDisabled;
+  /** @internal */
+  _registered = false;
+  /**
+   * Internal reference to the view model value.
+   * @docs-private
+   */
+  viewModel;
+  /**
+   * @description
+   * Tracks the name bound to the directive. If a parent form exists, it
+   * uses this name as a key to retrieve this control's value.
+   */
+  name = "";
+  /**
+   * @description
+   * Tracks whether the control is disabled.
+   */
+  isDisabled;
+  /**
+   * @description
+   * Tracks the value bound to this directive.
+   */
+  model;
+  /**
+   * @description
+   * Tracks the configuration options for this `ngModel` instance.
+   *
+   * **name**: An alternative to setting the name attribute on the form control element. See
+   * the [example](api/forms/NgModel#using-ngmodel-on-a-standalone-control) for using `NgModel`
+   * as a standalone control.
+   *
+   * **standalone**: When set to true, the `ngModel` will not register itself with its parent form,
+   * and acts as if it's not in the form. Defaults to false. If no parent form exists, this option
+   * has no effect.
+   *
+   * **updateOn**: Defines the event upon which the form control value and validity update.
+   * Defaults to 'change'. Possible values: `'change'` | `'blur'` | `'submit'`.
+   *
+   */
+  options;
+  /**
+   * @description
+   * Event emitter for producing the `ngModelChange` event after
+   * the view model updates.
+   */
+  update = new EventEmitter();
+  constructor(parent, validators, asyncValidators, valueAccessors, _changeDetectorRef, callSetDisabledState) {
+    super();
+    this._changeDetectorRef = _changeDetectorRef;
+    this.callSetDisabledState = callSetDisabledState;
+    this._parent = parent;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+    this.valueAccessor = selectValueAccessor(this, valueAccessors);
+  }
+  /** @docs-private */
+  ngOnChanges(changes) {
+    this._checkForErrors();
+    if (!this._registered || "name" in changes) {
+      if (this._registered) {
+        this._checkName();
+        if (this.formDirective) {
+          const oldName = changes["name"].previousValue;
+          this.formDirective.removeControl({
+            name: oldName,
+            path: this._getPath(oldName)
+          });
+        }
+      }
+      this._setUpControl();
+    }
+    if ("isDisabled" in changes) {
+      this._updateDisabled(changes);
+    }
+    if (isPropertyUpdated(changes, this.viewModel)) {
+      this._updateValue(this.model);
+      this.viewModel = this.model;
+    }
+  }
+  /** @docs-private */
+  ngOnDestroy() {
+    this.formDirective && this.formDirective.removeControl(this);
+  }
+  /**
+   * @description
+   * Returns an array that represents the path from the top-level form to this control.
+   * Each index is the string name of the control on that level.
+   */
+  get path() {
+    return this._getPath(this.name);
+  }
+  /**
+   * @description
+   * The top-level directive for this control if present, otherwise null.
+   */
+  get formDirective() {
+    return this._parent ? this._parent.formDirective : null;
+  }
+  /**
+   * @description
+   * Sets the new value for the view model and emits an `ngModelChange` event.
+   *
+   * @param newValue The new value emitted by `ngModelChange`.
+   */
+  viewToModelUpdate(newValue) {
+    this.viewModel = newValue;
+    this.update.emit(newValue);
+  }
+  _setUpControl() {
+    this._setUpdateStrategy();
+    this._isStandalone() ? this._setUpStandalone() : this.formDirective.addControl(this);
+    this._registered = true;
+  }
+  _setUpdateStrategy() {
+    if (this.options && this.options.updateOn != null) {
+      this.control._updateOn = this.options.updateOn;
+    }
+  }
+  _isStandalone() {
+    return !this._parent || !!(this.options && this.options.standalone);
+  }
+  _setUpStandalone() {
+    setUpControl(this.control, this, this.callSetDisabledState);
+    this.control.updateValueAndValidity({
+      emitEvent: false
+    });
+  }
+  _checkForErrors() {
+    if ((typeof ngDevMode === "undefined" || ngDevMode) && !this._isStandalone()) {
+      checkParentType$1(this._parent);
+    }
+    this._checkName();
+  }
+  _checkName() {
+    if (this.options && this.options.name) this.name = this.options.name;
+    if (!this._isStandalone() && !this.name && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw missingNameException();
+    }
+  }
+  _updateValue(value) {
+    resolvedPromise.then(() => {
+      this.control.setValue(value, {
+        emitViewToModelChange: false
+      });
+      this._changeDetectorRef?.markForCheck();
+    });
+  }
+  _updateDisabled(changes) {
+    const disabledValue = changes["isDisabled"].currentValue;
+    const isDisabled = disabledValue !== 0 && booleanAttribute(disabledValue);
+    resolvedPromise.then(() => {
+      if (isDisabled && !this.control.disabled) {
+        this.control.disable();
+      } else if (!isDisabled && this.control.disabled) {
+        this.control.enable();
+      }
+      this._changeDetectorRef?.markForCheck();
+    });
+  }
+  _getPath(controlName) {
+    return this._parent ? controlPath(controlName, this._parent) : [controlName];
+  }
+  static \u0275fac = function NgModel_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgModel)(\u0275\u0275directiveInject(ControlContainer, 9), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(NG_VALUE_ACCESSOR, 10), \u0275\u0275directiveInject(ChangeDetectorRef, 8), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgModel,
+    selectors: [["", "ngModel", "", 3, "formControlName", "", 3, "formControl", ""]],
+    inputs: {
+      name: "name",
+      isDisabled: [0, "disabled", "isDisabled"],
+      model: [0, "ngModel", "model"],
+      options: [0, "ngModelOptions", "options"]
+    },
+    outputs: {
+      update: "ngModelChange"
+    },
+    exportAs: ["ngModel"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formControlBinding$1]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgModel, [{
+    type: Directive,
+    args: [{
+      selector: "[ngModel]:not([formControlName]):not([formControl])",
+      providers: [formControlBinding$1],
+      exportAs: "ngModel",
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALUE_ACCESSOR]
+    }]
+  }, {
+    type: ChangeDetectorRef,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [ChangeDetectorRef]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [CALL_SET_DISABLED_STATE]
+    }]
+  }], {
+    name: [{
+      type: Input
+    }],
+    isDisabled: [{
+      type: Input,
+      args: ["disabled"]
+    }],
+    model: [{
+      type: Input,
+      args: ["ngModel"]
+    }],
+    options: [{
+      type: Input,
+      args: ["ngModelOptions"]
+    }],
+    update: [{
+      type: Output,
+      args: ["ngModelChange"]
+    }]
+  });
+})();
+function checkParentType$1(parent) {
+  if (!(parent instanceof NgModelGroup) && parent instanceof AbstractFormGroupDirective) {
+    throw formGroupNameException();
+  } else if (!(parent instanceof NgModelGroup) && !(parent instanceof NgForm)) {
+    throw modelParentException();
+  }
+}
+var \u0275NgNoValidate = class _\u0275NgNoValidate {
+  static \u0275fac = function \u0275NgNoValidate_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _\u0275NgNoValidate)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _\u0275NgNoValidate,
+    selectors: [["form", 3, "ngNoForm", "", 3, "ngNativeValidate", ""]],
+    hostAttrs: ["novalidate", ""],
+    standalone: false
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(\u0275NgNoValidate, [{
+    type: Directive,
+    args: [{
+      selector: "form:not([ngNoForm]):not([ngNativeValidate])",
+      host: {
+        "novalidate": ""
+      },
+      standalone: false
+    }]
+  }], null, null);
+})();
+var NUMBER_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => NumberValueAccessor),
+  multi: true
+};
+var NumberValueAccessor = class _NumberValueAccessor extends BuiltInControlValueAccessor {
+  /**
+   * Sets the "value" property on the input element.
+   * @docs-private
+   */
+  writeValue(value) {
+    const normalizedValue = value == null ? "" : value;
+    this.setProperty("value", normalizedValue);
+  }
+  /**
+   * Registers a function called when the control value changes.
+   * @docs-private
+   */
+  registerOnChange(fn) {
+    this.onChange = (value) => {
+      fn(value == "" ? null : parseFloat(value));
+    };
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275NumberValueAccessor_BaseFactory;
+    return function NumberValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275NumberValueAccessor_BaseFactory || (\u0275NumberValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_NumberValueAccessor)))(__ngFactoryType__ || _NumberValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NumberValueAccessor,
+    selectors: [["input", "type", "number", "formControlName", ""], ["input", "type", "number", "formControl", ""], ["input", "type", "number", "ngModel", ""]],
+    hostBindings: function NumberValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("input", function NumberValueAccessor_input_HostBindingHandler($event) {
+          return ctx.onChange($event.target.value);
+        })("blur", function NumberValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([NUMBER_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NumberValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=number][formControlName],input[type=number][formControl],input[type=number][ngModel]",
+      host: {
+        "(input)": "onChange($event.target.value)",
+        "(blur)": "onTouched()"
+      },
+      providers: [NUMBER_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, null);
+})();
+var RADIO_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => RadioControlValueAccessor),
+  multi: true
+};
+function throwNameError() {
+  throw new RuntimeError(1202, `
+      If you define both a name and a formControlName attribute on your radio button, their values
+      must match. Ex: <input type="radio" formControlName="food" name="food">
+    `);
+}
+var RadioControlRegistry = class _RadioControlRegistry {
+  _accessors = [];
+  /**
+   * @description
+   * Adds a control to the internal registry. For internal use only.
+   */
+  add(control, accessor) {
+    this._accessors.push([control, accessor]);
+  }
+  /**
+   * @description
+   * Removes a control from the internal registry. For internal use only.
+   */
+  remove(accessor) {
+    for (let i = this._accessors.length - 1; i >= 0; --i) {
+      if (this._accessors[i][1] === accessor) {
+        this._accessors.splice(i, 1);
+        return;
+      }
+    }
+  }
+  /**
+   * @description
+   * Selects a radio button. For internal use only.
+   */
+  select(accessor) {
+    this._accessors.forEach((c) => {
+      if (this._isSameGroup(c, accessor) && c[1] !== accessor) {
+        c[1].fireUncheck(accessor.value);
+      }
+    });
+  }
+  _isSameGroup(controlPair, accessor) {
+    if (!controlPair[0].control) return false;
+    return controlPair[0]._parent === accessor._control._parent && controlPair[1].name === accessor.name;
+  }
+  static \u0275fac = function RadioControlRegistry_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _RadioControlRegistry)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _RadioControlRegistry,
+    factory: _RadioControlRegistry.\u0275fac,
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RadioControlRegistry, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+var RadioControlValueAccessor = class _RadioControlValueAccessor extends BuiltInControlValueAccessor {
+  _registry;
+  _injector;
+  /** @internal */
+  _state;
+  /** @internal */
+  _control;
+  /** @internal */
+  _fn;
+  setDisabledStateFired = false;
+  /**
+   * The registered callback function called when a change event occurs on the input element.
+   * Note: we declare `onChange` here (also used as host listener) as a function with no arguments
+   * to override the `onChange` function (which expects 1 argument) in the parent
+   * `BaseControlValueAccessor` class.
+   * @docs-private
+   */
+  onChange = () => {
+  };
+  /**
+   * @description
+   * Tracks the name of the radio input element.
+   */
+  name;
+  /**
+   * @description
+   * Tracks the name of the `FormControl` bound to the directive. The name corresponds
+   * to a key in the parent `FormGroup` or `FormArray`.
+   */
+  formControlName;
+  /**
+   * @description
+   * Tracks the value of the radio input element
+   */
+  value;
+  callSetDisabledState = inject(CALL_SET_DISABLED_STATE, {
+    optional: true
+  }) ?? setDisabledStateDefault;
+  constructor(renderer, elementRef, _registry, _injector) {
+    super(renderer, elementRef);
+    this._registry = _registry;
+    this._injector = _injector;
+  }
+  /** @docs-private */
+  ngOnInit() {
+    this._control = this._injector.get(NgControl);
+    this._checkName();
+    this._registry.add(this._control, this);
+  }
+  /** @docs-private */
+  ngOnDestroy() {
+    this._registry.remove(this);
+  }
+  /**
+   * Sets the "checked" property value on the radio input element.
+   * @docs-private
+   */
+  writeValue(value) {
+    this._state = value === this.value;
+    this.setProperty("checked", this._state);
+  }
+  /**
+   * Registers a function called when the control value changes.
+   * @docs-private
+   */
+  registerOnChange(fn) {
+    this._fn = fn;
+    this.onChange = () => {
+      fn(this.value);
+      this._registry.select(this);
+    };
+  }
+  /** @docs-private */
+  setDisabledState(isDisabled) {
+    if (this.setDisabledStateFired || isDisabled || this.callSetDisabledState === "whenDisabledForLegacyCode") {
+      this.setProperty("disabled", isDisabled);
+    }
+    this.setDisabledStateFired = true;
+  }
+  /**
+   * Sets the "value" on the radio input element and unchecks it.
+   *
+   * @param value
+   */
+  fireUncheck(value) {
+    this.writeValue(value);
+  }
+  _checkName() {
+    if (this.name && this.formControlName && this.name !== this.formControlName && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throwNameError();
+    }
+    if (!this.name && this.formControlName) this.name = this.formControlName;
+  }
+  static \u0275fac = function RadioControlValueAccessor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _RadioControlValueAccessor)(\u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(RadioControlRegistry), \u0275\u0275directiveInject(Injector));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _RadioControlValueAccessor,
+    selectors: [["input", "type", "radio", "formControlName", ""], ["input", "type", "radio", "formControl", ""], ["input", "type", "radio", "ngModel", ""]],
+    hostBindings: function RadioControlValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function RadioControlValueAccessor_change_HostBindingHandler() {
+          return ctx.onChange();
+        })("blur", function RadioControlValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    inputs: {
+      name: "name",
+      formControlName: "formControlName",
+      value: "value"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([RADIO_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RadioControlValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=radio][formControlName],input[type=radio][formControl],input[type=radio][ngModel]",
+      host: {
+        "(change)": "onChange()",
+        "(blur)": "onTouched()"
+      },
+      providers: [RADIO_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], () => [{
+    type: Renderer2
+  }, {
+    type: ElementRef
+  }, {
+    type: RadioControlRegistry
+  }, {
+    type: Injector
+  }], {
+    name: [{
+      type: Input
+    }],
+    formControlName: [{
+      type: Input
+    }],
+    value: [{
+      type: Input
+    }]
+  });
+})();
+var RANGE_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => RangeValueAccessor),
+  multi: true
+};
+var RangeValueAccessor = class _RangeValueAccessor extends BuiltInControlValueAccessor {
+  /**
+   * Sets the "value" property on the input element.
+   * @docs-private
+   */
+  writeValue(value) {
+    this.setProperty("value", parseFloat(value));
+  }
+  /**
+   * Registers a function called when the control value changes.
+   * @docs-private
+   */
+  registerOnChange(fn) {
+    this.onChange = (value) => {
+      fn(value == "" ? null : parseFloat(value));
+    };
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275RangeValueAccessor_BaseFactory;
+    return function RangeValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275RangeValueAccessor_BaseFactory || (\u0275RangeValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_RangeValueAccessor)))(__ngFactoryType__ || _RangeValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _RangeValueAccessor,
+    selectors: [["input", "type", "range", "formControlName", ""], ["input", "type", "range", "formControl", ""], ["input", "type", "range", "ngModel", ""]],
+    hostBindings: function RangeValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function RangeValueAccessor_change_HostBindingHandler($event) {
+          return ctx.onChange($event.target.value);
+        })("input", function RangeValueAccessor_input_HostBindingHandler($event) {
+          return ctx.onChange($event.target.value);
+        })("blur", function RangeValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([RANGE_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RangeValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=range][formControlName],input[type=range][formControl],input[type=range][ngModel]",
+      host: {
+        "(change)": "onChange($event.target.value)",
+        "(input)": "onChange($event.target.value)",
+        "(blur)": "onTouched()"
+      },
+      providers: [RANGE_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, null);
+})();
+var NG_MODEL_WITH_FORM_CONTROL_WARNING = new InjectionToken(ngDevMode ? "NgModelWithFormControlWarning" : "");
+var formControlBinding = {
+  provide: NgControl,
+  useExisting: forwardRef(() => FormControlDirective)
+};
+var FormControlDirective = class _FormControlDirective extends NgControl {
+  _ngModelWarningConfig;
+  callSetDisabledState;
+  /**
+   * Internal reference to the view model value.
+   * @docs-private
+   */
+  viewModel;
+  /**
+   * @description
+   * Tracks the `FormControl` instance bound to the directive.
+   */
+  form;
+  /**
+   * @description
+   * Triggers a warning in dev mode that this input should not be used with reactive forms.
+   */
+  set isDisabled(isDisabled) {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      console.warn(disabledAttrWarning);
+    }
+  }
+  // TODO(kara): remove next 4 properties once deprecation period is over
+  /** @deprecated as of v6 */
+  model;
+  /** @deprecated as of v6 */
+  update = new EventEmitter();
+  /**
+   * @description
+   * Static property used to track whether any ngModel warnings have been sent across
+   * all instances of FormControlDirective. Used to support warning config of "once".
+   *
+   * @internal
+   */
+  static _ngModelWarningSentOnce = false;
+  /**
+   * @description
+   * Instance property used to track whether an ngModel warning has been sent out for this
+   * particular `FormControlDirective` instance. Used to support warning config of "always".
+   *
+   * @internal
+   */
+  _ngModelWarningSent = false;
+  constructor(validators, asyncValidators, valueAccessors, _ngModelWarningConfig, callSetDisabledState) {
+    super();
+    this._ngModelWarningConfig = _ngModelWarningConfig;
+    this.callSetDisabledState = callSetDisabledState;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+    this.valueAccessor = selectValueAccessor(this, valueAccessors);
+  }
+  /** @docs-private */
+  ngOnChanges(changes) {
+    if (this._isControlChanged(changes)) {
+      const previousForm = changes["form"].previousValue;
+      if (previousForm) {
+        cleanUpControl(
+          previousForm,
+          this,
+          /* validateControlPresenceOnChange */
+          false
+        );
+      }
+      setUpControl(this.form, this, this.callSetDisabledState);
+      this.form.updateValueAndValidity({
+        emitEvent: false
+      });
+    }
+    if (isPropertyUpdated(changes, this.viewModel)) {
+      if (typeof ngDevMode === "undefined" || ngDevMode) {
+        _ngModelWarning("formControl", _FormControlDirective, this, this._ngModelWarningConfig);
+      }
+      this.form.setValue(this.model);
+      this.viewModel = this.model;
+    }
+  }
+  /** @docs-private */
+  ngOnDestroy() {
+    if (this.form) {
+      cleanUpControl(
+        this.form,
+        this,
+        /* validateControlPresenceOnChange */
+        false
+      );
+    }
+  }
+  /**
+   * @description
+   * Returns an array that represents the path from the top-level form to this control.
+   * Each index is the string name of the control on that level.
+   */
+  get path() {
+    return [];
+  }
+  /**
+   * @description
+   * The `FormControl` bound to this directive.
+   */
+  get control() {
+    return this.form;
+  }
+  /**
+   * @description
+   * Sets the new value for the view model and emits an `ngModelChange` event.
+   *
+   * @param newValue The new value for the view model.
+   */
+  viewToModelUpdate(newValue) {
+    this.viewModel = newValue;
+    this.update.emit(newValue);
+  }
+  _isControlChanged(changes) {
+    return changes.hasOwnProperty("form");
+  }
+  static \u0275fac = function FormControlDirective_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormControlDirective)(\u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(NG_VALUE_ACCESSOR, 10), \u0275\u0275directiveInject(NG_MODEL_WITH_FORM_CONTROL_WARNING, 8), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormControlDirective,
+    selectors: [["", "formControl", ""]],
+    inputs: {
+      form: [0, "formControl", "form"],
+      isDisabled: [0, "disabled", "isDisabled"],
+      model: [0, "ngModel", "model"]
+    },
+    outputs: {
+      update: "ngModelChange"
+    },
+    exportAs: ["ngForm"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formControlBinding]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormControlDirective, [{
+    type: Directive,
+    args: [{
+      selector: "[formControl]",
+      providers: [formControlBinding],
+      exportAs: "ngForm",
+      standalone: false
+    }]
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALUE_ACCESSOR]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [NG_MODEL_WITH_FORM_CONTROL_WARNING]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [CALL_SET_DISABLED_STATE]
+    }]
+  }], {
+    form: [{
+      type: Input,
+      args: ["formControl"]
+    }],
+    isDisabled: [{
+      type: Input,
+      args: ["disabled"]
+    }],
+    model: [{
+      type: Input,
+      args: ["ngModel"]
+    }],
+    update: [{
+      type: Output,
+      args: ["ngModelChange"]
+    }]
+  });
+})();
+var formDirectiveProvider = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => FormGroupDirective)
+};
+var FormGroupDirective = class _FormGroupDirective extends ControlContainer {
+  callSetDisabledState;
+  /**
+   * @description
+   * Reports whether the form submission has been triggered.
+   */
+  get submitted() {
+    return untracked2(this._submittedReactive);
+  }
+  // TODO(atscott): Remove once invalid API usage is cleaned up internally
+  set submitted(value) {
+    this._submittedReactive.set(value);
+  }
+  /** @internal */
+  _submitted = computed(() => this._submittedReactive());
+  _submittedReactive = signal(false);
+  /**
+   * Reference to an old form group input value, which is needed to cleanup
+   * old instance in case it was replaced with a new one.
+   */
+  _oldForm;
+  /**
+   * Callback that should be invoked when controls in FormGroup or FormArray collection change
+   * (added or removed). This callback triggers corresponding DOM updates.
+   */
+  _onCollectionChange = () => this._updateDomValue();
+  /**
+   * @description
+   * Tracks the list of added `FormControlName` instances
+   */
+  directives = [];
+  /**
+   * @description
+   * Tracks the `FormGroup` bound to this directive.
+   */
+  form = null;
+  /**
+   * @description
+   * Emits an event when the form submission has been triggered.
+   */
+  ngSubmit = new EventEmitter();
+  constructor(validators, asyncValidators, callSetDisabledState) {
+    super();
+    this.callSetDisabledState = callSetDisabledState;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  /** @docs-private */
+  ngOnChanges(changes) {
+    if ((typeof ngDevMode === "undefined" || ngDevMode) && !this.form) {
+      throw missingFormException();
+    }
+    if (changes.hasOwnProperty("form")) {
+      this._updateValidators();
+      this._updateDomValue();
+      this._updateRegistrations();
+      this._oldForm = this.form;
+    }
+  }
+  /** @docs-private */
+  ngOnDestroy() {
+    if (this.form) {
+      cleanUpValidators(this.form, this);
+      if (this.form._onCollectionChange === this._onCollectionChange) {
+        this.form._registerOnCollectionChange(() => {
+        });
+      }
+    }
+  }
+  /**
+   * @description
+   * Returns this directive's instance.
+   */
+  get formDirective() {
+    return this;
+  }
+  /**
+   * @description
+   * Returns the `FormGroup` bound to this directive.
+   */
+  get control() {
+    return this.form;
+  }
+  /**
+   * @description
+   * Returns an array representing the path to this group. Because this directive
+   * always lives at the top level of a form, it always an empty array.
+   */
+  get path() {
+    return [];
+  }
+  /**
+   * @description
+   * Method that sets up the control directive in this group, re-calculates its value
+   * and validity, and adds the instance to the internal list of directives.
+   *
+   * @param dir The `FormControlName` directive instance.
+   */
+  addControl(dir) {
+    const ctrl = this.form.get(dir.path);
+    setUpControl(ctrl, dir, this.callSetDisabledState);
+    ctrl.updateValueAndValidity({
+      emitEvent: false
+    });
+    this.directives.push(dir);
+    return ctrl;
+  }
+  /**
+   * @description
+   * Retrieves the `FormControl` instance from the provided `FormControlName` directive
+   *
+   * @param dir The `FormControlName` directive instance.
+   */
+  getControl(dir) {
+    return this.form.get(dir.path);
+  }
+  /**
+   * @description
+   * Removes the `FormControlName` instance from the internal list of directives
+   *
+   * @param dir The `FormControlName` directive instance.
+   */
+  removeControl(dir) {
+    cleanUpControl(
+      dir.control || null,
+      dir,
+      /* validateControlPresenceOnChange */
+      false
+    );
+    removeListItem$1(this.directives, dir);
+  }
+  /**
+   * Adds a new `FormGroupName` directive instance to the form.
+   *
+   * @param dir The `FormGroupName` directive instance.
+   */
+  addFormGroup(dir) {
+    this._setUpFormContainer(dir);
+  }
+  /**
+   * Performs the necessary cleanup when a `FormGroupName` directive instance is removed from the
+   * view.
+   *
+   * @param dir The `FormGroupName` directive instance.
+   */
+  removeFormGroup(dir) {
+    this._cleanUpFormContainer(dir);
+  }
+  /**
+   * @description
+   * Retrieves the `FormGroup` for a provided `FormGroupName` directive instance
+   *
+   * @param dir The `FormGroupName` directive instance.
+   */
+  getFormGroup(dir) {
+    return this.form.get(dir.path);
+  }
+  /**
+   * Performs the necessary setup when a `FormArrayName` directive instance is added to the view.
+   *
+   * @param dir The `FormArrayName` directive instance.
+   */
+  addFormArray(dir) {
+    this._setUpFormContainer(dir);
+  }
+  /**
+   * Performs the necessary cleanup when a `FormArrayName` directive instance is removed from the
+   * view.
+   *
+   * @param dir The `FormArrayName` directive instance.
+   */
+  removeFormArray(dir) {
+    this._cleanUpFormContainer(dir);
+  }
+  /**
+   * @description
+   * Retrieves the `FormArray` for a provided `FormArrayName` directive instance.
+   *
+   * @param dir The `FormArrayName` directive instance.
+   */
+  getFormArray(dir) {
+    return this.form.get(dir.path);
+  }
+  /**
+   * Sets the new value for the provided `FormControlName` directive.
+   *
+   * @param dir The `FormControlName` directive instance.
+   * @param value The new value for the directive's control.
+   */
+  updateModel(dir, value) {
+    const ctrl = this.form.get(dir.path);
+    ctrl.setValue(value);
+  }
+  /**
+   * @description
+   * Method called with the "submit" event is triggered on the form.
+   * Triggers the `ngSubmit` emitter to emit the "submit" event as its payload.
+   *
+   * @param $event The "submit" event object
+   */
+  onSubmit($event) {
+    this._submittedReactive.set(true);
+    syncPendingControls(this.form, this.directives);
+    this.ngSubmit.emit($event);
+    this.form._events.next(new FormSubmittedEvent(this.control));
+    return $event?.target?.method === "dialog";
+  }
+  /**
+   * @description
+   * Method called when the "reset" event is triggered on the form.
+   */
+  onReset() {
+    this.resetForm();
+  }
+  /**
+   * @description
+   * Resets the form to an initial value and resets its submitted status.
+   *
+   * @param value The new value for the form.
+   */
+  resetForm(value = void 0) {
+    this.form.reset(value);
+    this._submittedReactive.set(false);
+    this.form._events.next(new FormResetEvent(this.form));
+  }
+  /** @internal */
+  _updateDomValue() {
+    this.directives.forEach((dir) => {
+      const oldCtrl = dir.control;
+      const newCtrl = this.form.get(dir.path);
+      if (oldCtrl !== newCtrl) {
+        cleanUpControl(oldCtrl || null, dir);
+        if (isFormControl(newCtrl)) {
+          setUpControl(newCtrl, dir, this.callSetDisabledState);
+          dir.control = newCtrl;
+        }
+      }
+    });
+    this.form._updateTreeValidity({
+      emitEvent: false
+    });
+  }
+  _setUpFormContainer(dir) {
+    const ctrl = this.form.get(dir.path);
+    setUpFormContainer(ctrl, dir);
+    ctrl.updateValueAndValidity({
+      emitEvent: false
+    });
+  }
+  _cleanUpFormContainer(dir) {
+    if (this.form) {
+      const ctrl = this.form.get(dir.path);
+      if (ctrl) {
+        const isControlUpdated = cleanUpFormContainer(ctrl, dir);
+        if (isControlUpdated) {
+          ctrl.updateValueAndValidity({
+            emitEvent: false
+          });
+        }
+      }
+    }
+  }
+  _updateRegistrations() {
+    this.form._registerOnCollectionChange(this._onCollectionChange);
+    if (this._oldForm) {
+      this._oldForm._registerOnCollectionChange(() => {
+      });
+    }
+  }
+  _updateValidators() {
+    setUpValidators(this.form, this);
+    if (this._oldForm) {
+      cleanUpValidators(this._oldForm, this);
+    }
+  }
+  static \u0275fac = function FormGroupDirective_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormGroupDirective)(\u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormGroupDirective,
+    selectors: [["", "formGroup", ""]],
+    hostBindings: function FormGroupDirective_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("submit", function FormGroupDirective_submit_HostBindingHandler($event) {
+          return ctx.onSubmit($event);
+        })("reset", function FormGroupDirective_reset_HostBindingHandler() {
+          return ctx.onReset();
+        });
+      }
+    },
+    inputs: {
+      form: [0, "formGroup", "form"]
+    },
+    outputs: {
+      ngSubmit: "ngSubmit"
+    },
+    exportAs: ["ngForm"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formDirectiveProvider]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormGroupDirective, [{
+    type: Directive,
+    args: [{
+      selector: "[formGroup]",
+      providers: [formDirectiveProvider],
+      host: {
+        "(submit)": "onSubmit($event)",
+        "(reset)": "onReset()"
+      },
+      exportAs: "ngForm",
+      standalone: false
+    }]
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [CALL_SET_DISABLED_STATE]
+    }]
+  }], {
+    form: [{
+      type: Input,
+      args: ["formGroup"]
+    }],
+    ngSubmit: [{
+      type: Output
+    }]
+  });
+})();
+var formGroupNameProvider = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => FormGroupName)
+};
+var FormGroupName = class _FormGroupName extends AbstractFormGroupDirective {
+  /**
+   * @description
+   * Tracks the name of the `FormGroup` bound to the directive. The name corresponds
+   * to a key in the parent `FormGroup` or `FormArray`.
+   * Accepts a name as a string or a number.
+   * The name in the form of a string is useful for individual forms,
+   * while the numerical form allows for form groups to be bound
+   * to indices when iterating over groups in a `FormArray`.
+   */
+  name = null;
+  constructor(parent, validators, asyncValidators) {
+    super();
+    this._parent = parent;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  /** @internal */
+  _checkParentType() {
+    if (hasInvalidParent(this._parent) && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw groupParentException();
+    }
+  }
+  static \u0275fac = function FormGroupName_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormGroupName)(\u0275\u0275directiveInject(ControlContainer, 13), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormGroupName,
+    selectors: [["", "formGroupName", ""]],
+    inputs: {
+      name: [0, "formGroupName", "name"]
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formGroupNameProvider]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormGroupName, [{
+    type: Directive,
+    args: [{
+      selector: "[formGroupName]",
+      providers: [formGroupNameProvider],
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }, {
+      type: SkipSelf
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }], {
+    name: [{
+      type: Input,
+      args: ["formGroupName"]
+    }]
+  });
+})();
+var formArrayNameProvider = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => FormArrayName)
+};
+var FormArrayName = class _FormArrayName extends ControlContainer {
+  /** @internal */
+  _parent;
+  /**
+   * @description
+   * Tracks the name of the `FormArray` bound to the directive. The name corresponds
+   * to a key in the parent `FormGroup` or `FormArray`.
+   * Accepts a name as a string or a number.
+   * The name in the form of a string is useful for individual forms,
+   * while the numerical form allows for form arrays to be bound
+   * to indices when iterating over arrays in a `FormArray`.
+   */
+  name = null;
+  constructor(parent, validators, asyncValidators) {
+    super();
+    this._parent = parent;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  /**
+   * A lifecycle method called when the directive's inputs are initialized. For internal use only.
+   * @throws If the directive does not have a valid parent.
+   * @docs-private
+   */
+  ngOnInit() {
+    if (hasInvalidParent(this._parent) && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw arrayParentException();
+    }
+    this.formDirective.addFormArray(this);
+  }
+  /**
+   * A lifecycle method called before the directive's instance is destroyed. For internal use only.
+   * @docs-private
+   */
+  ngOnDestroy() {
+    this.formDirective?.removeFormArray(this);
+  }
+  /**
+   * @description
+   * The `FormArray` bound to this directive.
+   */
+  get control() {
+    return this.formDirective.getFormArray(this);
+  }
+  /**
+   * @description
+   * The top-level directive for this group if present, otherwise null.
+   */
+  get formDirective() {
+    return this._parent ? this._parent.formDirective : null;
+  }
+  /**
+   * @description
+   * Returns an array that represents the path from the top-level form to this control.
+   * Each index is the string name of the control on that level.
+   */
+  get path() {
+    return controlPath(this.name == null ? this.name : this.name.toString(), this._parent);
+  }
+  static \u0275fac = function FormArrayName_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormArrayName)(\u0275\u0275directiveInject(ControlContainer, 13), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormArrayName,
+    selectors: [["", "formArrayName", ""]],
+    inputs: {
+      name: [0, "formArrayName", "name"]
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formArrayNameProvider]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormArrayName, [{
+    type: Directive,
+    args: [{
+      selector: "[formArrayName]",
+      providers: [formArrayNameProvider],
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }, {
+      type: SkipSelf
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }], {
+    name: [{
+      type: Input,
+      args: ["formArrayName"]
+    }]
+  });
+})();
+function hasInvalidParent(parent) {
+  return !(parent instanceof FormGroupName) && !(parent instanceof FormGroupDirective) && !(parent instanceof FormArrayName);
+}
+var controlNameBinding = {
+  provide: NgControl,
+  useExisting: forwardRef(() => FormControlName)
+};
+var FormControlName = class _FormControlName extends NgControl {
+  _ngModelWarningConfig;
+  _added = false;
+  /**
+   * Internal reference to the view model value.
+   * @internal
+   */
+  viewModel;
+  /**
+   * @description
+   * Tracks the `FormControl` instance bound to the directive.
+   */
+  control;
+  /**
+   * @description
+   * Tracks the name of the `FormControl` bound to the directive. The name corresponds
+   * to a key in the parent `FormGroup` or `FormArray`.
+   * Accepts a name as a string or a number.
+   * The name in the form of a string is useful for individual forms,
+   * while the numerical form allows for form controls to be bound
+   * to indices when iterating over controls in a `FormArray`.
+   */
+  name = null;
+  /**
+   * @description
+   * Triggers a warning in dev mode that this input should not be used with reactive forms.
+   */
+  set isDisabled(isDisabled) {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      console.warn(disabledAttrWarning);
+    }
+  }
+  // TODO(kara): remove next 4 properties once deprecation period is over
+  /** @deprecated as of v6 */
+  model;
+  /** @deprecated as of v6 */
+  update = new EventEmitter();
+  /**
+   * @description
+   * Static property used to track whether any ngModel warnings have been sent across
+   * all instances of FormControlName. Used to support warning config of "once".
+   *
+   * @internal
+   */
+  static _ngModelWarningSentOnce = false;
+  /**
+   * @description
+   * Instance property used to track whether an ngModel warning has been sent out for this
+   * particular FormControlName instance. Used to support warning config of "always".
+   *
+   * @internal
+   */
+  _ngModelWarningSent = false;
+  constructor(parent, validators, asyncValidators, valueAccessors, _ngModelWarningConfig) {
+    super();
+    this._ngModelWarningConfig = _ngModelWarningConfig;
+    this._parent = parent;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+    this.valueAccessor = selectValueAccessor(this, valueAccessors);
+  }
+  /** @docs-private */
+  ngOnChanges(changes) {
+    if (!this._added) this._setUpControl();
+    if (isPropertyUpdated(changes, this.viewModel)) {
+      if (typeof ngDevMode === "undefined" || ngDevMode) {
+        _ngModelWarning("formControlName", _FormControlName, this, this._ngModelWarningConfig);
+      }
+      this.viewModel = this.model;
+      this.formDirective.updateModel(this, this.model);
+    }
+  }
+  /** @docs-private */
+  ngOnDestroy() {
+    if (this.formDirective) {
+      this.formDirective.removeControl(this);
+    }
+  }
+  /**
+   * @description
+   * Sets the new value for the view model and emits an `ngModelChange` event.
+   *
+   * @param newValue The new value for the view model.
+   */
+  viewToModelUpdate(newValue) {
+    this.viewModel = newValue;
+    this.update.emit(newValue);
+  }
+  /**
+   * @description
+   * Returns an array that represents the path from the top-level form to this control.
+   * Each index is the string name of the control on that level.
+   */
+  get path() {
+    return controlPath(this.name == null ? this.name : this.name.toString(), this._parent);
+  }
+  /**
+   * @description
+   * The top-level directive for this group if present, otherwise null.
+   */
+  get formDirective() {
+    return this._parent ? this._parent.formDirective : null;
+  }
+  _setUpControl() {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      checkParentType(this._parent, this.name);
+    }
+    this.control = this.formDirective.addControl(this);
+    this._added = true;
+  }
+  static \u0275fac = function FormControlName_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormControlName)(\u0275\u0275directiveInject(ControlContainer, 13), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(NG_VALUE_ACCESSOR, 10), \u0275\u0275directiveInject(NG_MODEL_WITH_FORM_CONTROL_WARNING, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormControlName,
+    selectors: [["", "formControlName", ""]],
+    inputs: {
+      name: [0, "formControlName", "name"],
+      isDisabled: [0, "disabled", "isDisabled"],
+      model: [0, "ngModel", "model"]
+    },
+    outputs: {
+      update: "ngModelChange"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([controlNameBinding]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormControlName, [{
+    type: Directive,
+    args: [{
+      selector: "[formControlName]",
+      providers: [controlNameBinding],
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }, {
+      type: SkipSelf
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALUE_ACCESSOR]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [NG_MODEL_WITH_FORM_CONTROL_WARNING]
+    }]
+  }], {
+    name: [{
+      type: Input,
+      args: ["formControlName"]
+    }],
+    isDisabled: [{
+      type: Input,
+      args: ["disabled"]
+    }],
+    model: [{
+      type: Input,
+      args: ["ngModel"]
+    }],
+    update: [{
+      type: Output,
+      args: ["ngModelChange"]
+    }]
+  });
+})();
+function checkParentType(parent, name) {
+  if (!(parent instanceof FormGroupName) && parent instanceof AbstractFormGroupDirective) {
+    throw ngModelGroupException();
+  } else if (!(parent instanceof FormGroupName) && !(parent instanceof FormGroupDirective) && !(parent instanceof FormArrayName)) {
+    throw controlParentException(name);
+  }
+}
+var SELECT_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => SelectControlValueAccessor),
+  multi: true
+};
+function _buildValueString$1(id, value) {
+  if (id == null) return `${value}`;
+  if (value && typeof value === "object") value = "Object";
+  return `${id}: ${value}`.slice(0, 50);
+}
+function _extractId$1(valueString) {
+  return valueString.split(":")[0];
+}
+var SelectControlValueAccessor = class _SelectControlValueAccessor extends BuiltInControlValueAccessor {
+  /** @docs-private */
+  value;
+  /** @internal */
+  _optionMap = /* @__PURE__ */ new Map();
+  /** @internal */
+  _idCounter = 0;
+  /**
+   * @description
+   * Tracks the option comparison algorithm for tracking identities when
+   * checking for changes.
+   */
+  set compareWith(fn) {
+    if (typeof fn !== "function" && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw new RuntimeError(1201, `compareWith must be a function, but received ${JSON.stringify(fn)}`);
+    }
+    this._compareWith = fn;
+  }
+  _compareWith = Object.is;
+  /**
+   * Sets the "value" property on the select element.
+   * @docs-private
+   */
+  writeValue(value) {
+    this.value = value;
+    const id = this._getOptionId(value);
+    const valueString = _buildValueString$1(id, value);
+    this.setProperty("value", valueString);
+  }
+  /**
+   * Registers a function called when the control value changes.
+   * @docs-private
+   */
+  registerOnChange(fn) {
+    this.onChange = (valueString) => {
+      this.value = this._getOptionValue(valueString);
+      fn(this.value);
+    };
+  }
+  /** @internal */
+  _registerOption() {
+    return (this._idCounter++).toString();
+  }
+  /** @internal */
+  _getOptionId(value) {
+    for (const id of this._optionMap.keys()) {
+      if (this._compareWith(this._optionMap.get(id), value)) return id;
+    }
+    return null;
+  }
+  /** @internal */
+  _getOptionValue(valueString) {
+    const id = _extractId$1(valueString);
+    return this._optionMap.has(id) ? this._optionMap.get(id) : valueString;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275SelectControlValueAccessor_BaseFactory;
+    return function SelectControlValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275SelectControlValueAccessor_BaseFactory || (\u0275SelectControlValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_SelectControlValueAccessor)))(__ngFactoryType__ || _SelectControlValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _SelectControlValueAccessor,
+    selectors: [["select", "formControlName", "", 3, "multiple", ""], ["select", "formControl", "", 3, "multiple", ""], ["select", "ngModel", "", 3, "multiple", ""]],
+    hostBindings: function SelectControlValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function SelectControlValueAccessor_change_HostBindingHandler($event) {
+          return ctx.onChange($event.target.value);
+        })("blur", function SelectControlValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    inputs: {
+      compareWith: "compareWith"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([SELECT_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SelectControlValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "select:not([multiple])[formControlName],select:not([multiple])[formControl],select:not([multiple])[ngModel]",
+      host: {
+        "(change)": "onChange($event.target.value)",
+        "(blur)": "onTouched()"
+      },
+      providers: [SELECT_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, {
+    compareWith: [{
+      type: Input
+    }]
+  });
+})();
+var NgSelectOption = class _NgSelectOption {
+  _element;
+  _renderer;
+  _select;
+  /**
+   * @description
+   * ID of the option element
+   */
+  id;
+  constructor(_element, _renderer, _select) {
+    this._element = _element;
+    this._renderer = _renderer;
+    this._select = _select;
+    if (this._select) this.id = this._select._registerOption();
+  }
+  /**
+   * @description
+   * Tracks the value bound to the option element. Unlike the value binding,
+   * ngValue supports binding to objects.
+   */
+  set ngValue(value) {
+    if (this._select == null) return;
+    this._select._optionMap.set(this.id, value);
+    this._setElementValue(_buildValueString$1(this.id, value));
+    this._select.writeValue(this._select.value);
+  }
+  /**
+   * @description
+   * Tracks simple string values bound to the option element.
+   * For objects, use the `ngValue` input binding.
+   */
+  set value(value) {
+    this._setElementValue(value);
+    if (this._select) this._select.writeValue(this._select.value);
+  }
+  /** @internal */
+  _setElementValue(value) {
+    this._renderer.setProperty(this._element.nativeElement, "value", value);
+  }
+  /** @docs-private */
+  ngOnDestroy() {
+    if (this._select) {
+      this._select._optionMap.delete(this.id);
+      this._select.writeValue(this._select.value);
+    }
+  }
+  static \u0275fac = function NgSelectOption_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgSelectOption)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(SelectControlValueAccessor, 9));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgSelectOption,
+    selectors: [["option"]],
+    inputs: {
+      ngValue: "ngValue",
+      value: "value"
+    },
+    standalone: false
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgSelectOption, [{
+    type: Directive,
+    args: [{
+      selector: "option",
+      standalone: false
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: Renderer2
+  }, {
+    type: SelectControlValueAccessor,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }]
+  }], {
+    ngValue: [{
+      type: Input,
+      args: ["ngValue"]
+    }],
+    value: [{
+      type: Input,
+      args: ["value"]
+    }]
+  });
+})();
+var SELECT_MULTIPLE_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => SelectMultipleControlValueAccessor),
+  multi: true
+};
+function _buildValueString(id, value) {
+  if (id == null) return `${value}`;
+  if (typeof value === "string") value = `'${value}'`;
+  if (value && typeof value === "object") value = "Object";
+  return `${id}: ${value}`.slice(0, 50);
+}
+function _extractId(valueString) {
+  return valueString.split(":")[0];
+}
+var SelectMultipleControlValueAccessor = class _SelectMultipleControlValueAccessor extends BuiltInControlValueAccessor {
+  /**
+   * The current value.
+   * @docs-private
+   */
+  value;
+  /** @internal */
+  _optionMap = /* @__PURE__ */ new Map();
+  /** @internal */
+  _idCounter = 0;
+  /**
+   * @description
+   * Tracks the option comparison algorithm for tracking identities when
+   * checking for changes.
+   */
+  set compareWith(fn) {
+    if (typeof fn !== "function" && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw new RuntimeError(1201, `compareWith must be a function, but received ${JSON.stringify(fn)}`);
+    }
+    this._compareWith = fn;
+  }
+  _compareWith = Object.is;
+  /**
+   * Sets the "value" property on one or of more of the select's options.
+   * @docs-private
+   */
+  writeValue(value) {
+    this.value = value;
+    let optionSelectedStateSetter;
+    if (Array.isArray(value)) {
+      const ids = value.map((v) => this._getOptionId(v));
+      optionSelectedStateSetter = (opt, o) => {
+        opt._setSelected(ids.indexOf(o.toString()) > -1);
+      };
     } else {
-      this.tools.minigameCoins += amount;
-      if (this.tools.minigameCoins < 0)
+      optionSelectedStateSetter = (opt, o) => {
+        opt._setSelected(false);
+      };
+    }
+    this._optionMap.forEach(optionSelectedStateSetter);
+  }
+  /**
+   * Registers a function called when the control value changes
+   * and writes an array of the selected options.
+   * @docs-private
+   */
+  registerOnChange(fn) {
+    this.onChange = (element) => {
+      const selected = [];
+      const selectedOptions = element.selectedOptions;
+      if (selectedOptions !== void 0) {
+        const options = selectedOptions;
+        for (let i = 0; i < options.length; i++) {
+          const opt = options[i];
+          const val = this._getOptionValue(opt.value);
+          selected.push(val);
+        }
+      } else {
+        const options = element.options;
+        for (let i = 0; i < options.length; i++) {
+          const opt = options[i];
+          if (opt.selected) {
+            const val = this._getOptionValue(opt.value);
+            selected.push(val);
+          }
+        }
+      }
+      this.value = selected;
+      fn(selected);
+    };
+  }
+  /** @internal */
+  _registerOption(value) {
+    const id = (this._idCounter++).toString();
+    this._optionMap.set(id, value);
+    return id;
+  }
+  /** @internal */
+  _getOptionId(value) {
+    for (const id of this._optionMap.keys()) {
+      if (this._compareWith(this._optionMap.get(id)._value, value)) return id;
+    }
+    return null;
+  }
+  /** @internal */
+  _getOptionValue(valueString) {
+    const id = _extractId(valueString);
+    return this._optionMap.has(id) ? this._optionMap.get(id)._value : valueString;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275SelectMultipleControlValueAccessor_BaseFactory;
+    return function SelectMultipleControlValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275SelectMultipleControlValueAccessor_BaseFactory || (\u0275SelectMultipleControlValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_SelectMultipleControlValueAccessor)))(__ngFactoryType__ || _SelectMultipleControlValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _SelectMultipleControlValueAccessor,
+    selectors: [["select", "multiple", "", "formControlName", ""], ["select", "multiple", "", "formControl", ""], ["select", "multiple", "", "ngModel", ""]],
+    hostBindings: function SelectMultipleControlValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function SelectMultipleControlValueAccessor_change_HostBindingHandler($event) {
+          return ctx.onChange($event.target);
+        })("blur", function SelectMultipleControlValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    inputs: {
+      compareWith: "compareWith"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([SELECT_MULTIPLE_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SelectMultipleControlValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "select[multiple][formControlName],select[multiple][formControl],select[multiple][ngModel]",
+      host: {
+        "(change)": "onChange($event.target)",
+        "(blur)": "onTouched()"
+      },
+      providers: [SELECT_MULTIPLE_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, {
+    compareWith: [{
+      type: Input
+    }]
+  });
+})();
+var \u0275NgSelectMultipleOption = class _\u0275NgSelectMultipleOption {
+  _element;
+  _renderer;
+  _select;
+  id;
+  /** @internal */
+  _value;
+  constructor(_element, _renderer, _select) {
+    this._element = _element;
+    this._renderer = _renderer;
+    this._select = _select;
+    if (this._select) {
+      this.id = this._select._registerOption(this);
+    }
+  }
+  /**
+   * @description
+   * Tracks the value bound to the option element. Unlike the value binding,
+   * ngValue supports binding to objects.
+   */
+  set ngValue(value) {
+    if (this._select == null) return;
+    this._value = value;
+    this._setElementValue(_buildValueString(this.id, value));
+    this._select.writeValue(this._select.value);
+  }
+  /**
+   * @description
+   * Tracks simple string values bound to the option element.
+   * For objects, use the `ngValue` input binding.
+   */
+  set value(value) {
+    if (this._select) {
+      this._value = value;
+      this._setElementValue(_buildValueString(this.id, value));
+      this._select.writeValue(this._select.value);
+    } else {
+      this._setElementValue(value);
+    }
+  }
+  /** @internal */
+  _setElementValue(value) {
+    this._renderer.setProperty(this._element.nativeElement, "value", value);
+  }
+  /** @internal */
+  _setSelected(selected) {
+    this._renderer.setProperty(this._element.nativeElement, "selected", selected);
+  }
+  /** @docs-private */
+  ngOnDestroy() {
+    if (this._select) {
+      this._select._optionMap.delete(this.id);
+      this._select.writeValue(this._select.value);
+    }
+  }
+  static \u0275fac = function \u0275NgSelectMultipleOption_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _\u0275NgSelectMultipleOption)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(SelectMultipleControlValueAccessor, 9));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _\u0275NgSelectMultipleOption,
+    selectors: [["option"]],
+    inputs: {
+      ngValue: "ngValue",
+      value: "value"
+    },
+    standalone: false
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(\u0275NgSelectMultipleOption, [{
+    type: Directive,
+    args: [{
+      selector: "option",
+      standalone: false
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: Renderer2
+  }, {
+    type: SelectMultipleControlValueAccessor,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }]
+  }], {
+    ngValue: [{
+      type: Input,
+      args: ["ngValue"]
+    }],
+    value: [{
+      type: Input,
+      args: ["value"]
+    }]
+  });
+})();
+function toInteger(value) {
+  return typeof value === "number" ? value : parseInt(value, 10);
+}
+function toFloat(value) {
+  return typeof value === "number" ? value : parseFloat(value);
+}
+var AbstractValidatorDirective = class _AbstractValidatorDirective {
+  _validator = nullValidator;
+  _onChange;
+  /**
+   * A flag that tracks whether this validator is enabled.
+   *
+   * Marking it `internal` (vs `protected`), so that this flag can be used in host bindings of
+   * directive classes that extend this base class.
+   * @internal
+   */
+  _enabled;
+  /** @docs-private */
+  ngOnChanges(changes) {
+    if (this.inputName in changes) {
+      const input2 = this.normalizeInput(changes[this.inputName].currentValue);
+      this._enabled = this.enabled(input2);
+      this._validator = this._enabled ? this.createValidator(input2) : nullValidator;
+      if (this._onChange) {
+        this._onChange();
+      }
+    }
+  }
+  /** @docs-private */
+  validate(control) {
+    return this._validator(control);
+  }
+  /** @docs-private */
+  registerOnValidatorChange(fn) {
+    this._onChange = fn;
+  }
+  /**
+   * @description
+   * Determines whether this validator should be active or not based on an input.
+   * Base class implementation checks whether an input is defined (if the value is different from
+   * `null` and `undefined`). Validator classes that extend this base class can override this
+   * function with the logic specific to a particular validator directive.
+   */
+  enabled(input2) {
+    return input2 != null;
+  }
+  static \u0275fac = function AbstractValidatorDirective_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _AbstractValidatorDirective)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _AbstractValidatorDirective,
+    features: [\u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AbstractValidatorDirective, [{
+    type: Directive
+  }], null, null);
+})();
+var MAX_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => MaxValidator),
+  multi: true
+};
+var MaxValidator = class _MaxValidator extends AbstractValidatorDirective {
+  /**
+   * @description
+   * Tracks changes to the max bound to this directive.
+   */
+  max;
+  /** @internal */
+  inputName = "max";
+  /** @internal */
+  normalizeInput = (input2) => toFloat(input2);
+  /** @internal */
+  createValidator = (max) => maxValidator(max);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275MaxValidator_BaseFactory;
+    return function MaxValidator_Factory(__ngFactoryType__) {
+      return (\u0275MaxValidator_BaseFactory || (\u0275MaxValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MaxValidator)))(__ngFactoryType__ || _MaxValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MaxValidator,
+    selectors: [["input", "type", "number", "max", "", "formControlName", ""], ["input", "type", "number", "max", "", "formControl", ""], ["input", "type", "number", "max", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function MaxValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("max", ctx._enabled ? ctx.max : null);
+      }
+    },
+    inputs: {
+      max: "max"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([MAX_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MaxValidator, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=number][max][formControlName],input[type=number][max][formControl],input[type=number][max][ngModel]",
+      providers: [MAX_VALIDATOR],
+      host: {
+        "[attr.max]": "_enabled ? max : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    max: [{
+      type: Input
+    }]
+  });
+})();
+var MIN_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => MinValidator),
+  multi: true
+};
+var MinValidator = class _MinValidator extends AbstractValidatorDirective {
+  /**
+   * @description
+   * Tracks changes to the min bound to this directive.
+   */
+  min;
+  /** @internal */
+  inputName = "min";
+  /** @internal */
+  normalizeInput = (input2) => toFloat(input2);
+  /** @internal */
+  createValidator = (min) => minValidator(min);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275MinValidator_BaseFactory;
+    return function MinValidator_Factory(__ngFactoryType__) {
+      return (\u0275MinValidator_BaseFactory || (\u0275MinValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MinValidator)))(__ngFactoryType__ || _MinValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MinValidator,
+    selectors: [["input", "type", "number", "min", "", "formControlName", ""], ["input", "type", "number", "min", "", "formControl", ""], ["input", "type", "number", "min", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function MinValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("min", ctx._enabled ? ctx.min : null);
+      }
+    },
+    inputs: {
+      min: "min"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([MIN_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MinValidator, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=number][min][formControlName],input[type=number][min][formControl],input[type=number][min][ngModel]",
+      providers: [MIN_VALIDATOR],
+      host: {
+        "[attr.min]": "_enabled ? min : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    min: [{
+      type: Input
+    }]
+  });
+})();
+var REQUIRED_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => RequiredValidator),
+  multi: true
+};
+var CHECKBOX_REQUIRED_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => CheckboxRequiredValidator),
+  multi: true
+};
+var RequiredValidator = class _RequiredValidator extends AbstractValidatorDirective {
+  /**
+   * @description
+   * Tracks changes to the required attribute bound to this directive.
+   */
+  required;
+  /** @internal */
+  inputName = "required";
+  /** @internal */
+  normalizeInput = booleanAttribute;
+  /** @internal */
+  createValidator = (input2) => requiredValidator;
+  /** @docs-private */
+  enabled(input2) {
+    return input2;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275RequiredValidator_BaseFactory;
+    return function RequiredValidator_Factory(__ngFactoryType__) {
+      return (\u0275RequiredValidator_BaseFactory || (\u0275RequiredValidator_BaseFactory = \u0275\u0275getInheritedFactory(_RequiredValidator)))(__ngFactoryType__ || _RequiredValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _RequiredValidator,
+    selectors: [["", "required", "", "formControlName", "", 3, "type", "checkbox"], ["", "required", "", "formControl", "", 3, "type", "checkbox"], ["", "required", "", "ngModel", "", 3, "type", "checkbox"]],
+    hostVars: 1,
+    hostBindings: function RequiredValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("required", ctx._enabled ? "" : null);
+      }
+    },
+    inputs: {
+      required: "required"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([REQUIRED_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RequiredValidator, [{
+    type: Directive,
+    args: [{
+      selector: ":not([type=checkbox])[required][formControlName],:not([type=checkbox])[required][formControl],:not([type=checkbox])[required][ngModel]",
+      providers: [REQUIRED_VALIDATOR],
+      host: {
+        "[attr.required]": '_enabled ? "" : null'
+      },
+      standalone: false
+    }]
+  }], null, {
+    required: [{
+      type: Input
+    }]
+  });
+})();
+var CheckboxRequiredValidator = class _CheckboxRequiredValidator extends RequiredValidator {
+  /** @internal */
+  createValidator = (input2) => requiredTrueValidator;
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275CheckboxRequiredValidator_BaseFactory;
+    return function CheckboxRequiredValidator_Factory(__ngFactoryType__) {
+      return (\u0275CheckboxRequiredValidator_BaseFactory || (\u0275CheckboxRequiredValidator_BaseFactory = \u0275\u0275getInheritedFactory(_CheckboxRequiredValidator)))(__ngFactoryType__ || _CheckboxRequiredValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _CheckboxRequiredValidator,
+    selectors: [["input", "type", "checkbox", "required", "", "formControlName", ""], ["input", "type", "checkbox", "required", "", "formControl", ""], ["input", "type", "checkbox", "required", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function CheckboxRequiredValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("required", ctx._enabled ? "" : null);
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([CHECKBOX_REQUIRED_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CheckboxRequiredValidator, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=checkbox][required][formControlName],input[type=checkbox][required][formControl],input[type=checkbox][required][ngModel]",
+      providers: [CHECKBOX_REQUIRED_VALIDATOR],
+      host: {
+        "[attr.required]": '_enabled ? "" : null'
+      },
+      standalone: false
+    }]
+  }], null, null);
+})();
+var EMAIL_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => EmailValidator),
+  multi: true
+};
+var EmailValidator = class _EmailValidator extends AbstractValidatorDirective {
+  /**
+   * @description
+   * Tracks changes to the email attribute bound to this directive.
+   */
+  email;
+  /** @internal */
+  inputName = "email";
+  /** @internal */
+  normalizeInput = booleanAttribute;
+  /** @internal */
+  createValidator = (input2) => emailValidator;
+  /** @docs-private */
+  enabled(input2) {
+    return input2;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275EmailValidator_BaseFactory;
+    return function EmailValidator_Factory(__ngFactoryType__) {
+      return (\u0275EmailValidator_BaseFactory || (\u0275EmailValidator_BaseFactory = \u0275\u0275getInheritedFactory(_EmailValidator)))(__ngFactoryType__ || _EmailValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _EmailValidator,
+    selectors: [["", "email", "", "formControlName", ""], ["", "email", "", "formControl", ""], ["", "email", "", "ngModel", ""]],
+    inputs: {
+      email: "email"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([EMAIL_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(EmailValidator, [{
+    type: Directive,
+    args: [{
+      selector: "[email][formControlName],[email][formControl],[email][ngModel]",
+      providers: [EMAIL_VALIDATOR],
+      standalone: false
+    }]
+  }], null, {
+    email: [{
+      type: Input
+    }]
+  });
+})();
+var MIN_LENGTH_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => MinLengthValidator),
+  multi: true
+};
+var MinLengthValidator = class _MinLengthValidator extends AbstractValidatorDirective {
+  /**
+   * @description
+   * Tracks changes to the minimum length bound to this directive.
+   */
+  minlength;
+  /** @internal */
+  inputName = "minlength";
+  /** @internal */
+  normalizeInput = (input2) => toInteger(input2);
+  /** @internal */
+  createValidator = (minlength) => minLengthValidator(minlength);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275MinLengthValidator_BaseFactory;
+    return function MinLengthValidator_Factory(__ngFactoryType__) {
+      return (\u0275MinLengthValidator_BaseFactory || (\u0275MinLengthValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MinLengthValidator)))(__ngFactoryType__ || _MinLengthValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MinLengthValidator,
+    selectors: [["", "minlength", "", "formControlName", ""], ["", "minlength", "", "formControl", ""], ["", "minlength", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function MinLengthValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("minlength", ctx._enabled ? ctx.minlength : null);
+      }
+    },
+    inputs: {
+      minlength: "minlength"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([MIN_LENGTH_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MinLengthValidator, [{
+    type: Directive,
+    args: [{
+      selector: "[minlength][formControlName],[minlength][formControl],[minlength][ngModel]",
+      providers: [MIN_LENGTH_VALIDATOR],
+      host: {
+        "[attr.minlength]": "_enabled ? minlength : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    minlength: [{
+      type: Input
+    }]
+  });
+})();
+var MAX_LENGTH_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => MaxLengthValidator),
+  multi: true
+};
+var MaxLengthValidator = class _MaxLengthValidator extends AbstractValidatorDirective {
+  /**
+   * @description
+   * Tracks changes to the maximum length bound to this directive.
+   */
+  maxlength;
+  /** @internal */
+  inputName = "maxlength";
+  /** @internal */
+  normalizeInput = (input2) => toInteger(input2);
+  /** @internal */
+  createValidator = (maxlength) => maxLengthValidator(maxlength);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275MaxLengthValidator_BaseFactory;
+    return function MaxLengthValidator_Factory(__ngFactoryType__) {
+      return (\u0275MaxLengthValidator_BaseFactory || (\u0275MaxLengthValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MaxLengthValidator)))(__ngFactoryType__ || _MaxLengthValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MaxLengthValidator,
+    selectors: [["", "maxlength", "", "formControlName", ""], ["", "maxlength", "", "formControl", ""], ["", "maxlength", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function MaxLengthValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("maxlength", ctx._enabled ? ctx.maxlength : null);
+      }
+    },
+    inputs: {
+      maxlength: "maxlength"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([MAX_LENGTH_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MaxLengthValidator, [{
+    type: Directive,
+    args: [{
+      selector: "[maxlength][formControlName],[maxlength][formControl],[maxlength][ngModel]",
+      providers: [MAX_LENGTH_VALIDATOR],
+      host: {
+        "[attr.maxlength]": "_enabled ? maxlength : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    maxlength: [{
+      type: Input
+    }]
+  });
+})();
+var PATTERN_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => PatternValidator),
+  multi: true
+};
+var PatternValidator = class _PatternValidator extends AbstractValidatorDirective {
+  /**
+   * @description
+   * Tracks changes to the pattern bound to this directive.
+   */
+  pattern;
+  // This input is always defined, since the name matches selector.
+  /** @internal */
+  inputName = "pattern";
+  /** @internal */
+  normalizeInput = (input2) => input2;
+  /** @internal */
+  createValidator = (input2) => patternValidator(input2);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275PatternValidator_BaseFactory;
+    return function PatternValidator_Factory(__ngFactoryType__) {
+      return (\u0275PatternValidator_BaseFactory || (\u0275PatternValidator_BaseFactory = \u0275\u0275getInheritedFactory(_PatternValidator)))(__ngFactoryType__ || _PatternValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _PatternValidator,
+    selectors: [["", "pattern", "", "formControlName", ""], ["", "pattern", "", "formControl", ""], ["", "pattern", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function PatternValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("pattern", ctx._enabled ? ctx.pattern : null);
+      }
+    },
+    inputs: {
+      pattern: "pattern"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([PATTERN_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PatternValidator, [{
+    type: Directive,
+    args: [{
+      selector: "[pattern][formControlName],[pattern][formControl],[pattern][ngModel]",
+      providers: [PATTERN_VALIDATOR],
+      host: {
+        "[attr.pattern]": "_enabled ? pattern : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    pattern: [{
+      type: Input
+    }]
+  });
+})();
+var SHARED_FORM_DIRECTIVES = [\u0275NgNoValidate, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, RangeValueAccessor, CheckboxControlValueAccessor, SelectControlValueAccessor, SelectMultipleControlValueAccessor, RadioControlValueAccessor, NgControlStatus, NgControlStatusGroup, RequiredValidator, MinLengthValidator, MaxLengthValidator, PatternValidator, CheckboxRequiredValidator, EmailValidator, MinValidator, MaxValidator];
+var TEMPLATE_DRIVEN_DIRECTIVES = [NgModel, NgModelGroup, NgForm];
+var REACTIVE_DRIVEN_DIRECTIVES = [FormControlDirective, FormGroupDirective, FormControlName, FormGroupName, FormArrayName];
+var \u0275InternalFormsSharedModule = class _\u0275InternalFormsSharedModule {
+  static \u0275fac = function \u0275InternalFormsSharedModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _\u0275InternalFormsSharedModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _\u0275InternalFormsSharedModule,
+    declarations: [\u0275NgNoValidate, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, RangeValueAccessor, CheckboxControlValueAccessor, SelectControlValueAccessor, SelectMultipleControlValueAccessor, RadioControlValueAccessor, NgControlStatus, NgControlStatusGroup, RequiredValidator, MinLengthValidator, MaxLengthValidator, PatternValidator, CheckboxRequiredValidator, EmailValidator, MinValidator, MaxValidator],
+    exports: [\u0275NgNoValidate, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, RangeValueAccessor, CheckboxControlValueAccessor, SelectControlValueAccessor, SelectMultipleControlValueAccessor, RadioControlValueAccessor, NgControlStatus, NgControlStatusGroup, RequiredValidator, MinLengthValidator, MaxLengthValidator, PatternValidator, CheckboxRequiredValidator, EmailValidator, MinValidator, MaxValidator]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({});
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(\u0275InternalFormsSharedModule, [{
+    type: NgModule,
+    args: [{
+      declarations: SHARED_FORM_DIRECTIVES,
+      exports: SHARED_FORM_DIRECTIVES
+    }]
+  }], null, null);
+})();
+var FormArray = class extends AbstractControl {
+  /**
+   * Creates a new `FormArray` instance.
+   *
+   * @param controls An array of child controls. Each child control is given an index
+   * where it is registered.
+   *
+   * @param validatorOrOpts A synchronous validator function, or an array of
+   * such functions, or an `AbstractControlOptions` object that contains validation functions
+   * and a validation trigger.
+   *
+   * @param asyncValidator A single async validator or array of async validator functions
+   *
+   */
+  constructor(controls, validatorOrOpts, asyncValidator) {
+    super(pickValidators(validatorOrOpts), pickAsyncValidators(asyncValidator, validatorOrOpts));
+    this.controls = controls;
+    this._initObservables();
+    this._setUpdateStrategy(validatorOrOpts);
+    this._setUpControls();
+    this.updateValueAndValidity({
+      onlySelf: true,
+      // If `asyncValidator` is present, it will trigger control status change from `PENDING` to
+      // `VALID` or `INVALID`.
+      // The status should be broadcasted via the `statusChanges` observable, so we set `emitEvent`
+      // to `true` to allow that during the control creation process.
+      emitEvent: !!this.asyncValidator
+    });
+  }
+  controls;
+  /**
+   * Get the `AbstractControl` at the given `index` in the array.
+   *
+   * @param index Index in the array to retrieve the control. If `index` is negative, it will wrap
+   *     around from the back, and if index is greatly negative (less than `-length`), the result is
+   * undefined. This behavior is the same as `Array.at(index)`.
+   */
+  at(index) {
+    return this.controls[this._adjustIndex(index)];
+  }
+  /**
+   * Insert a new `AbstractControl` at the end of the array.
+   *
+   * @param control Form control to be inserted
+   * @param options Specifies whether this FormArray instance should emit events after a new
+   *     control is added.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges` observables emit events with the latest status and value when the control is
+   * inserted. When false, no events are emitted.
+   */
+  push(control, options = {}) {
+    this.controls.push(control);
+    this._registerControl(control);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  /**
+   * Insert a new `AbstractControl` at the given `index` in the array.
+   *
+   * @param index Index in the array to insert the control. If `index` is negative, wraps around
+   *     from the back. If `index` is greatly negative (less than `-length`), prepends to the array.
+   * This behavior is the same as `Array.splice(index, 0, control)`.
+   * @param control Form control to be inserted
+   * @param options Specifies whether this FormArray instance should emit events after a new
+   *     control is inserted.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges` observables emit events with the latest status and value when the control is
+   * inserted. When false, no events are emitted.
+   */
+  insert(index, control, options = {}) {
+    this.controls.splice(index, 0, control);
+    this._registerControl(control);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+  }
+  /**
+   * Remove the control at the given `index` in the array.
+   *
+   * @param index Index in the array to remove the control.  If `index` is negative, wraps around
+   *     from the back. If `index` is greatly negative (less than `-length`), removes the first
+   *     element. This behavior is the same as `Array.splice(index, 1)`.
+   * @param options Specifies whether this FormArray instance should emit events after a
+   *     control is removed.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges` observables emit events with the latest status and value when the control is
+   * removed. When false, no events are emitted.
+   */
+  removeAt(index, options = {}) {
+    let adjustedIndex = this._adjustIndex(index);
+    if (adjustedIndex < 0) adjustedIndex = 0;
+    if (this.controls[adjustedIndex]) this.controls[adjustedIndex]._registerOnCollectionChange(() => {
+    });
+    this.controls.splice(adjustedIndex, 1);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+  }
+  /**
+   * Replace an existing control.
+   *
+   * @param index Index in the array to replace the control. If `index` is negative, wraps around
+   *     from the back. If `index` is greatly negative (less than `-length`), replaces the first
+   *     element. This behavior is the same as `Array.splice(index, 1, control)`.
+   * @param control The `AbstractControl` control to replace the existing control
+   * @param options Specifies whether this FormArray instance should emit events after an
+   *     existing control is replaced with a new one.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges` observables emit events with the latest status and value when the control is
+   * replaced with a new one. When false, no events are emitted.
+   */
+  setControl(index, control, options = {}) {
+    let adjustedIndex = this._adjustIndex(index);
+    if (adjustedIndex < 0) adjustedIndex = 0;
+    if (this.controls[adjustedIndex]) this.controls[adjustedIndex]._registerOnCollectionChange(() => {
+    });
+    this.controls.splice(adjustedIndex, 1);
+    if (control) {
+      this.controls.splice(adjustedIndex, 0, control);
+      this._registerControl(control);
+    }
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  /**
+   * Length of the control array.
+   */
+  get length() {
+    return this.controls.length;
+  }
+  /**
+   * Sets the value of the `FormArray`. It accepts an array that matches
+   * the structure of the control.
+   *
+   * This method performs strict checks, and throws an error if you try
+   * to set the value of a control that doesn't exist or if you exclude the
+   * value of a control.
+   *
+   * @usageNotes
+   * ### Set the values for the controls in the form array
+   *
+   * ```ts
+   * const arr = new FormArray([
+   *   new FormControl(),
+   *   new FormControl()
+   * ]);
+   * console.log(arr.value);   // [null, null]
+   *
+   * arr.setValue(['Nancy', 'Drew']);
+   * console.log(arr.value);   // ['Nancy', 'Drew']
+   * ```
+   *
+   * @param value Array of values for the controls
+   * @param options Configure options that determine how the control propagates changes and
+   * emits events after the value changes
+   *
+   * * `onlySelf`: When true, each change only affects this control, and not its parent. Default
+   * is false.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges`
+   * observables emit events with the latest status and value when the control value is updated.
+   * When false, no events are emitted.
+   * The configuration options are passed to the {@link AbstractControl#updateValueAndValidity
+   * updateValueAndValidity} method.
+   */
+  setValue(value, options = {}) {
+    assertAllValuesPresent(this, false, value);
+    value.forEach((newValue, index) => {
+      assertControlPresent(this, false, index);
+      this.at(index).setValue(newValue, {
+        onlySelf: true,
+        emitEvent: options.emitEvent
+      });
+    });
+    this.updateValueAndValidity(options);
+  }
+  /**
+   * Patches the value of the `FormArray`. It accepts an array that matches the
+   * structure of the control, and does its best to match the values to the correct
+   * controls in the group.
+   *
+   * It accepts both super-sets and sub-sets of the array without throwing an error.
+   *
+   * @usageNotes
+   * ### Patch the values for controls in a form array
+   *
+   * ```ts
+   * const arr = new FormArray([
+   *    new FormControl(),
+   *    new FormControl()
+   * ]);
+   * console.log(arr.value);   // [null, null]
+   *
+   * arr.patchValue(['Nancy']);
+   * console.log(arr.value);   // ['Nancy', null]
+   * ```
+   *
+   * @param value Array of latest values for the controls
+   * @param options Configure options that determine how the control propagates changes and
+   * emits events after the value changes
+   *
+   * * `onlySelf`: When true, each change only affects this control, and not its parent. Default
+   * is false.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges` observables emit events with the latest status and value when the control
+   * value is updated. When false, no events are emitted. The configuration options are passed to
+   * the {@link AbstractControl#updateValueAndValidity updateValueAndValidity} method.
+   */
+  patchValue(value, options = {}) {
+    if (value == null) return;
+    value.forEach((newValue, index) => {
+      if (this.at(index)) {
+        this.at(index).patchValue(newValue, {
+          onlySelf: true,
+          emitEvent: options.emitEvent
+        });
+      }
+    });
+    this.updateValueAndValidity(options);
+  }
+  /**
+   * Resets the `FormArray` and all descendants are marked `pristine` and `untouched`, and the
+   * value of all descendants to null or null maps.
+   *
+   * You reset to a specific form state by passing in an array of states
+   * that matches the structure of the control. The state is a standalone value
+   * or a form state object with both a value and a disabled status.
+   *
+   * @usageNotes
+   * ### Reset the values in a form array
+   *
+   * ```ts
+   * const arr = new FormArray([
+   *    new FormControl(),
+   *    new FormControl()
+   * ]);
+   * arr.reset(['name', 'last name']);
+   *
+   * console.log(arr.value);  // ['name', 'last name']
+   * ```
+   *
+   * ### Reset the values in a form array and the disabled status for the first control
+   *
+   * ```ts
+   * arr.reset([
+   *   {value: 'name', disabled: true},
+   *   'last'
+   * ]);
+   *
+   * console.log(arr.value);  // ['last']
+   * console.log(arr.at(0).status);  // 'DISABLED'
+   * ```
+   *
+   * @param value Array of values for the controls
+   * @param options Configure options that determine how the control propagates changes and
+   * emits events after the value changes
+   *
+   * * `onlySelf`: When true, each change only affects this control, and not its parent. Default
+   * is false.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges`
+   * observables emit events with the latest status and value when the control is reset.
+   * When false, no events are emitted.
+   * The configuration options are passed to the {@link AbstractControl#updateValueAndValidity
+   * updateValueAndValidity} method.
+   */
+  reset(value = [], options = {}) {
+    this._forEachChild((control, index) => {
+      control.reset(value[index], {
+        onlySelf: true,
+        emitEvent: options.emitEvent
+      });
+    });
+    this._updatePristine(options, this);
+    this._updateTouched(options, this);
+    this.updateValueAndValidity(options);
+  }
+  /**
+   * The aggregate value of the array, including any disabled controls.
+   *
+   * Reports all values regardless of disabled status.
+   */
+  getRawValue() {
+    return this.controls.map((control) => control.getRawValue());
+  }
+  /**
+   * Remove all controls in the `FormArray`.
+   *
+   * @param options Specifies whether this FormArray instance should emit events after all
+   *     controls are removed.
+   * * `emitEvent`: When true or not supplied (the default), both the `statusChanges` and
+   * `valueChanges` observables emit events with the latest status and value when all controls
+   * in this FormArray instance are removed. When false, no events are emitted.
+   *
+   * @usageNotes
+   * ### Remove all elements from a FormArray
+   *
+   * ```ts
+   * const arr = new FormArray([
+   *    new FormControl(),
+   *    new FormControl()
+   * ]);
+   * console.log(arr.length);  // 2
+   *
+   * arr.clear();
+   * console.log(arr.length);  // 0
+   * ```
+   *
+   * It's a simpler and more efficient alternative to removing all elements one by one:
+   *
+   * ```ts
+   * const arr = new FormArray([
+   *    new FormControl(),
+   *    new FormControl()
+   * ]);
+   *
+   * while (arr.length) {
+   *    arr.removeAt(0);
+   * }
+   * ```
+   */
+  clear(options = {}) {
+    if (this.controls.length < 1) return;
+    this._forEachChild((control) => control._registerOnCollectionChange(() => {
+    }));
+    this.controls.splice(0);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+  }
+  /**
+   * Adjusts a negative index by summing it with the length of the array. For very negative
+   * indices, the result may remain negative.
+   * @internal
+   */
+  _adjustIndex(index) {
+    return index < 0 ? index + this.length : index;
+  }
+  /** @internal */
+  _syncPendingControls() {
+    let subtreeUpdated = this.controls.reduce((updated, child) => {
+      return child._syncPendingControls() ? true : updated;
+    }, false);
+    if (subtreeUpdated) this.updateValueAndValidity({
+      onlySelf: true
+    });
+    return subtreeUpdated;
+  }
+  /** @internal */
+  _forEachChild(cb) {
+    this.controls.forEach((control, index) => {
+      cb(control, index);
+    });
+  }
+  /** @internal */
+  _updateValue() {
+    this.value = this.controls.filter((control) => control.enabled || this.disabled).map((control) => control.value);
+  }
+  /** @internal */
+  _anyControls(condition) {
+    return this.controls.some((control) => control.enabled && condition(control));
+  }
+  /** @internal */
+  _setUpControls() {
+    this._forEachChild((control) => this._registerControl(control));
+  }
+  /** @internal */
+  _allControlsDisabled() {
+    for (const control of this.controls) {
+      if (control.enabled) return false;
+    }
+    return this.controls.length > 0 || this.disabled;
+  }
+  _registerControl(control) {
+    control.setParent(this);
+    control._registerOnCollectionChange(this._onCollectionChange);
+  }
+  /** @internal */
+  _find(name) {
+    return this.at(name) ?? null;
+  }
+};
+function isAbstractControlOptions(options) {
+  return !!options && (options.asyncValidators !== void 0 || options.validators !== void 0 || options.updateOn !== void 0);
+}
+var FormBuilder = class _FormBuilder {
+  useNonNullable = false;
+  /**
+   * @description
+   * Returns a FormBuilder in which automatically constructed `FormControl` elements
+   * have `{nonNullable: true}` and are non-nullable.
+   *
+   * **Constructing non-nullable controls**
+   *
+   * When constructing a control, it will be non-nullable, and will reset to its initial value.
+   *
+   * ```ts
+   * let nnfb = new FormBuilder().nonNullable;
+   * let name = nnfb.control('Alex'); // FormControl<string>
+   * name.reset();
+   * console.log(name); // 'Alex'
+   * ```
+   *
+   * **Constructing non-nullable groups or arrays**
+   *
+   * When constructing a group or array, all automatically created inner controls will be
+   * non-nullable, and will reset to their initial values.
+   *
+   * ```ts
+   * let nnfb = new FormBuilder().nonNullable;
+   * let name = nnfb.group({who: 'Alex'}); // FormGroup<{who: FormControl<string>}>
+   * name.reset();
+   * console.log(name); // {who: 'Alex'}
+   * ```
+   * **Constructing *nullable* fields on groups or arrays**
+   *
+   * It is still possible to have a nullable field. In particular, any `FormControl` which is
+   * *already* constructed will not be altered. For example:
+   *
+   * ```ts
+   * let nnfb = new FormBuilder().nonNullable;
+   * // FormGroup<{who: FormControl<string|null>}>
+   * let name = nnfb.group({who: new FormControl('Alex')});
+   * name.reset(); console.log(name); // {who: null}
+   * ```
+   *
+   * Because the inner control is constructed explicitly by the caller, the builder has
+   * no control over how it is created, and cannot exclude the `null`.
+   */
+  get nonNullable() {
+    const nnfb = new _FormBuilder();
+    nnfb.useNonNullable = true;
+    return nnfb;
+  }
+  group(controls, options = null) {
+    const reducedControls = this._reduceControls(controls);
+    let newOptions = {};
+    if (isAbstractControlOptions(options)) {
+      newOptions = options;
+    } else if (options !== null) {
+      newOptions.validators = options.validator;
+      newOptions.asyncValidators = options.asyncValidator;
+    }
+    return new FormGroup(reducedControls, newOptions);
+  }
+  /**
+   * @description
+   * Constructs a new `FormRecord` instance. Accepts a single generic argument, which is an object
+   * containing all the keys and corresponding inner control types.
+   *
+   * @param controls A collection of child controls. The key for each child is the name
+   * under which it is registered.
+   *
+   * @param options Configuration options object for the `FormRecord`. The object should have the
+   * `AbstractControlOptions` type and might contain the following fields:
+   * * `validators`: A synchronous validator function, or an array of validator functions.
+   * * `asyncValidators`: A single async validator or array of async validator functions.
+   * * `updateOn`: The event upon which the control should be updated (options: 'change' | 'blur'
+   * | submit').
+   */
+  record(controls, options = null) {
+    const reducedControls = this._reduceControls(controls);
+    return new FormRecord(reducedControls, options);
+  }
+  /**
+   * @description
+   * Constructs a new `FormControl` with the given state, validators and options. Sets
+   * `{nonNullable: true}` in the options to get a non-nullable control. Otherwise, the
+   * control will be nullable. Accepts a single generic argument, which is the type  of the
+   * control's value.
+   *
+   * @param formState Initializes the control with an initial state value, or
+   * with an object that contains both a value and a disabled status.
+   *
+   * @param validatorOrOpts A synchronous validator function, or an array of
+   * such functions, or a `FormControlOptions` object that contains
+   * validation functions and a validation trigger.
+   *
+   * @param asyncValidator A single async validator or array of async validator
+   * functions.
+   *
+   * @usageNotes
+   *
+   * ### Initialize a control as disabled
+   *
+   * The following example returns a control with an initial value in a disabled state.
+   *
+   * {@example forms/ts/formBuilder/form_builder_example.ts region='disabled-control'}
+   */
+  control(formState, validatorOrOpts, asyncValidator) {
+    let newOptions = {};
+    if (!this.useNonNullable) {
+      return new FormControl(formState, validatorOrOpts, asyncValidator);
+    }
+    if (isAbstractControlOptions(validatorOrOpts)) {
+      newOptions = validatorOrOpts;
+    } else {
+      newOptions.validators = validatorOrOpts;
+      newOptions.asyncValidators = asyncValidator;
+    }
+    return new FormControl(formState, __spreadProps(__spreadValues({}, newOptions), {
+      nonNullable: true
+    }));
+  }
+  /**
+   * Constructs a new `FormArray` from the given array of configurations,
+   * validators and options. Accepts a single generic argument, which is the type of each control
+   * inside the array.
+   *
+   * @param controls An array of child controls or control configs. Each child control is given an
+   *     index when it is registered.
+   *
+   * @param validatorOrOpts A synchronous validator function, or an array of such functions, or an
+   *     `AbstractControlOptions` object that contains
+   * validation functions and a validation trigger.
+   *
+   * @param asyncValidator A single async validator or array of async validator functions.
+   */
+  array(controls, validatorOrOpts, asyncValidator) {
+    const createdControls = controls.map((c) => this._createControl(c));
+    return new FormArray(createdControls, validatorOrOpts, asyncValidator);
+  }
+  /** @internal */
+  _reduceControls(controls) {
+    const createdControls = {};
+    Object.keys(controls).forEach((controlName) => {
+      createdControls[controlName] = this._createControl(controls[controlName]);
+    });
+    return createdControls;
+  }
+  /** @internal */
+  _createControl(controls) {
+    if (controls instanceof FormControl) {
+      return controls;
+    } else if (controls instanceof AbstractControl) {
+      return controls;
+    } else if (Array.isArray(controls)) {
+      const value = controls[0];
+      const validator = controls.length > 1 ? controls[1] : null;
+      const asyncValidator = controls.length > 2 ? controls[2] : null;
+      return this.control(value, validator, asyncValidator);
+    } else {
+      return this.control(controls);
+    }
+  }
+  static \u0275fac = function FormBuilder_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormBuilder)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _FormBuilder,
+    factory: _FormBuilder.\u0275fac,
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormBuilder, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+var NonNullableFormBuilder = class _NonNullableFormBuilder {
+  static \u0275fac = function NonNullableFormBuilder_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NonNullableFormBuilder)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _NonNullableFormBuilder,
+    factory: () => (() => inject(FormBuilder).nonNullable)(),
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NonNullableFormBuilder, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root",
+      useFactory: () => inject(FormBuilder).nonNullable
+    }]
+  }], null, null);
+})();
+var UntypedFormBuilder = class _UntypedFormBuilder extends FormBuilder {
+  group(controlsConfig, options = null) {
+    return super.group(controlsConfig, options);
+  }
+  /**
+   * Like `FormBuilder#control`, except the resulting control is untyped.
+   */
+  control(formState, validatorOrOpts, asyncValidator) {
+    return super.control(formState, validatorOrOpts, asyncValidator);
+  }
+  /**
+   * Like `FormBuilder#array`, except the resulting array is untyped.
+   */
+  array(controlsConfig, validatorOrOpts, asyncValidator) {
+    return super.array(controlsConfig, validatorOrOpts, asyncValidator);
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275UntypedFormBuilder_BaseFactory;
+    return function UntypedFormBuilder_Factory(__ngFactoryType__) {
+      return (\u0275UntypedFormBuilder_BaseFactory || (\u0275UntypedFormBuilder_BaseFactory = \u0275\u0275getInheritedFactory(_UntypedFormBuilder)))(__ngFactoryType__ || _UntypedFormBuilder);
+    };
+  })();
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _UntypedFormBuilder,
+    factory: _UntypedFormBuilder.\u0275fac,
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UntypedFormBuilder, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+var VERSION5 = new Version("19.2.14");
+var FormsModule = class _FormsModule {
+  /**
+   * @description
+   * Provides options for configuring the forms module.
+   *
+   * @param opts An object of configuration options
+   * * `callSetDisabledState` Configures whether to `always` call `setDisabledState`, which is more
+   * correct, or to only call it `whenDisabled`, which is the legacy behavior.
+   */
+  static withConfig(opts) {
+    return {
+      ngModule: _FormsModule,
+      providers: [{
+        provide: CALL_SET_DISABLED_STATE,
+        useValue: opts.callSetDisabledState ?? setDisabledStateDefault
+      }]
+    };
+  }
+  static \u0275fac = function FormsModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormsModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _FormsModule,
+    declarations: [NgModel, NgModelGroup, NgForm],
+    exports: [\u0275InternalFormsSharedModule, NgModel, NgModelGroup, NgForm]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    imports: [\u0275InternalFormsSharedModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormsModule, [{
+    type: NgModule,
+    args: [{
+      declarations: TEMPLATE_DRIVEN_DIRECTIVES,
+      exports: [\u0275InternalFormsSharedModule, TEMPLATE_DRIVEN_DIRECTIVES]
+    }]
+  }], null, null);
+})();
+var ReactiveFormsModule = class _ReactiveFormsModule {
+  /**
+   * @description
+   * Provides options for configuring the reactive forms module.
+   *
+   * @param opts An object of configuration options
+   * * `warnOnNgModelWithFormControl` Configures when to emit a warning when an `ngModel`
+   * binding is used with reactive form directives.
+   * * `callSetDisabledState` Configures whether to `always` call `setDisabledState`, which is more
+   * correct, or to only call it `whenDisabled`, which is the legacy behavior.
+   */
+  static withConfig(opts) {
+    return {
+      ngModule: _ReactiveFormsModule,
+      providers: [{
+        provide: NG_MODEL_WITH_FORM_CONTROL_WARNING,
+        useValue: opts.warnOnNgModelWithFormControl ?? "always"
+      }, {
+        provide: CALL_SET_DISABLED_STATE,
+        useValue: opts.callSetDisabledState ?? setDisabledStateDefault
+      }]
+    };
+  }
+  static \u0275fac = function ReactiveFormsModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _ReactiveFormsModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _ReactiveFormsModule,
+    declarations: [FormControlDirective, FormGroupDirective, FormControlName, FormGroupName, FormArrayName],
+    exports: [\u0275InternalFormsSharedModule, FormControlDirective, FormGroupDirective, FormControlName, FormGroupName, FormArrayName]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    imports: [\u0275InternalFormsSharedModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ReactiveFormsModule, [{
+    type: NgModule,
+    args: [{
+      declarations: [REACTIVE_DRIVEN_DIRECTIVES],
+      exports: [\u0275InternalFormsSharedModule, REACTIVE_DRIVEN_DIRECTIVES]
+    }]
+  }], null, null);
+})();
+
+// src/app/pages/redeem/redeem.component.ts
+function RedeemComponent_Conditional_12_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div");
+    \u0275\u0275element(1, "img", 8);
+    \u0275\u0275elementStart(2, "span", 9);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const code_r1 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMapInterpolate1("history-item ", ctx_r1.tools.themeColor, "");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(code_r1);
+  }
+}
+function RedeemComponent_Conditional_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, RedeemComponent_Conditional_12_For_1_Template, 4, 4, "div", 7, \u0275\u0275repeaterTrackByIndex);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275repeater(ctx_r1.tools.redeemedCodes);
+  }
+}
+function RedeemComponent_Conditional_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 6);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r1.tools.redeem[ctx_r1.tools.lang].empty_codes || "No redeemed codes yet.");
+  }
+}
+var RedeemComponent = class _RedeemComponent {
+  tools = inject(ToolsService);
+  inputCode = "";
+  ngOnInit() {
+    this.tools.setTitle("redeem");
+    this.tools.actPage = "redeem";
+  }
+  redeemCode() {
+    const codeToRedeem = this.inputCode.trim().toUpperCase();
+    if (!codeToRedeem)
+      return;
+    let matchedConfig = null;
+    let matchedId = "";
+    const codesData = codes_default;
+    for (const id in codesData) {
+      if (codesData[id].code.toUpperCase() === codeToRedeem) {
+        matchedConfig = codesData[id];
+        matchedId = id;
+        break;
+      }
+    }
+    if (!matchedConfig) {
+      this.tools.showToast(this.tools.redeem[this.tools.lang]?.invalidCode || "Invalid code!");
+      return;
+    }
+    if (matchedConfig.one_time_redeem && this.tools.redeemedCodes.includes(matchedConfig.code)) {
+      this.tools.showToast(this.tools.redeem[this.tools.lang]?.alreadyRedeemed || "Code already redeemed!");
+      return;
+    }
+    if (matchedConfig.dg) {
+      this.tools.dogeCoins += matchedConfig.dg;
+      if (this.tools.dogeCoins < 0) {
+        this.tools.dogeCoins = 0;
+      } else if (matchedConfig.dg > 0) {
+        this.tools.totalDogeCoinsEarned += matchedConfig.dg;
+        this.tools.saveData("lifetime_dg", String(this.tools.totalDogeCoinsEarned));
+      }
+      this.tools.saveData("dg", String(this.tools.dogeCoins));
+    }
+    if (matchedConfig.mg) {
+      this.tools.minigameCoins += matchedConfig.mg;
+      if (this.tools.minigameCoins < 0) {
         this.tools.minigameCoins = 0;
+      } else if (matchedConfig.mg > 0) {
+        this.tools.totalMinigameCoinsEarned += matchedConfig.mg;
+        this.tools.saveData("lifetime_mg", String(this.tools.totalMinigameCoinsEarned));
+      }
       this.tools.saveData("mg", String(this.tools.minigameCoins));
     }
-    this.tools.showToast(this.tools.dev[this.tools.lang].success || "Success");
-    this.tools.playSound("4");
+    if (matchedConfig.pt) {
+      if (matchedConfig.pt > 0) {
+        this.tools.updateScore(matchedConfig.pt);
+      } else {
+        this.tools.points += matchedConfig.pt;
+        if (this.tools.points < 0)
+          this.tools.points = 0;
+        this.tools.saveData("points", String(this.tools.points));
+      }
+    }
+    if (matchedConfig.cheems && Array.isArray(matchedConfig.cheems)) {
+      matchedConfig.cheems.forEach((c) => {
+        this.tools.unlockedCheems[c] = true;
+      });
+      this.tools.saveUnlockedCheems();
+    }
+    if (matchedConfig.sfx && Array.isArray(matchedConfig.sfx)) {
+      matchedConfig.sfx.forEach((s) => {
+        this.tools.unlockedSounds[s] = true;
+      });
+      this.tools.saveUnlockedSounds();
+    }
+    if (matchedConfig.music && Array.isArray(matchedConfig.music)) {
+      matchedConfig.music.forEach((m) => {
+        this.tools.unlockedMusic[m] = true;
+      });
+      this.tools.saveUnlockedMusic();
+    }
+    this.tools.redeemedCodes.push(matchedConfig.code);
+    this.tools.saveRedeemedCodes();
+    this.inputCode = "";
+    this.tools.playSound("sfx_4");
+    this.tools.showToast(this.tools.redeem[this.tools.lang]?.success || "Code redeemed successfully!");
   }
-  static \u0275fac = function DevSettingsComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _DevSettingsComponent)();
+  static \u0275fac = function RedeemComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _RedeemComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DevSettingsComponent, selectors: [["app-dev-settings"]], decls: 34, vars: 33, consts: [[1, "container"], [1, "dev-title"], [1, "dev-actions", 2, "display", "flex", "flex-direction", "column", "gap", "15px"], [2, "display", "flex", "gap", "10px"], [2, "flex", "1", 3, "click"], [2, "flex", "1", "color", "#ff4a4a", 3, "click"], [2, "display", "flex", "align-items", "center", "justify-content", "space-between", "padding", "10px", "background", "rgba(0,0,0,0.1)", "border-radius", "8px"], [2, "padding", "5px 10px", "margin-right", "5px", 3, "click"], [2, "padding", "5px 10px", 3, "click"]], template: function DevSettingsComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RedeemComponent, selectors: [["app-redeem"]], decls: 14, vars: 18, consts: [[1, "container", "fade-in", "page-content", "with-navbar"], [1, "section-title"], [1, "input-group"], ["type", "text", 3, "ngModelChange", "keyup.enter", "ngModel", "placeholder"], [3, "click"], [1, "history-list"], [1, "empty-state"], [3, "class"], ["src", "img/icons/check-svgrepo-com.svg", "alt", "check", 1, "icon"], [1, "code-text"]], template: function RedeemComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "h2", 1);
       \u0275\u0275text(3);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(4, "div", 2)(5, "div", 3)(6, "button", 4);
-      \u0275\u0275listener("click", function DevSettingsComponent_Template_button_click_6_listener() {
-        return ctx.unlockAll();
+      \u0275\u0275elementStart(4, "div", 2)(5, "input", 3);
+      \u0275\u0275twoWayListener("ngModelChange", function RedeemComponent_Template_input_ngModelChange_5_listener($event) {
+        \u0275\u0275twoWayBindingSet(ctx.inputCode, $event) || (ctx.inputCode = $event);
+        return $event;
+      });
+      \u0275\u0275listener("keyup.enter", function RedeemComponent_Template_input_keyup_enter_5_listener() {
+        return ctx.redeemCode();
+      });
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(6, "button", 4);
+      \u0275\u0275listener("click", function RedeemComponent_Template_button_click_6_listener() {
+        return ctx.redeemCode();
       });
       \u0275\u0275text(7);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(8, "button", 5);
-      \u0275\u0275listener("click", function DevSettingsComponent_Template_button_click_8_listener() {
-        return ctx.resetToZero();
-      });
-      \u0275\u0275text(9);
-      \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(10, "div", 6)(11, "span");
-      \u0275\u0275text(12);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(13, "div")(14, "button", 7);
-      \u0275\u0275listener("click", function DevSettingsComponent_Template_button_click_14_listener() {
-        return ctx.modifyDogeCoins(-100);
-      });
-      \u0275\u0275text(15, "-100");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(16, "button", 8);
-      \u0275\u0275listener("click", function DevSettingsComponent_Template_button_click_16_listener() {
-        return ctx.modifyDogeCoins(100);
-      });
-      \u0275\u0275text(17, "+100");
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(18, "div", 6)(19, "span");
-      \u0275\u0275text(20);
+      \u0275\u0275elementStart(8, "div")(9, "h3", 1);
+      \u0275\u0275text(10);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(21, "div")(22, "button", 7);
-      \u0275\u0275listener("click", function DevSettingsComponent_Template_button_click_22_listener() {
-        return ctx.modifyPoints(-1e3);
-      });
-      \u0275\u0275text(23, "-1k");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(24, "button", 8);
-      \u0275\u0275listener("click", function DevSettingsComponent_Template_button_click_24_listener() {
-        return ctx.modifyPoints(1e3);
-      });
-      \u0275\u0275text(25, "+1k");
+      \u0275\u0275elementStart(11, "div", 5);
+      \u0275\u0275template(12, RedeemComponent_Conditional_12_Template, 2, 0)(13, RedeemComponent_Conditional_13_Template, 2, 1, "div", 6);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(26, "div", 6)(27, "span");
-      \u0275\u0275text(28);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(29, "div")(30, "button", 7);
-      \u0275\u0275listener("click", function DevSettingsComponent_Template_button_click_30_listener() {
-        return ctx.modifyMinigameCoins(-50);
-      });
-      \u0275\u0275text(31, "-50");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(32, "button", 8);
-      \u0275\u0275listener("click", function DevSettingsComponent_Template_button_click_32_listener() {
-        return ctx.modifyMinigameCoins(50);
-      });
-      \u0275\u0275text(33, "+50");
-      \u0275\u0275elementEnd()()()()()();
     }
     if (rf & 2) {
       \u0275\u0275advance();
-      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " dev-box");
+      \u0275\u0275classMapInterpolate1("card ", ctx.tools.themeColor, " redeem-card");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.tools.dev[ctx.tools.lang].title);
-      \u0275\u0275advance(3);
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, " dev-btn");
+      \u0275\u0275textInterpolate(ctx.tools.redeem[ctx.tools.lang].title || "Redeem Code");
+      \u0275\u0275advance(2);
+      \u0275\u0275classMapInterpolate1("input-text ", ctx.tools.themeColor, "");
+      \u0275\u0275twoWayProperty("ngModel", ctx.inputCode);
+      \u0275\u0275property("placeholder", ctx.tools.redeem[ctx.tools.lang].enterCode || "Enter code here...");
       \u0275\u0275advance();
-      \u0275\u0275textInterpolate1(" ", ctx.tools.dev[ctx.tools.lang].unlockAll || "Unlock All Content", " ");
+      \u0275\u0275classMapInterpolate1("btn-primary ", ctx.tools.themeColor, "");
       \u0275\u0275advance();
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, " dev-btn");
+      \u0275\u0275textInterpolate1(" ", ctx.tools.redeem[ctx.tools.lang].redeemBtn || "Redeem", " ");
       \u0275\u0275advance();
-      \u0275\u0275textInterpolate1(" ", ctx.tools.dev[ctx.tools.lang].resetToZero || "Delete Progress", " ");
-      \u0275\u0275advance(3);
-      \u0275\u0275textInterpolate1("DogeCoins (", ctx.tools.dogeCoins, ")");
+      \u0275\u0275classMapInterpolate1("card ", ctx.tools.themeColor, " history-card");
       \u0275\u0275advance(2);
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, "");
+      \u0275\u0275textInterpolate(ctx.tools.redeem[ctx.tools.lang].history || "Redeem History");
       \u0275\u0275advance(2);
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, "");
-      \u0275\u0275advance(4);
-      \u0275\u0275textInterpolate1("Points (", ctx.tools.points, ")");
-      \u0275\u0275advance(2);
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, "");
-      \u0275\u0275advance(2);
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, "");
-      \u0275\u0275advance(4);
-      \u0275\u0275textInterpolate1("MG Coins (", ctx.tools.minigameCoins, ")");
-      \u0275\u0275advance(2);
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, "");
-      \u0275\u0275advance(2);
-      \u0275\u0275classMapInterpolate1("btn-card ", ctx.tools.themeColor, "");
+      \u0275\u0275conditional(ctx.tools.redeemedCodes.length > 0 ? 12 : 13);
     }
-  }, styles: ["\n\n.dev-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 2rem;\n  width: 90%;\n  max-width: 650px;\n  margin: 2.5rem auto;\n  padding: 2.5rem;\n}\n.dev-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.5em;\n  text-align: center;\n}\n.dev-actions[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 1.25rem;\n  width: 100%;\n  max-width: 400px;\n}\n.dev-btn[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 1rem 1.5rem;\n  font-size: 1.1em;\n}\n/*# sourceMappingURL=dev-settings.component.css.map */"] });
+  }, dependencies: [FormsModule, DefaultValueAccessor, NgControlStatus, NgModel, CommonModule], styles: ["\n\n.page-content[_ngcontent-%COMP%] {\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  max-width: 600px;\n  margin: 0 auto;\n  box-sizing: border-box;\n}\n.card[_ngcontent-%COMP%] {\n  background-color: var(--card-bg, #2a2a2a);\n  border-radius: 15px;\n  padding: 25px;\n  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);\n  border: 1px solid var(--border-color, #444);\n}\n.card.theme-light[_ngcontent-%COMP%] {\n  background-color: #ffffff;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);\n  border: 1px solid #e0e0e0;\n}\n.section-title[_ngcontent-%COMP%] {\n  margin-top: 0;\n  margin-bottom: 20px;\n  font-size: 1.5rem;\n  color: var(--text-color, #ffffff);\n  text-align: center;\n}\n.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  color: #333333;\n}\n.input-group[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n}\n.input-text[_ngcontent-%COMP%] {\n  flex: 1;\n  padding: 12px 15px;\n  border-radius: 8px;\n  border: 1px solid var(--border-color, #555);\n  background-color: var(--input-bg, #333);\n  color: var(--text-color, #fff);\n  font-size: 1rem;\n  outline: none;\n  transition: all 0.3s;\n}\n.input-text[_ngcontent-%COMP%]:focus {\n  border-color: #ffd700;\n}\n.input-text.theme-light[_ngcontent-%COMP%] {\n  background-color: #f9f9f9;\n  border: 1px solid #ccc;\n  color: #333;\n}\n.btn-primary[_ngcontent-%COMP%] {\n  background-color: #ffd700;\n  color: #333;\n  border: none;\n  padding: 12px 25px;\n  border-radius: 8px;\n  font-weight: bold;\n  cursor: pointer;\n  transition: all 0.3s;\n  font-size: 1rem;\n}\n.btn-primary[_ngcontent-%COMP%]:hover {\n  background-color: #ffea00;\n  transform: scale(1.05);\n}\n.history-list[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  max-height: 300px;\n  overflow-y: auto;\n}\n.history-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 15px;\n  padding: 12px 15px;\n  background-color: var(--input-bg, #333);\n  border-radius: 8px;\n  border: 1px solid var(--border-color, #444);\n}\n.history-item.theme-light[_ngcontent-%COMP%] {\n  background-color: #f5f5f5;\n  border: 1px solid #ddd;\n}\n.icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  filter: invert(1);\n}\n.theme-light[_ngcontent-%COMP%]   .icon[_ngcontent-%COMP%] {\n  filter: none;\n}\n.code-text[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  color: var(--text-color, #fff);\n  font-family: monospace;\n  font-weight: bold;\n  letter-spacing: 1px;\n}\n.theme-light[_ngcontent-%COMP%]   .code-text[_ngcontent-%COMP%] {\n  color: #333;\n}\n.empty-state[_ngcontent-%COMP%] {\n  text-align: center;\n  color: var(--text-color, #888);\n  padding: 20px;\n  font-style: italic;\n}\n.theme-light[_ngcontent-%COMP%]   .empty-state[_ngcontent-%COMP%] {\n  color: #666;\n}\n.history-list[_ngcontent-%COMP%]::-webkit-scrollbar {\n  width: 8px;\n}\n.history-list[_ngcontent-%COMP%]::-webkit-scrollbar-track {\n  background: transparent;\n}\n.history-list[_ngcontent-%COMP%]::-webkit-scrollbar-thumb {\n  background: #666;\n  border-radius: 4px;\n}\n.theme-light[_ngcontent-%COMP%]   .history-list[_ngcontent-%COMP%]::-webkit-scrollbar-thumb {\n  background: #ccc;\n}\n/*# sourceMappingURL=redeem.component.css.map */"] });
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DevSettingsComponent, [{
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RedeemComponent, [{
     type: Component,
-    args: [{ selector: "app-dev-settings", imports: [], template: `<div class="container">
-    <div class="group {{tools.themeColor}} dev-box">
-        <h2 class="dev-title">{{tools.dev[tools.lang].title}}</h2>
+    args: [{ selector: "app-redeem", imports: [FormsModule, CommonModule], template: `<div class="container fade-in page-content with-navbar">
+    <div class="card {{tools.themeColor}} redeem-card">
+        <h2 class="section-title">{{tools.redeem[tools.lang].title || 'Redeem Code'}}</h2>
+        
+        <div class="input-group">
+            <input type="text" class="input-text {{tools.themeColor}}" [(ngModel)]="inputCode" (keyup.enter)="redeemCode()" [placeholder]="tools.redeem[tools.lang].enterCode || 'Enter code here...'">
+            <button class="btn-primary {{tools.themeColor}}" (click)="redeemCode()">
+                {{tools.redeem[tools.lang].redeemBtn || 'Redeem'}}
+            </button>
+        </div>
+    </div>
 
-        <div class="dev-actions" style="display: flex; flex-direction: column; gap: 15px;">
-            <!-- Unlock All / Reset -->
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-card {{tools.themeColor}} dev-btn" style="flex: 1" (click)="unlockAll()">
-                    {{tools.dev[tools.lang].unlockAll || 'Unlock All Content'}}
-                </button>
-                <button class="btn-card {{tools.themeColor}} dev-btn" style="flex: 1; color: #ff4a4a;" (click)="resetToZero()">
-                    {{tools.dev[tools.lang].resetToZero || 'Delete Progress'}}
-                </button>
-            </div>
-
-            <!-- DogeCoins -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px;">
-                <span>DogeCoins ({{tools.dogeCoins}})</span>
-                <div>
-                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px; margin-right: 5px;" (click)="modifyDogeCoins(-100)">-100</button>
-                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px;" (click)="modifyDogeCoins(100)">+100</button>
-                </div>
-            </div>
-
-            <!-- Points -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px;">
-                <span>Points ({{tools.points}})</span>
-                <div>
-                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px; margin-right: 5px;" (click)="modifyPoints(-1000)">-1k</button>
-                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px;" (click)="modifyPoints(1000)">+1k</button>
-                </div>
-            </div>
-
-            <!-- MG Coins -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px;">
-                <span>MG Coins ({{tools.minigameCoins}})</span>
-                <div>
-                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px; margin-right: 5px;" (click)="modifyMinigameCoins(-50)">-50</button>
-                    <button class="btn-card {{tools.themeColor}}" style="padding: 5px 10px;" (click)="modifyMinigameCoins(50)">+50</button>
-                </div>
-            </div>
+    <div class="card {{tools.themeColor}} history-card">
+        <h3 class="section-title">{{tools.redeem[tools.lang].history || 'Redeem History'}}</h3>
+        
+        <div class="history-list">
+            @if (tools.redeemedCodes.length > 0) {
+                @for (code of tools.redeemedCodes; track $index) {
+                    <div class="history-item {{tools.themeColor}}">
+                        <img src="img/icons/check-svgrepo-com.svg" class="icon" alt="check">
+                        <span class="code-text">{{code}}</span>
+                    </div>
+                }
+            } @else {
+                <div class="empty-state">{{tools.redeem[tools.lang].empty_codes || "No redeemed codes yet."}}</div>
+            }
         </div>
     </div>
 </div>
-`, styles: ["/* src/app/pages/dev-settings/dev-settings.component.css */\n.dev-box {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 2rem;\n  width: 90%;\n  max-width: 650px;\n  margin: 2.5rem auto;\n  padding: 2.5rem;\n}\n.dev-title {\n  font-weight: 900;\n  font-size: 1.5em;\n  text-align: center;\n}\n.dev-actions {\n  display: flex;\n  flex-direction: column;\n  gap: 1.25rem;\n  width: 100%;\n  max-width: 400px;\n}\n.dev-btn {\n  width: 100%;\n  padding: 1rem 1.5rem;\n  font-size: 1.1em;\n}\n/*# sourceMappingURL=dev-settings.component.css.map */\n"] }]
+`, styles: ["/* src/app/pages/redeem/redeem.component.css */\n.page-content {\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  max-width: 600px;\n  margin: 0 auto;\n  box-sizing: border-box;\n}\n.card {\n  background-color: var(--card-bg, #2a2a2a);\n  border-radius: 15px;\n  padding: 25px;\n  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);\n  border: 1px solid var(--border-color, #444);\n}\n.card.theme-light {\n  background-color: #ffffff;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);\n  border: 1px solid #e0e0e0;\n}\n.section-title {\n  margin-top: 0;\n  margin-bottom: 20px;\n  font-size: 1.5rem;\n  color: var(--text-color, #ffffff);\n  text-align: center;\n}\n.theme-light .section-title {\n  color: #333333;\n}\n.input-group {\n  display: flex;\n  gap: 10px;\n}\n.input-text {\n  flex: 1;\n  padding: 12px 15px;\n  border-radius: 8px;\n  border: 1px solid var(--border-color, #555);\n  background-color: var(--input-bg, #333);\n  color: var(--text-color, #fff);\n  font-size: 1rem;\n  outline: none;\n  transition: all 0.3s;\n}\n.input-text:focus {\n  border-color: #ffd700;\n}\n.input-text.theme-light {\n  background-color: #f9f9f9;\n  border: 1px solid #ccc;\n  color: #333;\n}\n.btn-primary {\n  background-color: #ffd700;\n  color: #333;\n  border: none;\n  padding: 12px 25px;\n  border-radius: 8px;\n  font-weight: bold;\n  cursor: pointer;\n  transition: all 0.3s;\n  font-size: 1rem;\n}\n.btn-primary:hover {\n  background-color: #ffea00;\n  transform: scale(1.05);\n}\n.history-list {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  max-height: 300px;\n  overflow-y: auto;\n}\n.history-item {\n  display: flex;\n  align-items: center;\n  gap: 15px;\n  padding: 12px 15px;\n  background-color: var(--input-bg, #333);\n  border-radius: 8px;\n  border: 1px solid var(--border-color, #444);\n}\n.history-item.theme-light {\n  background-color: #f5f5f5;\n  border: 1px solid #ddd;\n}\n.icon {\n  width: 24px;\n  height: 24px;\n  filter: invert(1);\n}\n.theme-light .icon {\n  filter: none;\n}\n.code-text {\n  font-size: 1.1rem;\n  color: var(--text-color, #fff);\n  font-family: monospace;\n  font-weight: bold;\n  letter-spacing: 1px;\n}\n.theme-light .code-text {\n  color: #333;\n}\n.empty-state {\n  text-align: center;\n  color: var(--text-color, #888);\n  padding: 20px;\n  font-style: italic;\n}\n.theme-light .empty-state {\n  color: #666;\n}\n.history-list::-webkit-scrollbar {\n  width: 8px;\n}\n.history-list::-webkit-scrollbar-track {\n  background: transparent;\n}\n.history-list::-webkit-scrollbar-thumb {\n  background: #666;\n  border-radius: 4px;\n}\n.theme-light .history-list::-webkit-scrollbar-thumb {\n  background: #ccc;\n}\n/*# sourceMappingURL=redeem.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DevSettingsComponent, { className: "DevSettingsComponent", filePath: "src/app/pages/dev-settings/dev-settings.component.ts", lineNumber: 10 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RedeemComponent, { className: "RedeemComponent", filePath: "src/app/pages/redeem/redeem.component.ts", lineNumber: 13 });
 })();
 
 // src/app/pages/closet/closet.component.ts
@@ -43438,7 +50142,7 @@ function ClosetComponent_Conditional_10_For_2_Conditional_2_Template(rf, ctx) {
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("src", track_r7.cover || "img/music/no_image.png", \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getMusicName(track_r7));
+    \u0275\u0275property("src", track_r7.cover || "img/music/no_image.webp", \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
 function ClosetComponent_Conditional_10_For_2_Conditional_6_Template(rf, ctx) {
@@ -43683,7 +50387,7 @@ var ClosetComponent = class _ClosetComponent {
                     @if (track.id === 0) {
                         <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else {
-                        <img [src]="track.cover || 'img/music/no_image.png'" class="item-icon" [alt]="tools.getMusicName(track)" style="border-radius: 8px; object-fit: cover;">
+                        <img [src]="track.cover || 'img/music/no_image.webp'" class="item-icon" [alt]="tools.getMusicName(track)" style="border-radius: 8px; object-fit: cover;">
                     }
                     <div class="item-info">
                         <span class="item-name">{{tools.getMusicName(track)}}</span>
@@ -43718,7 +50422,7 @@ var OnworkPageComponent = class _OnworkPageComponent {
   static \u0275fac = function OnworkPageComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _OnworkPageComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _OnworkPageComponent, selectors: [["app-onwork-page"]], decls: 9, vars: 9, consts: [[1, "container"], ["src", "img/cheems/normal.png", "alt", "Under Construction", 1, "work-img"], [1, "work-title"], [1, "work-msg"], [3, "click"]], template: function OnworkPageComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _OnworkPageComponent, selectors: [["app-onwork-page"]], decls: 9, vars: 9, consts: [[1, "container"], ["src", "img/cheems/normal.webp", "alt", "Under Construction", 1, "work-img"], [1, "work-title"], [1, "work-msg"], [3, "click"]], template: function OnworkPageComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div");
       \u0275\u0275element(2, "img", 1);
@@ -43754,7 +50458,7 @@ var OnworkPageComponent = class _OnworkPageComponent {
     type: Component,
     args: [{ selector: "app-onwork-page", imports: [], template: `<div class="container">
     <div class="group {{tools.themeColor}} work-box">
-        <img src="img/cheems/normal.png" class="work-img" alt="Under Construction">
+        <img src="img/cheems/normal.webp" class="work-img" alt="Under Construction">
         <h2 class="work-title">{{tools.onWork[tools.lang].title}}</h2>
         <p class="work-msg">{{tools.onWork[tools.lang].message}}</p>
         <button class="btn-card {{tools.themeColor}} work-btn" (click)="tools.redirect('menu')">
@@ -44158,7 +50862,7 @@ var P404Component = class _P404Component {
   static \u0275fac = function P404Component_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _P404Component)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _P404Component, selectors: [["app-p404"]], decls: 9, vars: 9, consts: [[1, "container"], ["src", "img/cheems/little.png", "alt", "404 Cheems", 1, "work-img"], [1, "work-title"], [1, "work-msg"], [3, "click"]], template: function P404Component_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _P404Component, selectors: [["app-p404"]], decls: 9, vars: 9, consts: [[1, "container"], ["src", "img/cheems/little.webp", "alt", "404 Cheems", 1, "work-img"], [1, "work-title"], [1, "work-msg"], [3, "click"]], template: function P404Component_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div");
       \u0275\u0275element(2, "img", 1);
@@ -44194,7 +50898,7 @@ var P404Component = class _P404Component {
     type: Component,
     args: [{ selector: "app-p404", imports: [], template: `<div class="container">
     <div class="group {{tools.themeColor}} work-box">
-        <img src="img/cheems/little.png" class="work-img" alt="404 Cheems">
+        <img src="img/cheems/little.webp" class="work-img" alt="404 Cheems">
         <h2 class="work-title">{{tools.p404[tools.lang].title}}</h2>
         <p class="work-msg">{{tools.p404[tools.lang].message}}</p>
         <button class="btn-card {{tools.themeColor}} work-btn" (click)="tools.redirect('game')">
@@ -44215,7 +50919,7 @@ var _forTrack03 = ($index, $item) => $item.id;
 function ShopComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 20);
+    \u0275\u0275elementStart(0, "button", 21);
     \u0275\u0275listener("click", function ShopComponent_Conditional_7_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -44233,9 +50937,27 @@ function ShopComponent_Conditional_7_Template(rf, ctx) {
 function ShopComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 21);
+    \u0275\u0275elementStart(0, "button", 22);
     \u0275\u0275listener("click", function ShopComponent_Conditional_8_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-upgrade"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].upgradesSection) || "Upgrades", " ");
+  }
+}
+function ShopComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_9_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-minigame"));
     });
@@ -44248,12 +50970,12 @@ function ShopComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].minigamesSection) || "Minigames", " ");
   }
 }
-function ShopComponent_Conditional_9_Template(rf, ctx) {
+function ShopComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 21);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_9_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r5);
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r6);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-booster"));
     });
@@ -44266,12 +50988,12 @@ function ShopComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].boosterSection) || "Boosters", " ");
   }
 }
-function ShopComponent_Conditional_10_Template(rf, ctx) {
+function ShopComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 22);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r6);
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 24);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_11_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-cheems"));
     });
@@ -44284,12 +51006,12 @@ function ShopComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].cheemsSection) || "Cheems Skins", " ");
   }
 }
-function ShopComponent_Conditional_11_Template(rf, ctx) {
+function ShopComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_11_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r7);
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 25);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_12_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-sound"));
     });
@@ -44302,12 +51024,12 @@ function ShopComponent_Conditional_11_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].sfxSection) || "Sound Effects", " ");
   }
 }
-function ShopComponent_Conditional_12_Template(rf, ctx) {
+function ShopComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 24);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_12_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r8);
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 26);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_13_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-music"));
     });
@@ -44320,17 +51042,17 @@ function ShopComponent_Conditional_12_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].musicSection) || "Background Music", " ");
   }
 }
-function ShopComponent_Conditional_13_Template(rf, ctx) {
+function ShopComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "div", 25);
+    \u0275\u0275elementStart(0, "div", 12)(1, "div", 27);
     \u0275\u0275text(2, "\u26A1");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 26)(4, "span", 27);
+    \u0275\u0275elementStart(3, "div", 28)(4, "span", 29);
     \u0275\u0275text(5);
     \u0275\u0275elementStart(6, "strong");
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "span", 28);
+    \u0275\u0275elementStart(8, "span", 30);
     \u0275\u0275text(9);
     \u0275\u0275elementEnd()()();
   }
@@ -44344,43 +51066,75 @@ function ShopComponent_Conditional_13_Template(rf, ctx) {
     \u0275\u0275textInterpolate2(" \u23F3 ", ctx_r2.tools.getBoosterFormattedTime(), " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remaining) || "remaining", " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_2_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 31);
+    \u0275\u0275element(0, "img", 33);
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const item_r10 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275property("src", ctx_r2.getShopCardIcon(item_r9), \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getShopItemName(item_r9));
+    \u0275\u0275property("src", ctx_r2.getShopCardIcon(item_r10), \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getShopItemName(item_r10));
   }
 }
-function ShopComponent_ng_template_33_Conditional_3_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 32);
+    \u0275\u0275elementStart(0, "span", 34);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const item_r10 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(item_r9.icon);
+    \u0275\u0275textInterpolate(item_r10.icon);
   }
 }
-function ShopComponent_ng_template_33_Conditional_4_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 33);
+    \u0275\u0275elementStart(0, "span", 35);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const item_r10 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1("x", item_r9.multiplier || 1, "");
+    \u0275\u0275textInterpolate1("x", item_r10.multiplier || 1, "");
   }
 }
-function ShopComponent_ng_template_33_Conditional_10_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_5_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 37);
+    \u0275\u0275text(0);
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].maxLevel) || "Max Level", " ");
+  }
+}
+function ShopComponent_ng_template_34_Conditional_5_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0);
+  }
+  if (rf & 2) {
+    const item_r10 = \u0275\u0275nextContext(2).$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275textInterpolate1(" Lvl ", ctx_r2.tools.purchasedUpgrades[item_r10.id] || 0, " ");
+  }
+}
+function ShopComponent_ng_template_34_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 36);
+    \u0275\u0275template(1, ShopComponent_ng_template_34_Conditional_5_Conditional_1_Template, 1, 1)(2, ShopComponent_ng_template_34_Conditional_5_Conditional_2_Template, 1, 1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const item_r10 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.isUpgradeMaxLevel(item_r10) ? 1 : 2);
+  }
+}
+function ShopComponent_ng_template_34_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 40);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -44390,26 +51144,26 @@ function ShopComponent_ng_template_33_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_11_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 40);
+    \u0275\u0275elementStart(0, "div", 43);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const item_r10 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("limit-reached", !ctx_r2.tools.canBuyDailyLimit(item_r9));
+    \u0275\u0275classProp("limit-reached", !ctx_r2.tools.canBuyDailyLimit(item_r10));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate3(" ", ctx_r2.tools.getRemainingDailyLimit(item_r9), " / ", item_r9.dailyLimit, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remainingToday) || "left today", " ");
+    \u0275\u0275textInterpolate3(" ", ctx_r2.tools.getRemainingDailyLimit(item_r10), " / ", item_r10.dailyLimit, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remainingToday) || "left today", " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_13_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 41)(1, "span", 42);
+    \u0275\u0275elementStart(0, "div", 44)(1, "span", 45);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "button", 43);
+    \u0275\u0275elementStart(3, "button", 46);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
   }
@@ -44421,9 +51175,9 @@ function ShopComponent_ng_template_33_Conditional_13_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_14_Conditional_1_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 44);
+    \u0275\u0275elementStart(0, "span", 47);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -44433,97 +51187,99 @@ function ShopComponent_ng_template_33_Conditional_14_Conditional_1_Template(rf, 
     \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].todaysPrice) || "Today's Price:");
   }
 }
-function ShopComponent_ng_template_33_Conditional_14_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 41);
-    \u0275\u0275template(1, ShopComponent_ng_template_33_Conditional_14_Conditional_1_Template, 2, 1, "span", 44);
-    \u0275\u0275elementStart(2, "span", 45);
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 44);
+    \u0275\u0275template(1, ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template, 2, 1, "span", 47);
+    \u0275\u0275elementStart(2, "span", 48);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "button", 46);
-    \u0275\u0275listener("click", function ShopComponent_ng_template_33_Conditional_14_Template_button_click_4_listener() {
-      \u0275\u0275restoreView(_r10);
-      const item_r9 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275elementStart(4, "button", 49);
+    \u0275\u0275listener("click", function ShopComponent_ng_template_34_Conditional_15_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r11);
+      const item_r10 = \u0275\u0275nextContext().$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.buyItem(item_r9));
+      return \u0275\u0275resetView(ctx_r2.buyItem(item_r10));
     });
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r9 = \u0275\u0275nextContext().$implicit;
+    const item_r10 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275conditional(item_r9.type === "dogecoin" ? 1 : -1);
+    \u0275\u0275conditional(item_r10.type === "dogecoin" ? 1 : -1);
     \u0275\u0275advance();
-    \u0275\u0275classProp("free-cost", ctx_r2.formatItemCost(item_r9) === ((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].free) || "Free"));
+    \u0275\u0275classProp("free-cost", ctx_r2.formatItemCost(item_r10) === ((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].free) || "Free"));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.formatItemCost(item_r9));
+    \u0275\u0275textInterpolate(ctx_r2.formatItemCost(item_r10));
     \u0275\u0275advance();
-    \u0275\u0275property("disabled", !ctx_r2.canBuy(item_r9));
+    \u0275\u0275property("disabled", !ctx_r2.canBuy(item_r10));
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].buyBtn) || "Buy", " ");
   }
 }
-function ShopComponent_ng_template_33_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 29)(1, "div", 30);
-    \u0275\u0275template(2, ShopComponent_ng_template_33_Conditional_2_Template, 1, 2, "img", 31)(3, ShopComponent_ng_template_33_Conditional_3_Template, 2, 1, "span", 32)(4, ShopComponent_ng_template_33_Conditional_4_Template, 2, 1, "span", 33);
+    \u0275\u0275elementStart(0, "div", 31)(1, "div", 32);
+    \u0275\u0275template(2, ShopComponent_ng_template_34_Conditional_2_Template, 1, 2, "img", 33)(3, ShopComponent_ng_template_34_Conditional_3_Template, 2, 1, "span", 34)(4, ShopComponent_ng_template_34_Conditional_4_Template, 2, 1, "span", 35)(5, ShopComponent_ng_template_34_Conditional_5_Template, 3, 1, "span", 36);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 34)(6, "h3", 35);
-    \u0275\u0275text(7);
+    \u0275\u0275elementStart(6, "div", 37)(7, "h3", 38);
+    \u0275\u0275text(8);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "p", 36);
-    \u0275\u0275text(9);
+    \u0275\u0275elementStart(9, "p", 39);
+    \u0275\u0275text(10);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(10, ShopComponent_ng_template_33_Conditional_10_Template, 2, 1, "div", 37)(11, ShopComponent_ng_template_33_Conditional_11_Template, 2, 5, "div", 38);
+    \u0275\u0275template(11, ShopComponent_ng_template_34_Conditional_11_Template, 2, 1, "div", 40)(12, ShopComponent_ng_template_34_Conditional_12_Template, 2, 5, "div", 41);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "div", 39);
-    \u0275\u0275template(13, ShopComponent_ng_template_33_Conditional_13_Template, 5, 2)(14, ShopComponent_ng_template_33_Conditional_14_Template, 6, 6);
+    \u0275\u0275elementStart(13, "div", 42);
+    \u0275\u0275template(14, ShopComponent_ng_template_34_Conditional_14_Template, 5, 2)(15, ShopComponent_ng_template_34_Conditional_15_Template, 6, 6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r9 = ctx.$implicit;
+    const item_r10 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("coin-card", item_r9.type === "dogecoin")("booster-card", item_r9.type === "booster")("cheems-card", item_r9.type === "cheems")("sound-card", item_r9.type === "sound")("music-card", item_r9.type === "music")("currency-dgc-to-mg-card", item_r9.id === "curr_dgc_to_mg")("currency-mg-to-dgc-card", item_r9.id === "curr_mg_to_dgc");
+    \u0275\u0275classProp("coin-card", item_r10.type === "dogecoin")("booster-card", item_r10.type === "booster")("cheems-card", item_r10.type === "cheems")("sound-card", item_r10.type === "sound")("music-card", item_r10.type === "music")("currency-dgc-to-mg-card", item_r10.id === "curr_dgc_to_mg")("currency-mg-to-dgc-card", item_r10.id === "curr_mg_to_dgc");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(item_r9.icon.endsWith(".svg") || item_r9.icon.endsWith(".png") ? 2 : 3);
+    \u0275\u0275conditional(item_r10.icon.endsWith(".svg") || item_r10.icon.endsWith(".png") || item_r10.icon.endsWith(".webp") ? 2 : 3);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(item_r9.type === "booster" ? 4 : -1);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemName(item_r9));
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemDesc(item_r9));
+    \u0275\u0275conditional(item_r10.type === "booster" ? 4 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r9) ? 10 : item_r9.dailyLimit && item_r9.dailyLimit > 0 ? 11 : -1);
+    \u0275\u0275conditional(item_r10.type === "upgrade" ? 5 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r9) ? 13 : 14);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemName(item_r10));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemDesc(item_r10));
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r10) ? 11 : item_r10.dailyLimit && item_r10.dailyLimit > 0 ? 12 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r10) ? 14 : 15);
   }
 }
-function ShopComponent_Conditional_35_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_36_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_35_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_36_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_35_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
+    \u0275\u0275template(0, ShopComponent_Conditional_36_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
   }
   if (rf & 2) {
-    const item_r11 = ctx.$implicit;
+    const item_r12 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r12 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r11));
+    const shopCard_r13 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r12));
   }
 }
-function ShopComponent_Conditional_35_Template(rf, ctx) {
+function ShopComponent_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 47)(1, "h2", 48);
+    \u0275\u0275elementStart(0, "div", 50)(1, "h2", 51);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_35_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44534,29 +51290,62 @@ function ShopComponent_Conditional_35_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.dogecoinItems);
   }
 }
-function ShopComponent_Conditional_36_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_37_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_36_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_37_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_36_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
+    \u0275\u0275template(0, ShopComponent_Conditional_37_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
   }
   if (rf & 2) {
-    const item_r13 = ctx.$implicit;
+    const item_r14 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r12 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r13));
+    const shopCard_r13 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r14));
   }
 }
-function ShopComponent_Conditional_36_Template(rf, ctx) {
+function ShopComponent_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 51)(1, "h2", 52);
+    \u0275\u0275elementStart(0, "div", 54)(1, "h2", 55);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].upgradesSection) || "Upgrades");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.upgradeItems);
+  }
+}
+function ShopComponent_Conditional_38_For_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function ShopComponent_Conditional_38_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShopComponent_Conditional_38_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
+  }
+  if (rf & 2) {
+    const item_r15 = ctx.$implicit;
+    \u0275\u0275nextContext(2);
+    const shopCard_r13 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r15));
+  }
+}
+function ShopComponent_Conditional_38_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 56)(1, "h2", 57);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44567,29 +51356,29 @@ function ShopComponent_Conditional_36_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.minigameItems);
   }
 }
-function ShopComponent_Conditional_37_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_39_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_37_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_39_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_37_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
+    \u0275\u0275template(0, ShopComponent_Conditional_39_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
   }
   if (rf & 2) {
-    const item_r14 = ctx.$implicit;
+    const item_r16 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r12 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r14));
+    const shopCard_r13 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r16));
   }
 }
-function ShopComponent_Conditional_37_Template(rf, ctx) {
+function ShopComponent_Conditional_39_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 53)(1, "h2", 54);
+    \u0275\u0275elementStart(0, "div", 58)(1, "h2", 59);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44600,29 +51389,29 @@ function ShopComponent_Conditional_37_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.boosterItems);
   }
 }
-function ShopComponent_Conditional_38_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_40_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_38_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_40_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_38_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
+    \u0275\u0275template(0, ShopComponent_Conditional_40_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
   }
   if (rf & 2) {
-    const item_r15 = ctx.$implicit;
+    const item_r17 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r12 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r15));
+    const shopCard_r13 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r17));
   }
 }
-function ShopComponent_Conditional_38_Template(rf, ctx) {
+function ShopComponent_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 55)(1, "h2", 56);
+    \u0275\u0275elementStart(0, "div", 60)(1, "h2", 61);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44633,29 +51422,29 @@ function ShopComponent_Conditional_38_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.cheemsItems);
   }
 }
-function ShopComponent_Conditional_39_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_41_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_39_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_41_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_39_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
+    \u0275\u0275template(0, ShopComponent_Conditional_41_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
   }
   if (rf & 2) {
-    const item_r16 = ctx.$implicit;
+    const item_r18 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r12 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r16));
+    const shopCard_r13 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r18));
   }
 }
-function ShopComponent_Conditional_39_Template(rf, ctx) {
+function ShopComponent_Conditional_41_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 57)(1, "h2", 58);
+    \u0275\u0275elementStart(0, "div", 62)(1, "h2", 63);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_41_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44666,29 +51455,29 @@ function ShopComponent_Conditional_39_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.soundItems);
   }
 }
-function ShopComponent_Conditional_40_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_42_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_40_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_42_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_40_For_5_ng_container_0_Template, 1, 0, "ng-container", 50);
+    \u0275\u0275template(0, ShopComponent_Conditional_42_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
   }
   if (rf & 2) {
-    const item_r17 = ctx.$implicit;
+    const item_r19 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r12 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r12)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r17));
+    const shopCard_r13 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r19));
   }
 }
-function ShopComponent_Conditional_40_Template(rf, ctx) {
+function ShopComponent_Conditional_42_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 59)(1, "h2", 60);
+    \u0275\u0275elementStart(0, "div", 64)(1, "h2", 65);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 49);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_42_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -44723,6 +51512,9 @@ var ShopComponent = class _ShopComponent {
     this.showScrollTop = window.scrollY > 300;
   }
   buyItem(item) {
+    if (this.isUpgradeMaxLevel(item)) {
+      return;
+    }
     if (!this.tools.canBuyDailyLimit(item)) {
       this.tools.showToast(this.tools.shop[this.tools.lang]?.dailyLimitReached || "Daily limit reached!");
       return;
@@ -44730,17 +51522,17 @@ var ShopComponent = class _ShopComponent {
     if (this.tools.isLifetimeLimitReached(item)) {
       return;
     }
+    const costObj = this.getDynamicCost(item);
     if (item.type === "dogecoin") {
       const coinsGiven = item.coinsGiven || 1;
-      this.tools.buyDogeCoin(item.cost, coinsGiven, item.id);
+      this.tools.buyDogeCoin(costObj.pts, coinsGiven, item.id);
+    } else if (item.type === "upgrade") {
+      this.tools.buyUpgrade(item, costObj.pts, costObj.coins);
     } else if (item.type === "currency") {
-      const ptsCost = item.cost || 0;
-      const coinCost = item.costCoins || 0;
-      const mgCost = item.costMinigames || 0;
-      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost && this.tools.minigameCoins >= mgCost) {
-        this.tools.points -= ptsCost;
-        this.tools.dogeCoins -= coinCost;
-        this.tools.minigameCoins -= mgCost;
+      if (this.tools.points >= costObj.pts && this.tools.dogeCoins >= costObj.coins && this.tools.minigameCoins >= costObj.mg) {
+        this.tools.points -= costObj.pts;
+        this.tools.dogeCoins -= costObj.coins;
+        this.tools.minigameCoins -= costObj.mg;
         if (item.coinsGiven) {
           this.tools.dogeCoins += item.coinsGiven;
         }
@@ -44757,13 +51549,10 @@ var ShopComponent = class _ShopComponent {
         this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough currency!");
       }
     } else if (item.type === "minigame") {
-      const ptsCost = item.cost || 0;
-      const coinCost = item.costCoins || 0;
-      const mgCost = item.costMinigames || 0;
-      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost && this.tools.minigameCoins >= mgCost) {
-        this.tools.points -= ptsCost;
-        this.tools.dogeCoins -= coinCost;
-        this.tools.minigameCoins -= mgCost;
+      if (this.tools.points >= costObj.pts && this.tools.dogeCoins >= costObj.coins && this.tools.minigameCoins >= costObj.mg) {
+        this.tools.points -= costObj.pts;
+        this.tools.dogeCoins -= costObj.coins;
+        this.tools.minigameCoins -= costObj.mg;
         this.tools.saveData("points", String(this.tools.points));
         this.tools.saveData("dg", String(this.tools.dogeCoins));
         this.tools.saveData("mg", String(this.tools.minigameCoins));
@@ -44777,9 +51566,7 @@ var ShopComponent = class _ShopComponent {
         this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough currency!");
       }
     } else if (item.type === "booster") {
-      const ptsCost = item.cost || 0;
-      const coinCost = item.costCoins || 0;
-      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost) {
+      if (this.tools.points >= costObj.pts && this.tools.dogeCoins >= costObj.coins) {
         const isOverride = this.tools.boosterEndTime !== 0 && this.tools.getBoosterRemainingSeconds() > 0 && this.tools.boosterMultiplier !== item.multiplier;
         if (isOverride) {
           const warningTemplate = this.tools.shop[this.tools.lang]?.boosterOverrideWarning || "Warning! You already have an active x{current} booster. Buying a x{new} booster will override your remaining time. Do you want to continue?";
@@ -44788,14 +51575,14 @@ var ShopComponent = class _ShopComponent {
             return;
           }
         }
-        this.tools.points -= ptsCost;
-        this.tools.dogeCoins -= coinCost;
+        this.tools.points -= costObj.pts;
+        this.tools.dogeCoins -= costObj.coins;
         this.tools.saveData("points", String(this.tools.points));
         this.tools.saveData("dg", String(this.tools.dogeCoins));
         this.tools.recordDailyPurchase(item.id);
         this.tools.activateBooster(item.multiplier || 1, item.durationMin || 0);
       } else {
-        if (this.tools.points < ptsCost) {
+        if (this.tools.points < costObj.pts) {
           this.tools.showToast(this.tools.shop[this.tools.lang]?.needMorePoints || "Not enough points!");
         } else {
           this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough DogeCoins!");
@@ -44805,6 +51592,25 @@ var ShopComponent = class _ShopComponent {
       this.tools.buyShopUnlockableItem(item);
     }
   }
+  getDynamicCost(item) {
+    const times = this.tools.purchasedUpgrades[item.id] || 0;
+    const mult = 1 + (item.priceMultiplier || 1) * times;
+    let ptsCost = item.cost !== void 0 ? item.cost : item.type === "dogecoin" ? this.dailyPrice : 0;
+    let coinsCost = item.costCoins || 0;
+    let mgCost = item.costMinigames || 0;
+    if (item.type === "upgrade") {
+      ptsCost = Math.ceil(ptsCost * mult);
+      coinsCost = Math.ceil(coinsCost * mult);
+      mgCost = Math.ceil(mgCost * mult);
+    }
+    return { pts: ptsCost, coins: coinsCost, mg: mgCost };
+  }
+  isUpgradeMaxLevel(item) {
+    if (item.type === "upgrade" && item.upgradeType === "frequency") {
+      return this.tools.idleTime <= 1;
+    }
+    return false;
+  }
   canBuy(item) {
     if (this.tools.isLifetimeLimitReached(item)) {
       return false;
@@ -44812,32 +51618,34 @@ var ShopComponent = class _ShopComponent {
     if (!this.tools.canBuyDailyLimit(item)) {
       return false;
     }
-    const ptsCost = item.cost !== void 0 ? item.cost : item.type === "dogecoin" ? this.dailyPrice : 0;
-    const coinsCost = item.costCoins || 0;
-    const mgCost = item.costMinigames || 0;
-    return this.tools.points >= ptsCost && this.tools.dogeCoins >= coinsCost && this.tools.minigameCoins >= mgCost;
+    if (this.isUpgradeMaxLevel(item)) {
+      return false;
+    }
+    const costObj = this.getDynamicCost(item);
+    return this.tools.points >= costObj.pts && this.tools.dogeCoins >= costObj.coins && this.tools.minigameCoins >= costObj.mg;
   }
   formatItemCost(item) {
-    const ptsCost = item.cost !== void 0 ? item.cost : item.type === "dogecoin" ? this.dailyPrice : 0;
-    const coinsCost = item.costCoins || 0;
-    const mgCost = item.costMinigames || 0;
-    if (ptsCost === 0 && coinsCost === 0 && mgCost === 0) {
+    const costObj = this.getDynamicCost(item);
+    if (costObj.pts === 0 && costObj.coins === 0 && costObj.mg === 0) {
       return this.tools.shop[this.tools.lang]?.free || "Free";
     }
     const parts = [];
-    if (ptsCost > 0) {
-      parts.push(`${ptsCost.toLocaleString()} Pts`);
+    if (costObj.pts > 0) {
+      parts.push(`${costObj.pts.toLocaleString()} Pts`);
     }
-    if (coinsCost > 0) {
-      parts.push(`${coinsCost.toLocaleString()} DGC`);
+    if (costObj.coins > 0) {
+      parts.push(`${costObj.coins.toLocaleString()} DGC`);
     }
-    if (mgCost > 0) {
-      parts.push(`${mgCost.toLocaleString()} MG`);
+    if (costObj.mg > 0) {
+      parts.push(`${costObj.mg.toLocaleString()} MG`);
     }
     return parts.join(" + ");
   }
   get dogecoinItems() {
     return this.tools.shopItems.filter((i) => i.type === "dogecoin" || i.type === "currency");
+  }
+  get upgradeItems() {
+    return this.tools.shopItems.filter((i) => i.type === "upgrade");
   }
   get minigameItems() {
     return this.tools.shopItems.filter((i) => i.type === "minigame");
@@ -44872,7 +51680,7 @@ var ShopComponent = class _ShopComponent {
       return item.icon;
     }
     if (item.type === "cheems") {
-      return "img/cheems/locked-cheems.png";
+      return "img/cheems/locked-cheems.webp";
     }
     if (item.type === "sound") {
       return "img/icons/black-sound-svgrepo-com.svg";
@@ -44891,7 +51699,7 @@ var ShopComponent = class _ShopComponent {
         return ctx.onWindowScroll();
       }, false, \u0275\u0275resolveWindow);
     }
-  }, decls: 43, vars: 30, consts: [["shopCard", ""], ["id", "shop-top"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin-min.png", "alt", "DogeCoin", 1, "mini-coin-icon"], [1, "balance-value"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-minigame", 1, "section-separator"], [1, "section-title", "minigame-title"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
+  }, decls: 45, vars: 32, consts: [["shopCard", ""], ["id", "shop-top"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-upgrade"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin.png", "alt", "DogeCoin", 1, "mini-coin-icon"], [1, "balance-value"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-upgrade", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "upgrade-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-upgrade", 1, "section-separator"], [1, "section-title", "upgrade-title"], ["id", "sec-minigame", 1, "section-separator"], [1, "section-title", "minigame-title"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "div", 1)(1, "header", 2)(2, "h1", 3);
@@ -44901,37 +51709,37 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275text(5);
       \u0275\u0275elementEnd()();
       \u0275\u0275elementStart(6, "div", 5);
-      \u0275\u0275template(7, ShopComponent_Conditional_7_Template, 2, 1, "button", 6)(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 7)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 8)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 9)(12, ShopComponent_Conditional_12_Template, 2, 1, "button", 10);
+      \u0275\u0275template(7, ShopComponent_Conditional_7_Template, 2, 1, "button", 6)(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 8)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 8)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 9)(12, ShopComponent_Conditional_12_Template, 2, 1, "button", 10)(13, ShopComponent_Conditional_13_Template, 2, 1, "button", 11);
       \u0275\u0275elementEnd();
-      \u0275\u0275template(13, ShopComponent_Conditional_13_Template, 10, 5, "div", 11);
-      \u0275\u0275elementStart(14, "div", 12)(15, "div", 13)(16, "span", 14);
-      \u0275\u0275text(17, "Points:");
+      \u0275\u0275template(14, ShopComponent_Conditional_14_Template, 10, 5, "div", 12);
+      \u0275\u0275elementStart(15, "div", 13)(16, "div", 14)(17, "span", 15);
+      \u0275\u0275text(18, "Points:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(18, "span", 15);
-      \u0275\u0275text(19);
-      \u0275\u0275pipe(20, "number");
+      \u0275\u0275elementStart(19, "span", 16);
+      \u0275\u0275text(20);
+      \u0275\u0275pipe(21, "number");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(21, "div", 13)(22, "span", 14);
-      \u0275\u0275text(23, "DogeCoins:");
+      \u0275\u0275elementStart(22, "div", 14)(23, "span", 15);
+      \u0275\u0275text(24, "DogeCoins:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(24, "span", 16);
-      \u0275\u0275element(25, "img", 17);
-      \u0275\u0275text(26);
+      \u0275\u0275elementStart(25, "span", 17);
+      \u0275\u0275element(26, "img", 18);
+      \u0275\u0275text(27);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(27, "div", 13)(28, "span", 14);
-      \u0275\u0275text(29, "Minigame Pts:");
+      \u0275\u0275elementStart(28, "div", 14)(29, "span", 15);
+      \u0275\u0275text(30, "Minigame Pts:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(30, "span", 18);
-      \u0275\u0275text(31);
-      \u0275\u0275pipe(32, "number");
+      \u0275\u0275elementStart(31, "span", 19);
+      \u0275\u0275text(32);
+      \u0275\u0275pipe(33, "number");
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(33, ShopComponent_ng_template_33_Template, 15, 20, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(35, ShopComponent_Conditional_35_Template, 6, 1)(36, ShopComponent_Conditional_36_Template, 6, 1)(37, ShopComponent_Conditional_37_Template, 6, 1)(38, ShopComponent_Conditional_38_Template, 6, 1)(39, ShopComponent_Conditional_39_Template, 6, 1)(40, ShopComponent_Conditional_40_Template, 6, 1);
-      \u0275\u0275elementStart(41, "button", 19);
-      \u0275\u0275listener("click", function ShopComponent_Template_button_click_41_listener() {
+      \u0275\u0275template(34, ShopComponent_ng_template_34_Template, 16, 21, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(36, ShopComponent_Conditional_36_Template, 6, 1)(37, ShopComponent_Conditional_37_Template, 6, 1)(38, ShopComponent_Conditional_38_Template, 6, 1)(39, ShopComponent_Conditional_39_Template, 6, 1)(40, ShopComponent_Conditional_40_Template, 6, 1)(41, ShopComponent_Conditional_41_Template, 6, 1)(42, ShopComponent_Conditional_42_Template, 6, 1);
+      \u0275\u0275elementStart(43, "button", 20);
+      \u0275\u0275listener("click", function ShopComponent_Template_button_click_43_listener() {
         \u0275\u0275restoreView(_r1);
         return \u0275\u0275resetView(ctx.scrollToTop());
       });
-      \u0275\u0275text(42, " \u2191 ");
+      \u0275\u0275text(44, " \u2191 ");
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -44943,40 +51751,44 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275advance(2);
       \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 7 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 8 : -1);
+      \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 8 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 9 : -1);
+      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 9 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 10 : -1);
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 10 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 11 : -1);
+      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 11 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 12 : -1);
+      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 12 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.tools.getBoosterRemainingSeconds() > 0 ? 13 : -1);
+      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 13 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.tools.getBoosterRemainingSeconds() > 0 ? 14 : -1);
       \u0275\u0275advance(6);
-      \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(20, 26, ctx.tools.points), " Pts");
+      \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(21, 28, ctx.tools.points), " Pts");
       \u0275\u0275advance(7);
       \u0275\u0275textInterpolate1(" ", ctx.tools.dogeCoins, " ");
       \u0275\u0275advance(5);
-      \u0275\u0275textInterpolate1("\u{1F3AE} ", \u0275\u0275pipeBind1(32, 28, ctx.tools.minigameCoins), "");
+      \u0275\u0275textInterpolate1("\u{1F3AE} ", \u0275\u0275pipeBind1(33, 30, ctx.tools.minigameCoins), "");
       \u0275\u0275advance(4);
-      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 35 : -1);
+      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 36 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 36 : -1);
+      \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 37 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 37 : -1);
+      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 38 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 38 : -1);
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 39 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 39 : -1);
+      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 40 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 40 : -1);
+      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 41 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 42 : -1);
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("back-to-top-btn ", ctx.tools.themeColor, "");
       \u0275\u0275classProp("visible", ctx.showScrollTop);
     }
-  }, dependencies: [CommonModule, NgTemplateOutlet, DecimalPipe], styles: ['\n\n.shop-container[_ngcontent-%COMP%] {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn[_ngcontent-%COMP%] {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-dogecoin[_ngcontent-%COMP%] {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster[_ngcontent-%COMP%] {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems[_ngcontent-%COMP%] {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound[_ngcontent-%COMP%] {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music[_ngcontent-%COMP%] {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames[_ngcontent-%COMP%] {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator[_ngcontent-%COMP%]::before, \n.section-separator[_ngcontent-%COMP%]::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.dogecoin-title[_ngcontent-%COMP%] {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title[_ngcontent-%COMP%] {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title[_ngcontent-%COMP%] {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title[_ngcontent-%COMP%] {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title[_ngcontent-%COMP%] {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: _ngcontent-%COMP%_boosterPulse 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon[_ngcontent-%COMP%] {\n  font-size: 2.2rem;\n}\n.booster-banner-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label[_ngcontent-%COMP%] {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value[_ngcontent-%COMP%] {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.doge-val[_ngcontent-%COMP%] {\n  color: #ff9900;\n}\n.mini-coin-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.multiplier-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge[_ngcontent-%COMP%] {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible[_ngcontent-%COMP%] {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%]:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title[_ngcontent-%COMP%] {\n    font-size: 2rem;\n  }\n  .booster-banner-content[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar[_ngcontent-%COMP%] {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title[_ngcontent-%COMP%] {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn[_ngcontent-%COMP%] {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light[_ngcontent-%COMP%] {\n  color: #2b1f14;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #059669;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::before, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .multiplier-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */'] });
+  }, dependencies: [CommonModule, NgTemplateOutlet, DecimalPipe], styles: ['\n\n.shop-container[_ngcontent-%COMP%] {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn[_ngcontent-%COMP%] {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade[_ngcontent-%COMP%] {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin[_ngcontent-%COMP%] {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster[_ngcontent-%COMP%] {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems[_ngcontent-%COMP%] {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound[_ngcontent-%COMP%] {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music[_ngcontent-%COMP%] {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames[_ngcontent-%COMP%] {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator[_ngcontent-%COMP%]::before, \n.section-separator[_ngcontent-%COMP%]::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title[_ngcontent-%COMP%] {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title[_ngcontent-%COMP%] {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title[_ngcontent-%COMP%] {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title[_ngcontent-%COMP%] {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title[_ngcontent-%COMP%] {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title[_ngcontent-%COMP%] {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: _ngcontent-%COMP%_boosterPulse 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon[_ngcontent-%COMP%] {\n  font-size: 2.2rem;\n}\n.booster-banner-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label[_ngcontent-%COMP%] {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value[_ngcontent-%COMP%] {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.doge-val[_ngcontent-%COMP%] {\n  color: #ff9900;\n}\n.mini-coin-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.upgrade-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge[_ngcontent-%COMP%] {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible[_ngcontent-%COMP%] {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%]:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title[_ngcontent-%COMP%] {\n    font-size: 2rem;\n  }\n  .booster-banner-content[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar[_ngcontent-%COMP%] {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title[_ngcontent-%COMP%] {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn[_ngcontent-%COMP%] {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light[_ngcontent-%COMP%] {\n  color: #2b1f14;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .upgrade-title[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #059669;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::before, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .multiplier-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ShopComponent, [{
@@ -44993,6 +51805,11 @@ var ShopComponent = class _ShopComponent {
         @if (dogecoinItems.length > 0) {
             <button class="shop-nav-btn nav-dogecoin" (click)="scrollToSection('sec-dogecoin')">
                 {{tools.shop[tools.lang]?.currencySection || 'Currency'}}
+            </button>
+        }
+        @if (upgradeItems.length > 0) {
+            <button class="shop-nav-btn nav-upgrade" (click)="scrollToSection('sec-upgrade')">
+                {{tools.shop[tools.lang]?.upgradesSection || 'Upgrades'}}
             </button>
         }
         @if (minigameItems.length > 0) {
@@ -45047,7 +51864,7 @@ var ShopComponent = class _ShopComponent {
         <div class="balance-item">
             <span class="balance-label">DogeCoins:</span>
             <span class="balance-value doge-val">
-                <img src="img/dogecoin-min.png" class="mini-coin-icon" alt="DogeCoin">
+                <img src="img/dogecoin.png" class="mini-coin-icon" alt="DogeCoin">
                 {{tools.dogeCoins}}
             </span>
         </div>
@@ -45068,13 +51885,22 @@ var ShopComponent = class _ShopComponent {
              [class.currency-dgc-to-mg-card]="item.id === 'curr_dgc_to_mg'"
              [class.currency-mg-to-dgc-card]="item.id === 'curr_mg_to_dgc'">
             <div class="shop-card-icon-wrapper">
-                @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png')) {
+                @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png') || item.icon.endsWith('.webp')) {
                     <img [src]="getShopCardIcon(item)" class="shop-card-icon" [alt]="tools.getShopItemName(item)">
                 } @else {
                     <span class="shop-card-emoji">{{item.icon}}</span>
                 }
                 @if (item.type === 'booster') {
                     <span class="multiplier-badge">x{{item.multiplier || 1}}</span>
+                }
+                @if (item.type === 'upgrade') {
+                    <span class="upgrade-badge">
+                        @if (isUpgradeMaxLevel(item)) {
+                            {{tools.shop[tools.lang]?.maxLevel || 'Max Level'}}
+                        } @else {
+                            Lvl {{tools.purchasedUpgrades[item.id] || 0}}
+                        }
+                    </span>
                 }
             </div>
 
@@ -45125,6 +51951,18 @@ var ShopComponent = class _ShopComponent {
         </div>
         <div class="shop-grid">
             @for (item of dogecoinItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Upgrades Section -->
+    @if (upgradeItems.length > 0) {
+        <div class="section-separator" id="sec-upgrade">
+            <h2 class="section-title upgrade-title">{{tools.shop[tools.lang]?.upgradesSection || 'Upgrades'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of upgradeItems; track item.id) {
                 <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
             }
         </div>
@@ -45198,7 +52036,7 @@ var ShopComponent = class _ShopComponent {
         \u2191
     </button>
 </div>
-`, styles: ['/* src/app/pages/shop/shop.component.css */\n.shop-container {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-dogecoin {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator::before,\n.section-separator::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.dogecoin-title {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator:has(.dogecoin-title)::before,\n.section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator:has(.booster-title)::before,\n.section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator:has(.cheems-title)::before,\n.section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator:has(.sound-title)::before,\n.section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator:has(.music-title)::before,\n.section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: boosterPulse 2s infinite ease-in-out;\n}\n@keyframes boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon {\n  font-size: 2.2rem;\n}\n.booster-banner-content {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val {\n  color: #ffd700;\n}\n.doge-val {\n  color: #ff9900;\n}\n.mini-coin-icon {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card .item-name {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card .item-name {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji {\n  font-size: 3rem;\n}\n.multiplier-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title {\n    font-size: 2rem;\n  }\n  .booster-banner-content {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light {\n  color: #2b1f14;\n}\n.shop-container.theme-light .shop-title {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light .shop-subtitle {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light .shop-nav-bar {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light .shop-nav-btn {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .nav-dogecoin {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .nav-dogecoin:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light .nav-booster {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .nav-booster:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light .nav-cheems {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .nav-cheems:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light .nav-sound {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .nav-sound:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light .nav-music {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .nav-music:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light .section-title {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light .dogecoin-title {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::before,\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .booster-title {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.booster-title)::before,\n.shop-container.theme-light .section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light .cheems-title {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.cheems-title)::before,\n.shop-container.theme-light .section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light .sound-title {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.sound-title)::before,\n.shop-container.theme-light .section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light .music-title {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.music-title)::before,\n.shop-container.theme-light .section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light .shop-balance-bar {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .balance-label {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light .points-val {\n  color: #b35900;\n}\n.shop-container.theme-light .doge-val {\n  color: #d97706;\n}\n.shop-container.theme-light .shop-card {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light .shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light .shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light .shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light .shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light .item-name {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light .item-desc {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light .cost-label {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light .cost-val {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light .shop-card-footer {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .active-booster-banner {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .booster-banner-timer {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light .daily-limit-badge {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light .daily-limit-badge.limit-reached {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light .cost-val.free-cost {\n  color: #059669;\n}\n.shop-container.theme-light .buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light .buy-btn:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light .buy-btn:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .shop-title {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast .shop-subtitle {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-nav-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast .shop-nav-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-nav-btn:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .nav-dogecoin,\n.shop-container.theme-contrast .nav-booster,\n.shop-container.theme-contrast .nav-cheems,\n.shop-container.theme-contrast .nav-sound,\n.shop-container.theme-contrast .nav-music {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .nav-dogecoin:hover,\n.shop-container.theme-contrast .nav-booster:hover,\n.shop-container.theme-contrast .nav-cheems:hover,\n.shop-container.theme-contrast .nav-sound:hover,\n.shop-container.theme-contrast .nav-music:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .section-separator::before,\n.shop-container.theme-contrast .section-separator::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast .section-title {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .dogecoin-title,\n.shop-container.theme-contrast .booster-title,\n.shop-container.theme-contrast .cheems-title,\n.shop-container.theme-contrast .sound-title,\n.shop-container.theme-contrast .music-title {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast .shop-balance-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .balance-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .points-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .doge-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .shop-card {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-card:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .shop-card.coin-card,\n.shop-container.theme-contrast .shop-card.booster-card,\n.shop-container.theme-contrast .shop-card.cheems-card,\n.shop-container.theme-contrast .shop-card.sound-card,\n.shop-container.theme-contrast .shop-card.music-card {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast .shop-card.coin-card:hover,\n.shop-container.theme-contrast .shop-card.booster-card:hover,\n.shop-container.theme-contrast .shop-card.cheems-card:hover,\n.shop-container.theme-contrast .shop-card.sound-card:hover,\n.shop-container.theme-contrast .shop-card.music-card:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .item-name {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .item-desc {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .cost-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .cost-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-card-footer {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast .multiplier-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .active-booster-banner {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast .booster-banner-timer {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge.limit-reached {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast .cost-val.free-cost {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */\n'] }]
+`, styles: ['/* src/app/pages/shop/shop.component.css */\n.shop-container {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator::before,\n.section-separator::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator:has(.upgrade-title)::before,\n.section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator:has(.dogecoin-title)::before,\n.section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator:has(.booster-title)::before,\n.section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator:has(.cheems-title)::before,\n.section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator:has(.sound-title)::before,\n.section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator:has(.music-title)::before,\n.section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: boosterPulse 2s infinite ease-in-out;\n}\n@keyframes boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon {\n  font-size: 2.2rem;\n}\n.booster-banner-content {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val {\n  color: #ffd700;\n}\n.doge-val {\n  color: #ff9900;\n}\n.mini-coin-icon {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card .item-name {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card .item-name {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji {\n  font-size: 3rem;\n}\n.upgrade-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title {\n    font-size: 2rem;\n  }\n  .booster-banner-content {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light {\n  color: #2b1f14;\n}\n.shop-container.theme-light .shop-title {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light .shop-subtitle {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light .shop-nav-bar {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light .shop-nav-btn {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .nav-upgrade {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .nav-upgrade:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light .nav-dogecoin {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .nav-dogecoin:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light .nav-booster {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .nav-booster:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light .nav-cheems {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .nav-cheems:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light .nav-sound {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .nav-sound:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light .nav-music {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .nav-music:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light .section-title {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light .upgrade-title {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.upgrade-title)::before,\n.shop-container.theme-light .section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light .dogecoin-title {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::before,\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .booster-title {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.booster-title)::before,\n.shop-container.theme-light .section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light .cheems-title {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.cheems-title)::before,\n.shop-container.theme-light .section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light .sound-title {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.sound-title)::before,\n.shop-container.theme-light .section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light .music-title {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.music-title)::before,\n.shop-container.theme-light .section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light .shop-balance-bar {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .balance-label {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light .points-val {\n  color: #b35900;\n}\n.shop-container.theme-light .doge-val {\n  color: #d97706;\n}\n.shop-container.theme-light .shop-card {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light .shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light .shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light .shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light .shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light .item-name {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light .item-desc {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light .cost-label {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light .cost-val {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light .shop-card-footer {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .active-booster-banner {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .booster-banner-timer {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light .daily-limit-badge {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light .daily-limit-badge.limit-reached {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light .cost-val.free-cost {\n  color: #059669;\n}\n.shop-container.theme-light .buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light .buy-btn:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light .buy-btn:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .shop-title {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast .shop-subtitle {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-nav-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast .shop-nav-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-nav-btn:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .nav-dogecoin,\n.shop-container.theme-contrast .nav-booster,\n.shop-container.theme-contrast .nav-cheems,\n.shop-container.theme-contrast .nav-sound,\n.shop-container.theme-contrast .nav-music {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .nav-dogecoin:hover,\n.shop-container.theme-contrast .nav-booster:hover,\n.shop-container.theme-contrast .nav-cheems:hover,\n.shop-container.theme-contrast .nav-sound:hover,\n.shop-container.theme-contrast .nav-music:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .section-separator::before,\n.shop-container.theme-contrast .section-separator::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast .section-title {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .dogecoin-title,\n.shop-container.theme-contrast .booster-title,\n.shop-container.theme-contrast .cheems-title,\n.shop-container.theme-contrast .sound-title,\n.shop-container.theme-contrast .music-title {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast .shop-balance-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .balance-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .points-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .doge-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .shop-card {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-card:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .shop-card.coin-card,\n.shop-container.theme-contrast .shop-card.booster-card,\n.shop-container.theme-contrast .shop-card.cheems-card,\n.shop-container.theme-contrast .shop-card.sound-card,\n.shop-container.theme-contrast .shop-card.music-card {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast .shop-card.coin-card:hover,\n.shop-container.theme-contrast .shop-card.booster-card:hover,\n.shop-container.theme-contrast .shop-card.cheems-card:hover,\n.shop-container.theme-contrast .shop-card.sound-card:hover,\n.shop-container.theme-contrast .shop-card.music-card:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .item-name {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .item-desc {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .cost-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .cost-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-card-footer {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast .multiplier-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .active-booster-banner {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast .booster-banner-timer {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge.limit-reached {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast .cost-val.free-cost {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */\n'] }]
   }], null, { onWindowScroll: [{
     type: HostListener,
     args: ["window:scroll"]
@@ -45418,9 +52256,6 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
   ngOnInit() {
     this.tools.setTitle("block_breaker");
     this.tools.actPage = "block_breaker";
-    localStorage.removeItem("CheemsAppLiMinigame_PlayerLevel");
-    localStorage.removeItem("CheemsAppLiMinigame_Grid");
-    localStorage.removeItem("CheemsAppLiMinigame_Costs");
     this.loadLevel();
     this.loadGrid();
     this.loadCosts();
@@ -81477,7 +88312,7 @@ var GalleryComponent = class _GalleryComponent {
   }
   get currentAudioCover() {
     if (this.activeSection === "music" && this.unlockedMusicTracks.length > 0) {
-      return this.unlockedMusicTracks[this.currentIndex].cover || "img/music/no_image.png";
+      return this.unlockedMusicTracks[this.currentIndex].cover || "img/music/no_image.webp";
     }
     return null;
   }
@@ -81803,7 +88638,7 @@ var routes = [
   { path: "game", component: GameComponent, pathMatch: "full" },
   { path: "menu", component: MenuComponent, pathMatch: "full" },
   { path: "settings", component: SettingsComponent, pathMatch: "full" },
-  { path: "devSettings", component: DevSettingsComponent, pathMatch: "full" },
+  { path: "redeem", component: RedeemComponent, pathMatch: "full" },
   { path: "closet", component: ClosetComponent, pathMatch: "full" },
   { path: "gallery", component: GalleryComponent, pathMatch: "full" },
   { path: "onWork", component: OnworkPageComponent, pathMatch: "full" },
@@ -82404,18 +89239,14 @@ var NavbarComponent = class _NavbarComponent {
     }
   }
   onDogeCoinClick() {
-    this.tools.registerDevClick();
   }
   static \u0275fac = function NavbarComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _NavbarComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], decls: 16, vars: 21, consts: [[1, "counters-group"], [1, "text", "count-badge"], ["src", "img/dogecoin-min.png", "title", "DogeCoins", "alt", "DogeCoins", 1, "icon", "logo-coin", 3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "title", "Puntos", "alt", "Puntos", 1, "icon", "logo-coin", "pts-icon"], [1, "text", "nav-action", 3, "click"], ["src", "img/icons/front-page-svgrepo-com.svg", "alt", "Back", "title", "Back", 1, "icon", "nav-icon"], ["src", "img/icons/menu-svgrepo-com.svg", "alt", "Menu", "title", "Menu", 1, "icon", "nav-icon"], ["id", "upper-container", 3, "class"], ["id", "upper-container"], [1, "score-box"], [1, "score-label"], [1, "score-value"], [1, "score-label", "booster-nav-label"], [1, "score-value", "booster-nav-value"]], template: function NavbarComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], decls: 16, vars: 21, consts: [[1, "counters-group"], [1, "text", "count-badge"], ["src", "img/dogecoin.png", "title", "DogeCoins", "alt", "DogeCoins", 1, "icon", "logo-coin"], ["src", "img/icons/trophy-svgrepo-com.svg", "title", "Puntos", "alt", "Puntos", 1, "icon", "logo-coin", "pts-icon"], [1, "text", "nav-action", 3, "click"], ["src", "img/icons/front-page-svgrepo-com.svg", "alt", "Back", "title", "Back", 1, "icon", "nav-icon"], ["src", "img/icons/menu-svgrepo-com.svg", "alt", "Menu", "title", "Menu", 1, "icon", "nav-icon"], ["id", "upper-container", 3, "class"], ["id", "upper-container"], [1, "score-box"], [1, "score-label"], [1, "score-value"], [1, "score-label", "booster-nav-label"], [1, "score-value", "booster-nav-value"]], template: function NavbarComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "nav")(1, "div", 0)(2, "span", 1)(3, "img", 2);
-      \u0275\u0275listener("click", function NavbarComponent_Template_img_click_3_listener() {
-        return ctx.onDogeCoinClick();
-      });
-      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(0, "nav")(1, "div", 0)(2, "span", 1);
+      \u0275\u0275element(3, "img", 2);
       \u0275\u0275elementStart(4, "span");
       \u0275\u0275text(5);
       \u0275\u0275elementEnd()();
@@ -82454,7 +89285,7 @@ var NavbarComponent = class _NavbarComponent {
       \u0275\u0275advance(2);
       \u0275\u0275conditional(ctx.tools.actPage === "game" ? 15 : -1);
     }
-  }, styles: ["\n\nnav[_ngcontent-%COMP%] {\n  width: 100%;\n  min-height: 70px;\n  padding: 0.5rem 1.5rem;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 900;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);\n  z-index: 10000;\n  position: sticky;\n  top: 0;\n  left: 0;\n  backdrop-filter: blur(15px);\n  -webkit-backdrop-filter: blur(15px);\n  transition: background-color 0.3s ease, border-color 0.3s ease;\n  gap: 0.5rem;\n}\n.counters-group[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.65rem;\n  flex-wrap: wrap;\n  z-index: 10;\n}\n.text[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.count-badge[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.35);\n  padding: 0.35rem 0.85rem;\n  border-radius: 50px;\n  border: 1px solid rgba(255, 255, 255, 0.15);\n}\n.logo-coin[_ngcontent-%COMP%] {\n  height: 36px;\n  width: 36px;\n  cursor: pointer;\n  object-fit: contain;\n}\n.pts-icon[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.6));\n  cursor: default;\n}\n.badge-number[_ngcontent-%COMP%] {\n  font-weight: 900;\n}\n.preventive[_ngcontent-%COMP%] {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n  max-width: 45vw;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  pointer-events: none;\n  z-index: 5;\n}\n.title-text[_ngcontent-%COMP%] {\n  font-weight: 900;\n  letter-spacing: 0.5px;\n}\n.nav-action[_ngcontent-%COMP%] {\n  cursor: pointer;\n  padding: 0.4rem;\n  border-radius: 50%;\n  background: rgba(0, 0, 0, 0.15);\n  transition: background-color 0.2s ease, transform 0.2s ease;\n  flex-shrink: 0;\n  z-index: 10;\n}\n.nav-action[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 0, 0, 0.35);\n  transform: scale(1.1);\n}\n.nav-icon[_ngcontent-%COMP%] {\n  height: 34px;\n  width: 34px;\n}\n.upper-container[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.75rem 2rem;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  font-weight: 900;\n  border-bottom: 2px solid rgba(0, 0, 0, 0.2);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transition: background-color 0.3s ease;\n}\n.score-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.2rem;\n}\n.score-label[_ngcontent-%COMP%] {\n  font-size: 0.8em;\n  opacity: 0.85;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  font-weight: 900;\n}\nnav.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(55, 45, 35) 0%,\n      rgb(35, 28, 22) 100%);\n  border-bottom: 2px solid rgb(25, 20, 15);\n}\nnav.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(240, 220, 185) 0%,\n      rgb(220, 195, 150) 100%);\n  border-bottom: 2px solid rgb(180, 150, 110);\n}\nnav.theme-contrast[_ngcontent-%COMP%] {\n  background-color: #000000;\n  border-bottom: 2px solid #ffffff;\n}\n.upper-container.theme-dark[_ngcontent-%COMP%] {\n  background: rgba(45, 38, 30, 0.9);\n  color: #ffd166;\n}\n.upper-container.theme-light[_ngcontent-%COMP%] {\n  background: rgba(235, 215, 175, 0.9);\n  color: #9c5c14;\n}\n.upper-container.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-bottom: 2px solid #ffffff;\n}\n.booster-nav-label[_ngcontent-%COMP%] {\n  color: #f59e0b;\n  font-weight: 900;\n  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);\n}\n.booster-nav-value[_ngcontent-%COMP%] {\n  color: #fbbf24;\n  font-weight: 900;\n  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);\n}\n@media (max-width: 600px) {\n  nav[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.75rem;\n  }\n  .counters-group[_ngcontent-%COMP%] {\n    gap: 0.35rem;\n  }\n  .count-badge[_ngcontent-%COMP%] {\n    padding: 0.25rem 0.6rem;\n  }\n  .logo-coin[_ngcontent-%COMP%] {\n    height: 28px;\n    width: 28px;\n  }\n  .upper-container[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.5rem;\n  }\n  .score-label[_ngcontent-%COMP%] {\n    font-size: 0.7em;\n  }\n  .score-value[_ngcontent-%COMP%] {\n    font-size: 1.1em;\n  }\n}\n/*# sourceMappingURL=navbar.component.css.map */"] });
+  }, styles: ["\n\nnav[_ngcontent-%COMP%] {\n  width: 100%;\n  min-height: 70px;\n  padding: 0.5rem 1.5rem;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 900;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);\n  z-index: 10000;\n  position: sticky;\n  top: 0;\n  left: 0;\n  backdrop-filter: blur(15px);\n  -webkit-backdrop-filter: blur(15px);\n  transition: background-color 0.3s ease, border-color 0.3s ease;\n  gap: 0.5rem;\n}\n.counters-group[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.65rem;\n  flex-wrap: wrap;\n  z-index: 10;\n}\n.text[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.count-badge[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.35);\n  padding: 0.35rem 0.85rem;\n  border-radius: 50px;\n  border: 1px solid rgba(255, 255, 255, 0.15);\n}\n.logo-coin[_ngcontent-%COMP%] {\n  height: 36px;\n  width: 36px;\n  cursor: default;\n  object-fit: contain;\n}\n.pts-icon[_ngcontent-%COMP%] {\n  filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.6));\n  cursor: default;\n}\n.badge-number[_ngcontent-%COMP%] {\n  font-weight: 900;\n}\n.preventive[_ngcontent-%COMP%] {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n  max-width: 45vw;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  pointer-events: none;\n  z-index: 5;\n}\n.title-text[_ngcontent-%COMP%] {\n  font-weight: 900;\n  letter-spacing: 0.5px;\n}\n.nav-action[_ngcontent-%COMP%] {\n  cursor: pointer;\n  padding: 0.4rem;\n  border-radius: 50%;\n  background: rgba(0, 0, 0, 0.15);\n  transition: background-color 0.2s ease, transform 0.2s ease;\n  flex-shrink: 0;\n  z-index: 10;\n}\n.nav-action[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 0, 0, 0.35);\n  transform: scale(1.1);\n}\n.nav-icon[_ngcontent-%COMP%] {\n  height: 34px;\n  width: 34px;\n}\n.upper-container[_ngcontent-%COMP%] {\n  width: 100%;\n  padding: 0.75rem 2rem;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  font-weight: 900;\n  border-bottom: 2px solid rgba(0, 0, 0, 0.2);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transition: background-color 0.3s ease;\n}\n.score-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.2rem;\n}\n.score-label[_ngcontent-%COMP%] {\n  font-size: 0.8em;\n  opacity: 0.85;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value[_ngcontent-%COMP%] {\n  font-size: 1.3em;\n  font-weight: 900;\n}\nnav.theme-dark[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(55, 45, 35) 0%,\n      rgb(35, 28, 22) 100%);\n  border-bottom: 2px solid rgb(25, 20, 15);\n}\nnav.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(240, 220, 185) 0%,\n      rgb(220, 195, 150) 100%);\n  border-bottom: 2px solid rgb(180, 150, 110);\n}\nnav.theme-contrast[_ngcontent-%COMP%] {\n  background-color: #000000;\n  border-bottom: 2px solid #ffffff;\n}\n.upper-container.theme-dark[_ngcontent-%COMP%] {\n  background: rgba(45, 38, 30, 0.9);\n  color: #ffd166;\n}\n.upper-container.theme-light[_ngcontent-%COMP%] {\n  background: rgba(235, 215, 175, 0.9);\n  color: #9c5c14;\n}\n.upper-container.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-bottom: 2px solid #ffffff;\n}\n.booster-nav-label[_ngcontent-%COMP%] {\n  color: #f59e0b;\n  font-weight: 900;\n  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);\n}\n.booster-nav-value[_ngcontent-%COMP%] {\n  color: #fbbf24;\n  font-weight: 900;\n  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);\n}\n@media (max-width: 600px) {\n  nav[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.75rem;\n  }\n  .preventive[_ngcontent-%COMP%] {\n    position: static;\n    transform: none;\n    flex: 1;\n    padding: 0 0.5rem;\n    max-width: none;\n  }\n  .counters-group[_ngcontent-%COMP%] {\n    gap: 0.35rem;\n  }\n  .count-badge[_ngcontent-%COMP%] {\n    padding: 0.25rem 0.6rem;\n  }\n  .logo-coin[_ngcontent-%COMP%] {\n    height: 28px;\n    width: 28px;\n  }\n  .upper-container[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.5rem;\n  }\n  .score-label[_ngcontent-%COMP%] {\n    font-size: 0.7em;\n  }\n  .score-value[_ngcontent-%COMP%] {\n    font-size: 1.1em;\n  }\n}\n/*# sourceMappingURL=navbar.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NavbarComponent, [{
@@ -82462,8 +89293,7 @@ var NavbarComponent = class _NavbarComponent {
     args: [{ selector: "app-navbar", imports: [], template: `<nav class="{{tools.themeColor}} {{tools.fontSize}}">
     <div class="counters-group">
         <span class="text count-badge">
-            <img src="img/dogecoin-min.png"
-                 (click)="onDogeCoinClick()"
+            <img src="img/dogecoin.png"
                  class="icon logo-coin"
                  title="DogeCoins"
                  alt="DogeCoins">
@@ -82509,7 +89339,7 @@ var NavbarComponent = class _NavbarComponent {
             <span class="score-value">{{tools.actScore}}</span>
         </div>
     </div>
-}`, styles: ["/* src/app/components/navbar/navbar.component.css */\nnav {\n  width: 100%;\n  min-height: 70px;\n  padding: 0.5rem 1.5rem;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 900;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);\n  z-index: 10000;\n  position: sticky;\n  top: 0;\n  left: 0;\n  backdrop-filter: blur(15px);\n  -webkit-backdrop-filter: blur(15px);\n  transition: background-color 0.3s ease, border-color 0.3s ease;\n  gap: 0.5rem;\n}\n.counters-group {\n  display: flex;\n  align-items: center;\n  gap: 0.65rem;\n  flex-wrap: wrap;\n  z-index: 10;\n}\n.text {\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.count-badge {\n  background: rgba(0, 0, 0, 0.35);\n  padding: 0.35rem 0.85rem;\n  border-radius: 50px;\n  border: 1px solid rgba(255, 255, 255, 0.15);\n}\n.logo-coin {\n  height: 36px;\n  width: 36px;\n  cursor: pointer;\n  object-fit: contain;\n}\n.pts-icon {\n  filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.6));\n  cursor: default;\n}\n.badge-number {\n  font-weight: 900;\n}\n.preventive {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n  max-width: 45vw;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  pointer-events: none;\n  z-index: 5;\n}\n.title-text {\n  font-weight: 900;\n  letter-spacing: 0.5px;\n}\n.nav-action {\n  cursor: pointer;\n  padding: 0.4rem;\n  border-radius: 50%;\n  background: rgba(0, 0, 0, 0.15);\n  transition: background-color 0.2s ease, transform 0.2s ease;\n  flex-shrink: 0;\n  z-index: 10;\n}\n.nav-action:hover {\n  background: rgba(0, 0, 0, 0.35);\n  transform: scale(1.1);\n}\n.nav-icon {\n  height: 34px;\n  width: 34px;\n}\n.upper-container {\n  width: 100%;\n  padding: 0.75rem 2rem;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  font-weight: 900;\n  border-bottom: 2px solid rgba(0, 0, 0, 0.2);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transition: background-color 0.3s ease;\n}\n.score-box {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.2rem;\n}\n.score-label {\n  font-size: 0.8em;\n  opacity: 0.85;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value {\n  font-size: 1.3em;\n  font-weight: 900;\n}\nnav.theme-dark {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(55, 45, 35) 0%,\n      rgb(35, 28, 22) 100%);\n  border-bottom: 2px solid rgb(25, 20, 15);\n}\nnav.theme-light {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(240, 220, 185) 0%,\n      rgb(220, 195, 150) 100%);\n  border-bottom: 2px solid rgb(180, 150, 110);\n}\nnav.theme-contrast {\n  background-color: #000000;\n  border-bottom: 2px solid #ffffff;\n}\n.upper-container.theme-dark {\n  background: rgba(45, 38, 30, 0.9);\n  color: #ffd166;\n}\n.upper-container.theme-light {\n  background: rgba(235, 215, 175, 0.9);\n  color: #9c5c14;\n}\n.upper-container.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border-bottom: 2px solid #ffffff;\n}\n.booster-nav-label {\n  color: #f59e0b;\n  font-weight: 900;\n  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);\n}\n.booster-nav-value {\n  color: #fbbf24;\n  font-weight: 900;\n  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);\n}\n@media (max-width: 600px) {\n  nav {\n    padding: 0.5rem 0.75rem;\n  }\n  .counters-group {\n    gap: 0.35rem;\n  }\n  .count-badge {\n    padding: 0.25rem 0.6rem;\n  }\n  .logo-coin {\n    height: 28px;\n    width: 28px;\n  }\n  .upper-container {\n    padding: 0.5rem 0.5rem;\n  }\n  .score-label {\n    font-size: 0.7em;\n  }\n  .score-value {\n    font-size: 1.1em;\n  }\n}\n/*# sourceMappingURL=navbar.component.css.map */\n"] }]
+}`, styles: ["/* src/app/components/navbar/navbar.component.css */\nnav {\n  width: 100%;\n  min-height: 70px;\n  padding: 0.5rem 1.5rem;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 900;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);\n  z-index: 10000;\n  position: sticky;\n  top: 0;\n  left: 0;\n  backdrop-filter: blur(15px);\n  -webkit-backdrop-filter: blur(15px);\n  transition: background-color 0.3s ease, border-color 0.3s ease;\n  gap: 0.5rem;\n}\n.counters-group {\n  display: flex;\n  align-items: center;\n  gap: 0.65rem;\n  flex-wrap: wrap;\n  z-index: 10;\n}\n.text {\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.count-badge {\n  background: rgba(0, 0, 0, 0.35);\n  padding: 0.35rem 0.85rem;\n  border-radius: 50px;\n  border: 1px solid rgba(255, 255, 255, 0.15);\n}\n.logo-coin {\n  height: 36px;\n  width: 36px;\n  cursor: default;\n  object-fit: contain;\n}\n.pts-icon {\n  filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.6));\n  cursor: default;\n}\n.badge-number {\n  font-weight: 900;\n}\n.preventive {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n  max-width: 45vw;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  pointer-events: none;\n  z-index: 5;\n}\n.title-text {\n  font-weight: 900;\n  letter-spacing: 0.5px;\n}\n.nav-action {\n  cursor: pointer;\n  padding: 0.4rem;\n  border-radius: 50%;\n  background: rgba(0, 0, 0, 0.15);\n  transition: background-color 0.2s ease, transform 0.2s ease;\n  flex-shrink: 0;\n  z-index: 10;\n}\n.nav-action:hover {\n  background: rgba(0, 0, 0, 0.35);\n  transform: scale(1.1);\n}\n.nav-icon {\n  height: 34px;\n  width: 34px;\n}\n.upper-container {\n  width: 100%;\n  padding: 0.75rem 2rem;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  font-weight: 900;\n  border-bottom: 2px solid rgba(0, 0, 0, 0.2);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transition: background-color 0.3s ease;\n}\n.score-box {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.2rem;\n}\n.score-label {\n  font-size: 0.8em;\n  opacity: 0.85;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value {\n  font-size: 1.3em;\n  font-weight: 900;\n}\nnav.theme-dark {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(55, 45, 35) 0%,\n      rgb(35, 28, 22) 100%);\n  border-bottom: 2px solid rgb(25, 20, 15);\n}\nnav.theme-light {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(240, 220, 185) 0%,\n      rgb(220, 195, 150) 100%);\n  border-bottom: 2px solid rgb(180, 150, 110);\n}\nnav.theme-contrast {\n  background-color: #000000;\n  border-bottom: 2px solid #ffffff;\n}\n.upper-container.theme-dark {\n  background: rgba(45, 38, 30, 0.9);\n  color: #ffd166;\n}\n.upper-container.theme-light {\n  background: rgba(235, 215, 175, 0.9);\n  color: #9c5c14;\n}\n.upper-container.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border-bottom: 2px solid #ffffff;\n}\n.booster-nav-label {\n  color: #f59e0b;\n  font-weight: 900;\n  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);\n}\n.booster-nav-value {\n  color: #fbbf24;\n  font-weight: 900;\n  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);\n}\n@media (max-width: 600px) {\n  nav {\n    padding: 0.5rem 0.75rem;\n  }\n  .preventive {\n    position: static;\n    transform: none;\n    flex: 1;\n    padding: 0 0.5rem;\n    max-width: none;\n  }\n  .counters-group {\n    gap: 0.35rem;\n  }\n  .count-badge {\n    padding: 0.25rem 0.6rem;\n  }\n  .logo-coin {\n    height: 28px;\n    width: 28px;\n  }\n  .upper-container {\n    padding: 0.5rem 0.5rem;\n  }\n  .score-label {\n    font-size: 0.7em;\n  }\n  .score-value {\n    font-size: 1.1em;\n  }\n}\n/*# sourceMappingURL=navbar.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
@@ -82692,6 +89522,7 @@ matter-js/build/matter.js:
 @angular/router/fesm2022/router-Dwfin5Au.mjs:
 @angular/router/fesm2022/router_module-DTJgGWLd.mjs:
 @angular/router/fesm2022/router.mjs:
+@angular/forms/fesm2022/forms.mjs:
   (**
    * @license Angular v19.2.14
    * (c) 2010-2025 Google LLC. https://angular.io/

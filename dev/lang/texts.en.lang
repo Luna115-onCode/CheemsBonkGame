@@ -21,7 +21,8 @@
     "stack_colors": "Stack Colors",
     "minigames": "Minigames",
     "licenses": "Licenses & Credits",
-    "gallery": "Gallery"
+    "gallery": "Gallery",
+    "redeem": "Redeem code"
   },
   "minigames": {
     "trash": "TRASH",
@@ -54,7 +55,8 @@
     "buyDogeCoinSub": "Today's price: ",
     "buyDogeCoinSuccess": "You bought 1 DogeCoin!",
     "buyDogeCoinFail": "You need more points!",
-    "gallery": "Gallery"
+    "gallery": "Gallery",
+    "redeem": "Redeem Code"
   },
   "options": {
     "changeLang": {
@@ -98,7 +100,14 @@
       "totalScore": "Total touches",
       "booster": "Booster"
     },
-    "tapToBonk": "Click Cheems for a BONK!"
+    "tapToBonk": "Click Cheems for a BONK!",
+    "idleStats": "Idle Stats",
+    "activeAppOpen": "Active (App Open):",
+    "offlineBackground": "Offline (Background):",
+    "ptsPerSec": "pts/sec",
+    "ptsPerMin": "pts/min",
+    "ptsPerHr": "pts/hr",
+    "close": "Close"
   },
   "closet": {
     "title": "Customization Shop",
@@ -119,15 +128,15 @@
     "buyInShop": "Buy this item in the Shop!",
     "locked": "Locked"
   },
-  "dev": {
-    "title": "Developer Options",
-    "resetToZero": "Reset to zero",
-    "unlockAll": "Unlock All",
-    "giveDogeCoins": "Add +100 DogeCoins",
-    "givePoints": "Add +1000 Points",
-    "success": "Done!",
-    "unlocked": "Developer Menu UNLOCKED!",
-    "locked": "Developer Menu locked."
+  "redeemText": {
+    "title": "Redeem Code",
+    "enterCode": "Enter code here...",
+    "redeemBtn": "Redeem",
+    "history": "Redeem History",
+    "invalidCode": "Invalid code!",
+    "alreadyRedeemed": "Code already redeemed!",
+    "success": "Code redeemed successfully!",
+    "empty_codes": "No redeemed codes yet."
   },
   "onWork": {
     "title": "Page Under Development",
@@ -184,12 +193,24 @@
     "alreadyPurchased": "Already purchased!",
     "dogecoinSection": "DogeCoins",
     "boosterSection": "Boosters",
+    "upgradesSection": "Upgrades",
     "cheemsSection": "Cheems Skins",
     "sfxSection": "Sound Effects",
     "musicSection": "Background Music",
-    "backToTop": "Back to Top ↑"
+    "backToTop": "Back to Top ↑",
+    "maxLevel": "Max Level"
   },
   "shopItemsText": {
+    "shop_upgrade_qty_1_name": "Idle Quantity Upgrade",
+    "shop_upgrade_qty_1_desc": "Increases the idle points earned per second by +1 point.",
+    "shop_upgrade_qty_2_name": "Idle Quantity Upgrade II",
+    "shop_upgrade_qty_2_desc": "Increases the idle points earned per second by +2 points.",
+    "shop_upgrade_qty_3_name": "Idle Quantity Upgrade III",
+    "shop_upgrade_qty_3_desc": "Increases the idle points earned per second by +3 points.",
+    "shop_upgrade_qty_5_name": "Idle Quantity Upgrade V",
+    "shop_upgrade_qty_5_desc": "Increases the idle points earned per second by +5 points.",
+    "shop_upgrade_qty_10_name": "Idle Quantity Upgrade X",
+    "shop_upgrade_qty_10_desc": "Increases the idle points earned per second by +10 points.",
     "shop_dogecoin_special_name": "DogeCoin (Special Offer)",
     "shop_dogecoin_special_desc": "Buy 1 DogeCoin for a special price!",
     "shop_dogecoin_1_name": "DogeCoin x1",
