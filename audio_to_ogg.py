@@ -1,21 +1,27 @@
+import os
 import subprocess
 from pathlib import Path
 
 def convert_to_ogg(input_folder):
-    formats = [".mp3", ".wav", ".m4a", ".flac"]
+    formats = [".mp3", ".wav", ".m4a", ".flac", ".ogg"]
     print("Starting batch conversion...")
+
+    if not os.path.exists(os.path.join(input_folder, "converted")):
+        os.mkdir(os.path.join(input_folder, "converted"))
 
     for ext in formats:
         for file_path in Path(input_folder).glob(f"*{ext}"):
             input_file = str(file_path)
-            output_file = str(Path(input_folder) / file_path.with_suffix('.ogg').name)
+            output_file = str(Path(input_folder) / "converted/" / file_path.with_suffix('.ogg').name)
             command = [
                 "ffmpeg",
                 "-i", input_file,
                 "-c:a", "libvorbis",
                 "-q:a", "5",
+                "-map_metadata", "-1",
+                "-vn",
                 "-ac", "1",
-                "-ar", "3200",
+                "-ar", "32000",
                 "-af", "silenceremove=start_periods=1:start_duration=0:start_threshold=-50dB",
                 "-y",
                 output_file
