@@ -45,10 +45,8 @@ if (electronIsDev) {
   // Initialize our app, build windows, and load content.
   await myCapacitorApp.init();
 
-  myCapacitorApp.getMainWindow().on('closed', () => {
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
+  myCapacitorApp.getMainWindow().on('close', () => {
+    app.quit();
   });
 })();
 
