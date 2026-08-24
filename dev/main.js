@@ -89379,6 +89379,9 @@ var AppComponent = class _AppComponent {
     window.onkeydown = this.onKeyDown.bind(this);
     document.addEventListener("touchstart", this.onTouchStart.bind(this), { passive: false });
     window.addEventListener("beforeunload", (event) => {
+      if (navigator.userAgent.toLowerCase().includes("electron")) {
+        return;
+      }
       event.preventDefault();
       event.returnValue = "Changes may not be saved";
       return "Changes may not be saved";
