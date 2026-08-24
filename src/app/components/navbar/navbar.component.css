@@ -42,11 +42,7 @@ nav {
 .logo-coin {
     height: 36px;
     width: 36px;
-<<<<<<< HEAD
     cursor: default;
-=======
-    cursor: pointer;
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     object-fit: contain;
 }
 
@@ -177,7 +173,6 @@ nav.theme-contrast {
     nav {
         padding: 0.5rem 0.75rem;
     }
-<<<<<<< HEAD
     .preventive {
         position: static;
         transform: none;
@@ -185,8 +180,6 @@ nav.theme-contrast {
         padding: 0 0.5rem;
         max-width: none;
     }
-=======
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     .counters-group {
         gap: 0.35rem;
     }

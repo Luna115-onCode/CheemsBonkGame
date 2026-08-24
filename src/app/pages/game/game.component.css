@@ -86,7 +86,6 @@
         opacity: 0;
         transform: translate(-50%, -150px) scale(1);
     }
-<<<<<<< HEAD
 }
 
 /* Stats Button */
@@ -212,6 +211,4 @@
 
 .modal-content.theme-light .close-btn:hover {
     background: rgba(0, 0, 0, 0.1);
-=======
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
 }

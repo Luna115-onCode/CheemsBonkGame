@@ -24,12 +24,9 @@ export class AppComponent implements OnInit {
     document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
 
     window.addEventListener('beforeunload', (event: BeforeUnloadEvent) => {
-<<<<<<< HEAD
       if (navigator.userAgent.toLowerCase().includes('electron')) {
         return;
       }
-=======
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
       event.preventDefault();
       event.returnValue = 'Changes may not be saved';
       return 'Changes may not be saved';

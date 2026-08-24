@@ -21,12 +21,8 @@
     "stack_colors": "Stack Colors",
     "minigames": "Minigames",
     "licenses": "Licenses & Credits",
-<<<<<<< HEAD
     "gallery": "Gallery",
     "redeem": "Redeem code"
-=======
-    "gallery": "Gallery"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   "minigames": {
     "trash": "TRASH",
@@ -59,12 +55,8 @@
     "buyDogeCoinSub": "Today's price: ",
     "buyDogeCoinSuccess": "You bought 1 DogeCoin!",
     "buyDogeCoinFail": "You need more points!",
-<<<<<<< HEAD
     "gallery": "Gallery",
     "redeem": "Redeem Code"
-=======
-    "gallery": "Gallery"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   "options": {
     "changeLang": {
@@ -108,7 +100,6 @@
       "totalScore": "Total touches",
       "booster": "Booster"
     },
-<<<<<<< HEAD
     "tapToBonk": "Click Cheems for a BONK!",
     "idleStats": "Idle Stats",
     "activeAppOpen": "Active (App Open):",
@@ -117,9 +108,6 @@
     "ptsPerMin": "pts/min",
     "ptsPerHr": "pts/hr",
     "close": "Close"
-=======
-    "tapToBonk": "Click Cheems for a BONK!"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   "closet": {
     "title": "Customization Shop",
@@ -140,7 +128,6 @@
     "buyInShop": "Buy this item in the Shop!",
     "locked": "Locked"
   },
-<<<<<<< HEAD
   "redeemText": {
     "title": "Redeem Code",
     "enterCode": "Enter code here...",
@@ -150,17 +137,6 @@
     "alreadyRedeemed": "Code already redeemed!",
     "success": "Code redeemed successfully!",
     "empty_codes": "No redeemed codes yet."
-=======
-  "dev": {
-    "title": "Developer Options",
-    "resetToZero": "Reset to zero",
-    "unlockAll": "Unlock All",
-    "giveDogeCoins": "Add +100 DogeCoins",
-    "givePoints": "Add +1000 Points",
-    "success": "Done!",
-    "unlocked": "Developer Menu UNLOCKED!",
-    "locked": "Developer Menu locked."
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   "onWork": {
     "title": "Page Under Development",
@@ -217,7 +193,6 @@
     "alreadyPurchased": "Already purchased!",
     "dogecoinSection": "DogeCoins",
     "boosterSection": "Boosters",
-<<<<<<< HEAD
     "upgradesSection": "Upgrades",
     "cheemsSection": "Cheems Skins",
     "sfxSection": "Sound Effects",
@@ -236,14 +211,6 @@
     "shop_upgrade_qty_5_desc": "Increases the idle points earned per second by +5 points.",
     "shop_upgrade_qty_10_name": "Idle Quantity Upgrade X",
     "shop_upgrade_qty_10_desc": "Increases the idle points earned per second by +10 points.",
-=======
-    "cheemsSection": "Cheems Skins",
-    "sfxSection": "Sound Effects",
-    "musicSection": "Background Music",
-    "backToTop": "Back to Top ↑"
-  },
-  "shopItemsText": {
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "shop_dogecoin_special_name": "DogeCoin (Special Offer)",
     "shop_dogecoin_special_desc": "Buy 1 DogeCoin for a special price!",
     "shop_dogecoin_1_name": "DogeCoin x1",

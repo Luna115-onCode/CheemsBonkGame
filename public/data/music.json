@@ -7,11 +7,7 @@
     "default": true,
     "storageKey": "m0",
     "description": "music_0_desc",
-<<<<<<< HEAD
     "cover": "img/music/no_image.webp"
-=======
-    "cover": "img/music/no_image.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_1",
@@ -21,11 +17,7 @@
     "default": true,
     "storageKey": "m1",
     "description": "music_1_desc",
-<<<<<<< HEAD
     "cover": "img/music/no_image.webp"
-=======
-    "cover": "img/music/no_image.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_2",
@@ -35,11 +27,7 @@
     "default": false,
     "storageKey": "m2",
     "description": "music_2_desc",
-<<<<<<< HEAD
     "cover": "img/music/jack_bootleg.webp"
-=======
-    "cover": "img/music/jack_bootleg.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_3",
@@ -49,11 +37,7 @@
     "default": false,
     "storageKey": "m3",
     "description": "music_3_desc",
-<<<<<<< HEAD
     "cover": "img/music/magic_night.webp"
-=======
-    "cover": "img/music/magic_night.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_4",
@@ -63,11 +47,7 @@
     "default": false,
     "storageKey": "m4",
     "description": "music_4_desc",
-<<<<<<< HEAD
     "cover": "img/music/minimalism_no9.webp"
-=======
-    "cover": "img/music/minimalism_no9.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_5",
@@ -77,11 +57,7 @@
     "default": false,
     "storageKey": "m5",
     "description": "music_5_desc",
-<<<<<<< HEAD
     "cover": "img/music/minimalism_no10.webp"
-=======
-    "cover": "img/music/minimalism_no10.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_6",
@@ -91,424 +67,236 @@
     "default": false,
     "storageKey": "m6",
     "description": "music_6_desc",
-<<<<<<< HEAD
     "cover": "img/music/when_you_smile.webp"
-=======
-    "cover": "img/music/when_you_smile.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_7",
     "nameKey": "music_7",
-<<<<<<< HEAD
     "file": "TETRIS_jack_bootleg.ogg",
-=======
-    "file": "TETRIS (Joey iLLah Bootleg) (Final).wav",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m7",
     "description": "music_7_desc",
-<<<<<<< HEAD
     "cover": "img/music/tetris_bootleg.webp"
-=======
-    "cover": "img/music/tetris_bootleg.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_8",
     "nameKey": "music_8",
-<<<<<<< HEAD
     "file": "separation.ogg",
-=======
-    "file": "separation-185196.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m8",
     "description": "music_8_desc",
-<<<<<<< HEAD
     "cover": "img/music/no_image.webp"
-=======
-    "cover": "img/music/no_image.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_9",
     "nameKey": "music_9",
-<<<<<<< HEAD
     "file": "electro-summer-positive-party.ogg",
-=======
-    "file": "electro-summer-positive-party-141081.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m9",
     "description": "music_9_desc",
-<<<<<<< HEAD
     "cover": "img/music/electro_summer_positive_party.webp"
-=======
-    "cover": "img/music/electro_summer_positive_party.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_10",
     "nameKey": "music_10",
-<<<<<<< HEAD
     "file": "titanium.ogg",
-=======
-    "file": "titanium-170190.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m10",
     "description": "music_10_desc",
-<<<<<<< HEAD
     "cover": "img/music/titanium.webp"
-=======
-    "cover": "img/music/titanium.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_11",
     "nameKey": "music_11",
-<<<<<<< HEAD
     "file": "believe-me.ogg",
-=======
-    "file": "believe-me-143530.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m11",
     "description": "music_11_desc",
-<<<<<<< HEAD
     "cover": "img/music/believe_me.webp"
-=======
-    "cover": "img/music/believe_me.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_12",
     "nameKey": "music_12",
-<<<<<<< HEAD
     "file": "city-streets.ogg",
-=======
-    "file": "city-streets-background-version-166003.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m12",
     "description": "music_12_desc",
-<<<<<<< HEAD
     "cover": "img/music/city_streets.webp"
-=======
-    "cover": "img/music/city_streets.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_13",
     "nameKey": "music_13",
-<<<<<<< HEAD
     "file": "coffee-shop.ogg",
-=======
-    "file": "coffee-shop-189585.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m13",
     "description": "music_13_desc",
-<<<<<<< HEAD
     "cover": "img/music/no_image.webp"
-=======
-    "cover": "img/music/no_image.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_14",
     "nameKey": "music_14",
-<<<<<<< HEAD
     "file": "trap-future-bass.ogg",
-=======
-    "file": "trap-future-bass-royalty-free-music-167020.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m14",
     "description": "music_14_desc",
-<<<<<<< HEAD
     "cover": "img/music/trap_future_bass.webp"
-=======
-    "cover": "img/music/trap_future_bass.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_15",
     "nameKey": "music_15",
-<<<<<<< HEAD
     "file": "bonk_the_amber.ogg",
-=======
-    "file": "bonk_the_amber.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m15",
     "description": "music_15_desc",
-<<<<<<< HEAD
     "cover": "img/music/bonk_the_amber.webp"
-=======
-    "cover": "img/music/bonk_the_amber.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_16",
     "nameKey": "music_16",
-<<<<<<< HEAD
     "file": "bonk_the_avatar.ogg",
-=======
-    "file": "bonk_the_avatar.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m16",
     "description": "music_16_desc",
-<<<<<<< HEAD
     "cover": "img/music/bonk_the_avatar.webp"
-=======
-    "cover": "img/music/bonk_the_avatar.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_17",
     "nameKey": "music_17",
-<<<<<<< HEAD
     "file": "bonus_level_bounce.ogg",
-=======
-    "file": "bonus_level_bounce.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m17",
     "description": "music_17_desc",
-<<<<<<< HEAD
     "cover": "img/music/bonus_level_bounce.webp"
-=======
-    "cover": "img/music/bonus_level_bounce.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_18",
     "nameKey": "music_18",
-<<<<<<< HEAD
     "file": "button_smash_routine.ogg",
-=======
-    "file": "button_smash_routine.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m18",
     "description": "music_18_desc",
-<<<<<<< HEAD
     "cover": "img/music/button_smash_routine.webp"
-=======
-    "cover": "img/music/button_smash_routine.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_19",
     "nameKey": "music_19",
-<<<<<<< HEAD
     "file": "cheems-chan_bonk.ogg",
-=======
-    "file": "cheems-chan_bonk.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m19",
     "description": "music_19_desc",
-<<<<<<< HEAD
     "cover": "img/music/cheems_chan_bonk.webp"
-=======
-    "cover": "img/music/cheems_chan_bonk.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_20",
     "nameKey": "music_20",
-<<<<<<< HEAD
     "file": "click_for_a_bonk.ogg",
-=======
-    "file": "click_for_a_bonk.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m20",
     "description": "music_20_desc",
-<<<<<<< HEAD
     "cover": "img/music/click_for_a_bonk.webp"
-=======
-    "cover": "img/music/click_for_a_bonk.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_21",
     "nameKey": "music_21",
-<<<<<<< HEAD
     "file": "hardwood_strike.ogg",
-=======
-    "file": "hardwood_strike.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m21",
     "description": "music_21_desc",
-<<<<<<< HEAD
     "cover": "img/music/hardwood_strike.webp"
-=======
-    "cover": "img/music/hardwood_strike.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_22",
     "nameKey": "music_22",
-<<<<<<< HEAD
     "file": "perfect_round.ogg",
-=======
-    "file": "perfect_round.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m22",
     "description": "music_22_desc",
-<<<<<<< HEAD
     "cover": "img/music/perfect_round.webp"
-=======
-    "cover": "img/music/perfect_round.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_23",
     "nameKey": "music_23",
-<<<<<<< HEAD
     "file": "pocket_change_victory.ogg",
-=======
-    "file": "pocket_change_victory.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m23",
     "description": "music_23_desc",
-<<<<<<< HEAD
     "cover": "img/music/pocket_change_victory.webp"
-=======
-    "cover": "img/music/pocket_change_victory.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_24",
     "nameKey": "music_24",
-<<<<<<< HEAD
     "file": "quick_loot_run.ogg",
-=======
-    "file": "quick_loot_run.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m24",
     "description": "music_24_desc",
-<<<<<<< HEAD
     "cover": "img/music/quick_loot_run.webp"
-=======
-    "cover": "img/music/quick_loot_run.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_25",
     "nameKey": "music_25",
-<<<<<<< HEAD
     "file": "target_in_the_sight.ogg",
-=======
-    "file": "target_in_the_sight.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m25",
     "description": "music_25_desc",
-<<<<<<< HEAD
     "cover": "img/music/target_in_the_sight.webp"
-=======
-    "cover": "img/music/target_in_the_sight.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_26",
     "nameKey": "music_26",
-<<<<<<< HEAD
     "file": "the_hammer_falls.ogg",
-=======
-    "file": "the_hammer_falls.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m26",
     "description": "music_26_desc",
-<<<<<<< HEAD
     "cover": "img/music/the_hammer_falls.webp"
-=======
-    "cover": "img/music/the_hammer_falls.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_27",
     "nameKey": "music_27",
-<<<<<<< HEAD
     "file": "the_late_commute.ogg",
-=======
-    "file": "the_late_commute.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m27",
     "description": "music_27_desc",
-<<<<<<< HEAD
     "cover": "img/music/the_late_commute.webp"
-=======
-    "cover": "img/music/the_late_commute.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_28",
     "nameKey": "music_28",
-<<<<<<< HEAD
     "file": "the_unwritten_page.ogg",
-=======
-    "file": "the_unwritten_page.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m28",
     "description": "music_28_desc",
-<<<<<<< HEAD
     "cover": "img/music/the_unwritten_page_bage.webp"
-=======
-    "cover": "img/music/the_unwritten_page_bage.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "id": "music_29",
     "nameKey": "music_29",
-<<<<<<< HEAD
     "file": "where_the_path_bends.ogg",
-=======
-    "file": "where_the_path_bends.mp3",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m29",
     "description": "music_29_desc",
-<<<<<<< HEAD
     "cover": "img/music/where_the_path_bends.webp"
-=======
-    "cover": "img/music/where_the_path_bends.png"
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 ]

@@ -7,10 +7,7 @@
     "buildResources": "assets"
   },
   "files": [
-<<<<<<< HEAD
     "app/**/*",
-=======
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "build/**/*",
     "node_modules/**/*",
     "package.json"

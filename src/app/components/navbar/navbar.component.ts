@@ -24,9 +24,5 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   onDogeCoinClick(): void {
-<<<<<<< HEAD
-=======
-    this.tools.registerDevClick();
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 }

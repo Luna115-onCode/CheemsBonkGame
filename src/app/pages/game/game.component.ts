@@ -1,8 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
-<<<<<<< HEAD
 import { CommonModule } from '@angular/common';
-=======
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
 import { ToolsService } from '../../services/tools.service';
 
 interface FloatingScore {
@@ -14,11 +11,7 @@ interface FloatingScore {
 
 @Component({
   selector: 'app-game',
-<<<<<<< HEAD
   imports: [CommonModule],
-=======
-  imports: [],
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   templateUrl: './game.component.html',
   styleUrl: './game.component.css'
 })
@@ -28,10 +21,7 @@ export class GameComponent implements OnInit, OnDestroy {
   floatingScores: FloatingScore[] = [];
   private nextScoreId: number = 0;
   private clickTimeout: any = null;
-<<<<<<< HEAD
   showStatsModal: boolean = false;
-=======
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
 
   private onKeyUpBound = this.onKeyUp.bind(this);
 
@@ -90,7 +80,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.clickTimeout = setTimeout(() => {
       this.clicked = false;
     }, 250);
-<<<<<<< HEAD
   }
 
   get pointsPerHour(): number {
@@ -142,7 +131,5 @@ export class GameComponent implements OnInit, OnDestroy {
       event.stopPropagation();
     }
     this.showStatsModal = !this.showStatsModal;
-=======
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 }

@@ -17,16 +17,11 @@
       }
     },
     {
-<<<<<<< HEAD
       "name": "essential-assets",
-=======
-      "name": "assets",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
       "installMode": "prefetch",
       "updateMode": "prefetch",
       "resources": {
         "files": [
-<<<<<<< HEAD
           "/closet.json",
           "/items/*.json",
           "/lang/*.lang",
@@ -44,12 +39,6 @@
       "resources": {
         "files": [
           "/**/*.(jpg|jpeg|png|apng|webp|avif|gif|txt|xml|csv|ico|ogg|mp3|wav|m4a)",
-=======
-          "/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2|txt|json|xml|csv|ico|ogg|mp3|wav|m4a|lang)",
-          "/closet.json",
-          "/items/*.json",
-          "/lang/*.lang",
->>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
           "/sound/**/*",
           "/img/**/*",
           "/games/**/*"
