@@ -140,9 +140,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.tools.setTitle("block_breaker" as any);
     this.tools.actPage = "block_breaker" as any;
-    localStorage.removeItem("CheemsAppLiMinigame_PlayerLevel");
-    localStorage.removeItem("CheemsAppLiMinigame_Grid");
-    localStorage.removeItem("CheemsAppLiMinigame_Costs");
+
     this.loadLevel();
     this.loadGrid();
     this.loadCosts();

@@ -1,4 +1,5 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ToolsService } from '../../services/tools.service';
 
 interface FloatingScore {
@@ -10,7 +11,7 @@ interface FloatingScore {
 
 @Component({
   selector: 'app-game',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './game.component.html',
   styleUrl: './game.component.css'
 })
@@ -20,6 +21,7 @@ export class GameComponent implements OnInit, OnDestroy {
   floatingScores: FloatingScore[] = [];
   private nextScoreId: number = 0;
   private clickTimeout: any = null;
+  showStatsModal: boolean = false;
 
   private onKeyUpBound = this.onKeyUp.bind(this);
 
@@ -78,5 +80,56 @@ export class GameComponent implements OnInit, OnDestroy {
     this.clickTimeout = setTimeout(() => {
       this.clicked = false;
     }, 250);
+  }
+
+  get pointsPerHour(): number {
+    return (3600 / this.tools.idleTime) * this.tools.idlePoints;
+  }
+
+  get offlinePointsPerHour(): number {
+    return this.pointsPerHour / 4;
+  }
+
+  getFormattedPoints(ptsPerHour: number): { value: number, unitKey: string } {
+    const perSec = ptsPerHour / 3600;
+    if (perSec >= 1000) {
+      return { value: perSec, unitKey: 'ptsPerSec' };
+    }
+    const perMin = ptsPerHour / 60;
+    if (perMin >= 1000) {
+      return { value: perMin, unitKey: 'ptsPerMin' };
+    }
+    return { value: ptsPerHour, unitKey: 'ptsPerHr' };
+  }
+
+  get activeStats() {
+    return this.getFormattedPoints(this.pointsPerHour);
+  }
+
+  get offlineStats() {
+    return this.getFormattedPoints(this.offlinePointsPerHour);
+  }
+
+  formatDuration(seconds: number): string {
+    if (seconds < 60) return `${Math.ceil(seconds)}s`;
+    const m = Math.floor(seconds / 60);
+    const s = Math.ceil(seconds % 60);
+    return `${m}m ${s}s`;
+  }
+
+  get onlineIntervalStr(): string {
+    return this.formatDuration(this.tools.idleTime);
+  }
+
+  get offlineIntervalStr(): string {
+    return this.formatDuration(this.tools.idleTime);
+  }
+
+  toggleStatsModal(event: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.showStatsModal = !this.showStatsModal;
   }
 }

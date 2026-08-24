@@ -40,6 +40,10 @@ export class ShopComponent implements OnInit, OnDestroy {
   }
 
   buyItem(item: ShopItem): void {
+    if (this.isUpgradeMaxLevel(item)) {
+      return;
+    }
+
     if (!this.tools.canBuyDailyLimit(item)) {
       this.tools.showToast(this.tools.shop[this.tools.lang]?.dailyLimitReached || "Daily limit reached!");
       return;
@@ -49,17 +53,18 @@ export class ShopComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const costObj = this.getDynamicCost(item);
+
     if (item.type === 'dogecoin') {
       const coinsGiven = item.coinsGiven || 1;
-      this.tools.buyDogeCoin(item.cost, coinsGiven, item.id);
+      this.tools.buyDogeCoin(costObj.pts, coinsGiven, item.id);
+    } else if (item.type === 'upgrade') {
+      this.tools.buyUpgrade(item, costObj.pts, costObj.coins);
     } else if (item.type === 'currency') {
-      const ptsCost = item.cost || 0;
-      const coinCost = item.costCoins || 0;
-      const mgCost = item.costMinigames || 0;
-      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost && this.tools.minigameCoins >= mgCost) {
-        this.tools.points -= ptsCost;
-        this.tools.dogeCoins -= coinCost;
-        this.tools.minigameCoins -= mgCost;
+      if (this.tools.points >= costObj.pts && this.tools.dogeCoins >= costObj.coins && this.tools.minigameCoins >= costObj.mg) {
+        this.tools.points -= costObj.pts;
+        this.tools.dogeCoins -= costObj.coins;
+        this.tools.minigameCoins -= costObj.mg;
         if (item.coinsGiven) {
           this.tools.dogeCoins += item.coinsGiven;
         }
@@ -76,13 +81,10 @@ export class ShopComponent implements OnInit, OnDestroy {
         this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough currency!");
       }
     } else if (item.type === 'minigame') {
-      const ptsCost = item.cost || 0;
-      const coinCost = item.costCoins || 0;
-      const mgCost = item.costMinigames || 0;
-      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost && this.tools.minigameCoins >= mgCost) {
-        this.tools.points -= ptsCost;
-        this.tools.dogeCoins -= coinCost;
-        this.tools.minigameCoins -= mgCost;
+      if (this.tools.points >= costObj.pts && this.tools.dogeCoins >= costObj.coins && this.tools.minigameCoins >= costObj.mg) {
+        this.tools.points -= costObj.pts;
+        this.tools.dogeCoins -= costObj.coins;
+        this.tools.minigameCoins -= costObj.mg;
         this.tools.saveData("points", String(this.tools.points));
         this.tools.saveData("dg", String(this.tools.dogeCoins));
         this.tools.saveData("mg", String(this.tools.minigameCoins));
@@ -96,9 +98,7 @@ export class ShopComponent implements OnInit, OnDestroy {
         this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough currency!");
       }
     } else if (item.type === 'booster') {
-      const ptsCost = item.cost || 0;
-      const coinCost = item.costCoins || 0;
-      if (this.tools.points >= ptsCost && this.tools.dogeCoins >= coinCost) {
+      if (this.tools.points >= costObj.pts && this.tools.dogeCoins >= costObj.coins) {
         const isOverride = this.tools.boosterEndTime !== 0 && this.tools.getBoosterRemainingSeconds() > 0 && this.tools.boosterMultiplier !== item.multiplier;
         if (isOverride) {
           const warningTemplate = this.tools.shop[this.tools.lang]?.boosterOverrideWarning || "Warning! You already have an active x{current} booster. Buying a x{new} booster will override your remaining time. Do you want to continue?";
@@ -109,14 +109,14 @@ export class ShopComponent implements OnInit, OnDestroy {
             return;
           }
         }
-        this.tools.points -= ptsCost;
-        this.tools.dogeCoins -= coinCost;
+        this.tools.points -= costObj.pts;
+        this.tools.dogeCoins -= costObj.coins;
         this.tools.saveData("points", String(this.tools.points));
         this.tools.saveData("dg", String(this.tools.dogeCoins));
         this.tools.recordDailyPurchase(item.id);
         this.tools.activateBooster(item.multiplier || 1, item.durationMin || 0);
       } else {
-        if (this.tools.points < ptsCost) {
+        if (this.tools.points < costObj.pts) {
           this.tools.showToast(this.tools.shop[this.tools.lang]?.needMorePoints || "Not enough points!");
         } else {
           this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough DogeCoins!");
@@ -127,6 +127,30 @@ export class ShopComponent implements OnInit, OnDestroy {
     }
   }
 
+  getDynamicCost(item: ShopItem): { pts: number, coins: number, mg: number } {
+    const times = this.tools.purchasedUpgrades[item.id] || 0;
+    const mult = 1 + (item.priceMultiplier || 1) * times;
+    
+    let ptsCost = item.cost !== undefined ? item.cost : (item.type === 'dogecoin' ? this.dailyPrice : 0);
+    let coinsCost = item.costCoins || 0;
+    let mgCost = item.costMinigames || 0;
+
+    if (item.type === 'upgrade') {
+      ptsCost = Math.ceil(ptsCost * mult);
+      coinsCost = Math.ceil(coinsCost * mult);
+      mgCost = Math.ceil(mgCost * mult);
+    }
+
+    return { pts: ptsCost, coins: coinsCost, mg: mgCost };
+  }
+
+  isUpgradeMaxLevel(item: ShopItem): boolean {
+    if (item.type === 'upgrade' && item.upgradeType === 'frequency') {
+      return this.tools.idleTime <= 1;
+    }
+    return false;
+  }
+
   canBuy(item: ShopItem): boolean {
     if (this.tools.isLifetimeLimitReached(item)) {
       return false;
@@ -134,36 +158,39 @@ export class ShopComponent implements OnInit, OnDestroy {
     if (!this.tools.canBuyDailyLimit(item)) {
       return false;
     }
-    const ptsCost = item.cost !== undefined ? item.cost : (item.type === 'dogecoin' ? this.dailyPrice : 0);
-    const coinsCost = item.costCoins || 0;
-    const mgCost = item.costMinigames || 0;
-    return this.tools.points >= ptsCost && this.tools.dogeCoins >= coinsCost && this.tools.minigameCoins >= mgCost;
+    if (this.isUpgradeMaxLevel(item)) {
+      return false;
+    }
+    const costObj = this.getDynamicCost(item);
+    return this.tools.points >= costObj.pts && this.tools.dogeCoins >= costObj.coins && this.tools.minigameCoins >= costObj.mg;
   }
 
   formatItemCost(item: ShopItem): string {
-    const ptsCost = item.cost !== undefined ? item.cost : (item.type === 'dogecoin' ? this.dailyPrice : 0);
-    const coinsCost = item.costCoins || 0;
-    const mgCost = item.costMinigames || 0;
+    const costObj = this.getDynamicCost(item);
 
-    if (ptsCost === 0 && coinsCost === 0 && mgCost === 0) {
+    if (costObj.pts === 0 && costObj.coins === 0 && costObj.mg === 0) {
       return this.tools.shop[this.tools.lang]?.free || "Free";
     }
 
     const parts: string[] = [];
-    if (ptsCost > 0) {
-      parts.push(`${ptsCost.toLocaleString()} Pts`);
+    if (costObj.pts > 0) {
+      parts.push(`${costObj.pts.toLocaleString()} Pts`);
     }
-    if (coinsCost > 0) {
-      parts.push(`${coinsCost.toLocaleString()} DGC`);
+    if (costObj.coins > 0) {
+      parts.push(`${costObj.coins.toLocaleString()} DGC`);
     }
-    if (mgCost > 0) {
-      parts.push(`${mgCost.toLocaleString()} MG`);
+    if (costObj.mg > 0) {
+      parts.push(`${costObj.mg.toLocaleString()} MG`);
     }
     return parts.join(' + ');
   }
 
   get dogecoinItems(): ShopItem[] {
     return this.tools.shopItems.filter(i => i.type === 'dogecoin' || i.type === 'currency');
+  }
+
+  get upgradeItems(): ShopItem[] {
+    return this.tools.shopItems.filter(i => i.type === 'upgrade');
   }
 
   get minigameItems(): ShopItem[] {
@@ -206,7 +233,7 @@ export class ShopComponent implements OnInit, OnDestroy {
       return item.icon;
     }
     if (item.type === 'cheems') {
-      return 'img/cheems/locked-cheems.png';
+      return 'img/cheems/locked-cheems.webp';
     }
     if (item.type === 'sound') {
       return 'img/icons/black-sound-svgrepo-com.svg';

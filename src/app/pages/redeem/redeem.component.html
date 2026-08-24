@@ -1,0 +1,29 @@
+<div class="container fade-in page-content with-navbar">
+    <div class="card {{tools.themeColor}} redeem-card">
+        <h2 class="section-title">{{tools.redeem[tools.lang].title || 'Redeem Code'}}</h2>
+        
+        <div class="input-group">
+            <input type="text" class="input-text {{tools.themeColor}}" [(ngModel)]="inputCode" (keyup.enter)="redeemCode()" [placeholder]="tools.redeem[tools.lang].enterCode || 'Enter code here...'">
+            <button class="btn-primary {{tools.themeColor}}" (click)="redeemCode()">
+                {{tools.redeem[tools.lang].redeemBtn || 'Redeem'}}
+            </button>
+        </div>
+    </div>
+
+    <div class="card {{tools.themeColor}} history-card">
+        <h3 class="section-title">{{tools.redeem[tools.lang].history || 'Redeem History'}}</h3>
+        
+        <div class="history-list">
+            @if (tools.redeemedCodes.length > 0) {
+                @for (code of tools.redeemedCodes; track $index) {
+                    <div class="history-item {{tools.themeColor}}">
+                        <img src="img/icons/check-svgrepo-com.svg" class="icon" alt="check">
+                        <span class="code-text">{{code}}</span>
+                    </div>
+                }
+            } @else {
+                <div class="empty-state">{{tools.redeem[tools.lang].empty_codes || "No redeemed codes yet."}}</div>
+            }
+        </div>
+    </div>
+</div>

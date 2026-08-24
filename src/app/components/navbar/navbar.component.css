@@ -42,7 +42,7 @@ nav {
 .logo-coin {
     height: 36px;
     width: 36px;
-    cursor: pointer;
+    cursor: default;
     object-fit: contain;
 }
 
@@ -172,6 +172,13 @@ nav.theme-contrast {
 @media (max-width: 600px) {
     nav {
         padding: 0.5rem 0.75rem;
+    }
+    .preventive {
+        position: static;
+        transform: none;
+        flex: 1;
+        padding: 0 0.5rem;
+        max-width: none;
     }
     .counters-group {
         gap: 0.35rem;

@@ -8,7 +8,7 @@ import {
   pageName,
   menuText,
   closetText,
-  devText,
+  redeemText,
   onWorkText,
   p404Text,
   minigamesText,
@@ -24,7 +24,6 @@ import {
   LanguageItem,
   offlineText,
   OfflineCategory,
-  OFFLINE_CATEGORIES,
   ShopItem,
   flappy_dunkText,
   magic_sortText,
@@ -62,11 +61,15 @@ export class ToolsService {
   totalDogeCoinsEarned: number = 0;
   totalMinigameCoinsEarned: number = 0;
 
+  idlePoints: number = 0;
+  idleTime: number = 1;
+  private idleTimer: any = null;
+  purchasedUpgrades: Record<string, number> = {};
+
   effVol: number = 100;
   musVol: number = 50;
 
-  devMenuUnlocked: boolean = false;
-  private devClickCount: number = 0;
+  redeemedCodes: string[] = [];
 
   unlockedCheems: Record<string, boolean> = {};
   unlockedSounds: Record<string, boolean> = {};
@@ -77,7 +80,7 @@ export class ToolsService {
   options: any = createLangMap(optionsText);
   menu: any = createLangMap(menuText);
   closet: any = createLangMap(closetText);
-  dev: any = createLangMap(devText);
+  redeem: any = createLangMap(redeemText);
   onWork: any = createLangMap(onWorkText);
   p404: any = createLangMap(p404Text);
   offline: any = createLangMap(offlineText);
@@ -97,7 +100,6 @@ export class ToolsService {
   paper_io: any = createLangMap(paper_ioText);
   spiral_roll: any = createLangMap(spiral_rollText);
   stack_colors: any = createLangMap(stack_colorsText);
-  offlineCategories: Array<OfflineCategory> = OFFLINE_CATEGORIES;
   shopItemsText: Record<string, Record<string, string>> = {};
   itemsText: Record<string, Record<string, string>> = {};
   shopItems: Array<ShopItem> = [];
@@ -265,7 +267,7 @@ export class ToolsService {
         };
         if (data.menu) this.menu[langCode] = { ...this.menu[langCode], ...data.menu };
         if (data.closet) this.closet[langCode] = { ...this.closet[langCode], ...data.closet };
-        if (data.dev) this.dev[langCode] = { ...this.dev[langCode], ...data.dev };
+        if (data.redeemText) this.redeem[langCode] = { ...this.redeem[langCode], ...data.redeemText };
         if (data.onWork) this.onWork[langCode] = { ...this.onWork[langCode], ...data.onWork };
         if (data.p404) this.p404[langCode] = { ...this.p404[langCode], ...data.p404 };
         if (data.offline) this.offline[langCode] = { ...this.offline[langCode], ...data.offline };
@@ -388,7 +390,7 @@ export class ToolsService {
     const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
     if (minigamePages.includes(this.actPage as string)) {
       this.redirect("minigames");
-    } else if (["devSettings", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage as string)) {
+    } else if (["redeem", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage as string)) {
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage as string)) {
       this.redirect("game");
@@ -432,14 +434,12 @@ export class ToolsService {
     this.totalMinigameCoinsEarned += amount;
     this.saveData("mg", String(this.minigameCoins));
     this.saveData("lifetime_mg", String(this.totalMinigameCoinsEarned));
-    document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
   }
 
   spendMinigameCoins(amount: number): boolean {
     if (this.minigameCoins >= amount) {
       this.minigameCoins = Math.floor(this.minigameCoins - amount);
       this.saveData("mg", String(this.minigameCoins));
-      document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
       return true;
     }
     return false;
@@ -545,19 +545,30 @@ export class ToolsService {
     }
   }
 
-  registerDevClick(): void {
-    this.devClickCount++;
-    if (this.devClickCount === 5) {
-      this.devMenuUnlocked = !this.devMenuUnlocked;
-      this.saveData("dev_menu", String(this.devMenuUnlocked));
-      if (this.devMenuUnlocked) {
-        this.showToast(this.dev[this.lang].unlocked);
-      } else {
-        this.showToast(this.dev[this.lang].locked);
-      }
-      this.devClickCount = 0;
+  buyUpgrade(item: ShopItem, currentCost: number, coinsCost: number): void {
+    if (this.points >= currentCost && this.dogeCoins >= coinsCost) {
+      this.points -= currentCost;
+      this.dogeCoins -= coinsCost;
+      this.saveData("points", String(this.points));
+      this.saveData("dg", String(this.dogeCoins));
+
+      const times = this.purchasedUpgrades[item.id] || 0;
+      this.purchasedUpgrades[item.id] = times + 1;
+      this.saveData("upgrades", this.stringifyObject(this.purchasedUpgrades));
+
+      this.recalculateIdleStats();
+      this.recordDailyPurchase(item.id);
+      
+      this.showToast(this.closet[this.lang]?.purchased || "Purchased!");
       this.playSound('sfx_4');
+    } else {
+      this.showToast(this.shop[this.lang]?.notEnoughCoins || "Not enough currency!");
+      this.playSound('sfx_8');
     }
+  }
+
+  saveRedeemedCodes(): void {
+    this.saveData("redeemed_codes", JSON.stringify(this.redeemedCodes));
   }
 
   playSound(customSoundId?: string): void {
@@ -821,7 +832,7 @@ export class ToolsService {
     this.saveData("total_score", String(this.totalScore));
     this.saveData("high_score", String(this.highScore));
     this.saveData("dg", String(this.dogeCoins));
-    this.showToast(this.dev[this.lang].success);
+    this.showToast(this.redeem[this.lang]?.success || "Success");
     this.playSound('sfx_4');
   }
 
@@ -878,6 +889,13 @@ export class ToolsService {
 
     this.deleteData("lifetime_purchases");
     this.deleteData("daily_purchases_limit");
+    this.deleteData("upgrades");
+    this.deleteData("idle_points");
+    this.deleteData("redeemed_codes");
+    
+    this.purchasedUpgrades = {};
+    this.redeemedCodes = [];
+    this.recalculateIdleStats();
 
     this.boosterMultiplier = 1;
     this.boosterEndTime = 0;
@@ -891,7 +909,7 @@ export class ToolsService {
     this.saveData("app_theme", "1");
     this.saveData("font_size", "2");
 
-    this.showToast(this.dev[this.lang].success);
+    this.showToast(this.redeem[this.lang]?.success || "Success");
     this.playSound();
     this.currentMusicFile = "";
     this.playMusic();
@@ -911,7 +929,8 @@ export class ToolsService {
     this.loadMusic();
     this.loadScore();
     this.loadUnlocks();
-    this.loadDevMenu();
+    this.initIdlePoints();
+    this.loadRedeemedCodes();
   }
 
   loadSettings(): void {
@@ -969,15 +988,14 @@ export class ToolsService {
     const tMG = this.loadData("lifetime_mg");
     this.totalMinigameCoinsEarned = tMG ? this.parseNumber(tMG) : this.minigameCoins;
 
-    let mgCoins = this.loadData("mg");
-    if (!mgCoins) {
-      const match = document.cookie.match(/(^| )CheemsAppLiMinigameCoins=([^;]+)/);
-      if (match) mgCoins = match[2];
-    }
-    this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 0;
+    this.loadMinigameCoins();
 
     this.actScore = 0;
-    localStorage.setItem("CheemsAppLiActPoints", "0");
+  }
+
+  loadMinigameCoins(): void {
+    const mgCoins = this.loadData("mg");
+    this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 0;
   }
 
   loadUnlocks(): void {
@@ -1023,9 +1041,17 @@ export class ToolsService {
     this.saveData("unlocked_music", this.stringifyArray(list));
   }
 
-  loadDevMenu(): void {
-    const stored = this.loadData("dev_menu");
-    this.devMenuUnlocked = stored ? stored.replace(/"/g, '') === 'true' : false;
+  loadRedeemedCodes(): void {
+    const stored = this.loadData("redeemed_codes");
+    if (stored) {
+      try {
+        this.redeemedCodes = JSON.parse(stored);
+      } catch (e) {
+        this.redeemedCodes = [];
+      }
+    } else {
+      this.redeemedCodes = [];
+    }
   }
 
   parseNumber(value: string): number {
@@ -1038,49 +1064,6 @@ export class ToolsService {
 
   async sleep(time: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, time));
-  }
-
-  async checkCategoryCached(category: OfflineCategory): Promise<boolean> {
-    if (!('caches' in window)) return false;
-    try {
-      const cache = await caches.open('cheems-bonk-offline-v1');
-      for (const url of category.urls) {
-        const match = await cache.match(url);
-        if (!match) {
-          return localStorage.getItem(`cheems_offline_cached_${category.id}`) === 'true';
-        }
-      }
-      return true;
-    } catch {
-      return localStorage.getItem(`cheems_offline_cached_${category.id}`) === 'true';
-    }
-  }
-
-  async cacheCategory(category: OfflineCategory, onProgress?: (progress: number) => void): Promise<boolean> {
-    if (!('caches' in window)) return false;
-    try {
-      const cache = await caches.open('cheems-bonk-offline-v1');
-      let completed = 0;
-      for (const url of category.urls) {
-        try {
-          const res = await fetch(url);
-          if (res.ok) {
-            await cache.put(url, res);
-          }
-        } catch (e) {
-          console.warn(`Failed to cache ${url}`, e);
-        }
-        completed++;
-        if (onProgress) {
-          onProgress(Math.round((completed / category.urls.length) * 100));
-        }
-      }
-      localStorage.setItem(`cheems_offline_cached_${category.id}`, 'true');
-      return true;
-    } catch (err) {
-      console.error("Error caching category:", err);
-      return false;
-    }
   }
 
   loadBoosterState(): void {
@@ -1113,6 +1096,7 @@ export class ToolsService {
       console.warn("Could not load data/shop.json", err);
     }
     this.appendUnlockableShopItems();
+    this.recalculateIdleStats();
   }
 
   private evaluatePriceExpression(expression: string | number | undefined): number {
@@ -1405,6 +1389,7 @@ export class ToolsService {
   private pauseAllAudioForBlur(): void {
     if (this.isWindowBlurred) return;
     this.isWindowBlurred = true;
+    this.saveData("last_active_time", String(Date.now()));
     if (this.audioCtx && this.audioCtx.state === 'running') {
       this.audioCtx.suspend().catch(() => {});
     }
@@ -1416,6 +1401,7 @@ export class ToolsService {
   private resumeAllAudioForFocus(): void {
     if (!this.isWindowBlurred) return;
     this.isWindowBlurred = false;
+    this.calculateIdleCatchup();
     this.resumeBackground();
   }
 
@@ -1443,13 +1429,15 @@ export class ToolsService {
   getCheemsImg(id: string): string {
     const skin = this.cheemsSkins.find(s => s.id === id);
     if (skin?.imgUrl) return skin.imgUrl;
-    return "img/cheems/" + (skin?.img || id + ".png");
+    const fallbackId = id.replace('cheems_', '');
+    return "img/cheems/" + (skin?.img || fallbackId + ".webp");
   }
 
   getCheemsHitImg(id: string): string {
     const skin = this.cheemsSkins.find(s => s.id === id);
     if (skin?.hitImgUrl) return skin.hitImgUrl;
-    return "img/hit/" + (skin?.hitImg || skin?.img || id + ".png");
+    const fallbackId = id.replace('cheems_', '');
+    return "img/hit/" + (skin?.hitImg || skin?.img || fallbackId + ".webp");
   }
 
   getShopItemName(item: ShopItem): string {
@@ -1555,7 +1543,7 @@ export class ToolsService {
           }
         }
         
-        this.showToast(this.dev[this.lang].success || "Success");
+        this.showToast(this.redeem[this.lang]?.success || "Success");
         setTimeout(() => {
           location.reload();
         }, 1000);
@@ -1565,5 +1553,95 @@ export class ToolsService {
       }
     };
     reader.readAsText(file);
+  }
+
+  initIdlePoints(): void {
+    const idleConfigStr = this.loadData("idle_points");
+    if (idleConfigStr) {
+      const cfg = this.parseObjectString(idleConfigStr);
+      if (cfg['points']) this.idlePoints = parseFloat(cfg['points']);
+      this.idleTime = 1;
+    } else {
+      this.saveData("idle_points", this.stringifyObject({ points: 0, time: 1 }));
+    }
+
+    const upgradesStr = this.loadData("upgrades");
+    if (upgradesStr) {
+      this.purchasedUpgrades = this.parseObjectString(upgradesStr) as any;
+      for (const key of Object.keys(this.purchasedUpgrades)) {
+        this.purchasedUpgrades[key] = parseInt(this.purchasedUpgrades[key] as any, 10) || 0;
+      }
+    } else {
+      this.purchasedUpgrades = {};
+    }
+    this.recalculateIdleStats();
+
+    this.calculateIdleCatchup();
+    this.startIdleTimer();
+  }
+
+  recalculateIdleStats(): void {
+    let basePoints = 0;
+    let baseTime = 1;
+
+    const idleConfigStr = this.loadData("idle_points");
+    if (idleConfigStr) {
+      const cfg = this.parseObjectString(idleConfigStr);
+      if (cfg['points']) basePoints = parseFloat(cfg['points']);
+      if (cfg['time']) baseTime = parseInt(cfg['time'], 10);
+    }
+
+    // Apply upgrades from loaded shop items
+    if (this.shopItems && this.shopItems.length > 0) {
+      for (const upgradeId of Object.keys(this.purchasedUpgrades)) {
+        const times = this.purchasedUpgrades[upgradeId];
+        if (times > 0) {
+          const item = this.shopItems.find(i => i.id === upgradeId);
+          if (item && item.type === 'upgrade' && item.upgradeValue) {
+            if (item.upgradeType === 'quantity') {
+              basePoints += item.upgradeValue * times;
+            }
+          }
+        }
+      }
+    }
+
+    this.idlePoints = basePoints;
+    this.idleTime = 1;
+    
+    // Restart the timer so the new interval takes effect
+    this.startIdleTimer();
+  }
+
+  startIdleTimer(): void {
+    if (this.idleTimer) clearInterval(this.idleTimer);
+    this.idleTimer = setInterval(() => {
+      if (!this.isWindowBlurred) {
+        this.updateScore(Math.floor(this.idlePoints));
+        this.saveData("last_active_time", String(Date.now()));
+      }
+    }, this.idleTime * 1000);
+  }
+
+  calculateIdleCatchup(): void {
+    const lastActiveStr = this.loadData("last_active_time");
+    const now = Date.now();
+
+    if (lastActiveStr) {
+      const lastActive = parseInt(lastActiveStr, 10);
+      const diffMs = now - lastActive;
+      const offlineIntervalMs = this.idleTime * 1000;
+
+      if (diffMs >= offlineIntervalMs) {
+        const missedOfflineIntervals = Math.floor(diffMs / offlineIntervalMs);
+        const offlinePoints = Math.floor(missedOfflineIntervals * (this.idlePoints / 4));
+
+        if (offlinePoints > 0) {
+          this.updateScore(offlinePoints);
+          this.showToast(`Idle Bonus: +${offlinePoints} pts while you were away!`);
+        }
+      }
+    }
+    this.saveData("last_active_time", String(now));
   }
 }

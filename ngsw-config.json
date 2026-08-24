@@ -27,7 +27,7 @@
           "/lang/*.lang",
           "/sound/music/A_Jazz_Piano.ogg",
           "/sound/sfx/hit.ogg",
-          "/img/cheems/normal.png",
+          "/img/cheems/normal.webp",
           "/**/*.(svg|cur|woff|woff2|ttf|otf)"
         ]
       }

@@ -12,6 +12,11 @@
                 {{tools.shop[tools.lang]?.currencySection || 'Currency'}}
             </button>
         }
+        @if (upgradeItems.length > 0) {
+            <button class="shop-nav-btn nav-upgrade" (click)="scrollToSection('sec-upgrade')">
+                {{tools.shop[tools.lang]?.upgradesSection || 'Upgrades'}}
+            </button>
+        }
         @if (minigameItems.length > 0) {
             <button class="shop-nav-btn nav-booster" (click)="scrollToSection('sec-minigame')">
                 {{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}
@@ -64,7 +69,7 @@
         <div class="balance-item">
             <span class="balance-label">DogeCoins:</span>
             <span class="balance-value doge-val">
-                <img src="img/dogecoin-min.png" class="mini-coin-icon" alt="DogeCoin">
+                <img src="img/dogecoin.png" class="mini-coin-icon" alt="DogeCoin">
                 {{tools.dogeCoins}}
             </span>
         </div>
@@ -85,13 +90,22 @@
              [class.currency-dgc-to-mg-card]="item.id === 'curr_dgc_to_mg'"
              [class.currency-mg-to-dgc-card]="item.id === 'curr_mg_to_dgc'">
             <div class="shop-card-icon-wrapper">
-                @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png')) {
+                @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png') || item.icon.endsWith('.webp')) {
                     <img [src]="getShopCardIcon(item)" class="shop-card-icon" [alt]="tools.getShopItemName(item)">
                 } @else {
                     <span class="shop-card-emoji">{{item.icon}}</span>
                 }
                 @if (item.type === 'booster') {
                     <span class="multiplier-badge">x{{item.multiplier || 1}}</span>
+                }
+                @if (item.type === 'upgrade') {
+                    <span class="upgrade-badge">
+                        @if (isUpgradeMaxLevel(item)) {
+                            {{tools.shop[tools.lang]?.maxLevel || 'Max Level'}}
+                        } @else {
+                            Lvl {{tools.purchasedUpgrades[item.id] || 0}}
+                        }
+                    </span>
                 }
             </div>
 
@@ -142,6 +156,18 @@
         </div>
         <div class="shop-grid">
             @for (item of dogecoinItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Upgrades Section -->
+    @if (upgradeItems.length > 0) {
+        <div class="section-separator" id="sec-upgrade">
+            <h2 class="section-title upgrade-title">{{tools.shop[tools.lang]?.upgradesSection || 'Upgrades'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of upgradeItems; track item.id) {
                 <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
             }
         </div>

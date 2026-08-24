@@ -1,0 +1,59 @@
+{
+  "code_add_dg": {
+    "code": "DEV-ADD-DG",
+    "dg": 9999,
+    "one_time_redeem": false
+  },
+  "code_wipe_dg": {
+    "code": "DEV-WIPE-DG",
+    "dg": -9999,
+    "one_time_redeem": false
+  },
+  "code_add_mg": {
+    "code": "DEV-ADD-MG",
+    "mg": 9999,
+    "one_time_redeem": false
+  },
+  "code_wipe_mg": {
+    "code": "DEV-WIPE-MG",
+    "mg": -9999,
+    "one_time_redeem": false
+  },
+  "code_add_pt": {
+    "code": "DEV-ADD-PT",
+    "pt": 999999,
+    "one_time_redeem": false
+  },
+  "code_wipe_pt": {
+    "code": "DEV-WIPE-PT",
+    "pt": -999999,
+    "one_time_redeem": false
+  },
+  "code_unlock_all": {
+    "code": "DEV-UNLOCK-ALL",
+    "cheems": [
+      "c1", "c2", "c3", "c4", "c5", "c6", "c7", "c8", "c9", "c10", "c11", "c12", "c13", "c14"
+    ],
+    "sfx": [
+      "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "s12"
+    ],
+    "music": [
+      "m0", "m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16", "m17", "m18", "m19", "m20", "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29"
+    ],
+    "one_time_redeem": false
+  },
+  "code_starter_pack": {
+    "code": "STARTER-PACK",
+    "dg": 100,
+    "mg": 100,
+    "pt": 1000,
+    "one_time_redeem": true
+  },
+  "minecraft_fan": {
+    "code": "MINECRAFT-FAN",
+    "cheems": ["c10"],
+    "sfx": ["s2", "s4", "s7"],
+    "music": ["m28"],
+    "one_time_redeem": true
+  }
+}

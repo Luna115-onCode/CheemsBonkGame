@@ -21,7 +21,8 @@
     "stack_colors": "Stack Colors",
     "minigames": "Minijuegos",
     "licenses": "Licencias y Créditos",
-    "gallery": "Galería"
+    "gallery": "Galería",
+    "redeem": "Canjear Código"
   },
   "minigames": {
     "trash": "BASURA",
@@ -54,7 +55,8 @@
     "buyDogeCoinSub": "Costo de hoy: ",
     "buyDogeCoinSuccess": "¡Compraste 1 DogeCoin!",
     "buyDogeCoinFail": "¡Necesitas más puntos!",
-    "gallery": "Galería"
+    "gallery": "Galería",
+    "redeem": "Canjear Código"
   },
   "options": {
     "changeLang": {
@@ -98,7 +100,14 @@
       "totalScore": "Toques totales",
       "booster": "Potenciador"
     },
-    "tapToBonk": "¡Haz clic en Cheems para un BONK!"
+    "tapToBonk": "¡Haz clic en Cheems para un BONK!",
+    "idleStats": "Puntos Inactivo",
+    "activeAppOpen": "Activo (App Abierta):",
+    "offlineBackground": "Desconectado (App cerrada):",
+    "ptsPerSec": "pts/seg",
+    "ptsPerMin": "pts/min",
+    "ptsPerHr": "pts/hr",
+    "close": "Cerrar"
   },
   "closet": {
     "title": "Personalización",
@@ -119,17 +128,17 @@
     "buyInShop": "¡Compra este artículo en la Tienda!",
     "locked": "Bloqueado"
   },
-  "dev": {
-    "title": "Opciones de desarrollo",
-    "resetToZero": "Restablecer a cero (Reset)",
-    "unlockAll": "Desbloquear todo",
-    "giveDogeCoins": "Añadir +100 DogeCoins",
-    "givePoints": "Añadir +1000 Puntos",
-    "success": "¡Completado!",
-    "unlocked": "¡Menú de desarrollo DESBLOQUEADO!",
-    "locked": "Menú de desarrollo bloqueado."
+  "redeemText": {
+    "title": "Canjear Código",
+    "enterCode": "Ingresa el código aquí...",
+    "redeemBtn": "Canjear",
+    "history": "Historial de Canje",
+    "invalidCode": "¡Código inválido!",
+    "alreadyRedeemed": "¡El código ya fue canjeado!",
+    "success": "¡Código canjeado con éxito!",
+    "empty_codes": "No se han canjeado códigos todavía."
   },
-  "onWork": {
+  "onWorkText": {
     "title": "Página en desarrollo",
     "message": "Esta página está en desarrollo aún. ¡Vuelve pronto!",
     "backToMenu": "Volver al menú"
@@ -184,12 +193,24 @@
     "alreadyPurchased": "¡Ya comprado!",
     "dogecoinSection": "DogeCoins",
     "boosterSection": "Potenciadores",
+    "upgradesSection": "Mejoras",
     "cheemsSection": "Aspectos Cheems",
     "sfxSection": "Efectos de Sonido",
     "musicSection": "Música de Fondo",
-    "backToTop": "Volver Arriba ↑"
+    "backToTop": "Volver Arriba ↑",
+    "maxLevel": "Nivel Máximo"
   },
   "shopItemsText": {
+    "shop_upgrade_qty_1_name": "Mejora Cantidad de Puntos Offline",
+    "shop_upgrade_qty_1_desc": "Aumenta los puntos generados por segundo en +1 punto.",
+    "shop_upgrade_qty_2_name": "Mejora Cantidad de Puntos Offline II",
+    "shop_upgrade_qty_2_desc": "Aumenta los puntos generados por segundo en +2 puntos.",
+    "shop_upgrade_qty_3_name": "Mejora Cantidad de Puntos Offline III",
+    "shop_upgrade_qty_3_desc": "Aumenta los puntos generados por segundo en +3 puntos.",
+    "shop_upgrade_qty_5_name": "Mejora Cantidad de Puntos Offline V",
+    "shop_upgrade_qty_5_desc": "Aumenta los puntos generados por segundo en +5 puntos.",
+    "shop_upgrade_qty_10_name": "Mejora Cantidad de Puntos Offline X",
+    "shop_upgrade_qty_10_desc": "Aumenta los puntos generados por segundo en +10 puntos.",
     "shop_dogecoin_special_name": "DogeCoin (Oferta Especial)",
     "shop_dogecoin_special_desc": "¡Compra 1 DogeCoin a precio especial!",
     "shop_dogecoin_1_name": "DogeCoin x1",

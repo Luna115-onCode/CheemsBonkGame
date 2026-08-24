@@ -143,7 +143,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
 
   get currentAudioCover(): string | null {
     if (this.activeSection === 'music' && this.unlockedMusicTracks.length > 0) {
-      return this.unlockedMusicTracks[this.currentIndex].cover || 'img/music/no_image.png';
+      return this.unlockedMusicTracks[this.currentIndex].cover || 'img/music/no_image.webp';
     }
     return null;
   }

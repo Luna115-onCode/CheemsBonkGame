@@ -56,14 +56,12 @@
             </div>
         </div>
 
-        <!-- Developer Options (Hidden unless unlocked) -->
-        @if (tools.devMenuUnlocked) {
-            <div class="menu-card dev-card {{tools.themeColor}}" (click)="tools.redirect('devSettings')">
-                <img src="img/icons/application-svgrepo-com.svg" class="menu-icon" alt="Dev Settings">
-                <div class="card-content">
-                    <div class="card-title">{{tools.menu[tools.lang].devMenu}}</div>
-                </div>
+        <!-- Redeem Code -->
+        <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('redeem')">
+            <img src="img/icons/application-svgrepo-com.svg" class="menu-icon" alt="Redeem Code">
+            <div class="card-content">
+                <div class="card-title">{{tools.menu[tools.lang].redeem || 'Redeem Code'}}</div>
             </div>
-        }
+        </div>
     </div>
 </div>
