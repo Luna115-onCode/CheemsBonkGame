@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set App Version
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -149,6 +151,8 @@ jobs:
         app_type: [bundled, pwa]
     steps:
       - uses: actions/checkout@v4
+      - name: Set App Version
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -242,6 +246,9 @@ jobs:
           npx cap sync android
           
           cd android
+          VERSION=$(cat ../ver | tr -d '\r\n').${{ github.run_number }}
+          sed -i "s/versionName \".*\"/versionName \"$VERSION\"/g" app/build.gradle
+          sed -i "s/versionCode .*/versionCode ${{ github.run_number }}/g" app/build.gradle
           ./gradlew assembleDebug
           ./gradlew bundleDebug
 
@@ -272,7 +279,8 @@ jobs:
           mkdir -p deb-package/usr/share/applications
           mkdir -p deb-package/usr/share/icons/hicolor/512x512/apps
           
-          sed -e "s|\${AppName}|$APP_NAME|g" .pwa/linux-control > deb-package/DEBIAN/control
+          VERSION=$(cat ver | tr -d '\r\n').${{ github.run_number }}
+          sed -e "s|\${AppName}|$APP_NAME|g" -e "s|Version: 1.0.0|Version: $VERSION|g" .pwa/linux-control > deb-package/DEBIAN/control
           
           sed -e "s|\${ManifestUrl}|$MANIFEST_URL|g" .pwa/linux-launcher.sh > deb-package/usr/bin/$APP_NAME
           chmod +x deb-package/usr/bin/$APP_NAME
@@ -285,7 +293,7 @@ jobs:
           
           sudo apt-get update && sudo apt-get install -y rpm
           mkdir -p rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
-          sed -e "s|\${AppName}|$APP_NAME|g" -e "s|\${Workspace}|$GITHUB_WORKSPACE|g" .pwa/linux.spec > rpmbuild/SPECS/pwa.spec
+          sed -e "s|\${AppName}|$APP_NAME|g" -e "s|\${Workspace}|$GITHUB_WORKSPACE|g" -e "s|Version:        1.0.0|Version:        $VERSION|g" .pwa/linux.spec > rpmbuild/SPECS/pwa.spec
           
           rpmbuild -bb --define "_topdir $GITHUB_WORKSPACE/rpmbuild" rpmbuild/SPECS/pwa.spec
           cp rpmbuild/RPMS/noarch/*.rpm .
@@ -327,6 +335,8 @@ jobs:
         app_type: [bundled, pwa]
     steps:
       - uses: actions/checkout@v4
+      - name: Set App Version
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -441,8 +451,9 @@ jobs:
           Copy-Item $IconSrc "$AppDir\Assets\Square44x44Logo.png"
           Copy-Item $IconSrc "$AppDir\Assets\SplashScreen.png"
           
+          $Version = (Get-Content -Path "ver" -Raw).Trim() + "." + $env:GITHUB_RUN_NUMBER + ".0"
           $ManifestContent = Get-Content -Path ".pwa/windows-bundled.appxmanifest.xml" -Raw
-          $ManifestContent = $ManifestContent -replace '\$\{Prefix\}', $Prefix
+          $ManifestContent = $ManifestContent -replace '\$\{Prefix\}', $Prefix -replace 'Version="1\.0\.0\.0"', "Version=`"$Version`""
           Set-Content -Path "$AppDir\AppxManifest.xml" -Value $ManifestContent
           
           $MakeAppx = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
@@ -477,8 +488,9 @@ jobs:
           Copy-Item $IconSrc "$AppDir\Assets\Square44x44Logo.png"
           Copy-Item $IconSrc "$AppDir\Assets\SplashScreen.png"
           
+          $Version = (Get-Content -Path "ver" -Raw).Trim() + "." + $env:GITHUB_RUN_NUMBER + ".0"
           $ManifestContent = Get-Content -Path ".pwa/windows-pwa.appxmanifest.xml" -Raw
-          $ManifestContent = $ManifestContent -replace '\$\{Prefix\}', $Prefix -replace '\$\{ManifestUrl\}', $ManifestUrl
+          $ManifestContent = $ManifestContent -replace '\$\{Prefix\}', $Prefix -replace '\$\{ManifestUrl\}', $ManifestUrl -replace 'Version="1\.0\.0\.0"', "Version=`"$Version`""
           Set-Content -Path "$AppDir\AppxManifest.xml" -Value $ManifestContent
           
           $MakeAppx = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
@@ -518,6 +530,8 @@ jobs:
         app_type: [bundled, pwa]
     steps:
       - uses: actions/checkout@v4
+      - name: Set App Version
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -611,6 +625,9 @@ jobs:
           npx cap add ios
           npx @capacitor/assets generate --ios
           npx cap sync ios
+          VERSION=$(cat ver | tr -d '\r\n').${{ github.run_number }}
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" ios/App/App/Info.plist
           cd ios/App
           xcodebuild -project App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -derivedDataPath build
           xcodebuild archive -project App.xcodeproj -scheme App -configuration Release -archivePath build/App.xcarchive CODE_SIGNING_ALLOWED=NO || true
@@ -642,6 +659,8 @@ jobs:
         app_type: [bundled, pwa]
     steps:
       - uses: actions/checkout@v4
+      - name: Set App Version
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
       
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
@@ -678,11 +697,12 @@ jobs:
           cp .pwa/icons-$build_prefix/pwa/icon-512x512.png ext-firefox/icon.png
           
           # 1. Chromium Extension (Chrome, Edge, Brave, Opera, ChromeOS)
-          sed -e "s|\${AppName}|$APP_NAME|g" .pwa/chromium-manifest.json > ext-chromium/manifest.json
+          VERSION=$(cat ver | tr -d '\r\n').${{ github.run_number }}
+          sed -e "s|\${AppName}|$APP_NAME|g" -e "s|\"version\": \"1.0.0\"|\"version\": \"$VERSION\"|g" .pwa/chromium-manifest.json > ext-chromium/manifest.json
           sed -e "s|\${TargetUrl}|$TARGET_URL|g" .pwa/extension-background.js > ext-chromium/background.js
           
           # 2. Firefox Extension
-          sed -e "s|\${AppName}|$APP_NAME|g" -e "s|\${Prefix}|$build_prefix|g" .pwa/firefox-manifest.json > ext-firefox/manifest.json
+          sed -e "s|\${AppName}|$APP_NAME|g" -e "s|\${Prefix}|$build_prefix|g" -e "s|\"version\": \"1.0.0\"|\"version\": \"$VERSION\"|g" .pwa/firefox-manifest.json > ext-firefox/manifest.json
           sed -e "s|\${TargetUrl}|$TARGET_URL|g" .pwa/extension-background.js > ext-firefox/background.js
           
           # Zip the extensions (Ready for Chrome Web Store & Mozilla Add-ons)
