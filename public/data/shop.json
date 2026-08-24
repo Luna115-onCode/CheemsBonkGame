@@ -1,5 +1,6 @@
 [
   {
+<<<<<<< HEAD
     "_comment": "--- Upgrades ---"
   },
   {
@@ -68,6 +69,8 @@
     "dailyLimit": 0
   },
   {
+=======
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "_comment": "--- Currencies ---"
   },
   {
@@ -80,7 +83,11 @@
     "coinsGiven": 1,
     "multiplier": 1,
     "durationMin": 0,
+<<<<<<< HEAD
     "icon": "img/dogecoin.png",
+=======
+    "icon": "img/dogecoin-min.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "dailyLimit": "${daily_price_4} / 100 + 1"
   },
   {
@@ -93,7 +100,11 @@
     "coinsGiven": 1,
     "multiplier": 1,
     "durationMin": 0,
+<<<<<<< HEAD
     "icon": "img/dogecoin.png",
+=======
+    "icon": "img/dogecoin-min.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "dailyLimit": 0
   },
   {
@@ -106,7 +117,11 @@
     "coinsGiven": 2,
     "multiplier": 1,
     "durationMin": 0,
+<<<<<<< HEAD
     "icon": "img/dogecoin.png",
+=======
+    "icon": "img/dogecoin-min.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "dailyLimit": 0
   },
   {
@@ -119,7 +134,11 @@
     "coinsGiven": 5,
     "multiplier": 1,
     "durationMin": 0,
+<<<<<<< HEAD
     "icon": "img/dogecoin.png",
+=======
+    "icon": "img/dogecoin-min.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "dailyLimit": "${daily_price_4} / 10 + 1"
   },
   {
@@ -132,7 +151,11 @@
     "coinsGiven": 10,
     "multiplier": 1,
     "durationMin": 0,
+<<<<<<< HEAD
     "icon": "img/dogecoin.png",
+=======
+    "icon": "img/dogecoin-min.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "dailyLimit": "${daily_price_2} / 10 + 1"
   },
   {
@@ -145,7 +168,11 @@
     "coinsGiven": 20,
     "multiplier": 1,
     "durationMin": 0,
+<<<<<<< HEAD
     "icon": "img/dogecoin.png",
+=======
+    "icon": "img/dogecoin-min.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "dailyLimit": "${daily_price_3} / 10 + 1"
   },
   {
@@ -168,7 +195,11 @@
     "costCoins": 0,
     "costMinigames": 10,
     "coinsGiven": 1,
+<<<<<<< HEAD
     "icon": "img/dogecoin.png"
+=======
+    "icon": "img/dogecoin-min.png"
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   },
   {
     "_comment": "--- Boosters ---"
@@ -251,7 +282,11 @@
     "nameKey": "shop_boost_3x_5m_name",
     "descKey": "shop_boost_3x_5m_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 100,
+=======
+    "costCoins": 150,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "multiplier": 3,
     "durationMin": 5,
     "icon": "img/icons/trophy-svgrepo-com.svg",
@@ -263,7 +298,11 @@
     "nameKey": "shop_boost_3x_10m_name",
     "descKey": "shop_boost_3x_10m_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 180,
+=======
+    "costCoins": 250,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "multiplier": 3,
     "durationMin": 10,
     "icon": "img/icons/trophy-svgrepo-com.svg",
@@ -275,7 +314,11 @@
     "nameKey": "shop_boost_3x_20m_name",
     "descKey": "shop_boost_3x_20m_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 450,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "multiplier": 3,
     "durationMin": 20,
     "icon": "img/icons/trophy-svgrepo-com.svg",
@@ -289,9 +332,15 @@
     "type": "cheems",
     "nameKey": "cheems_little",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
     "costMinigames": 0,
     "icon": "img/cheems/little.webp",
+=======
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/cheems/little.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -299,9 +348,15 @@
     "type": "cheems",
     "nameKey": "cheems_adult",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 450,
     "costMinigames": 0,
     "icon": "img/cheems/adult.webp",
+=======
+    "costCoins": 800,
+    "costMinigames": 0,
+    "icon": "img/cheems/adult.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -309,9 +364,15 @@
     "type": "cheems",
     "nameKey": "cheems_kid",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
     "costMinigames": 0,
     "icon": "img/cheems/kid.webp",
+=======
+    "costCoins": 1000,
+    "costMinigames": 0,
+    "icon": "img/cheems/kid.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -319,9 +380,15 @@
     "type": "cheems",
     "nameKey": "cheems_mamado",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1200,
     "costMinigames": 0,
     "icon": "img/cheems/mamado.webp",
+=======
+    "costCoins": 2000,
+    "costMinigames": 0,
+    "icon": "img/cheems/mamado.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -329,9 +396,15 @@
     "type": "cheems",
     "nameKey": "cheems_pixelart",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 800,
     "costMinigames": 0,
     "icon": "img/cheems/pixelart.webp",
+=======
+    "costCoins": 3000,
+    "costMinigames": 0,
+    "icon": "img/cheems/pixelart.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -339,9 +412,15 @@
     "type": "cheems",
     "nameKey": "cheems_elegant",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1500,
     "costMinigames": 0,
     "icon": "img/cheems/elegant.webp",
+=======
+    "costCoins": 3500,
+    "costMinigames": 0,
+    "icon": "img/cheems/elegant.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -349,9 +428,15 @@
     "type": "cheems",
     "nameKey": "cheems_3d",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 800,
     "costMinigames": 0,
     "icon": "img/cheems/3d.webp",
+=======
+    "costCoins": 2500,
+    "costMinigames": 0,
+    "icon": "img/cheems/3d.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -359,9 +444,15 @@
     "type": "cheems",
     "nameKey": "cheems_black",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 800,
     "costMinigames": 0,
     "icon": "img/cheems/black.webp",
+=======
+    "costCoins": 2800,
+    "costMinigames": 0,
+    "icon": "img/cheems/black.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -369,9 +460,15 @@
     "type": "cheems",
     "nameKey": "cheems_not_ai",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 800,
     "costMinigames": 0,
     "icon": "img/cheems/not_ai.webp",
+=======
+    "costCoins": 2600,
+    "costMinigames": 0,
+    "icon": "img/cheems/not_ai.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -379,9 +476,15 @@
     "type": "cheems",
     "nameKey": "cheems_realistic",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1500,
     "costMinigames": 0,
     "icon": "img/cheems/realistic.webp",
+=======
+    "costCoins": 5000,
+    "costMinigames": 0,
+    "icon": "img/cheems/realistic.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -389,9 +492,15 @@
     "type": "cheems",
     "nameKey": "cheems_not_a_dog",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1200,
     "costMinigames": 0,
     "icon": "img/cheems/not_a_dog.webp",
+=======
+    "costCoins": 3200,
+    "costMinigames": 0,
+    "icon": "img/cheems/not_a_dog.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -399,9 +508,15 @@
     "type": "cheems",
     "nameKey": "cheems_not_a_plumber",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1200,
     "costMinigames": 1500,
     "icon": "img/cheems/not_a_plumber.webp",
+=======
+    "costCoins": 4500,
+    "costMinigames": 3000,
+    "icon": "img/cheems/not_a_plumber.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -409,9 +524,15 @@
     "type": "cheems",
     "nameKey": "cheems_minecraft",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1200,
     "costMinigames": 1200,
     "icon": "img/cheems/cubes.webp",
+=======
+    "costCoins": 3500,
+    "costMinigames": 2500,
+    "icon": "img/cheems/cubes.png",
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "oneTimePurchase": true
   },
   {
@@ -422,8 +543,13 @@
     "type": "sound",
     "nameKey": "sfx_2",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 450,
     "costMinigames": 450,
+=======
+    "costCoins": 1200,
+    "costMinigames": 2000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -432,8 +558,13 @@
     "type": "sound",
     "nameKey": "sfx_3",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 450,
     "costMinigames": 450,
+=======
+    "costCoins": 1200,
+    "costMinigames": 2000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -442,8 +573,13 @@
     "type": "sound",
     "nameKey": "sfx_4",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 800,
     "costMinigames": 800,
+=======
+    "costCoins": 1500,
+    "costMinigames": 2500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -452,8 +588,13 @@
     "type": "sound",
     "nameKey": "sfx_5",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 800,
     "costMinigames": 800,
+=======
+    "costCoins": 1500,
+    "costMinigames": 2500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -462,8 +603,13 @@
     "type": "sound",
     "nameKey": "sfx_6",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
     "costMinigames": 300,
+=======
+    "costCoins": 800,
+    "costMinigames": 1500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -472,8 +618,13 @@
     "type": "sound",
     "nameKey": "sfx_7",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 450,
     "costMinigames": 450,
+=======
+    "costCoins": 1200,
+    "costMinigames": 2000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -482,7 +633,11 @@
     "type": "sound",
     "nameKey": "sfx_8",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 400,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -492,7 +647,11 @@
     "type": "sound",
     "nameKey": "sfx_9",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -502,7 +661,11 @@
     "type": "sound",
     "nameKey": "sfx_10",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -512,7 +675,11 @@
     "type": "sound",
     "nameKey": "sfx_11",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -522,7 +689,11 @@
     "type": "sound",
     "nameKey": "sfx_12",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 800,
+=======
+    "costCoins": 1000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/sound-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -535,7 +706,11 @@
     "type": "music",
     "nameKey": "music_2",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1500,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -545,7 +720,11 @@
     "type": "music",
     "nameKey": "music_3",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 600,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -555,7 +734,11 @@
     "type": "music",
     "nameKey": "music_4",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 600,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -565,7 +748,11 @@
     "type": "music",
     "nameKey": "music_5",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 600,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -575,7 +762,11 @@
     "type": "music",
     "nameKey": "music_6",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 600,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -586,7 +777,11 @@
     "nameKey": "music_7",
     "cost": 0,
     "costCoins": 1500,
+<<<<<<< HEAD
     "costMinigames": 1500,
+=======
+    "costMinigames": 3000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -595,7 +790,11 @@
     "type": "music",
     "nameKey": "music_8",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 600,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -605,7 +804,11 @@
     "type": "music",
     "nameKey": "music_9",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 900,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -615,7 +818,11 @@
     "type": "music",
     "nameKey": "music_10",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 900,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -625,7 +832,11 @@
     "type": "music",
     "nameKey": "music_11",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 900,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -635,7 +846,11 @@
     "type": "music",
     "nameKey": "music_12",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 600,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -645,7 +860,11 @@
     "type": "music",
     "nameKey": "music_13",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
+=======
+    "costCoins": 600,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -655,7 +874,11 @@
     "type": "music",
     "nameKey": "music_14",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 900,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -665,7 +888,11 @@
     "type": "music",
     "nameKey": "music_15",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -675,7 +902,11 @@
     "type": "music",
     "nameKey": "music_16",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -685,8 +916,13 @@
     "type": "music",
     "nameKey": "music_17",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
     "costMinigames": 550,
+=======
+    "costCoins": 1200,
+    "costMinigames": 2500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -695,8 +931,13 @@
     "type": "music",
     "nameKey": "music_18",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
     "costMinigames": 550,
+=======
+    "costCoins": 1200,
+    "costMinigames": 2500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -705,8 +946,13 @@
     "type": "music",
     "nameKey": "music_19",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
     "costMinigames": 550,
+=======
+    "costCoins": 1200,
+    "costMinigames": 2500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -715,7 +961,11 @@
     "type": "music",
     "nameKey": "music_20",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -725,7 +975,11 @@
     "type": "music",
     "nameKey": "music_21",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -735,8 +989,13 @@
     "type": "music",
     "nameKey": "music_22",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
     "costMinigames": 550,
+=======
+    "costCoins": 1200,
+    "costMinigames": 2500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -745,8 +1004,13 @@
     "type": "music",
     "nameKey": "music_23",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
     "costMinigames": 550,
+=======
+    "costCoins": 1200,
+    "costMinigames": 2500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -755,8 +1019,13 @@
     "type": "music",
     "nameKey": "music_24",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
     "costMinigames": 550,
+=======
+    "costCoins": 1200,
+    "costMinigames": 2500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -765,7 +1034,11 @@
     "type": "music",
     "nameKey": "music_25",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -775,7 +1048,11 @@
     "type": "music",
     "nameKey": "music_26",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -785,7 +1062,11 @@
     "type": "music",
     "nameKey": "music_27",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -795,7 +1076,11 @@
     "type": "music",
     "nameKey": "music_28",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -805,7 +1090,11 @@
     "type": "music",
     "nameKey": "music_29",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
+=======
+    "costCoins": 1200,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -820,8 +1109,13 @@
     "nameKey": "shop_minigame_block_breaker_name",
     "descKey": "shop_minigame_block_breaker_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 450,
     "costMinigames": 800,
+=======
+    "costCoins": 1500,
+    "costMinigames": 3500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -832,8 +1126,13 @@
     "nameKey": "shop_minigame_attack_hole_name",
     "descKey": "shop_minigame_attack_hole_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1500,
     "costMinigames": 0,
+=======
+    "costCoins": 2500,
+    "costMinigames": 2000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -844,8 +1143,13 @@
     "nameKey": "shop_minigame_doge_rescue_name",
     "descKey": "shop_minigame_doge_rescue_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
     "costMinigames": 550,
+=======
+    "costCoins": 500,
+    "costMinigames": 4000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -856,8 +1160,13 @@
     "nameKey": "shop_minigame_flappy_dunk_name",
     "descKey": "shop_minigame_flappy_dunk_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 800,
     "costMinigames": 800,
+=======
+    "costCoins": 2000,
+    "costMinigames": 3000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -868,8 +1177,13 @@
     "nameKey": "shop_minigame_helix_jump_name",
     "descKey": "shop_minigame_helix_jump_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
     "costMinigames": 1200,
+=======
+    "costCoins": 1000,
+    "costMinigames": 4500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -880,8 +1194,13 @@
     "nameKey": "shop_minigame_magic_sort_name",
     "descKey": "shop_minigame_magic_sort_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 550,
     "costMinigames": 1200,
+=======
+    "costCoins": 1000,
+    "costMinigames": 5000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -892,8 +1211,13 @@
     "nameKey": "shop_minigame_mob_control_name",
     "descKey": "shop_minigame_mob_control_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 800,
     "costMinigames": 800,
+=======
+    "costCoins": 1500,
+    "costMinigames": 3500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -904,8 +1228,13 @@
     "nameKey": "shop_minigame_paper_io_name",
     "descKey": "shop_minigame_paper_io_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1500,
     "costMinigames": 1500,
+=======
+    "costCoins": 3000,
+    "costMinigames": 5000,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -916,8 +1245,13 @@
     "nameKey": "shop_minigame_spiral_roll_name",
     "descKey": "shop_minigame_spiral_roll_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 1500,
     "costMinigames": 0,
+=======
+    "costCoins": 1000,
+    "costMinigames": 4500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -928,8 +1262,13 @@
     "nameKey": "shop_minigame_stack_colors_name",
     "descKey": "shop_minigame_stack_colors_desc",
     "cost": 0,
+<<<<<<< HEAD
     "costCoins": 300,
     "costMinigames": 550,
+=======
+    "costCoins": 500,
+    "costMinigames": 2500,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   }

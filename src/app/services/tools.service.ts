@@ -8,7 +8,11 @@ import {
   pageName,
   menuText,
   closetText,
+<<<<<<< HEAD
   redeemText,
+=======
+  devText,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   onWorkText,
   p404Text,
   minigamesText,
@@ -24,6 +28,10 @@ import {
   LanguageItem,
   offlineText,
   OfflineCategory,
+<<<<<<< HEAD
+=======
+  OFFLINE_CATEGORIES,
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   ShopItem,
   flappy_dunkText,
   magic_sortText,
@@ -61,6 +69,7 @@ export class ToolsService {
   totalDogeCoinsEarned: number = 0;
   totalMinigameCoinsEarned: number = 0;
 
+<<<<<<< HEAD
   idlePoints: number = 0;
   idleTime: number = 1;
   private idleTimer: any = null;
@@ -70,6 +79,13 @@ export class ToolsService {
   musVol: number = 50;
 
   redeemedCodes: string[] = [];
+=======
+  effVol: number = 100;
+  musVol: number = 50;
+
+  devMenuUnlocked: boolean = false;
+  private devClickCount: number = 0;
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
 
   unlockedCheems: Record<string, boolean> = {};
   unlockedSounds: Record<string, boolean> = {};
@@ -80,7 +96,11 @@ export class ToolsService {
   options: any = createLangMap(optionsText);
   menu: any = createLangMap(menuText);
   closet: any = createLangMap(closetText);
+<<<<<<< HEAD
   redeem: any = createLangMap(redeemText);
+=======
+  dev: any = createLangMap(devText);
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   onWork: any = createLangMap(onWorkText);
   p404: any = createLangMap(p404Text);
   offline: any = createLangMap(offlineText);
@@ -100,6 +120,10 @@ export class ToolsService {
   paper_io: any = createLangMap(paper_ioText);
   spiral_roll: any = createLangMap(spiral_rollText);
   stack_colors: any = createLangMap(stack_colorsText);
+<<<<<<< HEAD
+=======
+  offlineCategories: Array<OfflineCategory> = OFFLINE_CATEGORIES;
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   shopItemsText: Record<string, Record<string, string>> = {};
   itemsText: Record<string, Record<string, string>> = {};
   shopItems: Array<ShopItem> = [];
@@ -267,7 +291,11 @@ export class ToolsService {
         };
         if (data.menu) this.menu[langCode] = { ...this.menu[langCode], ...data.menu };
         if (data.closet) this.closet[langCode] = { ...this.closet[langCode], ...data.closet };
+<<<<<<< HEAD
         if (data.redeemText) this.redeem[langCode] = { ...this.redeem[langCode], ...data.redeemText };
+=======
+        if (data.dev) this.dev[langCode] = { ...this.dev[langCode], ...data.dev };
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
         if (data.onWork) this.onWork[langCode] = { ...this.onWork[langCode], ...data.onWork };
         if (data.p404) this.p404[langCode] = { ...this.p404[langCode], ...data.p404 };
         if (data.offline) this.offline[langCode] = { ...this.offline[langCode], ...data.offline };
@@ -390,7 +418,11 @@ export class ToolsService {
     const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
     if (minigamePages.includes(this.actPage as string)) {
       this.redirect("minigames");
+<<<<<<< HEAD
     } else if (["redeem", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage as string)) {
+=======
+    } else if (["devSettings", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage as string)) {
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
       this.redirect("menu");
     } else if (["menu", "p404"].includes(this.actPage as string)) {
       this.redirect("game");
@@ -434,12 +466,20 @@ export class ToolsService {
     this.totalMinigameCoinsEarned += amount;
     this.saveData("mg", String(this.minigameCoins));
     this.saveData("lifetime_mg", String(this.totalMinigameCoinsEarned));
+<<<<<<< HEAD
+=======
+    document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 
   spendMinigameCoins(amount: number): boolean {
     if (this.minigameCoins >= amount) {
       this.minigameCoins = Math.floor(this.minigameCoins - amount);
       this.saveData("mg", String(this.minigameCoins));
+<<<<<<< HEAD
+=======
+      document.cookie = `CheemsAppLiMinigameCoins=${this.minigameCoins}; path=/; max-age=31536000`;
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
       return true;
     }
     return false;
@@ -545,6 +585,7 @@ export class ToolsService {
     }
   }
 
+<<<<<<< HEAD
   buyUpgrade(item: ShopItem, currentCost: number, coinsCost: number): void {
     if (this.points >= currentCost && this.dogeCoins >= coinsCost) {
       this.points -= currentCost;
@@ -571,6 +612,23 @@ export class ToolsService {
     this.saveData("redeemed_codes", JSON.stringify(this.redeemedCodes));
   }
 
+=======
+  registerDevClick(): void {
+    this.devClickCount++;
+    if (this.devClickCount === 5) {
+      this.devMenuUnlocked = !this.devMenuUnlocked;
+      this.saveData("dev_menu", String(this.devMenuUnlocked));
+      if (this.devMenuUnlocked) {
+        this.showToast(this.dev[this.lang].unlocked);
+      } else {
+        this.showToast(this.dev[this.lang].locked);
+      }
+      this.devClickCount = 0;
+      this.playSound('sfx_4');
+    }
+  }
+
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   playSound(customSoundId?: string): void {
     if (this.isWindowBlurred) return;
     const soundToPlay = customSoundId || this.selectedSound;
@@ -832,7 +890,11 @@ export class ToolsService {
     this.saveData("total_score", String(this.totalScore));
     this.saveData("high_score", String(this.highScore));
     this.saveData("dg", String(this.dogeCoins));
+<<<<<<< HEAD
     this.showToast(this.redeem[this.lang]?.success || "Success");
+=======
+    this.showToast(this.dev[this.lang].success);
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     this.playSound('sfx_4');
   }
 
@@ -889,6 +951,7 @@ export class ToolsService {
 
     this.deleteData("lifetime_purchases");
     this.deleteData("daily_purchases_limit");
+<<<<<<< HEAD
     this.deleteData("upgrades");
     this.deleteData("idle_points");
     this.deleteData("redeemed_codes");
@@ -896,6 +959,8 @@ export class ToolsService {
     this.purchasedUpgrades = {};
     this.redeemedCodes = [];
     this.recalculateIdleStats();
+=======
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
 
     this.boosterMultiplier = 1;
     this.boosterEndTime = 0;
@@ -909,7 +974,11 @@ export class ToolsService {
     this.saveData("app_theme", "1");
     this.saveData("font_size", "2");
 
+<<<<<<< HEAD
     this.showToast(this.redeem[this.lang]?.success || "Success");
+=======
+    this.showToast(this.dev[this.lang].success);
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     this.playSound();
     this.currentMusicFile = "";
     this.playMusic();
@@ -929,8 +998,12 @@ export class ToolsService {
     this.loadMusic();
     this.loadScore();
     this.loadUnlocks();
+<<<<<<< HEAD
     this.initIdlePoints();
     this.loadRedeemedCodes();
+=======
+    this.loadDevMenu();
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 
   loadSettings(): void {
@@ -988,6 +1061,7 @@ export class ToolsService {
     const tMG = this.loadData("lifetime_mg");
     this.totalMinigameCoinsEarned = tMG ? this.parseNumber(tMG) : this.minigameCoins;
 
+<<<<<<< HEAD
     this.loadMinigameCoins();
 
     this.actScore = 0;
@@ -996,6 +1070,17 @@ export class ToolsService {
   loadMinigameCoins(): void {
     const mgCoins = this.loadData("mg");
     this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 0;
+=======
+    let mgCoins = this.loadData("mg");
+    if (!mgCoins) {
+      const match = document.cookie.match(/(^| )CheemsAppLiMinigameCoins=([^;]+)/);
+      if (match) mgCoins = match[2];
+    }
+    this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 0;
+
+    this.actScore = 0;
+    localStorage.setItem("CheemsAppLiActPoints", "0");
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 
   loadUnlocks(): void {
@@ -1041,6 +1126,7 @@ export class ToolsService {
     this.saveData("unlocked_music", this.stringifyArray(list));
   }
 
+<<<<<<< HEAD
   loadRedeemedCodes(): void {
     const stored = this.loadData("redeemed_codes");
     if (stored) {
@@ -1052,6 +1138,11 @@ export class ToolsService {
     } else {
       this.redeemedCodes = [];
     }
+=======
+  loadDevMenu(): void {
+    const stored = this.loadData("dev_menu");
+    this.devMenuUnlocked = stored ? stored.replace(/"/g, '') === 'true' : false;
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 
   parseNumber(value: string): number {
@@ -1066,6 +1157,52 @@ export class ToolsService {
     return new Promise(resolve => setTimeout(resolve, time));
   }
 
+<<<<<<< HEAD
+=======
+  async checkCategoryCached(category: OfflineCategory): Promise<boolean> {
+    if (!('caches' in window)) return false;
+    try {
+      const cache = await caches.open('cheems-bonk-offline-v1');
+      for (const url of category.urls) {
+        const match = await cache.match(url);
+        if (!match) {
+          return localStorage.getItem(`cheems_offline_cached_${category.id}`) === 'true';
+        }
+      }
+      return true;
+    } catch {
+      return localStorage.getItem(`cheems_offline_cached_${category.id}`) === 'true';
+    }
+  }
+
+  async cacheCategory(category: OfflineCategory, onProgress?: (progress: number) => void): Promise<boolean> {
+    if (!('caches' in window)) return false;
+    try {
+      const cache = await caches.open('cheems-bonk-offline-v1');
+      let completed = 0;
+      for (const url of category.urls) {
+        try {
+          const res = await fetch(url);
+          if (res.ok) {
+            await cache.put(url, res);
+          }
+        } catch (e) {
+          console.warn(`Failed to cache ${url}`, e);
+        }
+        completed++;
+        if (onProgress) {
+          onProgress(Math.round((completed / category.urls.length) * 100));
+        }
+      }
+      localStorage.setItem(`cheems_offline_cached_${category.id}`, 'true');
+      return true;
+    } catch (err) {
+      console.error("Error caching category:", err);
+      return false;
+    }
+  }
+
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   loadBoosterState(): void {
     const multStr = this.loadData("active_booster");
     if (multStr) {
@@ -1096,7 +1233,10 @@ export class ToolsService {
       console.warn("Could not load data/shop.json", err);
     }
     this.appendUnlockableShopItems();
+<<<<<<< HEAD
     this.recalculateIdleStats();
+=======
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 
   private evaluatePriceExpression(expression: string | number | undefined): number {
@@ -1389,7 +1529,10 @@ export class ToolsService {
   private pauseAllAudioForBlur(): void {
     if (this.isWindowBlurred) return;
     this.isWindowBlurred = true;
+<<<<<<< HEAD
     this.saveData("last_active_time", String(Date.now()));
+=======
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     if (this.audioCtx && this.audioCtx.state === 'running') {
       this.audioCtx.suspend().catch(() => {});
     }
@@ -1401,7 +1544,10 @@ export class ToolsService {
   private resumeAllAudioForFocus(): void {
     if (!this.isWindowBlurred) return;
     this.isWindowBlurred = false;
+<<<<<<< HEAD
     this.calculateIdleCatchup();
+=======
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
     this.resumeBackground();
   }
 
@@ -1429,15 +1575,23 @@ export class ToolsService {
   getCheemsImg(id: string): string {
     const skin = this.cheemsSkins.find(s => s.id === id);
     if (skin?.imgUrl) return skin.imgUrl;
+<<<<<<< HEAD
     const fallbackId = id.replace('cheems_', '');
     return "img/cheems/" + (skin?.img || fallbackId + ".webp");
+=======
+    return "img/cheems/" + (skin?.img || id + ".png");
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 
   getCheemsHitImg(id: string): string {
     const skin = this.cheemsSkins.find(s => s.id === id);
     if (skin?.hitImgUrl) return skin.hitImgUrl;
+<<<<<<< HEAD
     const fallbackId = id.replace('cheems_', '');
     return "img/hit/" + (skin?.hitImg || skin?.img || fallbackId + ".webp");
+=======
+    return "img/hit/" + (skin?.hitImg || skin?.img || id + ".png");
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
   }
 
   getShopItemName(item: ShopItem): string {
@@ -1543,7 +1697,11 @@ export class ToolsService {
           }
         }
         
+<<<<<<< HEAD
         this.showToast(this.redeem[this.lang]?.success || "Success");
+=======
+        this.showToast(this.dev[this.lang].success || "Success");
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
         setTimeout(() => {
           location.reload();
         }, 1000);
@@ -1554,6 +1712,7 @@ export class ToolsService {
     };
     reader.readAsText(file);
   }
+<<<<<<< HEAD
 
   initIdlePoints(): void {
     const idleConfigStr = this.loadData("idle_points");
@@ -1644,4 +1803,6 @@ export class ToolsService {
     }
     this.saveData("last_active_time", String(now));
   }
+=======
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
 }

@@ -4,6 +4,10 @@ import type { MenuItemConstructorOptions } from 'electron';
 import { app, MenuItem } from 'electron';
 import electronIsDev from 'electron-is-dev';
 import unhandled from 'electron-unhandled';
+<<<<<<< HEAD
+=======
+import { autoUpdater } from 'electron-updater';
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
 
 import { ElectronCapacitorApp, setupContentSecurityPolicy, setupReloadWatcher } from './setup';
 
@@ -44,10 +48,13 @@ if (electronIsDev) {
   setupContentSecurityPolicy(myCapacitorApp.getCustomURLScheme());
   // Initialize our app, build windows, and load content.
   await myCapacitorApp.init();
+<<<<<<< HEAD
 
   myCapacitorApp.getMainWindow().on('close', () => {
     app.quit();
   });
+=======
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
 })();
 
 // Handle when all of our windows are close (platforms have their own expectations).

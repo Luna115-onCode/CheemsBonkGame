@@ -76,7 +76,11 @@
                     @if (track.id === 0) {
                         <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else {
+<<<<<<< HEAD
                         <img [src]="track.cover || 'img/music/no_image.webp'" class="item-icon" [alt]="tools.getMusicName(track)" style="border-radius: 8px; object-fit: cover;">
+=======
+                        <img [src]="track.cover || 'img/music/no_image.png'" class="item-icon" [alt]="tools.getMusicName(track)" style="border-radius: 8px; object-fit: cover;">
+>>>>>>> 978282b3d376db0a28f8a319cd5e15d9f5cddf20
                     }
                     <div class="item-info">
                         <span class="item-name">{{tools.getMusicName(track)}}</span>
