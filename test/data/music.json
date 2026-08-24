@@ -7,7 +7,7 @@
     "default": true,
     "storageKey": "m0",
     "description": "music_0_desc",
-    "cover": "img/music/no_image.png"
+    "cover": "img/music/no_image.webp"
   },
   {
     "id": "music_1",
@@ -17,7 +17,7 @@
     "default": true,
     "storageKey": "m1",
     "description": "music_1_desc",
-    "cover": "img/music/no_image.png"
+    "cover": "img/music/no_image.webp"
   },
   {
     "id": "music_2",
@@ -27,7 +27,7 @@
     "default": false,
     "storageKey": "m2",
     "description": "music_2_desc",
-    "cover": "img/music/jack_bootleg.png"
+    "cover": "img/music/jack_bootleg.webp"
   },
   {
     "id": "music_3",
@@ -37,7 +37,7 @@
     "default": false,
     "storageKey": "m3",
     "description": "music_3_desc",
-    "cover": "img/music/magic_night.png"
+    "cover": "img/music/magic_night.webp"
   },
   {
     "id": "music_4",
@@ -47,7 +47,7 @@
     "default": false,
     "storageKey": "m4",
     "description": "music_4_desc",
-    "cover": "img/music/minimalism_no9.png"
+    "cover": "img/music/minimalism_no9.webp"
   },
   {
     "id": "music_5",
@@ -57,7 +57,7 @@
     "default": false,
     "storageKey": "m5",
     "description": "music_5_desc",
-    "cover": "img/music/minimalism_no10.png"
+    "cover": "img/music/minimalism_no10.webp"
   },
   {
     "id": "music_6",
@@ -67,236 +67,236 @@
     "default": false,
     "storageKey": "m6",
     "description": "music_6_desc",
-    "cover": "img/music/when_you_smile.png"
+    "cover": "img/music/when_you_smile.webp"
   },
   {
     "id": "music_7",
     "nameKey": "music_7",
-    "file": "TETRIS (Joey iLLah Bootleg) (Final).wav",
+    "file": "TETRIS_jack_bootleg.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m7",
     "description": "music_7_desc",
-    "cover": "img/music/tetris_bootleg.png"
+    "cover": "img/music/tetris_bootleg.webp"
   },
   {
     "id": "music_8",
     "nameKey": "music_8",
-    "file": "separation-185196.mp3",
+    "file": "separation.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m8",
     "description": "music_8_desc",
-    "cover": "img/music/no_image.png"
+    "cover": "img/music/no_image.webp"
   },
   {
     "id": "music_9",
     "nameKey": "music_9",
-    "file": "electro-summer-positive-party-141081.mp3",
+    "file": "electro-summer-positive-party.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m9",
     "description": "music_9_desc",
-    "cover": "img/music/electro_summer_positive_party.png"
+    "cover": "img/music/electro_summer_positive_party.webp"
   },
   {
     "id": "music_10",
     "nameKey": "music_10",
-    "file": "titanium-170190.mp3",
+    "file": "titanium.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m10",
     "description": "music_10_desc",
-    "cover": "img/music/titanium.png"
+    "cover": "img/music/titanium.webp"
   },
   {
     "id": "music_11",
     "nameKey": "music_11",
-    "file": "believe-me-143530.mp3",
+    "file": "believe-me.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m11",
     "description": "music_11_desc",
-    "cover": "img/music/believe_me.png"
+    "cover": "img/music/believe_me.webp"
   },
   {
     "id": "music_12",
     "nameKey": "music_12",
-    "file": "city-streets-background-version-166003.mp3",
+    "file": "city-streets.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m12",
     "description": "music_12_desc",
-    "cover": "img/music/city_streets.png"
+    "cover": "img/music/city_streets.webp"
   },
   {
     "id": "music_13",
     "nameKey": "music_13",
-    "file": "coffee-shop-189585.mp3",
+    "file": "coffee-shop.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m13",
     "description": "music_13_desc",
-    "cover": "img/music/no_image.png"
+    "cover": "img/music/no_image.webp"
   },
   {
     "id": "music_14",
     "nameKey": "music_14",
-    "file": "trap-future-bass-royalty-free-music-167020.mp3",
+    "file": "trap-future-bass.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m14",
     "description": "music_14_desc",
-    "cover": "img/music/trap_future_bass.png"
+    "cover": "img/music/trap_future_bass.webp"
   },
   {
     "id": "music_15",
     "nameKey": "music_15",
-    "file": "bonk_the_amber.mp3",
+    "file": "bonk_the_amber.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m15",
     "description": "music_15_desc",
-    "cover": "img/music/bonk_the_amber.png"
+    "cover": "img/music/bonk_the_amber.webp"
   },
   {
     "id": "music_16",
     "nameKey": "music_16",
-    "file": "bonk_the_avatar.mp3",
+    "file": "bonk_the_avatar.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m16",
     "description": "music_16_desc",
-    "cover": "img/music/bonk_the_avatar.png"
+    "cover": "img/music/bonk_the_avatar.webp"
   },
   {
     "id": "music_17",
     "nameKey": "music_17",
-    "file": "bonus_level_bounce.mp3",
+    "file": "bonus_level_bounce.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m17",
     "description": "music_17_desc",
-    "cover": "img/music/bonus_level_bounce.png"
+    "cover": "img/music/bonus_level_bounce.webp"
   },
   {
     "id": "music_18",
     "nameKey": "music_18",
-    "file": "button_smash_routine.mp3",
+    "file": "button_smash_routine.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m18",
     "description": "music_18_desc",
-    "cover": "img/music/button_smash_routine.png"
+    "cover": "img/music/button_smash_routine.webp"
   },
   {
     "id": "music_19",
     "nameKey": "music_19",
-    "file": "cheems-chan_bonk.mp3",
+    "file": "cheems-chan_bonk.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m19",
     "description": "music_19_desc",
-    "cover": "img/music/cheems_chan_bonk.png"
+    "cover": "img/music/cheems_chan_bonk.webp"
   },
   {
     "id": "music_20",
     "nameKey": "music_20",
-    "file": "click_for_a_bonk.mp3",
+    "file": "click_for_a_bonk.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m20",
     "description": "music_20_desc",
-    "cover": "img/music/click_for_a_bonk.png"
+    "cover": "img/music/click_for_a_bonk.webp"
   },
   {
     "id": "music_21",
     "nameKey": "music_21",
-    "file": "hardwood_strike.mp3",
+    "file": "hardwood_strike.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m21",
     "description": "music_21_desc",
-    "cover": "img/music/hardwood_strike.png"
+    "cover": "img/music/hardwood_strike.webp"
   },
   {
     "id": "music_22",
     "nameKey": "music_22",
-    "file": "perfect_round.mp3",
+    "file": "perfect_round.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m22",
     "description": "music_22_desc",
-    "cover": "img/music/perfect_round.png"
+    "cover": "img/music/perfect_round.webp"
   },
   {
     "id": "music_23",
     "nameKey": "music_23",
-    "file": "pocket_change_victory.mp3",
+    "file": "pocket_change_victory.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m23",
     "description": "music_23_desc",
-    "cover": "img/music/pocket_change_victory.png"
+    "cover": "img/music/pocket_change_victory.webp"
   },
   {
     "id": "music_24",
     "nameKey": "music_24",
-    "file": "quick_loot_run.mp3",
+    "file": "quick_loot_run.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m24",
     "description": "music_24_desc",
-    "cover": "img/music/quick_loot_run.png"
+    "cover": "img/music/quick_loot_run.webp"
   },
   {
     "id": "music_25",
     "nameKey": "music_25",
-    "file": "target_in_the_sight.mp3",
+    "file": "target_in_the_sight.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m25",
     "description": "music_25_desc",
-    "cover": "img/music/target_in_the_sight.png"
+    "cover": "img/music/target_in_the_sight.webp"
   },
   {
     "id": "music_26",
     "nameKey": "music_26",
-    "file": "the_hammer_falls.mp3",
+    "file": "the_hammer_falls.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m26",
     "description": "music_26_desc",
-    "cover": "img/music/the_hammer_falls.png"
+    "cover": "img/music/the_hammer_falls.webp"
   },
   {
     "id": "music_27",
     "nameKey": "music_27",
-    "file": "the_late_commute.mp3",
+    "file": "the_late_commute.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m27",
     "description": "music_27_desc",
-    "cover": "img/music/the_late_commute.png"
+    "cover": "img/music/the_late_commute.webp"
   },
   {
     "id": "music_28",
     "nameKey": "music_28",
-    "file": "the_unwritten_page.mp3",
+    "file": "the_unwritten_page.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m28",
     "description": "music_28_desc",
-    "cover": "img/music/the_unwritten_page_bage.png"
+    "cover": "img/music/the_unwritten_page_bage.webp"
   },
   {
     "id": "music_29",
     "nameKey": "music_29",
-    "file": "where_the_path_bends.mp3",
+    "file": "where_the_path_bends.ogg",
     "basePath": "sound/music/",
     "default": false,
     "storageKey": "m29",
     "description": "music_29_desc",
-    "cover": "img/music/where_the_path_bends.png"
+    "cover": "img/music/where_the_path_bends.webp"
   }
 ]
