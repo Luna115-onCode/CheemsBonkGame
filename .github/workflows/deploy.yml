@@ -52,7 +52,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set App Version
-        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); if(fs.existsSync('electron/package.json')){const epkg = JSON.parse(fs.readFileSync('electron/package.json', 'utf8')); epkg.version = pkg.version; fs.writeFileSync('electron/package.json', JSON.stringify(epkg, null, 2));} console.log('Version set to ' + pkg.version);"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -152,7 +152,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set App Version
-        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); if(fs.existsSync('electron/package.json')){const epkg = JSON.parse(fs.readFileSync('electron/package.json', 'utf8')); epkg.version = pkg.version; fs.writeFileSync('electron/package.json', JSON.stringify(epkg, null, 2));} console.log('Version set to ' + pkg.version);"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -336,7 +336,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set App Version
-        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); if(fs.existsSync('electron/package.json')){const epkg = JSON.parse(fs.readFileSync('electron/package.json', 'utf8')); epkg.version = pkg.version; fs.writeFileSync('electron/package.json', JSON.stringify(epkg, null, 2));} console.log('Version set to ' + pkg.version);"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -531,7 +531,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set App Version
-        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); if(fs.existsSync('electron/package.json')){const epkg = JSON.parse(fs.readFileSync('electron/package.json', 'utf8')); epkg.version = pkg.version; fs.writeFileSync('electron/package.json', JSON.stringify(epkg, null, 2));} console.log('Version set to ' + pkg.version);"
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
@@ -660,7 +660,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set App Version
-        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); console.log('Version set to ' + pkg.version);"
+        run: node -e "const fs = require('fs'); const ver = fs.readFileSync('ver', 'utf8').trim(); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.version = ver + '.${{ github.run_number }}'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); if(fs.existsSync('electron/package.json')){const epkg = JSON.parse(fs.readFileSync('electron/package.json', 'utf8')); epkg.version = pkg.version; fs.writeFileSync('electron/package.json', JSON.stringify(epkg, null, 2));} console.log('Version set to ' + pkg.version);"
       
       - name: Download Web Artifact
         uses: actions/download-artifact@v4
