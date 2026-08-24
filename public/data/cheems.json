@@ -2,8 +2,8 @@
   {
     "id": "cheems_normal",
     "nameKey": "cheems_normal",
-    "img": "normal.png",
-    "hitImg": "normal.png",
+    "img": "normal.webp",
+    "hitImg": "normal.webp",
     "default": true,
     "storageKey": "c1",
     "description": "cheems_normal_desc"
@@ -11,104 +11,104 @@
   {
     "id": "cheems_little",
     "nameKey": "cheems_little",
-    "img": "little.png",
-    "hitImg": "little.png",
+    "img": "little.webp",
+    "hitImg": "little.webp",
     "storageKey": "c2",
     "description": "cheems_little_desc"
   },
   {
     "id": "cheems_adult",
     "nameKey": "cheems_adult",
-    "img": "adult.png",
-    "hitImg": "adult.png",
+    "img": "adult.webp",
+    "hitImg": "adult.webp",
     "storageKey": "c3",
     "description": "cheems_adult_desc"
   },
   {
     "id": "cheems_kid",
     "nameKey": "cheems_kid",
-    "img": "kid.png",
-    "hitImg": "kid.png",
+    "img": "kid.webp",
+    "hitImg": "kid.webp",
     "storageKey": "c4",
     "description": "cheems_kid_desc"
   },
   {
     "id": "cheems_mamado",
     "nameKey": "cheems_mamado",
-    "img": "mamado.png",
-    "hitImg": "mamado.png",
+    "img": "mamado.webp",
+    "hitImg": "mamado.webp",
     "storageKey": "c5",
     "description": "cheems_mamado_desc"
   },
   {
     "id": "cheems_pixelart",
     "nameKey": "cheems_pixelart",
-    "img": "pixelart.png",
-    "hitImg": "pixelart.png",
+    "img": "pixelart.webp",
+    "hitImg": "pixelart.webp",
     "storageKey": "c6",
     "description": "cheems_pixelart_desc"
   },
   {
     "id": "cheems_elegant",
     "nameKey": "cheems_elegant",
-    "img": "elegant.png",
-    "hitImg": "elegant.png",
+    "img": "elegant.webp",
+    "hitImg": "elegant.webp",
     "storageKey": "c7",
     "description": "cheems_elegant_desc"
   },
   {
     "id": "cheems_3d",
     "nameKey": "cheems_3d",
-    "img": "3d.png",
-    "hitImg": "3d.png",
+    "img": "3d.webp",
+    "hitImg": "3d.webp",
     "storageKey": "c8",
     "description": "cheems_3d_desc"
   },
   {
     "id": "cheems_black",
     "nameKey": "cheems_black",
-    "img": "black.png",
-    "hitImg": "black.png",
+    "img": "black.webp",
+    "hitImg": "black.webp",
     "storageKey": "c9",
     "description": "cheems_black_desc"
   },
   {
     "id": "cheems_minecraft",
     "nameKey": "cheems_minecraft",
-    "img": "cubes.png",
-    "hitImg": "cubes.png",
+    "img": "cubes.webp",
+    "hitImg": "cubes.webp",
     "storageKey": "c10",
     "description": "cheems_minecraft_desc"
   },
   {
     "id": "cheems_not_a_dog",
     "nameKey": "cheems_not_a_dog",
-    "img": "not_a_dog.png",
-    "hitImg": "not_a_dog.png",
+    "img": "not_a_dog.webp",
+    "hitImg": "not_a_dog.webp",
     "storageKey": "c11",
     "description": "cheems_not_a_dog_desc"
   },
   {
     "id": "cheems_not_a_plumber",
     "nameKey": "cheems_not_a_plumber",
-    "img": "not_a_plumber.png",
-    "hitImg": "not_a_plumber.png",
+    "img": "not_a_plumber.webp",
+    "hitImg": "not_a_plumber.webp",
     "storageKey": "c12",
     "description": "cheems_not_a_plumber_desc"
   },
   {
     "id": "cheems_not_ai",
     "nameKey": "cheems_not_ai",
-    "img": "not_ai.png",
-    "hitImg": "not_ai.png",
+    "img": "not_ai.webp",
+    "hitImg": "not_ai.webp",
     "storageKey": "c13",
     "description": "cheems_not_ai_desc"
   },
   {
     "id": "cheems_realistic",
     "nameKey": "cheems_realistic",
-    "img": "realistic.png",
-    "hitImg": "realistic.png",
+    "img": "realistic.webp",
+    "hitImg": "realistic.webp",
     "storageKey": "c14",
     "description": "cheems_realistic_desc"
   }
