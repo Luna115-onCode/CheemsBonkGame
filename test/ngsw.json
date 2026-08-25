@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1787557768139,
+  "timestamp": 1787644576444,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -11,6 +11,10 @@
         "ignoreVary": true
       },
       "urls": [
+        "/chunk-D452GXMA.js",
+        "/chunk-FSLJLM5X.js",
+        "/chunk-ITQIUGEL.js",
+        "/chunk-NEYQRVBS.js",
         "/index.html",
         "/main.js",
         "/manifest.webmanifest",
@@ -349,6 +353,10 @@
   ],
   "dataGroups": [],
   "hashTable": {
+    "/chunk-D452GXMA.js": "80bdc100101de0754c50a84ae92074c0fca7e42e",
+    "/chunk-FSLJLM5X.js": "027d6602ebaa26a27fa458e6f8cdd5600adc51c3",
+    "/chunk-ITQIUGEL.js": "fe383402542e34c14df3a0ca2d4add72164ae292",
+    "/chunk-NEYQRVBS.js": "fc2e95cb8ae50763e2d48e181fc391d67687d3d1",
     "/fonts/Kalam-Regular.ttf": "8780563680372a86968c46c50cba05143654fe49",
     "/games/attack_hole/assets/big_grenade_bomb.png": "953a9a1b9c2aab622b1f98c189715b69a348e27b",
     "/games/attack_hole/assets/fire_grenade_bomb.png": "ba6e4f7f90e74b7d0823f83b9f18c5f11648e201",
@@ -608,10 +616,10 @@
     "/img/music/trap_future_bass.webp": "10b59572aa4e6cc00946ab948116e3fa83590ad6",
     "/img/music/when_you_smile.webp": "4cf48e868f9d70508f202847fe78f00d436de093",
     "/img/music/where_the_path_bends.webp": "e1b0bdf0bf66994f33feb03c408e6e9aece5424e",
-    "/index.html": "f784a61e43a7d48304a7d82868019aa3b9614df4",
-    "/lang/texts.en.lang": "7e80b8cd69521af776356713af0f074be6b425f6",
-    "/lang/texts.es.lang": "986277681c54a085f4e50e5f6d6b7ea1d5d2f5ce",
-    "/main.js": "f7ef4a943be5d4bf9e35f2d46ff084d68b7cf345",
+    "/index.html": "829c609363984f8132e4017269d2921b4553743c",
+    "/lang/texts.en.lang": "180f68c5c6f2aaa5780dd0799c712e835adb0494",
+    "/lang/texts.es.lang": "1e71a4ebddc4b842fdc6ec91f3333063973a2f33",
+    "/main.js": "d7dd512e1641bfcd49cc2ae44a9c608e61e88506",
     "/manifest.webmanifest": "380797213ecbe2a07277e9f3d6333365bac3ba9c",
     "/polyfills.js": "321b3a888edbd93081a92e1659c272f85bbaf088",
     "/sound/music/A_Jazz_Piano.ogg": "22ea48309a8d198ef2b362acabe0ef34ad476ad0",

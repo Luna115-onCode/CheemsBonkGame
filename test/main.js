@@ -1,65 +1,16 @@
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __defProps = Object.defineProperties;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b ||= {})
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
-var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-var __commonJS = (cb, mod) => function __require() {
-  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-};
-var __copyProps = (to, from2, except, desc) => {
-  if (from2 && typeof from2 === "object" || typeof from2 === "function") {
-    for (let key of __getOwnPropNames(from2))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from2[key], enumerable: !(desc = __getOwnPropDesc(from2, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
-};
+import {
+  Directory,
+  Encoding
+} from "./chunk-NEYQRVBS.js";
+import {
+  Capacitor,
+  __async,
+  __commonJS,
+  __spreadProps,
+  __spreadValues,
+  __toESM,
+  registerPlugin
+} from "./chunk-D452GXMA.js";
 
 // node_modules/matter-js/build/matter.js
 var require_matter = __commonJS({
@@ -6138,7 +6089,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
   });
 }
 function __values(o) {
-  var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+  var s2 = typeof Symbol === "function" && Symbol.iterator, m = s2 && o[s2], i = 0;
   if (m) return m.call(o);
   if (o && typeof o.length === "number") return {
     next: function() {
@@ -6149,7 +6100,7 @@ function __values(o) {
       };
     }
   };
-  throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+  throw new TypeError(s2 ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
 function __await(v) {
   return this instanceof __await ? (this.v = v, this) : new __await(v);
@@ -6160,19 +6111,19 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
-  function awaitReturn(f) {
+  function awaitReturn(f2) {
     return function(v) {
-      return Promise.resolve(v).then(f, reject);
+      return Promise.resolve(v).then(f2, reject);
     };
   }
-  function verb(n, f) {
+  function verb(n, f2) {
     if (g[n]) {
       i[n] = function(v) {
         return new Promise(function(a, b) {
           q.push([n, v, a, b]) > 1 || resume(n, v);
         });
       };
-      if (f) i[n] = f(i[n]);
+      if (f2) i[n] = f2(i[n]);
     }
   }
   function resume(n, v) {
@@ -6191,8 +6142,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f, v) {
-    if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
+  function settle(f2, v) {
+    if (f2(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -12096,7 +12047,7 @@ var AfterRenderSequence = class {
     this.unregisterOnDestroy?.();
     const scheduled2 = this.view?.[AFTER_RENDER_SEQUENCES_TO_ADD];
     if (scheduled2) {
-      this.view[AFTER_RENDER_SEQUENCES_TO_ADD] = scheduled2.filter((s) => s !== this);
+      this.view[AFTER_RENDER_SEQUENCES_TO_ADD] = scheduled2.filter((s2) => s2 !== this);
     }
   }
 };
@@ -12622,9 +12573,9 @@ function getPolicy$1() {
     if (_global.trustedTypes) {
       try {
         policy$1 = _global.trustedTypes.createPolicy("angular", {
-          createHTML: (s) => s,
-          createScript: (s) => s,
-          createScriptURL: (s) => s
+          createHTML: (s2) => s2,
+          createScript: (s2) => s2,
+          createScriptURL: (s2) => s2
         });
       } catch {
       }
@@ -12645,9 +12596,9 @@ function getPolicy() {
     if (_global.trustedTypes) {
       try {
         policy = _global.trustedTypes.createPolicy("angular#unsafe-bypass", {
-          createHTML: (s) => s,
-          createScript: (s) => s,
-          createScriptURL: (s) => s
+          createHTML: (s2) => s2,
+          createScript: (s2) => s2,
+          createScriptURL: (s2) => s2
         });
       } catch {
       }
@@ -12786,9 +12737,9 @@ function tagSet(tags) {
 }
 function merge(...sets) {
   const res = {};
-  for (const s of sets) {
-    for (const v in s) {
-      if (s.hasOwnProperty(v)) res[v] = true;
+  for (const s2 of sets) {
+    for (const v in s2) {
+      if (s2.hasOwnProperty(v)) res[v] = true;
     }
   }
   return res;
@@ -17595,7 +17546,7 @@ function createContentQuery(directiveIndex, predicate, flags, read) {
   return createLQuery(tView, getLView(), flags);
 }
 function splitQueryMultiSelectors(locator) {
-  return locator.split(",").map((s) => s.trim());
+  return locator.split(",").map((s2) => s2.trim());
 }
 function createTQuery(tView, metadata, nodeIndex) {
   if (tView.queries === null) tView.queries = new TQueries_();
@@ -24790,12 +24741,12 @@ function multiResolve(factories, result) {
   }
   return result;
 }
-function multiFactory(factoryFn, index, isViewProvider, isComponent2, f) {
+function multiFactory(factoryFn, index, isViewProvider, isComponent2, f2) {
   const factory = new NodeInjectorFactory(factoryFn, isViewProvider, \u0275\u0275directiveInject);
   factory.multi = [];
   factory.index = index;
   factory.componentProviders = 0;
-  multiFactoryAdd(factory, f, isComponent2 && !isViewProvider);
+  multiFactoryAdd(factory, f2, isComponent2 && !isViewProvider);
   return factory;
 }
 function \u0275\u0275ProvidersFeature(providers, viewProviders = []) {
@@ -26943,7 +26894,7 @@ function bootstrap(config2) {
 function moduleDoBootstrap(moduleRef, allPlatformModules) {
   const appRef = moduleRef.injector.get(ApplicationRef);
   if (moduleRef._bootstrapComponents.length > 0) {
-    moduleRef._bootstrapComponents.forEach((f) => appRef.bootstrap(f));
+    moduleRef._bootstrapComponents.forEach((f2) => appRef.bootstrap(f2));
   } else if (moduleRef.instance.ngDoBootstrap) {
     moduleRef.instance.ngDoBootstrap(appRef);
   } else {
@@ -28023,7 +27974,7 @@ var IterableDiffers = class _IterableDiffers {
     };
   }
   find(iterable) {
-    const factory = this.factories.find((f) => f.supports(iterable));
+    const factory = this.factories.find((f2) => f2.supports(iterable));
     if (factory != null) {
       return factory;
     } else {
@@ -28089,7 +28040,7 @@ var KeyValueDiffers = class _KeyValueDiffers {
     };
   }
   find(kv) {
-    const factory = this.factories.find((f) => f.supports(kv));
+    const factory = this.factories.find((f2) => f2.supports(kv));
     if (factory) {
       return factory;
     }
@@ -29780,9 +29731,9 @@ function isoStringToDate(match2) {
   dateSetter.call(date, Number(match2[1]), Number(match2[2]) - 1, Number(match2[3]));
   const h = Number(match2[4] || 0) - tzHour;
   const m = Number(match2[5] || 0) - tzMin;
-  const s = Number(match2[6] || 0);
+  const s2 = Number(match2[6] || 0);
   const ms = Math.floor(parseFloat("0." + (match2[7] || 0)) * 1e3);
-  timeSetter.call(date, h, m, s, ms);
+  timeSetter.call(date, h, m, s2, ms);
   return date;
 }
 function isDate(value) {
@@ -33390,7 +33341,7 @@ function shimHostAttribute(componentShortId) {
   return HOST_ATTR.replace(COMPONENT_REGEX, componentShortId);
 }
 function shimStylesContent(compId, styles) {
-  return styles.map((s) => s.replace(COMPONENT_REGEX, compId));
+  return styles.map((s2) => s2.replace(COMPONENT_REGEX, compId));
 }
 function addBaseHrefToCssSourceMap(baseHref, styles) {
   if (!baseHref) {
@@ -35133,23 +35084,23 @@ function serializeSegment(segment, root) {
     return `${serializePaths(segment)}/(${children.join("//")})`;
   }
 }
-function encodeUriString(s) {
-  return encodeURIComponent(s).replace(/%40/g, "@").replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",");
+function encodeUriString(s2) {
+  return encodeURIComponent(s2).replace(/%40/g, "@").replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",");
 }
-function encodeUriQuery(s) {
-  return encodeUriString(s).replace(/%3B/gi, ";");
+function encodeUriQuery(s2) {
+  return encodeUriString(s2).replace(/%3B/gi, ";");
 }
-function encodeUriFragment(s) {
-  return encodeURI(s);
+function encodeUriFragment(s2) {
+  return encodeURI(s2);
 }
-function encodeUriSegment(s) {
-  return encodeUriString(s).replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/%26/gi, "&");
+function encodeUriSegment(s2) {
+  return encodeUriString(s2).replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/%26/gi, "&");
 }
-function decode(s) {
-  return decodeURIComponent(s);
+function decode(s2) {
+  return decodeURIComponent(s2);
 }
-function decodeQuery(s) {
-  return decode(s.replace(/\+/g, "%20"));
+function decodeQuery(s2) {
+  return decode(s2.replace(/\+/g, "%20"));
 }
 function serializePath(path) {
   return `${encodeUriSegment(path.path)}${serializeMatrixParams(path.parameters)}`;
@@ -35160,7 +35111,7 @@ function serializeMatrixParams(params) {
 function serializeQueryParams(params) {
   const strParams = Object.entries(params).map(([name, value]) => {
     return Array.isArray(value) ? value.map((v) => `${encodeUriQuery(name)}=${encodeUriQuery(v)}`).join("&") : `${encodeUriQuery(name)}=${encodeUriQuery(value)}`;
-  }).filter((s) => s);
+  }).filter((s2) => s2);
   return strParams.length ? `?${strParams.join("&")}` : "";
 }
 var SEGMENT_RE = /^[^\/()?;#]+/;
@@ -35355,15 +35306,15 @@ function squashSegmentGroup(segmentGroup) {
       newChildren[childOutlet] = childCandidate;
     }
   }
-  const s = new UrlSegmentGroup(segmentGroup.segments, newChildren);
-  return mergeTrivialChildren(s);
+  const s2 = new UrlSegmentGroup(segmentGroup.segments, newChildren);
+  return mergeTrivialChildren(s2);
 }
-function mergeTrivialChildren(s) {
-  if (s.numberOfChildren === 1 && s.children[PRIMARY_OUTLET]) {
-    const c = s.children[PRIMARY_OUTLET];
-    return new UrlSegmentGroup(s.segments.concat(c.segments), c.children);
+function mergeTrivialChildren(s2) {
+  if (s2.numberOfChildren === 1 && s2.children[PRIMARY_OUTLET]) {
+    const c = s2.children[PRIMARY_OUTLET];
+    return new UrlSegmentGroup(s2.segments.concat(c.segments), c.children);
   }
-  return s;
+  return s2;
 }
 function isUrlTree(v) {
   return v instanceof UrlTree;
@@ -36109,8 +36060,8 @@ function getClosestRouteInjector(snapshot) {
   if (snapshot.routeConfig?._injector) {
     return snapshot.routeConfig._injector;
   }
-  for (let s = snapshot.parent; s; s = s.parent) {
-    const route = s.routeConfig;
+  for (let s2 = snapshot.parent; s2; s2 = s2.parent) {
+    const route = s2.routeConfig;
     if (route?._loadedInjector) return route._loadedInjector;
     if (route?._injector) return route._injector;
   }
@@ -36241,7 +36192,7 @@ var Tree = class {
    * @internal
    */
   pathFromRoot(t) {
-    return findPath(t, this._root).map((s) => s.value);
+    return findPath(t, this._root).map((s2) => s2.value);
   }
 };
 function findNode(value, node) {
@@ -37484,7 +37435,7 @@ var ApplyRedirects = class {
     return new UrlSegmentGroup(updatedSegments, children);
   }
   createSegments(redirectTo, redirectToSegments, actualSegments, posParams) {
-    return redirectToSegments.map((s) => s.path[0] === ":" ? this.findPosParam(redirectTo, s, posParams) : this.findOrReturn(s, actualSegments));
+    return redirectToSegments.map((s2) => s2.path[0] === ":" ? this.findPosParam(redirectTo, s2, posParams) : this.findOrReturn(s2, actualSegments));
   }
   findPosParam(redirectTo, redirectToUrlSegment, posParams) {
     const pos = posParams[redirectToUrlSegment.path.substring(1)];
@@ -37493,10 +37444,10 @@ var ApplyRedirects = class {
   }
   findOrReturn(redirectToUrlSegment, actualSegments) {
     let idx = 0;
-    for (const s of actualSegments) {
-      if (s.path === redirectToUrlSegment.path) {
+    for (const s2 of actualSegments) {
+      if (s2.path === redirectToUrlSegment.path) {
         actualSegments.splice(idx);
-        return s;
+        return s2;
       }
       idx++;
     }
@@ -37562,22 +37513,22 @@ function createWildcardMatchResult(segments) {
 }
 function split(segmentGroup, consumedSegments, slicedSegments, config2) {
   if (slicedSegments.length > 0 && containsEmptyPathMatchesWithNamedOutlets(segmentGroup, slicedSegments, config2)) {
-    const s2 = new UrlSegmentGroup(consumedSegments, createChildrenForEmptyPaths(config2, new UrlSegmentGroup(slicedSegments, segmentGroup.children)));
+    const s3 = new UrlSegmentGroup(consumedSegments, createChildrenForEmptyPaths(config2, new UrlSegmentGroup(slicedSegments, segmentGroup.children)));
     return {
-      segmentGroup: s2,
+      segmentGroup: s3,
       slicedSegments: []
     };
   }
   if (slicedSegments.length === 0 && containsEmptyPathMatches(segmentGroup, slicedSegments, config2)) {
-    const s2 = new UrlSegmentGroup(segmentGroup.segments, addEmptyPathsToChildrenIfNeeded(segmentGroup, slicedSegments, config2, segmentGroup.children));
+    const s3 = new UrlSegmentGroup(segmentGroup.segments, addEmptyPathsToChildrenIfNeeded(segmentGroup, slicedSegments, config2, segmentGroup.children));
     return {
-      segmentGroup: s2,
+      segmentGroup: s3,
       slicedSegments
     };
   }
-  const s = new UrlSegmentGroup(segmentGroup.segments, segmentGroup.children);
+  const s2 = new UrlSegmentGroup(segmentGroup.segments, segmentGroup.children);
   return {
-    segmentGroup: s,
+    segmentGroup: s2,
     slicedSegments
   };
 }
@@ -37585,8 +37536,8 @@ function addEmptyPathsToChildrenIfNeeded(segmentGroup, slicedSegments, routes2, 
   const res = {};
   for (const r of routes2) {
     if (emptyPathMatch(segmentGroup, slicedSegments, r) && !children[getOutlet(r)]) {
-      const s = new UrlSegmentGroup([], {});
-      res[getOutlet(r)] = s;
+      const s2 = new UrlSegmentGroup([], {});
+      res[getOutlet(r)] = s2;
     }
   }
   return __spreadValues(__spreadValues({}, children), res);
@@ -37596,8 +37547,8 @@ function createChildrenForEmptyPaths(routes2, primarySegment) {
   res[PRIMARY_OUTLET] = primarySegment;
   for (const r of routes2) {
     if (r.path === "" && getOutlet(r) !== PRIMARY_OUTLET) {
-      const s = new UrlSegmentGroup([], {});
-      res[getOutlet(r)] = s;
+      const s2 = new UrlSegmentGroup([], {});
+      res[getOutlet(r)] = s2;
     }
   }
   return res;
@@ -37890,8 +37841,8 @@ function checkOutletNameUniqueness(nodes) {
   nodes.forEach((n) => {
     const routeWithSameOutletName = names[n.value.outlet];
     if (routeWithSameOutletName) {
-      const p = routeWithSameOutletName.url.map((s) => s.toString()).join("/");
-      const c = n.value.url.map((s) => s.toString()).join("/");
+      const p = routeWithSameOutletName.url.map((s2) => s2.toString()).join("/");
+      const c = n.value.url.map((s2) => s2.toString()).join("/");
       throw new RuntimeError(4006, (typeof ngDevMode === "undefined" || ngDevMode) && `Two segments cannot have the same outlet name: '${p}' and '${c}'.`);
     }
     names[n.value.outlet] = n.value;
@@ -39249,7 +39200,7 @@ var Router = class _Router {
       queryParamsHandling,
       preserveFragment
     } = navigationExtras;
-    const f = preserveFragment ? this.currentUrlTree.fragment : fragment2;
+    const f2 = preserveFragment ? this.currentUrlTree.fragment : fragment2;
     let q = null;
     switch (queryParamsHandling ?? this.options.defaultQueryParamsHandling) {
       case "merge":
@@ -39274,7 +39225,7 @@ var Router = class _Router {
       }
       relativeToUrlSegmentGroup = this.currentUrlTree.root;
     }
-    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f ?? null);
+    return createUrlTreeFromSegmentGroup(relativeToUrlSegmentGroup, commands, q, f2 ?? null);
   }
   /**
    * Navigates to a view using an absolute route path.
@@ -39523,8 +39474,8 @@ var RouterLink = class _RouterLink {
     const tagName = el.nativeElement.tagName?.toLowerCase();
     this.isAnchorElement = tagName === "a" || tagName === "area";
     if (this.isAnchorElement) {
-      this.subscription = router.events.subscribe((s) => {
-        if (s instanceof NavigationEnd) {
+      this.subscription = router.events.subscribe((s2) => {
+        if (s2 instanceof NavigationEnd) {
           this.updateHref();
         }
       });
@@ -39829,8 +39780,8 @@ var RouterLinkActive = class _RouterLinkActive {
     this.renderer = renderer;
     this.cdr = cdr;
     this.link = link;
-    this.routerEventsSubscription = router.events.subscribe((s) => {
-      if (s instanceof NavigationEnd) {
+    this.routerEventsSubscription = router.events.subscribe((s2) => {
+      if (s2 instanceof NavigationEnd) {
         this.update();
       }
     });
@@ -40536,6 +40487,58 @@ function provideRouterInitializer() {
 // node_modules/@angular/router/fesm2022/router.mjs
 var VERSION4 = new Version("19.2.14");
 
+// node_modules/@capacitor/synapse/dist/synapse.mjs
+function s(t) {
+  t.CapacitorUtils.Synapse = new Proxy({}, {
+    get(e, n) {
+      return new Proxy({}, {
+        get(w, o) {
+          return (c, p, r) => {
+            const i = t.Capacitor.Plugins[n];
+            if (i === void 0) {
+              r(new Error(`Capacitor plugin ${n} not found`));
+              return;
+            }
+            if (typeof i[o] != "function") {
+              r(new Error(`Method ${o} not found in Capacitor plugin ${n}`));
+              return;
+            }
+            (() => __async(null, null, function* () {
+              try {
+                const a = yield i[o](c);
+                p(a);
+              } catch (a) {
+                r(a);
+              }
+            }))();
+          };
+        }
+      });
+    }
+  });
+}
+function u2(t) {
+  t.CapacitorUtils.Synapse = new Proxy({}, {
+    get(e, n) {
+      return t.cordova.plugins[n];
+    }
+  });
+}
+function f(t = false) {
+  typeof window > "u" || (window.CapacitorUtils = window.CapacitorUtils || {}, window.Capacitor !== void 0 && !t ? s(window) : window.cordova !== void 0 && u2(window));
+}
+
+// node_modules/@capacitor/filesystem/dist/esm/index.js
+var Filesystem = registerPlugin("Filesystem", {
+  web: () => import("./chunk-FSLJLM5X.js").then((m) => new m.FilesystemWeb())
+});
+f();
+
+// node_modules/@capacitor/share/dist/esm/index.js
+var Share = registerPlugin("Share", {
+  web: () => import("./chunk-ITQIUGEL.js").then((m) => new m.ShareWeb())
+});
+
 // src/app/services/constants.service.ts
 function createLangMap(base) {
   return new Proxy({}, {
@@ -40669,6 +40672,9 @@ var optionsText = {
   deleteProgress: "",
   deleteProgressConfirm: "",
   exportSave: "",
+  exportSaveTitle: "",
+  exportSaveText: "",
+  exportSaveDialogTitle: "",
   importSave: "",
   importSaveConfirm: ""
 };
@@ -40930,7 +40936,7 @@ var ToolsService = class _ToolsService {
   parseArrayString(str) {
     if (!str)
       return [];
-    return str.split(";").filter((s) => s.trim().length > 0);
+    return str.split(";").filter((s2) => s2.trim().length > 0);
   }
   stringifyArray(arr) {
     if (!arr || arr.length === 0)
@@ -41312,7 +41318,7 @@ var ToolsService = class _ToolsService {
     if (this.isWindowBlurred)
       return;
     const soundToPlay = customSoundId || this.selectedSound;
-    const item = this.soundEffects.find((s) => String(s.id) === String(soundToPlay));
+    const item = this.soundEffects.find((s2) => String(s2.id) === String(soundToPlay));
     let file = "hit.ogg";
     let basePath = "sound/";
     if (item) {
@@ -41495,7 +41501,7 @@ var ToolsService = class _ToolsService {
   isCheemsUnlocked(id) {
     if (id === "normal" || id === "cheems_normal")
       return true;
-    const item = this.cheemsSkins.find((s) => s.id === id);
+    const item = this.cheemsSkins.find((s2) => s2.id === id);
     if (!item)
       return false;
     return !!this.unlockedCheems[item.storageKey];
@@ -41516,7 +41522,7 @@ var ToolsService = class _ToolsService {
   isSoundUnlocked(id) {
     if (id === "1" || id === "sfx_1")
       return true;
-    const item = this.soundEffects.find((s) => String(s.id) === String(id));
+    const item = this.soundEffects.find((s2) => String(s2.id) === String(id));
     if (!item)
       return false;
     return !!this.unlockedSounds[item.storageKey];
@@ -41572,16 +41578,16 @@ var ToolsService = class _ToolsService {
     this.saveUnlockedMinigames();
     this.minigameCoins = 999999;
     this.saveData("mg", "999999");
-    this.cheemsSkins.forEach((s) => {
-      this.unlockedCheems[s.storageKey] = true;
+    this.cheemsSkins.forEach((s2) => {
+      this.unlockedCheems[s2.storageKey] = true;
     });
     this.saveUnlockedCheems();
-    this.soundEffects.forEach((s) => {
-      this.unlockedSounds[s.storageKey] = true;
+    this.soundEffects.forEach((s2) => {
+      this.unlockedSounds[s2.storageKey] = true;
     });
     this.saveUnlockedSounds();
-    this.musicTracks.forEach((s) => {
-      this.unlockedMusic[s.storageKey] = true;
+    this.musicTracks.forEach((s2) => {
+      this.unlockedMusic[s2.storageKey] = true;
     });
     this.saveUnlockedMusic();
     this.saveData("points", String(this.points));
@@ -41614,19 +41620,19 @@ var ToolsService = class _ToolsService {
     this.unlockedCheems = {};
     this.unlockedSounds = {};
     this.unlockedMusic = {};
-    this.cheemsSkins.forEach((s) => {
-      const isDef = !s.default;
-      this.unlockedCheems[s.storageKey] = !isDef;
+    this.cheemsSkins.forEach((s2) => {
+      const isDef = !s2.default;
+      this.unlockedCheems[s2.storageKey] = !isDef;
     });
     this.saveUnlockedCheems();
-    this.soundEffects.forEach((s) => {
-      const isDef = !s.default;
-      this.unlockedSounds[s.storageKey] = !isDef;
+    this.soundEffects.forEach((s2) => {
+      const isDef = !s2.default;
+      this.unlockedSounds[s2.storageKey] = !isDef;
     });
     this.saveUnlockedSounds();
-    this.musicTracks.forEach((s) => {
-      const isDef = s.default || s.cost === 0;
-      this.unlockedMusic[s.storageKey] = isDef;
+    this.musicTracks.forEach((s2) => {
+      const isDef = s2.default || s2.cost === 0;
+      this.unlockedMusic[s2.storageKey] = isDef;
     });
     this.saveUnlockedMusic();
     this.saveData("points", "0");
@@ -41664,7 +41670,6 @@ var ToolsService = class _ToolsService {
     this.loadSettings();
     this.loadLanguageFile(this.lang);
     this.loadClosetPrices();
-    this.loadShopItems();
     this.loadMinigamesConfig();
     this.loadBoosterState();
     this.setupWindowFocusListeners();
@@ -41673,7 +41678,9 @@ var ToolsService = class _ToolsService {
     this.loadMusic();
     this.loadScore();
     this.loadUnlocks();
-    this.initIdlePoints();
+    this.loadShopItems().then(() => {
+      this.initIdlePoints();
+    });
     this.loadRedeemedCodes();
   }
   loadSettings() {
@@ -41732,16 +41739,16 @@ var ToolsService = class _ToolsService {
       this.unlockedMinigames[id] = unlockedMgs.includes(id);
     });
     const unlockedChms = this.parseArrayString(this.loadData("unlocked_cheems") || "");
-    this.cheemsSkins.forEach((s) => {
-      this.unlockedCheems[s.storageKey] = s.default || unlockedChms.includes(s.id);
+    this.cheemsSkins.forEach((s2) => {
+      this.unlockedCheems[s2.storageKey] = s2.default || unlockedChms.includes(s2.id);
     });
     const unlockedSnds = this.parseArrayString(this.loadData("unlocked_sfx") || "");
-    this.soundEffects.forEach((s) => {
-      this.unlockedSounds[s.storageKey] = s.default || unlockedSnds.includes(String(s.id));
+    this.soundEffects.forEach((s2) => {
+      this.unlockedSounds[s2.storageKey] = s2.default || unlockedSnds.includes(String(s2.id));
     });
     const unlockedMsc = this.parseArrayString(this.loadData("unlocked_music") || "");
-    this.musicTracks.forEach((s) => {
-      this.unlockedMusic[s.storageKey] = s.default || s.cost === 0 || unlockedMsc.includes(String(s.id));
+    this.musicTracks.forEach((s2) => {
+      this.unlockedMusic[s2.storageKey] = s2.default || s2.cost === 0 || unlockedMsc.includes(String(s2.id));
     });
   }
   saveUnlockedMinigames() {
@@ -41749,15 +41756,15 @@ var ToolsService = class _ToolsService {
     this.saveData("unlocked_minigames", this.stringifyArray(list));
   }
   saveUnlockedCheems() {
-    const list = this.cheemsSkins.filter((s) => this.unlockedCheems[s.storageKey] && !s.default).map((s) => s.id);
+    const list = this.cheemsSkins.filter((s2) => this.unlockedCheems[s2.storageKey] && !s2.default).map((s2) => s2.id);
     this.saveData("unlocked_cheems", this.stringifyArray(list));
   }
   saveUnlockedSounds() {
-    const list = this.soundEffects.filter((s) => this.unlockedSounds[s.storageKey] && !s.default).map((s) => String(s.id));
+    const list = this.soundEffects.filter((s2) => this.unlockedSounds[s2.storageKey] && !s2.default).map((s2) => String(s2.id));
     this.saveData("unlocked_sfx", this.stringifyArray(list));
   }
   saveUnlockedMusic() {
-    const list = this.musicTracks.filter((s) => this.unlockedMusic[s.storageKey] && !s.default && s.cost !== 0).map((s) => String(s.id));
+    const list = this.musicTracks.filter((s2) => this.unlockedMusic[s2.storageKey] && !s2.default && s2.cost !== 0).map((s2) => String(s2.id));
     this.saveData("unlocked_music", this.stringifyArray(list));
   }
   loadRedeemedCodes() {
@@ -42025,14 +42032,14 @@ var ToolsService = class _ToolsService {
       this.saveData("dg", String(this.dogeCoins));
       if (item.type === "cheems") {
         const targetId = String(item.targetId !== void 0 ? item.targetId : item.id);
-        const skin = this.cheemsSkins.find((s) => s.id === targetId);
+        const skin = this.cheemsSkins.find((s2) => s2.id === targetId);
         if (skin) {
           this.unlockedCheems[skin.storageKey] = true;
           this.saveUnlockedCheems();
         }
       } else if (item.type === "sound") {
         const targetId = String(item.targetId !== void 0 ? item.targetId : item.id);
-        const sound = this.soundEffects.find((s) => String(s.id) === targetId);
+        const sound = this.soundEffects.find((s2) => String(s2.id) === targetId);
         if (sound) {
           this.unlockedSounds[sound.storageKey] = true;
           this.saveUnlockedSounds();
@@ -42120,14 +42127,14 @@ var ToolsService = class _ToolsService {
     }
   }
   getCheemsImg(id) {
-    const skin = this.cheemsSkins.find((s) => s.id === id);
+    const skin = this.cheemsSkins.find((s2) => s2.id === id);
     if (skin?.imgUrl)
       return skin.imgUrl;
     const fallbackId = id.replace("cheems_", "");
     return "img/cheems/" + (skin?.img || fallbackId + ".webp");
   }
   getCheemsHitImg(id) {
-    const skin = this.cheemsSkins.find((s) => s.id === id);
+    const skin = this.cheemsSkins.find((s2) => s2.id === id);
     if (skin?.hitImgUrl)
       return skin.hitImgUrl;
     const fallbackId = id.replace("cheems_", "");
@@ -42185,24 +42192,47 @@ var ToolsService = class _ToolsService {
     return "";
   }
   exportSave() {
-    const saveData = {};
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith(this.PREFIX)) {
-        saveData[key] = localStorage.getItem(key) || "";
+    return __async(this, null, function* () {
+      const saveData = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(this.PREFIX)) {
+          saveData[key] = localStorage.getItem(key) || "";
+        }
       }
-    }
-    const jsonStr = JSON.stringify(saveData);
-    const obfuscated = btoa(encodeURIComponent(jsonStr));
-    const blob = new Blob([obfuscated], { type: "application/octet-stream" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "cheems_save.dat";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+      const jsonStr = JSON.stringify(saveData);
+      const obfuscated = btoa(encodeURIComponent(jsonStr));
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const fileName = "cheems_save.dat";
+          const result = yield Filesystem.writeFile({
+            path: fileName,
+            data: obfuscated,
+            directory: Directory.Cache,
+            encoding: Encoding.UTF8
+          });
+          yield Share.share({
+            title: this.options[this.lang]?.exportSaveTitle || "Export Cheems Save",
+            text: this.options[this.lang]?.exportSaveText || "Here is your Cheems Bonk Game save file.",
+            url: result.uri,
+            dialogTitle: this.options[this.lang]?.exportSaveDialogTitle || "Save or share your progress"
+          });
+        } catch (err) {
+          console.error("Error exporting save via Capacitor", err);
+          this.showToast(this.options[this.lang]?.exportSave + " Error");
+        }
+      } else {
+        const blob = new Blob([obfuscated], { type: "application/octet-stream" });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "cheems_save.dat";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }
+    });
   }
   importSave(file) {
     const reader = new FileReader();
@@ -42513,8 +42543,8 @@ var GameComponent = class _GameComponent {
     if (seconds < 60)
       return `${Math.ceil(seconds)}s`;
     const m = Math.floor(seconds / 60);
-    const s = Math.ceil(seconds % 60);
-    return `${m}m ${s}s`;
+    const s2 = Math.ceil(seconds % 60);
+    return `${m}m ${s2}s`;
   }
   get onlineIntervalStr() {
     return this.formatDuration(this.tools.idleTime);
@@ -49856,8 +49886,8 @@ var RedeemComponent = class _RedeemComponent {
       this.tools.saveUnlockedCheems();
     }
     if (matchedConfig.sfx && Array.isArray(matchedConfig.sfx)) {
-      matchedConfig.sfx.forEach((s) => {
-        this.tools.unlockedSounds[s] = true;
+      matchedConfig.sfx.forEach((s2) => {
+        this.tools.unlockedSounds[s2] = true;
       });
       this.tools.saveUnlockedSounds();
     }
@@ -53680,9 +53710,9 @@ var Vector2 = class _Vector2 {
    * @param {number} s - The scalar to add.
    * @return {Vector2} A reference to this vector.
    */
-  addScalar(s) {
-    this.x += s;
-    this.y += s;
+  addScalar(s2) {
+    this.x += s2;
+    this.y += s2;
     return this;
   }
   /**
@@ -53704,9 +53734,9 @@ var Vector2 = class _Vector2 {
    * @param {number} s - The factor that scales `v`.
    * @return {Vector2} A reference to this vector.
    */
-  addScaledVector(v, s) {
-    this.x += v.x * s;
-    this.y += v.y * s;
+  addScaledVector(v, s2) {
+    this.x += v.x * s2;
+    this.y += v.y * s2;
     return this;
   }
   /**
@@ -53726,9 +53756,9 @@ var Vector2 = class _Vector2 {
    * @param {number} s - The scalar to subtract.
    * @return {Vector2} A reference to this vector.
    */
-  subScalar(s) {
-    this.x -= s;
-    this.y -= s;
+  subScalar(s2) {
+    this.x -= s2;
+    this.y -= s2;
     return this;
   }
   /**
@@ -54116,11 +54146,11 @@ var Vector2 = class _Vector2 {
    * @return {Vector2} A reference to this vector.
    */
   rotateAround(center, angle) {
-    const c = Math.cos(angle), s = Math.sin(angle);
+    const c = Math.cos(angle), s2 = Math.sin(angle);
     const x = this.x - center.x;
     const y = this.y - center.y;
-    this.x = x * c - y * s + center.x;
-    this.y = x * s + y * c + center.y;
+    this.x = x * c - y * s2 + center.x;
+    this.y = x * s2 + y * c + center.y;
     return this;
   }
   /**
@@ -54180,26 +54210,26 @@ var Quaternion = class {
         w1 = -w1;
         dot = -dot;
       }
-      let s = 1 - t;
+      let s2 = 1 - t;
       if (dot < 0.9995) {
         const theta = Math.acos(dot);
         const sin = Math.sin(theta);
-        s = Math.sin(s * theta) / sin;
+        s2 = Math.sin(s2 * theta) / sin;
         t = Math.sin(t * theta) / sin;
-        x0 = x0 * s + x1 * t;
-        y0 = y0 * s + y1 * t;
-        z0 = z0 * s + z1 * t;
-        w0 = w0 * s + w1 * t;
+        x0 = x0 * s2 + x1 * t;
+        y0 = y0 * s2 + y1 * t;
+        z0 = z0 * s2 + z1 * t;
+        w0 = w0 * s2 + w1 * t;
       } else {
-        x0 = x0 * s + x1 * t;
-        y0 = y0 * s + y1 * t;
-        z0 = z0 * s + z1 * t;
-        w0 = w0 * s + w1 * t;
-        const f = 1 / Math.sqrt(x0 * x0 + y0 * y0 + z0 * z0 + w0 * w0);
-        x0 *= f;
-        y0 *= f;
-        z0 *= f;
-        w0 *= f;
+        x0 = x0 * s2 + x1 * t;
+        y0 = y0 * s2 + y1 * t;
+        z0 = z0 * s2 + z1 * t;
+        w0 = w0 * s2 + w1 * t;
+        const f2 = 1 / Math.sqrt(x0 * x0 + y0 * y0 + z0 * z0 + w0 * w0);
+        x0 *= f2;
+        y0 *= f2;
+        z0 *= f2;
+        w0 *= f2;
       }
     }
     dst[dstOffset] = x0;
@@ -54395,10 +54425,10 @@ var Quaternion = class {
    * @return {Quaternion} A reference to this quaternion.
    */
   setFromAxisAngle(axis, angle) {
-    const halfAngle = angle / 2, s = Math.sin(halfAngle);
-    this._x = axis.x * s;
-    this._y = axis.y * s;
-    this._z = axis.z * s;
+    const halfAngle = angle / 2, s2 = Math.sin(halfAngle);
+    this._x = axis.x * s2;
+    this._y = axis.y * s2;
+    this._z = axis.z * s2;
     this._w = Math.cos(halfAngle);
     this._onChangeCallback();
     return this;
@@ -54412,29 +54442,29 @@ var Quaternion = class {
   setFromRotationMatrix(m) {
     const te = m.elements, m11 = te[0], m12 = te[4], m13 = te[8], m21 = te[1], m22 = te[5], m23 = te[9], m31 = te[2], m32 = te[6], m33 = te[10], trace = m11 + m22 + m33;
     if (trace > 0) {
-      const s = 0.5 / Math.sqrt(trace + 1);
-      this._w = 0.25 / s;
-      this._x = (m32 - m23) * s;
-      this._y = (m13 - m31) * s;
-      this._z = (m21 - m12) * s;
+      const s2 = 0.5 / Math.sqrt(trace + 1);
+      this._w = 0.25 / s2;
+      this._x = (m32 - m23) * s2;
+      this._y = (m13 - m31) * s2;
+      this._z = (m21 - m12) * s2;
     } else if (m11 > m22 && m11 > m33) {
-      const s = 2 * Math.sqrt(1 + m11 - m22 - m33);
-      this._w = (m32 - m23) / s;
-      this._x = 0.25 * s;
-      this._y = (m12 + m21) / s;
-      this._z = (m13 + m31) / s;
+      const s2 = 2 * Math.sqrt(1 + m11 - m22 - m33);
+      this._w = (m32 - m23) / s2;
+      this._x = 0.25 * s2;
+      this._y = (m12 + m21) / s2;
+      this._z = (m13 + m31) / s2;
     } else if (m22 > m33) {
-      const s = 2 * Math.sqrt(1 + m22 - m11 - m33);
-      this._w = (m13 - m31) / s;
-      this._x = (m12 + m21) / s;
-      this._y = 0.25 * s;
-      this._z = (m23 + m32) / s;
+      const s2 = 2 * Math.sqrt(1 + m22 - m11 - m33);
+      this._w = (m13 - m31) / s2;
+      this._x = (m12 + m21) / s2;
+      this._y = 0.25 * s2;
+      this._z = (m23 + m32) / s2;
     } else {
-      const s = 2 * Math.sqrt(1 + m33 - m11 - m22);
-      this._w = (m21 - m12) / s;
-      this._x = (m13 + m31) / s;
-      this._y = (m23 + m32) / s;
-      this._z = 0.25 * s;
+      const s2 = 2 * Math.sqrt(1 + m33 - m11 - m22);
+      this._w = (m21 - m12) / s2;
+      this._x = (m13 + m31) / s2;
+      this._y = (m23 + m32) / s2;
+      this._z = 0.25 * s2;
     }
     this._onChangeCallback();
     return this;
@@ -54630,22 +54660,22 @@ var Quaternion = class {
       w = -w;
       dot = -dot;
     }
-    let s = 1 - t;
+    let s2 = 1 - t;
     if (dot < 0.9995) {
       const theta = Math.acos(dot);
       const sin = Math.sin(theta);
-      s = Math.sin(s * theta) / sin;
+      s2 = Math.sin(s2 * theta) / sin;
       t = Math.sin(t * theta) / sin;
-      this._x = this._x * s + x * t;
-      this._y = this._y * s + y * t;
-      this._z = this._z * s + z * t;
-      this._w = this._w * s + w * t;
+      this._x = this._x * s2 + x * t;
+      this._y = this._y * s2 + y * t;
+      this._z = this._z * s2 + z * t;
+      this._w = this._w * s2 + w * t;
       this._onChangeCallback();
     } else {
-      this._x = this._x * s + x * t;
-      this._y = this._y * s + y * t;
-      this._z = this._z * s + z * t;
-      this._w = this._w * s + w * t;
+      this._x = this._x * s2 + x * t;
+      this._y = this._y * s2 + y * t;
+      this._z = this._z * s2 + z * t;
+      this._w = this._w * s2 + w * t;
       this.normalize();
     }
     return this;
@@ -54903,10 +54933,10 @@ var Vector3 = class _Vector3 {
    * @param {number} s - The scalar to add.
    * @return {Vector3} A reference to this vector.
    */
-  addScalar(s) {
-    this.x += s;
-    this.y += s;
-    this.z += s;
+  addScalar(s2) {
+    this.x += s2;
+    this.y += s2;
+    this.z += s2;
     return this;
   }
   /**
@@ -54929,10 +54959,10 @@ var Vector3 = class _Vector3 {
    * @param {number} s - The factor that scales `v`.
    * @return {Vector3} A reference to this vector.
    */
-  addScaledVector(v, s) {
-    this.x += v.x * s;
-    this.y += v.y * s;
-    this.z += v.z * s;
+  addScaledVector(v, s2) {
+    this.x += v.x * s2;
+    this.y += v.y * s2;
+    this.z += v.z * s2;
     return this;
   }
   /**
@@ -54953,10 +54983,10 @@ var Vector3 = class _Vector3 {
    * @param {number} s - The scalar to subtract.
    * @return {Vector3} A reference to this vector.
    */
-  subScalar(s) {
-    this.x -= s;
-    this.y -= s;
-    this.z -= s;
+  subScalar(s2) {
+    this.x -= s2;
+    this.y -= s2;
+    this.z -= s2;
     return this;
   }
   /**
@@ -55459,8 +55489,8 @@ var Vector3 = class _Vector3 {
    * @param {Spherical} s - The spherical coordinates.
    * @return {Vector3} A reference to this vector.
    */
-  setFromSpherical(s) {
-    return this.setFromSphericalCoords(s.radius, s.phi, s.theta);
+  setFromSpherical(s2) {
+    return this.setFromSphericalCoords(s2.radius, s2.phi, s2.theta);
   }
   /**
    * Sets the vector components from the given spherical coordinates.
@@ -55644,10 +55674,10 @@ var Vector3 = class _Vector3 {
    */
   randomDirection() {
     const theta = Math.random() * Math.PI * 2;
-    const u2 = Math.random() * 2 - 1;
-    const c = Math.sqrt(1 - u2 * u2);
+    const u3 = Math.random() * 2 - 1;
+    const c = Math.sqrt(1 - u3 * u3);
     this.x = c * Math.cos(theta);
-    this.y = u2;
+    this.y = u3;
     this.z = c * Math.sin(theta);
     return this;
   }
@@ -55819,17 +55849,17 @@ var Matrix3 = class _Matrix3 {
    * @param {number} s - The scalar.
    * @return {Matrix3} A reference to this matrix.
    */
-  multiplyScalar(s) {
+  multiplyScalar(s2) {
     const te = this.elements;
-    te[0] *= s;
-    te[3] *= s;
-    te[6] *= s;
-    te[1] *= s;
-    te[4] *= s;
-    te[7] *= s;
-    te[2] *= s;
-    te[5] *= s;
-    te[8] *= s;
+    te[0] *= s2;
+    te[3] *= s2;
+    te[6] *= s2;
+    te[1] *= s2;
+    te[4] *= s2;
+    te[7] *= s2;
+    te[2] *= s2;
+    te[5] *= s2;
+    te[8] *= s2;
     return this;
   }
   /**
@@ -55839,8 +55869,8 @@ var Matrix3 = class _Matrix3 {
    */
   determinant() {
     const te = this.elements;
-    const a = te[0], b = te[1], c = te[2], d = te[3], e = te[4], f = te[5], g = te[6], h = te[7], i = te[8];
-    return a * e * i - a * f * h - b * d * i + b * f * g + c * d * h - c * e * g;
+    const a = te[0], b = te[1], c = te[2], d = te[3], e = te[4], f2 = te[5], g = te[6], h = te[7], i = te[8];
+    return a * e * i - a * f2 * h - b * d * i + b * f2 * g + c * d * h - c * e * g;
   }
   /**
    * Inverts this matrix, using the [analytic method](https://en.wikipedia.org/wiki/Invertible_matrix#Analytic_solution).
@@ -55926,8 +55956,8 @@ var Matrix3 = class _Matrix3 {
    */
   setUvTransform(tx, ty, sx, sy, rotation, cx, cy) {
     const c = Math.cos(rotation);
-    const s = Math.sin(rotation);
-    this.set(sx * c, sx * s, -sx * (c * cx + s * cy) + cx + tx, -sy * s, sy * c, -sy * (-s * cx + c * cy) + cy + ty, 0, 0, 1);
+    const s2 = Math.sin(rotation);
+    this.set(sx * c, sx * s2, -sx * (c * cx + s2 * cy) + cx + tx, -sy * s2, sy * c, -sy * (-s2 * cx + c * cy) + cy + ty, 0, 0, 1);
     return this;
   }
   /**
@@ -55992,8 +56022,8 @@ var Matrix3 = class _Matrix3 {
    */
   makeRotation(theta) {
     const c = Math.cos(theta);
-    const s = Math.sin(theta);
-    this.set(c, -s, 0, s, c, 0, 0, 0, 1);
+    const s2 = Math.sin(theta);
+    this.set(c, -s2, 0, s2, c, 0, 0, 0, 1);
     return this;
   }
   /**
@@ -56889,11 +56919,11 @@ var Vector4 = class _Vector4 {
    * @param {number} s - The scalar to add.
    * @return {Vector4} A reference to this vector.
    */
-  addScalar(s) {
-    this.x += s;
-    this.y += s;
-    this.z += s;
-    this.w += s;
+  addScalar(s2) {
+    this.x += s2;
+    this.y += s2;
+    this.z += s2;
+    this.w += s2;
     return this;
   }
   /**
@@ -56917,11 +56947,11 @@ var Vector4 = class _Vector4 {
    * @param {number} s - The factor that scales `v`.
    * @return {Vector4} A reference to this vector.
    */
-  addScaledVector(v, s) {
-    this.x += v.x * s;
-    this.y += v.y * s;
-    this.z += v.z * s;
-    this.w += v.w * s;
+  addScaledVector(v, s2) {
+    this.x += v.x * s2;
+    this.y += v.y * s2;
+    this.z += v.z * s2;
+    this.w += v.w * s2;
     return this;
   }
   /**
@@ -56943,11 +56973,11 @@ var Vector4 = class _Vector4 {
    * @param {number} s - The scalar to subtract.
    * @return {Vector4} A reference to this vector.
    */
-  subScalar(s) {
-    this.x -= s;
-    this.y -= s;
-    this.z -= s;
-    this.w -= s;
+  subScalar(s2) {
+    this.x -= s2;
+    this.y -= s2;
+    this.z -= s2;
+    this.w -= s2;
     return this;
   }
   /**
@@ -57036,15 +57066,15 @@ var Vector4 = class _Vector4 {
    */
   setAxisAngleFromQuaternion(q) {
     this.w = 2 * Math.acos(q.w);
-    const s = Math.sqrt(1 - q.w * q.w);
-    if (s < 1e-4) {
+    const s2 = Math.sqrt(1 - q.w * q.w);
+    if (s2 < 1e-4) {
       this.x = 1;
       this.y = 0;
       this.z = 0;
     } else {
-      this.x = q.x / s;
-      this.y = q.y / s;
-      this.z = q.z / s;
+      this.x = q.x / s2;
+      this.y = q.y / s2;
+      this.z = q.z / s2;
     }
     return this;
   }
@@ -57104,11 +57134,11 @@ var Vector4 = class _Vector4 {
       this.set(x, y, z, angle);
       return this;
     }
-    let s = Math.sqrt((m32 - m23) * (m32 - m23) + (m13 - m31) * (m13 - m31) + (m21 - m12) * (m21 - m12));
-    if (Math.abs(s) < 1e-3) s = 1;
-    this.x = (m32 - m23) / s;
-    this.y = (m13 - m31) / s;
-    this.z = (m21 - m12) / s;
+    let s2 = Math.sqrt((m32 - m23) * (m32 - m23) + (m13 - m31) * (m13 - m31) + (m21 - m12) * (m21 - m12));
+    if (Math.abs(s2) < 1e-3) s2 = 1;
+    this.x = (m32 - m23) / s2;
+    this.y = (m13 - m31) / s2;
+    this.z = (m21 - m12) / s2;
     this.w = Math.acos((m11 + m22 + m33 - 1) / 2);
     return this;
   }
@@ -57945,11 +57975,11 @@ var Matrix4 = class _Matrix4 {
     const x = euler.x, y = euler.y, z = euler.z;
     const a = Math.cos(x), b = Math.sin(x);
     const c = Math.cos(y), d = Math.sin(y);
-    const e = Math.cos(z), f = Math.sin(z);
+    const e = Math.cos(z), f2 = Math.sin(z);
     if (euler.order === "XYZ") {
-      const ae = a * e, af = a * f, be = b * e, bf = b * f;
+      const ae = a * e, af = a * f2, be = b * e, bf = b * f2;
       te[0] = c * e;
-      te[4] = -c * f;
+      te[4] = -c * f2;
       te[8] = d;
       te[1] = af + be * d;
       te[5] = ae - bf * d;
@@ -57958,20 +57988,20 @@ var Matrix4 = class _Matrix4 {
       te[6] = be + af * d;
       te[10] = a * c;
     } else if (euler.order === "YXZ") {
-      const ce = c * e, cf = c * f, de = d * e, df = d * f;
+      const ce = c * e, cf = c * f2, de = d * e, df = d * f2;
       te[0] = ce + df * b;
       te[4] = de * b - cf;
       te[8] = a * d;
-      te[1] = a * f;
+      te[1] = a * f2;
       te[5] = a * e;
       te[9] = -b;
       te[2] = cf * b - de;
       te[6] = df + ce * b;
       te[10] = a * c;
     } else if (euler.order === "ZXY") {
-      const ce = c * e, cf = c * f, de = d * e, df = d * f;
+      const ce = c * e, cf = c * f2, de = d * e, df = d * f2;
       te[0] = ce - df * b;
-      te[4] = -a * f;
+      te[4] = -a * f2;
       te[8] = de + cf * b;
       te[1] = cf + de * b;
       te[5] = a * e;
@@ -57980,11 +58010,11 @@ var Matrix4 = class _Matrix4 {
       te[6] = b;
       te[10] = a * c;
     } else if (euler.order === "ZYX") {
-      const ae = a * e, af = a * f, be = b * e, bf = b * f;
+      const ae = a * e, af = a * f2, be = b * e, bf = b * f2;
       te[0] = c * e;
       te[4] = be * d - af;
       te[8] = ae * d + bf;
-      te[1] = c * f;
+      te[1] = c * f2;
       te[5] = bf * d + ae;
       te[9] = af * d - be;
       te[2] = -d;
@@ -57993,25 +58023,25 @@ var Matrix4 = class _Matrix4 {
     } else if (euler.order === "YZX") {
       const ac = a * c, ad = a * d, bc = b * c, bd = b * d;
       te[0] = c * e;
-      te[4] = bd - ac * f;
-      te[8] = bc * f + ad;
-      te[1] = f;
+      te[4] = bd - ac * f2;
+      te[8] = bc * f2 + ad;
+      te[1] = f2;
       te[5] = a * e;
       te[9] = -b * e;
       te[2] = -d * e;
-      te[6] = ad * f + bc;
-      te[10] = ac - bd * f;
+      te[6] = ad * f2 + bc;
+      te[10] = ac - bd * f2;
     } else if (euler.order === "XZY") {
       const ac = a * c, ad = a * d, bc = b * c, bd = b * d;
       te[0] = c * e;
-      te[4] = -f;
+      te[4] = -f2;
       te[8] = d * e;
-      te[1] = ac * f + bd;
+      te[1] = ac * f2 + bd;
       te[5] = a * e;
-      te[9] = ad * f - bc;
-      te[2] = bc * f - ad;
+      te[9] = ad * f2 - bc;
+      te[2] = bc * f2 - ad;
       te[6] = b * e;
-      te[10] = bd * f + ac;
+      te[10] = bd * f2 + ac;
     }
     te[3] = 0;
     te[7] = 0;
@@ -58134,24 +58164,24 @@ var Matrix4 = class _Matrix4 {
    * @param {number} s - The scalar.
    * @return {Matrix4} A reference to this matrix.
    */
-  multiplyScalar(s) {
+  multiplyScalar(s2) {
     const te = this.elements;
-    te[0] *= s;
-    te[4] *= s;
-    te[8] *= s;
-    te[12] *= s;
-    te[1] *= s;
-    te[5] *= s;
-    te[9] *= s;
-    te[13] *= s;
-    te[2] *= s;
-    te[6] *= s;
-    te[10] *= s;
-    te[14] *= s;
-    te[3] *= s;
-    te[7] *= s;
-    te[11] *= s;
-    te[15] *= s;
+    te[0] *= s2;
+    te[4] *= s2;
+    te[8] *= s2;
+    te[12] *= s2;
+    te[1] *= s2;
+    te[5] *= s2;
+    te[9] *= s2;
+    te[13] *= s2;
+    te[2] *= s2;
+    te[6] *= s2;
+    te[10] *= s2;
+    te[14] *= s2;
+    te[3] *= s2;
+    te[7] *= s2;
+    te[11] *= s2;
+    te[15] *= s2;
     return this;
   }
   /**
@@ -58332,8 +58362,8 @@ var Matrix4 = class _Matrix4 {
    * @return {Matrix4} A reference to this matrix.
    */
   makeRotationX(theta) {
-    const c = Math.cos(theta), s = Math.sin(theta);
-    this.set(1, 0, 0, 0, 0, c, -s, 0, 0, s, c, 0, 0, 0, 0, 1);
+    const c = Math.cos(theta), s2 = Math.sin(theta);
+    this.set(1, 0, 0, 0, 0, c, -s2, 0, 0, s2, c, 0, 0, 0, 0, 1);
     return this;
   }
   /**
@@ -58344,8 +58374,8 @@ var Matrix4 = class _Matrix4 {
    * @return {Matrix4} A reference to this matrix.
    */
   makeRotationY(theta) {
-    const c = Math.cos(theta), s = Math.sin(theta);
-    this.set(c, 0, s, 0, 0, 1, 0, 0, -s, 0, c, 0, 0, 0, 0, 1);
+    const c = Math.cos(theta), s2 = Math.sin(theta);
+    this.set(c, 0, s2, 0, 0, 1, 0, 0, -s2, 0, c, 0, 0, 0, 0, 1);
     return this;
   }
   /**
@@ -58356,8 +58386,8 @@ var Matrix4 = class _Matrix4 {
    * @return {Matrix4} A reference to this matrix.
    */
   makeRotationZ(theta) {
-    const c = Math.cos(theta), s = Math.sin(theta);
-    this.set(c, -s, 0, 0, s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+    const c = Math.cos(theta), s2 = Math.sin(theta);
+    this.set(c, -s2, 0, 0, s2, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
     return this;
   }
   /**
@@ -58373,11 +58403,11 @@ var Matrix4 = class _Matrix4 {
    */
   makeRotationAxis(axis, angle) {
     const c = Math.cos(angle);
-    const s = Math.sin(angle);
+    const s2 = Math.sin(angle);
     const t = 1 - c;
     const x = axis.x, y = axis.y, z = axis.z;
     const tx = t * x, ty = t * y;
-    this.set(tx * x + c, tx * y - s * z, tx * z + s * y, 0, tx * y + s * z, ty * y + c, ty * z - s * x, 0, tx * z - s * y, ty * z + s * x, t * z * z + c, 0, 0, 0, 0, 1);
+    this.set(tx * x + c, tx * y - s2 * z, tx * z + s2 * y, 0, tx * y + s2 * z, ty * y + c, ty * z - s2 * x, 0, tx * z - s2 * y, ty * z + s2 * x, t * z * z + c, 0, 0, 0, 0, 1);
     return this;
   }
   /**
@@ -60495,14 +60525,14 @@ var Color = class {
    * @param {string} [colorSpace=ColorManagement.workingColorSpace] - The color space.
    * @return {Color} A reference to this color.
    */
-  setHSL(h, s, l, colorSpace = ColorManagement.workingColorSpace) {
+  setHSL(h, s2, l, colorSpace = ColorManagement.workingColorSpace) {
     h = euclideanModulo(h, 1);
-    s = clamp(s, 0, 1);
+    s2 = clamp(s2, 0, 1);
     l = clamp(l, 0, 1);
-    if (s === 0) {
+    if (s2 === 0) {
       this.r = this.g = this.b = l;
     } else {
-      const p = l <= 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = l <= 0.5 ? l * (1 + s2) : l + s2 - l * s2;
       const q = 2 * l - p;
       this.r = hue2rgb(q, p, h + 1 / 3);
       this.g = hue2rgb(q, p, h);
@@ -60752,9 +60782,9 @@ var Color = class {
    * @param {number} l - Lightness value between `0.0` and `1.0`.
    * @return {Color} A reference to this color.
    */
-  offsetHSL(h, s, l) {
+  offsetHSL(h, s2, l) {
     this.getHSL(_hslA);
-    return this.setHSL(_hslA.h + h, _hslA.s + s, _hslA.l + l);
+    return this.setHSL(_hslA.h + h, _hslA.s + s2, _hslA.l + l);
   }
   /**
    * Adds the RGB values of the given color to the RGB values of this color.
@@ -60787,10 +60817,10 @@ var Color = class {
    * @param {number} s - The scalar to add.
    * @return {Color} A reference to this color.
    */
-  addScalar(s) {
-    this.r += s;
-    this.g += s;
-    this.b += s;
+  addScalar(s2) {
+    this.r += s2;
+    this.g += s2;
+    this.b += s2;
     return this;
   }
   /**
@@ -60823,10 +60853,10 @@ var Color = class {
    * @param {number} s - The scalar to multiply.
    * @return {Color} A reference to this color.
    */
-  multiplyScalar(s) {
-    this.r *= s;
-    this.g *= s;
-    this.b *= s;
+  multiplyScalar(s2) {
+    this.r *= s2;
+    this.g *= s2;
+    this.b *= s2;
     return this;
   }
   /**
@@ -60875,9 +60905,9 @@ var Color = class {
     this.getHSL(_hslA);
     color.getHSL(_hslB);
     const h = lerp(_hslA.h, _hslB.h, alpha);
-    const s = lerp(_hslA.s, _hslB.s, alpha);
+    const s2 = lerp(_hslA.s, _hslB.s, alpha);
     const l = lerp(_hslA.l, _hslB.l, alpha);
-    this.setHSL(h, s, l);
+    this.setHSL(h, s2, l);
     return this;
   }
   /**
@@ -61130,9 +61160,9 @@ var Triangle = class _Triangle {
       return null;
     }
     const invDenom = 1 / denom;
-    const u2 = (dot11 * dot02 - dot01 * dot12) * invDenom;
+    const u3 = (dot11 * dot02 - dot01 * dot12) * invDenom;
     const v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-    return target.set(1 - u2 - v, v, u2);
+    return target.set(1 - u3 - v, v, u3);
   }
   /**
    * Returns `true` if the given point, when projected onto the plane of the
@@ -66125,7 +66155,7 @@ var BoxGeometry = class _BoxGeometry extends BufferGeometry {
     this.setAttribute("position", new Float32BufferAttribute(vertices, 3));
     this.setAttribute("normal", new Float32BufferAttribute(normals, 3));
     this.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
-    function buildPlane(u2, v, w, udir, vdir, width2, height2, depth2, gridX, gridY, materialIndex) {
+    function buildPlane(u3, v, w, udir, vdir, width2, height2, depth2, gridX, gridY, materialIndex) {
       const segmentWidth = width2 / gridX;
       const segmentHeight = height2 / gridY;
       const widthHalf = width2 / 2;
@@ -66140,11 +66170,11 @@ var BoxGeometry = class _BoxGeometry extends BufferGeometry {
         const y = iy * segmentHeight - heightHalf;
         for (let ix = 0; ix < gridX1; ix++) {
           const x = ix * segmentWidth - widthHalf;
-          vector[u2] = x * udir;
+          vector[u3] = x * udir;
           vector[v] = y * vdir;
           vector[w] = depthHalf;
           vertices.push(vector.x, vector.y, vector.z);
-          vector[u2] = 0;
+          vector[u3] = 0;
           vector[v] = 0;
           vector[w] = depth2 > 0 ? 1 : -1;
           normals.push(vector.x, vector.y, vector.z);
@@ -66214,8 +66244,8 @@ var CircleGeometry = class _CircleGeometry extends BufferGeometry {
     vertices.push(0, 0, 0);
     normals.push(0, 0, 1);
     uvs.push(0.5, 0.5);
-    for (let s = 0, i = 3; s <= segments; s++, i += 3) {
-      const segment = thetaStart + s / segments * thetaLength;
+    for (let s2 = 0, i = 3; s2 <= segments; s2++, i += 3) {
+      const segment = thetaStart + s2 / segments * thetaLength;
       vertex2.x = radius * Math.cos(segment);
       vertex2.y = radius * Math.sin(segment);
       vertices.push(vertex2.x, vertex2.y, vertex2.z);
@@ -66305,8 +66335,8 @@ var CylinderGeometry = class _CylinderGeometry extends BufferGeometry {
         const v = y / heightSegments;
         const radius = v * (radiusBottom - radiusTop) + radiusTop;
         for (let x = 0; x <= radialSegments; x++) {
-          const u2 = x / radialSegments;
-          const theta = u2 * thetaLength + thetaStart;
+          const u3 = x / radialSegments;
+          const theta = u3 * thetaLength + thetaStart;
           const sinTheta = Math.sin(theta);
           const cosTheta = Math.cos(theta);
           vertex2.x = radius * sinTheta;
@@ -66315,7 +66345,7 @@ var CylinderGeometry = class _CylinderGeometry extends BufferGeometry {
           vertices.push(vertex2.x, vertex2.y, vertex2.z);
           normal.set(sinTheta, slope, cosTheta).normalize();
           normals.push(normal.x, normal.y, normal.z);
-          uvs.push(u2, 1 - v);
+          uvs.push(u3, 1 - v);
           indexRow.push(index++);
         }
         indexArray.push(indexRow);
@@ -66354,8 +66384,8 @@ var CylinderGeometry = class _CylinderGeometry extends BufferGeometry {
       }
       const centerIndexEnd = index;
       for (let x = 0; x <= radialSegments; x++) {
-        const u2 = x / radialSegments;
-        const theta = u2 * thetaLength + thetaStart;
+        const u3 = x / radialSegments;
+        const theta = u3 * thetaLength + thetaStart;
         const cosTheta = Math.cos(theta);
         const sinTheta = Math.sin(theta);
         vertex2.x = radius * sinTheta;
@@ -66489,9 +66519,9 @@ var PolyhedronGeometry = class _PolyhedronGeometry extends BufferGeometry {
         vertex2.x = vertexBuffer[i + 0];
         vertex2.y = vertexBuffer[i + 1];
         vertex2.z = vertexBuffer[i + 2];
-        const u2 = azimuth(vertex2) / 2 / Math.PI + 0.5;
+        const u3 = azimuth(vertex2) / 2 / Math.PI + 0.5;
         const v = inclination(vertex2) / Math.PI + 0.5;
-        uvBuffer.push(u2, 1 - v);
+        uvBuffer.push(u3, 1 - v);
       }
       correctUVs();
       correctSeam();
@@ -66864,15 +66894,15 @@ var SphereGeometry = class _SphereGeometry extends BufferGeometry {
         uOffset = -0.5 / widthSegments;
       }
       for (let ix = 0; ix <= widthSegments; ix++) {
-        const u2 = ix / widthSegments;
-        const phi = phiStart + u2 * phiLength;
+        const u3 = ix / widthSegments;
+        const phi = phiStart + u3 * phiLength;
         vertex2.x = -ringRadius * Math.cos(phi);
         vertex2.y = y;
         vertex2.z = ringRadius * Math.sin(phi);
         vertices.push(vertex2.x, vertex2.y, vertex2.z);
         normal.copy(vertex2).normalize();
         normals.push(normal.x, normal.y, normal.z);
-        uvs.push(u2 + uOffset, 1 - v);
+        uvs.push(u3 + uOffset, 1 - v);
         verticesRow.push(index++);
       }
       grid.push(verticesRow);
@@ -66910,16 +66940,16 @@ var SphereGeometry = class _SphereGeometry extends BufferGeometry {
 };
 function cloneUniforms(src) {
   const dst = {};
-  for (const u2 in src) {
-    dst[u2] = {};
-    for (const p in src[u2]) {
-      const property = src[u2][p];
+  for (const u3 in src) {
+    dst[u3] = {};
+    for (const p in src[u3]) {
+      const property = src[u3][p];
       if (isThreeObject(property)) {
         if (property.isRenderTargetTexture) {
           warn("UniformsUtils: Textures of render targets cannot be cloned via cloneUniforms() or mergeUniforms().");
-          dst[u2][p] = null;
+          dst[u3][p] = null;
         } else {
-          dst[u2][p] = property.clone();
+          dst[u3][p] = property.clone();
         }
       } else if (Array.isArray(property)) {
         if (isThreeObject(property[0])) {
@@ -66927,12 +66957,12 @@ function cloneUniforms(src) {
           for (let i = 0, l = property.length; i < l; i++) {
             clonedProperty[i] = property[i].clone();
           }
-          dst[u2][p] = clonedProperty;
+          dst[u3][p] = clonedProperty;
         } else {
-          dst[u2][p] = property.slice();
+          dst[u3][p] = property.slice();
         }
       } else {
-        dst[u2][p] = property;
+        dst[u3][p] = property;
       }
     }
   }
@@ -66940,8 +66970,8 @@ function cloneUniforms(src) {
 }
 function mergeUniforms(uniforms) {
   const merged = {};
-  for (let u2 = 0; u2 < uniforms.length; u2++) {
-    const tmp = cloneUniforms(uniforms[u2]);
+  for (let u3 = 0; u3 < uniforms.length; u3++) {
+    const tmp = cloneUniforms(uniforms[u3]);
     for (const p in tmp) {
       merged[p] = tmp[p];
     }
@@ -66953,8 +66983,8 @@ function isThreeObject(property) {
 }
 function cloneUniformsGroups(src) {
   const dst = [];
-  for (let u2 = 0; u2 < src.length; u2++) {
-    dst.push(src[u2].clone());
+  for (let u3 = 0; u3 < src.length; u3++) {
+    dst.push(src[u3].clone());
   }
   return dst;
 }
@@ -67691,23 +67721,23 @@ var BezierInterpolant = class extends Interpolant {
       const inTangentOffset = i1 * tangentStride + i * 2;
       const c1x = inTangents[inTangentOffset];
       const c1y = inTangents[inTangentOffset + 1];
-      let s = (t - t0) / (t1 - t0);
-      let s2, s3, oneMinusS, oneMinusS2, oneMinusS3;
+      let s2 = (t - t0) / (t1 - t0);
+      let s22, s3, oneMinusS, oneMinusS2, oneMinusS3;
       for (let iter = 0; iter < 8; iter++) {
-        s2 = s * s;
-        s3 = s2 * s;
-        oneMinusS = 1 - s;
+        s22 = s2 * s2;
+        s3 = s22 * s2;
+        oneMinusS = 1 - s2;
         oneMinusS2 = oneMinusS * oneMinusS;
         oneMinusS3 = oneMinusS2 * oneMinusS;
-        const bx = oneMinusS3 * t0 + 3 * oneMinusS2 * s * c0x + 3 * oneMinusS * s2 * c1x + s3 * t1;
+        const bx = oneMinusS3 * t0 + 3 * oneMinusS2 * s2 * c0x + 3 * oneMinusS * s22 * c1x + s3 * t1;
         const error2 = bx - t;
         if (Math.abs(error2) < 1e-10) break;
-        const dbx = 3 * oneMinusS2 * (c0x - t0) + 6 * oneMinusS * s * (c1x - c0x) + 3 * s2 * (t1 - c1x);
+        const dbx = 3 * oneMinusS2 * (c0x - t0) + 6 * oneMinusS * s2 * (c1x - c0x) + 3 * s22 * (t1 - c1x);
         if (Math.abs(dbx) < 1e-10) break;
-        s = s - error2 / dbx;
-        s = Math.max(0, Math.min(1, s));
+        s2 = s2 - error2 / dbx;
+        s2 = Math.max(0, Math.min(1, s2));
       }
-      result[i] = oneMinusS3 * v0 + 3 * oneMinusS2 * s * c0y + 3 * oneMinusS * s2 * c1y + s3 * v1;
+      result[i] = oneMinusS3 * v0 + 3 * oneMinusS2 * s2 * c0y + 3 * oneMinusS * s22 * c1y + s3 * v1;
     }
     return result;
   }
@@ -74160,8 +74190,8 @@ var StructuredUniform = class {
   setValue(gl, value, textures) {
     const seq = this.seq;
     for (let i = 0, n = seq.length; i !== n; ++i) {
-      const u2 = seq[i];
-      u2.setValue(gl, value[u2.id], textures);
+      const u3 = seq[i];
+      u3.setValue(gl, value[u3.id], textures);
     }
   }
 };
@@ -74203,11 +74233,11 @@ var WebGLUniforms = class {
     }
     const shadowSamplers = [];
     const otherUniforms = [];
-    for (const u2 of this.seq) {
-      if (u2.type === gl.SAMPLER_2D_SHADOW || u2.type === gl.SAMPLER_CUBE_SHADOW || u2.type === gl.SAMPLER_2D_ARRAY_SHADOW) {
-        shadowSamplers.push(u2);
+    for (const u3 of this.seq) {
+      if (u3.type === gl.SAMPLER_2D_SHADOW || u3.type === gl.SAMPLER_CUBE_SHADOW || u3.type === gl.SAMPLER_2D_ARRAY_SHADOW) {
+        shadowSamplers.push(u3);
       } else {
-        otherUniforms.push(u2);
+        otherUniforms.push(u3);
       }
     }
     if (shadowSamplers.length > 0) {
@@ -74215,8 +74245,8 @@ var WebGLUniforms = class {
     }
   }
   setValue(gl, name, value, textures) {
-    const u2 = this.map[name];
-    if (u2 !== void 0) u2.setValue(gl, value, textures);
+    const u3 = this.map[name];
+    if (u3 !== void 0) u3.setValue(gl, value, textures);
   }
   setOptional(gl, object, name) {
     const v = object[name];
@@ -74224,17 +74254,17 @@ var WebGLUniforms = class {
   }
   static upload(gl, seq, values, textures) {
     for (let i = 0, n = seq.length; i !== n; ++i) {
-      const u2 = seq[i], v = values[u2.id];
+      const u3 = seq[i], v = values[u3.id];
       if (v.needsUpdate !== false) {
-        u2.setValue(gl, v.value, textures);
+        u3.setValue(gl, v.value, textures);
       }
     }
   }
   static seqWithValue(seq, values) {
     const r = [];
     for (let i = 0, n = seq.length; i !== n; ++i) {
-      const u2 = seq[i];
-      if (u2.id in values) r.push(u2);
+      const u3 = seq[i];
+      if (u3.id in values) r.push(u3);
     }
     return r;
   }
@@ -81490,8 +81520,8 @@ var AttackHoleComponent = class _AttackHoleComponent {
   }
   updateTimeFormatted() {
     const m = Math.floor(this.timeLeft / 60);
-    const s = this.timeLeft % 60;
-    this.timeLeftFormatted = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    const s2 = this.timeLeft % 60;
+    this.timeLeftFormatted = `${String(m).padStart(2, "0")}:${String(s2).padStart(2, "0")}`;
   }
   init3D() {
     const container = this.gameContainer.nativeElement;
@@ -83947,10 +83977,10 @@ var HelixJumpComponent = class _HelixJumpComponent {
         const k = Math.floor(Math.random() * (j + 1));
         [dangerArray[j], dangerArray[k]] = [dangerArray[k], dangerArray[j]];
       }
-      for (let s = 0; s < numSlices; s++) {
+      for (let s2 = 0; s2 < numSlices; s2++) {
         let isHole = false;
         for (let startIdx of holeStartIndices) {
-          if (s >= startIdx && s < startIdx + holeSize) {
+          if (s2 >= startIdx && s2 < startIdx + holeSize) {
             isHole = true;
             break;
           }
@@ -84861,22 +84891,22 @@ var MobControlComponent = class _MobControlComponent {
         this.enemySpawnCooldown = 35 - Math.min(20, this.level * 2);
       }
       for (let i = this.units.length - 1; i >= 0; i--) {
-        const u2 = this.units[i];
-        u2.x += u2.vx;
-        u2.y += u2.vy;
-        if (u2.x - u2.radius < 0 || u2.x + u2.radius > canvas.width) {
-          u2.vx *= -1;
+        const u3 = this.units[i];
+        u3.x += u3.vx;
+        u3.y += u3.vy;
+        if (u3.x - u3.radius < 0 || u3.x + u3.radius > canvas.width) {
+          u3.vx *= -1;
         }
-        if (!u2.isEnemy) {
+        if (!u3.isEnemy) {
           this.gates.forEach((g) => {
-            if (u2.y - u2.radius <= g.y + g.height / 2 && u2.y + u2.radius >= g.y - g.height / 2 && u2.x >= g.x - g.width / 2 && u2.x <= g.x + g.width / 2 && !u2.multiplied) {
-              u2.multiplied = true;
+            if (u3.y - u3.radius <= g.y + g.height / 2 && u3.y + u3.radius >= g.y - g.height / 2 && u3.x >= g.x - g.width / 2 && u3.x <= g.x + g.width / 2 && !u3.multiplied) {
+              u3.multiplied = true;
               for (let m = 1; m < g.multiplier; m++) {
                 this.units.push({
-                  x: u2.x + (Math.random() - 0.5) * 20,
-                  y: u2.y + (Math.random() - 0.5) * 10,
-                  vx: u2.vx + (Math.random() - 0.5) * 2,
-                  vy: u2.vy,
+                  x: u3.x + (Math.random() - 0.5) * 20,
+                  y: u3.y + (Math.random() - 0.5) * 10,
+                  vx: u3.vx + (Math.random() - 0.5) * 2,
+                  vy: u3.vy,
                   radius: 8,
                   color: "#00E5FF",
                   isEnemy: false,
@@ -84885,7 +84915,7 @@ var MobControlComponent = class _MobControlComponent {
               }
             }
           });
-          if (u2.y < 45) {
+          if (u3.y < 45) {
             this.enemyBaseHp -= 2;
             this.ngZone.run(() => {
               this.gamePoints += 2;
@@ -84901,7 +84931,7 @@ var MobControlComponent = class _MobControlComponent {
             continue;
           }
         } else {
-          if (u2.y > canvas.height - 30) {
+          if (u3.y > canvas.height - 30) {
             this.ngZone.run(() => {
               this.gameState = "LOSE";
               this.tools.playSound("sfx_8");
@@ -84911,12 +84941,12 @@ var MobControlComponent = class _MobControlComponent {
         }
         for (let j = i - 1; j >= 0; j--) {
           const u22 = this.units[j];
-          if (u2.isEnemy !== u22.isEnemy) {
-            const dist = Math.hypot(u2.x - u22.x, u2.y - u22.y);
-            if (dist < u2.radius + u22.radius) {
+          if (u3.isEnemy !== u22.isEnemy) {
+            const dist = Math.hypot(u3.x - u22.x, u3.y - u22.y);
+            if (dist < u3.radius + u22.radius) {
               this.units.splice(i, 1);
               this.units.splice(j, 1);
-              if (!u2.isEnemy || !u22.isEnemy) {
+              if (!u3.isEnemy || !u22.isEnemy) {
                 this.ngZone.run(() => {
                   this.gamePoints += 5;
                 });
@@ -84958,10 +84988,10 @@ var MobControlComponent = class _MobControlComponent {
     ctx.fillRect(this.cannonX - 20, canvas.height - 35, 40, 25);
     ctx.fillStyle = "#CFD8DC";
     ctx.fillRect(this.cannonX - 8, canvas.height - 45, 16, 15);
-    this.units.forEach((u2) => {
-      ctx.fillStyle = u2.color;
+    this.units.forEach((u3) => {
+      ctx.fillStyle = u3.color;
       ctx.beginPath();
-      ctx.arc(u2.x, u2.y, u2.radius, 0, Math.PI * 2);
+      ctx.arc(u3.x, u3.y, u3.radius, 0, Math.PI * 2);
       ctx.fill();
       ctx.lineWidth = 1.5;
       ctx.strokeStyle = "#fff";
@@ -86447,9 +86477,9 @@ var SpiralRollComponent = class _SpiralRollComponent {
       p.mesh.material.dispose();
     });
     this.particles = [];
-    this.floatingTexts.forEach((f) => {
-      this.scene.remove(f.sprite);
-      f.sprite.material.dispose();
+    this.floatingTexts.forEach((f2) => {
+      this.scene.remove(f2.sprite);
+      f2.sprite.material.dispose();
     });
     this.floatingTexts = [];
     if (this.multiplierStairs) {
@@ -86761,15 +86791,15 @@ var SpiralRollComponent = class _SpiralRollComponent {
       }
     }
     for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
-      let f = this.floatingTexts[i];
-      f.sprite.position.y += 0.05;
-      f.life -= 0.02;
-      if (f.life <= 0) {
-        this.scene.remove(f.sprite);
-        f.sprite.material.dispose();
+      let f2 = this.floatingTexts[i];
+      f2.sprite.position.y += 0.05;
+      f2.life -= 0.02;
+      if (f2.life <= 0) {
+        this.scene.remove(f2.sprite);
+        f2.sprite.material.dispose();
         this.floatingTexts.splice(i, 1);
       } else {
-        f.sprite.material.opacity = f.life;
+        f2.sprite.material.opacity = f2.life;
       }
     }
     if (this.renderer && this.scene && this.camera) {
@@ -87168,7 +87198,7 @@ var StackColorsComponent = class _StackColorsComponent {
     this.collectibles = [];
     this.multipliers.forEach((m) => this.scene.remove(m));
     this.multipliers = [];
-    this.stack.forEach((s) => this.playerGroup.remove(s));
+    this.stack.forEach((s2) => this.playerGroup.remove(s2));
     this.stack = [];
     while (this.flyingStackGroup.children.length > 0) {
       this.flyingStackGroup.remove(this.flyingStackGroup.children[0]);
@@ -87495,15 +87525,15 @@ var StackColorsComponent = class _StackColorsComponent {
       }
     }
     for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
-      let f = this.floatingTexts[i];
-      f.sprite.position.y += 0.05;
-      f.life -= 0.02;
-      if (f.life <= 0) {
-        this.scene.remove(f.sprite);
-        f.sprite.material.dispose();
+      let f2 = this.floatingTexts[i];
+      f2.sprite.position.y += 0.05;
+      f2.life -= 0.02;
+      if (f2.life <= 0) {
+        this.scene.remove(f2.sprite);
+        f2.sprite.material.dispose();
         this.floatingTexts.splice(i, 1);
       } else {
-        f.sprite.material.opacity = f.life;
+        f2.sprite.material.opacity = f2.life;
       }
     }
     if (this.renderer && this.scene && this.camera) {
