@@ -213,6 +213,9 @@ export const optionsText = {
   deleteProgress: "",
   deleteProgressConfirm: "",
   exportSave: "",
+  exportSaveTitle: "",
+  exportSaveText: "",
+  exportSaveDialogTitle: "",
   importSave: "",
   importSaveConfirm: ""
 };
