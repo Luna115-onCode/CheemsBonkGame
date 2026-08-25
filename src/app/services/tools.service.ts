@@ -920,7 +920,6 @@ export class ToolsService {
     this.loadSettings();
     this.loadLanguageFile(this.lang);
     this.loadClosetPrices();
-    this.loadShopItems();
     this.loadMinigamesConfig();
     this.loadBoosterState();
     this.setupWindowFocusListeners();
@@ -929,7 +928,9 @@ export class ToolsService {
     this.loadMusic();
     this.loadScore();
     this.loadUnlocks();
-    this.initIdlePoints();
+    this.loadShopItems().then(() => {
+      this.initIdlePoints();
+    });
     this.loadRedeemedCodes();
   }
 
