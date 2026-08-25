@@ -41664,7 +41664,6 @@ var ToolsService = class _ToolsService {
     this.loadSettings();
     this.loadLanguageFile(this.lang);
     this.loadClosetPrices();
-    this.loadShopItems();
     this.loadMinigamesConfig();
     this.loadBoosterState();
     this.setupWindowFocusListeners();
@@ -41673,7 +41672,9 @@ var ToolsService = class _ToolsService {
     this.loadMusic();
     this.loadScore();
     this.loadUnlocks();
-    this.initIdlePoints();
+    this.loadShopItems().then(() => {
+      this.initIdlePoints();
+    });
     this.loadRedeemedCodes();
   }
   loadSettings() {
