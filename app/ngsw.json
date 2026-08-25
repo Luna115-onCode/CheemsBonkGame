@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1787558515057,
+  "timestamp": 1787637415393,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -12,7 +12,7 @@
       },
       "urls": [
         "/index.html",
-        "/main-WVE4HJDY.js",
+        "/main-J323JXJX.js",
         "/manifest.webmanifest",
         "/polyfills-B6TNHZQ6.js",
         "/styles-HJSXURGB.css"
@@ -608,10 +608,10 @@
     "/img/music/trap_future_bass.webp": "10b59572aa4e6cc00946ab948116e3fa83590ad6",
     "/img/music/when_you_smile.webp": "4cf48e868f9d70508f202847fe78f00d436de093",
     "/img/music/where_the_path_bends.webp": "e1b0bdf0bf66994f33feb03c408e6e9aece5424e",
-    "/index.html": "be8662b7720f77a27b9695476adf6f72d028d411",
-    "/lang/texts.en.lang": "7e80b8cd69521af776356713af0f074be6b425f6",
-    "/lang/texts.es.lang": "986277681c54a085f4e50e5f6d6b7ea1d5d2f5ce",
-    "/main-WVE4HJDY.js": "69d86ae9ba2bd894574e647a99532cd025f98b1c",
+    "/index.html": "701f3fcc1f4b72f16561b71a6da2601e3080dd9b",
+    "/lang/texts.en.lang": "a07bc8205766cc1303c73b085d77d100611548ee",
+    "/lang/texts.es.lang": "38f1ce6912015574633b73a79fbf914ee8162c46",
+    "/main-J323JXJX.js": "b1f1d5aff4b5ecdcb1e927ba26c9b4bce1509f24",
     "/manifest.webmanifest": "a4701b2401a9c12abf68439f30787a41bac940c3",
     "/polyfills-B6TNHZQ6.js": "bf76ac291d7f51c1139b7edcf86b359a30c08c64",
     "/sound/music/A_Jazz_Piano.ogg": "22ea48309a8d198ef2b362acabe0ef34ad476ad0",
