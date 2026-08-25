@@ -82,6 +82,9 @@
     "deleteProgress": "Borrar Progreso",
     "deleteProgressConfirm": "¿Estás seguro de que deseas borrar TODO el progreso? ¡Esto no se puede deshacer!",
     "exportSave": "Exportar Partida",
+    "exportSaveTitle": "Exportar Partida de Cheems",
+    "exportSaveText": "Aquí está tu archivo de guardado de Cheems Bonk Game.",
+    "exportSaveDialogTitle": "Guarda o comparte tu progreso",
     "importSave": "Importar Partida",
     "importSaveConfirm": "Importar una partida sobrescribirá todo tu progreso actual. ¿Continuar?"
   },

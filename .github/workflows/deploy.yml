@@ -245,6 +245,10 @@ jobs:
           npx @capacitor/assets generate --android
           npx cap sync android
           
+          # Use our consistent debug keystore so the signature doesn't change on every run
+          mkdir -p ~/.android
+          cp android-debug.keystore ~/.android/debug.keystore
+          
           cd android
           VERSION=$(cat ../ver | tr -d '\r\n').${{ github.run_number }}
           sed -i "s/versionName \".*\"/versionName \"$VERSION\"/g" app/build.gradle
@@ -459,9 +463,8 @@ jobs:
           $MakeAppx = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
           $SignTool = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
           & $MakeAppx pack /d $AppDir /p cheems-bundled-$Prefix.msix
-          $Cert = New-SelfSignedCertificate -Type Custom -Subject "CN=Cheems" -KeyUsage DigitalSignature -FriendlyName "Cheems App Cert" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
-          $Password = ConvertTo-SecureString -String "password" -Force -AsPlainText
-          Export-PfxCertificate -Cert "Cert:\CurrentUser\My\$($Cert.Thumbprint)" -FilePath "cheems.pfx" -Password $Password
+          # Use our consistent certificate so the signature doesn't change on every run
+          Copy-Item windows-msix.pfx cheems.pfx
           
           & $SignTool sign /fd SHA256 /a /f cheems.pfx /p password cheems-bundled-$Prefix.msix
           
@@ -496,9 +499,8 @@ jobs:
           $MakeAppx = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\makeappx.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
           $SignTool = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
           & $MakeAppx pack /d $AppDir /p cheems-pwa-$Prefix.msix
-          $Cert = New-SelfSignedCertificate -Type Custom -Subject "CN=Cheems" -KeyUsage DigitalSignature -FriendlyName "Cheems PWA Cert" -CertStoreLocation "Cert:\CurrentUser\My" -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3", "2.5.29.19={text}")
-          $Password = ConvertTo-SecureString -String "password" -Force -AsPlainText
-          Export-PfxCertificate -Cert "Cert:\CurrentUser\My\$($Cert.Thumbprint)" -FilePath "cheems.pfx" -Password $Password
+          # Use our consistent certificate so the signature doesn't change on every run
+          Copy-Item windows-msix.pfx cheems.pfx
           
           & $SignTool sign /fd SHA256 /a /f cheems.pfx /p password cheems-pwa-$Prefix.msix
           

@@ -1,6 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, computed, effect } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { NavigationStart, Router } from '@angular/router';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 import {
   gameText,
   optionsText,
@@ -1501,7 +1504,7 @@ export class ToolsService {
   }
 
 
-  exportSave(): void {
+  async exportSave(): Promise<void> {
     const saveData: Record<string, string> = {};
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
@@ -1512,15 +1515,37 @@ export class ToolsService {
     const jsonStr = JSON.stringify(saveData);
     const obfuscated = btoa(encodeURIComponent(jsonStr));
     
-    const blob = new Blob([obfuscated], { type: 'application/octet-stream' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'cheems_save.dat';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const fileName = 'cheems_save.dat';
+        const result = await Filesystem.writeFile({
+          path: fileName,
+          data: obfuscated,
+          directory: Directory.Cache,
+          encoding: Encoding.UTF8,
+        });
+
+        await Share.share({
+          title: this.options[this.lang]?.exportSaveTitle || 'Export Cheems Save',
+          text: this.options[this.lang]?.exportSaveText || 'Here is your Cheems Bonk Game save file.',
+          url: result.uri,
+          dialogTitle: this.options[this.lang]?.exportSaveDialogTitle || 'Save or share your progress',
+        });
+      } catch (err) {
+        console.error('Error exporting save via Capacitor', err);
+        this.showToast(this.options[this.lang]?.exportSave + " Error");
+      }
+    } else {
+      const blob = new Blob([obfuscated], { type: 'application/octet-stream' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'cheems_save.dat';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }
   }
 
   importSave(file: File): void {
