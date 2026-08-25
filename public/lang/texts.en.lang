@@ -82,6 +82,9 @@
     "deleteProgress": "Delete Progress",
     "deleteProgressConfirm": "Are you sure you want to delete ALL progress? This cannot be undone!",
     "exportSave": "Export Save",
+    "exportSaveTitle": "Export Cheems Save",
+    "exportSaveText": "Here is your Cheems Bonk Game save file.",
+    "exportSaveDialogTitle": "Save or share your progress",
     "importSave": "Import Save",
     "importSaveConfirm": "Importing a save will overwrite all current progress. Proceed?"
   },
