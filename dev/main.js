@@ -432,28 +432,28 @@ var require_matter = __commonJS({
           /* 2 */
           /***/
           function(module2, exports2) {
-            var Vector = {};
-            module2.exports = Vector;
+            var Vector5 = {};
+            module2.exports = Vector5;
             (function() {
-              Vector.create = function(x, y) {
+              Vector5.create = function(x, y) {
                 return {
                   x: x || 0,
                   y: y || 0
                 };
               };
-              Vector.clone = function(vector) {
+              Vector5.clone = function(vector) {
                 return {
                   x: vector.x,
                   y: vector.y
                 };
               };
-              Vector.magnitude = function(vector) {
+              Vector5.magnitude = function(vector) {
                 return Math.sqrt(vector.x * vector.x + vector.y * vector.y);
               };
-              Vector.magnitudeSquared = function(vector) {
+              Vector5.magnitudeSquared = function(vector) {
                 return vector.x * vector.x + vector.y * vector.y;
               };
-              Vector.rotate = function(vector, angle, output) {
+              Vector5.rotate = function(vector, angle, output) {
                 var cos = Math.cos(angle), sin = Math.sin(angle);
                 if (!output) output = {};
                 var x = vector.x * cos - vector.y * sin;
@@ -461,7 +461,7 @@ var require_matter = __commonJS({
                 output.x = x;
                 return output;
               };
-              Vector.rotateAbout = function(vector, angle, point, output) {
+              Vector5.rotateAbout = function(vector, angle, point, output) {
                 var cos = Math.cos(angle), sin = Math.sin(angle);
                 if (!output) output = {};
                 var x = point.x + ((vector.x - point.x) * cos - (vector.y - point.y) * sin);
@@ -469,8 +469,8 @@ var require_matter = __commonJS({
                 output.x = x;
                 return output;
               };
-              Vector.normalise = function(vector) {
-                var magnitude = Vector.magnitude(vector);
+              Vector5.normalise = function(vector) {
+                var magnitude = Vector5.magnitude(vector);
                 if (magnitude === 0) return {
                   x: 0,
                   y: 0
@@ -480,56 +480,56 @@ var require_matter = __commonJS({
                   y: vector.y / magnitude
                 };
               };
-              Vector.dot = function(vectorA, vectorB) {
+              Vector5.dot = function(vectorA, vectorB) {
                 return vectorA.x * vectorB.x + vectorA.y * vectorB.y;
               };
-              Vector.cross = function(vectorA, vectorB) {
+              Vector5.cross = function(vectorA, vectorB) {
                 return vectorA.x * vectorB.y - vectorA.y * vectorB.x;
               };
-              Vector.cross3 = function(vectorA, vectorB, vectorC) {
+              Vector5.cross3 = function(vectorA, vectorB, vectorC) {
                 return (vectorB.x - vectorA.x) * (vectorC.y - vectorA.y) - (vectorB.y - vectorA.y) * (vectorC.x - vectorA.x);
               };
-              Vector.add = function(vectorA, vectorB, output) {
+              Vector5.add = function(vectorA, vectorB, output) {
                 if (!output) output = {};
                 output.x = vectorA.x + vectorB.x;
                 output.y = vectorA.y + vectorB.y;
                 return output;
               };
-              Vector.sub = function(vectorA, vectorB, output) {
+              Vector5.sub = function(vectorA, vectorB, output) {
                 if (!output) output = {};
                 output.x = vectorA.x - vectorB.x;
                 output.y = vectorA.y - vectorB.y;
                 return output;
               };
-              Vector.mult = function(vector, scalar) {
+              Vector5.mult = function(vector, scalar) {
                 return {
                   x: vector.x * scalar,
                   y: vector.y * scalar
                 };
               };
-              Vector.div = function(vector, scalar) {
+              Vector5.div = function(vector, scalar) {
                 return {
                   x: vector.x / scalar,
                   y: vector.y / scalar
                 };
               };
-              Vector.perp = function(vector, negate) {
+              Vector5.perp = function(vector, negate) {
                 negate = negate === true ? -1 : 1;
                 return {
                   x: negate * -vector.y,
                   y: negate * vector.x
                 };
               };
-              Vector.neg = function(vector) {
+              Vector5.neg = function(vector) {
                 return {
                   x: -vector.x,
                   y: -vector.y
                 };
               };
-              Vector.angle = function(vectorA, vectorB) {
+              Vector5.angle = function(vectorA, vectorB) {
                 return Math.atan2(vectorB.y - vectorA.y, vectorB.x - vectorA.x);
               };
-              Vector._temp = [Vector.create(), Vector.create(), Vector.create(), Vector.create(), Vector.create(), Vector.create()];
+              Vector5._temp = [Vector5.create(), Vector5.create(), Vector5.create(), Vector5.create(), Vector5.create(), Vector5.create()];
             })();
           },
           /* 3 */
@@ -537,7 +537,7 @@ var require_matter = __commonJS({
           function(module2, exports2, __webpack_require__) {
             var Vertices = {};
             module2.exports = Vertices;
-            var Vector = __webpack_require__(2);
+            var Vector5 = __webpack_require__(2);
             var Common = __webpack_require__(0);
             (function() {
               Vertices.create = function(points, body) {
@@ -571,11 +571,11 @@ var require_matter = __commonJS({
                 }, cross, temp, j;
                 for (var i = 0; i < vertices.length; i++) {
                   j = (i + 1) % vertices.length;
-                  cross = Vector.cross(vertices[i], vertices[j]);
-                  temp = Vector.mult(Vector.add(vertices[i], vertices[j]), cross);
-                  centre = Vector.add(centre, temp);
+                  cross = Vector5.cross(vertices[i], vertices[j]);
+                  temp = Vector5.mult(Vector5.add(vertices[i], vertices[j]), cross);
+                  centre = Vector5.add(centre, temp);
                 }
-                return Vector.div(centre, 6 * area);
+                return Vector5.div(centre, 6 * area);
               };
               Vertices.mean = function(vertices) {
                 var average = {
@@ -586,7 +586,7 @@ var require_matter = __commonJS({
                   average.x += vertices[i].x;
                   average.y += vertices[i].y;
                 }
-                return Vector.div(average, vertices.length);
+                return Vector5.div(average, vertices.length);
               };
               Vertices.area = function(vertices, signed) {
                 var area = 0, j = vertices.length - 1;
@@ -601,8 +601,8 @@ var require_matter = __commonJS({
                 var numerator = 0, denominator = 0, v = vertices, cross, j;
                 for (var n = 0; n < v.length; n++) {
                   j = (n + 1) % v.length;
-                  cross = Math.abs(Vector.cross(v[j], v[n]));
-                  numerator += cross * (Vector.dot(v[j], v[j]) + Vector.dot(v[j], v[n]) + Vector.dot(v[n], v[n]));
+                  cross = Math.abs(Vector5.cross(v[j], v[n]));
+                  numerator += cross * (Vector5.dot(v[j], v[j]) + Vector5.dot(v[j], v[n]) + Vector5.dot(v[n], v[n]));
                   denominator += cross;
                 }
                 return mass / 6 * (numerator / denominator);
@@ -645,7 +645,7 @@ var require_matter = __commonJS({
                 var vertex2, delta;
                 for (var i = 0; i < vertices.length; i++) {
                   vertex2 = vertices[i];
-                  delta = Vector.sub(vertex2, point);
+                  delta = Vector5.sub(vertex2, point);
                   vertices[i].x = point.x + delta.x * scaleX;
                   vertices[i].y = point.y + delta.y * scaleY;
                 }
@@ -667,24 +667,24 @@ var require_matter = __commonJS({
                     newVertices.push(vertex2);
                     continue;
                   }
-                  var prevNormal = Vector.normalise({
+                  var prevNormal = Vector5.normalise({
                     x: vertex2.y - prevVertex.y,
                     y: prevVertex.x - vertex2.x
                   });
-                  var nextNormal = Vector.normalise({
+                  var nextNormal = Vector5.normalise({
                     x: nextVertex.y - vertex2.y,
                     y: vertex2.x - nextVertex.x
                   });
-                  var diagonalRadius = Math.sqrt(2 * Math.pow(currentRadius, 2)), radiusVector = Vector.mult(Common.clone(prevNormal), currentRadius), midNormal = Vector.normalise(Vector.mult(Vector.add(prevNormal, nextNormal), 0.5)), scaledVertex = Vector.sub(vertex2, Vector.mult(midNormal, diagonalRadius));
+                  var diagonalRadius = Math.sqrt(2 * Math.pow(currentRadius, 2)), radiusVector = Vector5.mult(Common.clone(prevNormal), currentRadius), midNormal = Vector5.normalise(Vector5.mult(Vector5.add(prevNormal, nextNormal), 0.5)), scaledVertex = Vector5.sub(vertex2, Vector5.mult(midNormal, diagonalRadius));
                   var precision = quality;
                   if (quality === -1) {
                     precision = Math.pow(currentRadius, 0.32) * 1.75;
                   }
                   precision = Common.clamp(precision, qualityMin, qualityMax);
                   if (precision % 2 === 1) precision += 1;
-                  var alpha = Math.acos(Vector.dot(prevNormal, nextNormal)), theta = alpha / precision;
+                  var alpha = Math.acos(Vector5.dot(prevNormal, nextNormal)), theta = alpha / precision;
                   for (var j = 0; j < precision; j++) {
-                    newVertices.push(Vector.add(Vector.rotate(radiusVector, theta * j), scaledVertex));
+                    newVertices.push(Vector5.add(Vector5.rotate(radiusVector, theta * j), scaledVertex));
                   }
                 }
                 return newVertices;
@@ -692,7 +692,7 @@ var require_matter = __commonJS({
               Vertices.clockwiseSort = function(vertices) {
                 var centre = Vertices.mean(vertices);
                 vertices.sort(function(vertexA, vertexB) {
-                  return Vector.angle(centre, vertexA) - Vector.angle(centre, vertexB);
+                  return Vector5.angle(centre, vertexA) - Vector5.angle(centre, vertexB);
                 });
                 return vertices;
               };
@@ -728,14 +728,14 @@ var require_matter = __commonJS({
                 });
                 for (i = 0; i < vertices.length; i += 1) {
                   vertex2 = vertices[i];
-                  while (lower.length >= 2 && Vector.cross3(lower[lower.length - 2], lower[lower.length - 1], vertex2) <= 0) {
+                  while (lower.length >= 2 && Vector5.cross3(lower[lower.length - 2], lower[lower.length - 1], vertex2) <= 0) {
                     lower.pop();
                   }
                   lower.push(vertex2);
                 }
                 for (i = vertices.length - 1; i >= 0; i -= 1) {
                   vertex2 = vertices[i];
-                  while (upper.length >= 2 && Vector.cross3(upper[upper.length - 2], upper[upper.length - 1], vertex2) <= 0) {
+                  while (upper.length >= 2 && Vector5.cross3(upper[upper.length - 2], upper[upper.length - 1], vertex2) <= 0) {
                     upper.pop();
                   }
                   upper.push(vertex2);
@@ -752,7 +752,7 @@ var require_matter = __commonJS({
             var Body2 = {};
             module2.exports = Body2;
             var Vertices = __webpack_require__(3);
-            var Vector = __webpack_require__(2);
+            var Vector5 = __webpack_require__(2);
             var Sleeping = __webpack_require__(7);
             var Common = __webpack_require__(0);
             var Bounds = __webpack_require__(1);
@@ -859,7 +859,7 @@ var require_matter = __commonJS({
                 options = options || {};
                 Body2.set(body, {
                   bounds: body.bounds || Bounds.create(body.vertices),
-                  positionPrev: body.positionPrev || Vector.clone(body.position),
+                  positionPrev: body.positionPrev || Vector5.clone(body.position),
                   anglePrev: body.anglePrev || body.angle,
                   vertices: body.vertices,
                   parts: body.parts || [body],
@@ -1061,13 +1061,13 @@ var require_matter = __commonJS({
                 }
               };
               Body2.setPosition = function(body, position, updateVelocity) {
-                var delta = Vector.sub(position, body.position);
+                var delta = Vector5.sub(position, body.position);
                 if (updateVelocity) {
                   body.positionPrev.x = body.position.x;
                   body.positionPrev.y = body.position.y;
                   body.velocity.x = delta.x;
                   body.velocity.y = delta.y;
-                  body.speed = Vector.magnitude(delta);
+                  body.speed = Vector5.magnitude(delta);
                 } else {
                   body.positionPrev.x += delta.x;
                   body.positionPrev.y += delta.y;
@@ -1096,7 +1096,7 @@ var require_matter = __commonJS({
                   Axes.rotate(part.axes, delta);
                   Bounds.update(part.bounds, part.vertices, body.velocity);
                   if (i > 0) {
-                    Vector.rotateAbout(part.position, delta, body.position, part.position);
+                    Vector5.rotateAbout(part.position, delta, body.position, part.position);
                   }
                 }
               };
@@ -1106,7 +1106,7 @@ var require_matter = __commonJS({
                 body.positionPrev.y = body.position.y - velocity.y * timeScale;
                 body.velocity.x = (body.position.x - body.positionPrev.x) / timeScale;
                 body.velocity.y = (body.position.y - body.positionPrev.y) / timeScale;
-                body.speed = Vector.magnitude(body.velocity);
+                body.speed = Vector5.magnitude(body.velocity);
               };
               Body2.getVelocity = function(body) {
                 var timeScale = Body2._baseDelta / body.deltaTime;
@@ -1116,10 +1116,10 @@ var require_matter = __commonJS({
                 };
               };
               Body2.getSpeed = function(body) {
-                return Vector.magnitude(Body2.getVelocity(body));
+                return Vector5.magnitude(Body2.getVelocity(body));
               };
               Body2.setSpeed = function(body, speed) {
-                Body2.setVelocity(body, Vector.mult(Vector.normalise(Body2.getVelocity(body)), speed));
+                Body2.setVelocity(body, Vector5.mult(Vector5.normalise(Body2.getVelocity(body)), speed));
               };
               Body2.setAngularVelocity = function(body, velocity) {
                 var timeScale = body.deltaTime / Body2._baseDelta;
@@ -1137,7 +1137,7 @@ var require_matter = __commonJS({
                 Body2.setAngularVelocity(body, Common.sign(Body2.getAngularVelocity(body)) * speed);
               };
               Body2.translate = function(body, translation, updateVelocity) {
-                Body2.setPosition(body, Vector.add(body.position, translation), updateVelocity);
+                Body2.setPosition(body, Vector5.add(body.position, translation), updateVelocity);
               };
               Body2.rotate = function(body, rotation, point, updateVelocity) {
                 if (!point) {
@@ -1217,7 +1217,7 @@ var require_matter = __commonJS({
                     Vertices.rotate(part.vertices, body.angularVelocity, body.position);
                     Axes.rotate(part.axes, body.angularVelocity);
                     if (i > 0) {
-                      Vector.rotateAbout(part.position, body.angularVelocity, body.position, part.position);
+                      Vector5.rotateAbout(part.position, body.angularVelocity, body.position, part.position);
                     }
                   }
                   Bounds.update(part.bounds, part.vertices, body.velocity);
@@ -1255,9 +1255,9 @@ var require_matter = __commonJS({
                   properties.mass += mass;
                   properties.area += part.area;
                   properties.inertia += part.inertia;
-                  properties.centre = Vector.add(properties.centre, Vector.mult(part.position, mass));
+                  properties.centre = Vector5.add(properties.centre, Vector5.mult(part.position, mass));
                 }
-                properties.centre = Vector.div(properties.centre, properties.mass);
+                properties.centre = Vector5.div(properties.centre, properties.mass);
                 return properties;
               };
             })();
@@ -1695,8 +1695,8 @@ var require_matter = __commonJS({
           /* 8 */
           /***/
           function(module2, exports2, __webpack_require__) {
-            var Collision = {};
-            module2.exports = Collision;
+            var Collision2 = {};
+            module2.exports = Collision2;
             var Vertices = __webpack_require__(3);
             var Pair = __webpack_require__(9);
             (function() {
@@ -1709,7 +1709,7 @@ var require_matter = __commonJS({
                 overlap: 0,
                 axis: null
               };
-              Collision.create = function(bodyA, bodyB) {
+              Collision2.create = function(bodyA, bodyB) {
                 return {
                   pair: null,
                   collided: false,
@@ -1734,18 +1734,18 @@ var require_matter = __commonJS({
                   supportCount: 0
                 };
               };
-              Collision.collides = function(bodyA, bodyB, pairs) {
-                Collision._overlapAxes(_overlapAB, bodyA.vertices, bodyB.vertices, bodyA.axes);
+              Collision2.collides = function(bodyA, bodyB, pairs) {
+                Collision2._overlapAxes(_overlapAB, bodyA.vertices, bodyB.vertices, bodyA.axes);
                 if (_overlapAB.overlap <= 0) {
                   return null;
                 }
-                Collision._overlapAxes(_overlapBA, bodyB.vertices, bodyA.vertices, bodyB.axes);
+                Collision2._overlapAxes(_overlapBA, bodyB.vertices, bodyA.vertices, bodyB.axes);
                 if (_overlapBA.overlap <= 0) {
                   return null;
                 }
                 var pair = pairs && pairs.table[Pair.id(bodyA, bodyB)], collision;
                 if (!pair) {
-                  collision = Collision.create(bodyA, bodyB);
+                  collision = Collision2.create(bodyA, bodyB);
                   collision.collided = true;
                   collision.bodyA = bodyA.id < bodyB.id ? bodyA : bodyB;
                   collision.bodyB = bodyA.id < bodyB.id ? bodyB : bodyA;
@@ -1774,7 +1774,7 @@ var require_matter = __commonJS({
                 penetration.x = normalX * depth;
                 penetration.y = normalY * depth;
                 collision.depth = depth;
-                var supportsB = Collision._findSupports(bodyA, bodyB, normal, 1), supportCount = 0;
+                var supportsB = Collision2._findSupports(bodyA, bodyB, normal, 1), supportCount = 0;
                 if (Vertices.contains(bodyA.vertices, supportsB[0])) {
                   supports[supportCount++] = supportsB[0];
                 }
@@ -1782,7 +1782,7 @@ var require_matter = __commonJS({
                   supports[supportCount++] = supportsB[1];
                 }
                 if (supportCount < 2) {
-                  var supportsA = Collision._findSupports(bodyB, bodyA, normal, -1);
+                  var supportsA = Collision2._findSupports(bodyB, bodyA, normal, -1);
                   if (Vertices.contains(bodyB.vertices, supportsA[0])) {
                     supports[supportCount++] = supportsA[0];
                   }
@@ -1796,7 +1796,7 @@ var require_matter = __commonJS({
                 collision.supportCount = supportCount;
                 return collision;
               };
-              Collision._overlapAxes = function(result, verticesA, verticesB, axes) {
+              Collision2._overlapAxes = function(result, verticesA, verticesB, axes) {
                 var verticesALength = verticesA.length, verticesBLength = verticesB.length, verticesAX = verticesA[0].x, verticesAY = verticesA[0].y, verticesBX = verticesB[0].x, verticesBY = verticesB[0].y, axesLength = axes.length, overlapMin = Number.MAX_VALUE, overlapAxisNumber = 0, overlap, overlapAB, overlapBA, dot, i, j;
                 for (i = 0; i < axesLength; i++) {
                   var axis = axes[i], axisX = axis.x, axisY = axis.y, minA = verticesAX * axisX + verticesAY * axisY, minB = verticesBX * axisX + verticesBY * axisY, maxA = minA, maxB = minB;
@@ -1830,7 +1830,7 @@ var require_matter = __commonJS({
                 result.axis = axes[overlapAxisNumber];
                 result.overlap = overlapMin;
               };
-              Collision._findSupports = function(bodyA, bodyB, normal, direction) {
+              Collision2._findSupports = function(bodyA, bodyB, normal, direction) {
                 var vertices = bodyB.vertices, verticesLength = vertices.length, bodyAPositionX = bodyA.position.x, bodyAPositionY = bodyA.position.y, normalX = normal.x * direction, normalY = normal.y * direction, vertexA = vertices[0], vertexB = vertexA, nearestDistance = normalX * (bodyAPositionX - vertexB.x) + normalY * (bodyAPositionY - vertexB.y), vertexC, distance, j;
                 for (j = 1; j < verticesLength; j += 1) {
                   vertexB = vertices[j];
@@ -1926,7 +1926,7 @@ var require_matter = __commonJS({
             var Constraint = {};
             module2.exports = Constraint;
             var Vertices = __webpack_require__(3);
-            var Vector = __webpack_require__(2);
+            var Vector5 = __webpack_require__(2);
             var Sleeping = __webpack_require__(7);
             var Bounds = __webpack_require__(1);
             var Axes = __webpack_require__(11);
@@ -1945,7 +1945,7 @@ var require_matter = __commonJS({
                   x: 0,
                   y: 0
                 };
-                var initialPointA = constraint.bodyA ? Vector.add(constraint.bodyA.position, constraint.pointA) : constraint.pointA, initialPointB = constraint.bodyB ? Vector.add(constraint.bodyB.position, constraint.pointB) : constraint.pointB, length = Vector.magnitude(Vector.sub(initialPointA, initialPointB));
+                var initialPointA = constraint.bodyA ? Vector5.add(constraint.bodyA.position, constraint.pointA) : constraint.pointA, initialPointB = constraint.bodyB ? Vector5.add(constraint.bodyB.position, constraint.pointB) : constraint.pointB, length = Vector5.magnitude(Vector5.sub(initialPointA, initialPointB));
                 constraint.length = typeof constraint.length !== "undefined" ? constraint.length : length;
                 constraint.id = constraint.id || Common.nextId();
                 constraint.label = constraint.label || "Constraint";
@@ -2004,27 +2004,27 @@ var require_matter = __commonJS({
                 var bodyA = constraint.bodyA, bodyB = constraint.bodyB, pointA = constraint.pointA, pointB = constraint.pointB;
                 if (!bodyA && !bodyB) return;
                 if (bodyA && !bodyA.isStatic) {
-                  Vector.rotate(pointA, bodyA.angle - constraint.angleA, pointA);
+                  Vector5.rotate(pointA, bodyA.angle - constraint.angleA, pointA);
                   constraint.angleA = bodyA.angle;
                 }
                 if (bodyB && !bodyB.isStatic) {
-                  Vector.rotate(pointB, bodyB.angle - constraint.angleB, pointB);
+                  Vector5.rotate(pointB, bodyB.angle - constraint.angleB, pointB);
                   constraint.angleB = bodyB.angle;
                 }
                 var pointAWorld = pointA, pointBWorld = pointB;
-                if (bodyA) pointAWorld = Vector.add(bodyA.position, pointA);
-                if (bodyB) pointBWorld = Vector.add(bodyB.position, pointB);
+                if (bodyA) pointAWorld = Vector5.add(bodyA.position, pointA);
+                if (bodyB) pointBWorld = Vector5.add(bodyB.position, pointB);
                 if (!pointAWorld || !pointBWorld) return;
-                var delta = Vector.sub(pointAWorld, pointBWorld), currentLength = Vector.magnitude(delta);
+                var delta = Vector5.sub(pointAWorld, pointBWorld), currentLength = Vector5.magnitude(delta);
                 if (currentLength < Constraint._minLength) {
                   currentLength = Constraint._minLength;
                 }
-                var difference = (currentLength - constraint.length) / currentLength, isRigid = constraint.stiffness >= 1 || constraint.length === 0, stiffness = isRigid ? constraint.stiffness * timeScale : constraint.stiffness * timeScale * timeScale, damping = constraint.damping * timeScale, force = Vector.mult(delta, difference * stiffness), massTotal = (bodyA ? bodyA.inverseMass : 0) + (bodyB ? bodyB.inverseMass : 0), inertiaTotal = (bodyA ? bodyA.inverseInertia : 0) + (bodyB ? bodyB.inverseInertia : 0), resistanceTotal = massTotal + inertiaTotal, torque, share, normal, normalVelocity, relativeVelocity;
+                var difference = (currentLength - constraint.length) / currentLength, isRigid = constraint.stiffness >= 1 || constraint.length === 0, stiffness = isRigid ? constraint.stiffness * timeScale : constraint.stiffness * timeScale * timeScale, damping = constraint.damping * timeScale, force = Vector5.mult(delta, difference * stiffness), massTotal = (bodyA ? bodyA.inverseMass : 0) + (bodyB ? bodyB.inverseMass : 0), inertiaTotal = (bodyA ? bodyA.inverseInertia : 0) + (bodyB ? bodyB.inverseInertia : 0), resistanceTotal = massTotal + inertiaTotal, torque, share, normal, normalVelocity, relativeVelocity;
                 if (damping > 0) {
-                  var zero = Vector.create();
-                  normal = Vector.div(delta, currentLength);
-                  relativeVelocity = Vector.sub(bodyB && Vector.sub(bodyB.position, bodyB.positionPrev) || zero, bodyA && Vector.sub(bodyA.position, bodyA.positionPrev) || zero);
-                  normalVelocity = Vector.dot(normal, relativeVelocity);
+                  var zero = Vector5.create();
+                  normal = Vector5.div(delta, currentLength);
+                  relativeVelocity = Vector5.sub(bodyB && Vector5.sub(bodyB.position, bodyB.positionPrev) || zero, bodyA && Vector5.sub(bodyA.position, bodyA.positionPrev) || zero);
+                  normalVelocity = Vector5.dot(normal, relativeVelocity);
                 }
                 if (bodyA && !bodyA.isStatic) {
                   share = bodyA.inverseMass / massTotal;
@@ -2036,7 +2036,7 @@ var require_matter = __commonJS({
                     bodyA.positionPrev.x -= damping * normal.x * normalVelocity * share;
                     bodyA.positionPrev.y -= damping * normal.y * normalVelocity * share;
                   }
-                  torque = Vector.cross(pointA, force) / resistanceTotal * Constraint._torqueDampen * bodyA.inverseInertia * (1 - constraint.angularStiffness);
+                  torque = Vector5.cross(pointA, force) / resistanceTotal * Constraint._torqueDampen * bodyA.inverseInertia * (1 - constraint.angularStiffness);
                   bodyA.constraintImpulse.angle -= torque;
                   bodyA.angle -= torque;
                 }
@@ -2050,7 +2050,7 @@ var require_matter = __commonJS({
                     bodyB.positionPrev.x += damping * normal.x * normalVelocity * share;
                     bodyB.positionPrev.y += damping * normal.y * normalVelocity * share;
                   }
-                  torque = Vector.cross(pointB, force) / resistanceTotal * Constraint._torqueDampen * bodyB.inverseInertia * (1 - constraint.angularStiffness);
+                  torque = Vector5.cross(pointB, force) / resistanceTotal * Constraint._torqueDampen * bodyB.inverseInertia * (1 - constraint.angularStiffness);
                   bodyB.constraintImpulse.angle += torque;
                   bodyB.angle += torque;
                 }
@@ -2073,7 +2073,7 @@ var require_matter = __commonJS({
                       Vertices.rotate(part.vertices, impulse.angle, body.position);
                       Axes.rotate(part.axes, impulse.angle);
                       if (j > 0) {
-                        Vector.rotateAbout(part.position, impulse.angle, body.position, part.position);
+                        Vector5.rotateAbout(part.position, impulse.angle, body.position, part.position);
                       }
                     }
                     Bounds.update(part.bounds, part.vertices, body.velocity);
@@ -2111,13 +2111,13 @@ var require_matter = __commonJS({
           function(module2, exports2, __webpack_require__) {
             var Axes = {};
             module2.exports = Axes;
-            var Vector = __webpack_require__(2);
+            var Vector5 = __webpack_require__(2);
             var Common = __webpack_require__(0);
             (function() {
               Axes.fromVertices = function(vertices) {
                 var axes = {};
                 for (var i = 0; i < vertices.length; i++) {
-                  var j = (i + 1) % vertices.length, normal = Vector.normalise({
+                  var j = (i + 1) % vertices.length, normal = Vector5.normalise({
                     x: vertices[j].y - vertices[i].y,
                     y: vertices[i].x - vertices[j].x
                   }), gradient = normal.y === 0 ? Infinity : normal.x / normal.y;
@@ -2147,7 +2147,7 @@ var require_matter = __commonJS({
             var Common = __webpack_require__(0);
             var Body2 = __webpack_require__(4);
             var Bounds = __webpack_require__(1);
-            var Vector = __webpack_require__(2);
+            var Vector5 = __webpack_require__(2);
             (function() {
               Bodies2.rectangle = function(x, y, width, height, options) {
                 options = options || {};
@@ -2297,7 +2297,7 @@ var require_matter = __commonJS({
                         var pav = partA.vertices, pbv = partB.vertices;
                         for (k = 0; k < partA.vertices.length; k++) {
                           for (z = 0; z < partB.vertices.length; z++) {
-                            var da = Vector.magnitudeSquared(Vector.sub(pav[(k + 1) % pav.length], pbv[z])), db = Vector.magnitudeSquared(Vector.sub(pav[k], pbv[(z + 1) % pbv.length]));
+                            var da = Vector5.magnitudeSquared(Vector5.sub(pav[(k + 1) % pav.length], pbv[z])), db = Vector5.magnitudeSquared(Vector5.sub(pav[k], pbv[(z + 1) % pbv.length]));
                             if (da < coincident_max_dist && db < coincident_max_dist) {
                               pav[k].isInternal = true;
                               pbv[z].isInternal = true;
@@ -2329,7 +2329,7 @@ var require_matter = __commonJS({
             var Detector = {};
             module2.exports = Detector;
             var Common = __webpack_require__(0);
-            var Collision = __webpack_require__(8);
+            var Collision2 = __webpack_require__(8);
             (function() {
               Detector.create = function(options) {
                 var defaults = {
@@ -2347,7 +2347,7 @@ var require_matter = __commonJS({
                 detector.collisions = [];
               };
               Detector.collisions = function(detector) {
-                var pairs = detector.pairs, bodies = detector.bodies, bodiesLength = bodies.length, canCollide = Detector.canCollide, collides = Collision.collides, collisions = detector.collisions, collisionIndex = 0, i, j;
+                var pairs = detector.pairs, bodies = detector.bodies, bodiesLength = bodies.length, canCollide = Detector.canCollide, collides = Collision2.collides, collisions = detector.collisions, collisionIndex = 0, i, j;
                 bodies.sort(Detector._compareBoundsX);
                 for (i = 0; i < bodiesLength; i++) {
                   var bodyA = bodies[i], boundsA = bodyA.bounds, boundXMax = bodyA.bounds.max.x, boundYMax = bodyA.bounds.max.y, boundYMin = bodyA.bounds.min.y, bodyAStatic = bodyA.isStatic || bodyA.isSleeping, partsALength = bodyA.parts.length, partsASingle = partsALength === 1;
@@ -3698,14 +3698,14 @@ var require_matter = __commonJS({
           function(module2, exports2, __webpack_require__) {
             var Query2 = {};
             module2.exports = Query2;
-            var Vector = __webpack_require__(2);
-            var Collision = __webpack_require__(8);
+            var Vector5 = __webpack_require__(2);
+            var Collision2 = __webpack_require__(8);
             var Bounds = __webpack_require__(1);
             var Bodies2 = __webpack_require__(12);
             var Vertices = __webpack_require__(3);
             (function() {
               Query2.collides = function(body, bodies) {
-                var collisions = [], bodiesLength = bodies.length, bounds = body.bounds, collides = Collision.collides, overlaps = Bounds.overlaps;
+                var collisions = [], bodiesLength = bodies.length, bounds = body.bounds, collides = Collision2.collides, overlaps = Bounds.overlaps;
                 for (var i = 0; i < bodiesLength; i++) {
                   var bodyA = bodies[i], partsALength = bodyA.parts.length, partsAStart = partsALength === 1 ? 0 : 1;
                   if (overlaps(bodyA.bounds, bounds)) {
@@ -3725,7 +3725,7 @@ var require_matter = __commonJS({
               };
               Query2.ray = function(bodies, startPoint, endPoint, rayWidth) {
                 rayWidth = rayWidth || 1e-100;
-                var rayAngle = Vector.angle(startPoint, endPoint), rayLength = Vector.magnitude(Vector.sub(startPoint, endPoint)), rayX = (endPoint.x + startPoint.x) * 0.5, rayY = (endPoint.y + startPoint.y) * 0.5, ray = Bodies2.rectangle(rayX, rayY, rayLength, rayWidth, {
+                var rayAngle = Vector5.angle(startPoint, endPoint), rayLength = Vector5.magnitude(Vector5.sub(startPoint, endPoint)), rayX = (endPoint.x + startPoint.x) * 0.5, rayY = (endPoint.y + startPoint.y) * 0.5, ray = Bodies2.rectangle(rayX, rayY, rayLength, rayWidth, {
                   angle: rayAngle
                 }), collisions = Query2.collides(ray, bodies);
                 for (var i = 0; i < collisions.length; i += 1) {
@@ -3770,7 +3770,7 @@ var require_matter = __commonJS({
             var Composite2 = __webpack_require__(6);
             var Bounds = __webpack_require__(1);
             var Events2 = __webpack_require__(5);
-            var Vector = __webpack_require__(2);
+            var Vector5 = __webpack_require__(2);
             var Mouse = __webpack_require__(14);
             (function() {
               var _requestAnimationFrame, _cancelAnimationFrame;
@@ -3987,8 +3987,8 @@ var require_matter = __commonJS({
                   }
                   for (i = 0; i < allConstraints.length; i++) {
                     var constraint = allConstraints[i], bodyA = constraint.bodyA, bodyB = constraint.bodyB, pointAWorld = constraint.pointA, pointBWorld = constraint.pointB;
-                    if (bodyA) pointAWorld = Vector.add(bodyA.position, constraint.pointA);
-                    if (bodyB) pointBWorld = Vector.add(bodyB.position, constraint.pointB);
+                    if (bodyA) pointAWorld = Vector5.add(bodyA.position, constraint.pointA);
+                    if (bodyB) pointBWorld = Vector5.add(bodyB.position, constraint.pointB);
                     if (!pointAWorld || !pointBWorld) continue;
                     if (Bounds.contains(render.bounds, pointAWorld) || Bounds.contains(render.bounds, pointBWorld)) constraints.push(constraint);
                   }
@@ -4106,7 +4106,7 @@ var require_matter = __commonJS({
                   if (!constraint.render.visible || !constraint.pointA || !constraint.pointB) continue;
                   var bodyA = constraint.bodyA, bodyB = constraint.bodyB, start, end;
                   if (bodyA) {
-                    start = Vector.add(bodyA.position, constraint.pointA);
+                    start = Vector5.add(bodyA.position, constraint.pointA);
                   } else {
                     start = constraint.pointA;
                   }
@@ -4116,14 +4116,14 @@ var require_matter = __commonJS({
                     c.closePath();
                   } else {
                     if (bodyB) {
-                      end = Vector.add(bodyB.position, constraint.pointB);
+                      end = Vector5.add(bodyB.position, constraint.pointB);
                     } else {
                       end = constraint.pointB;
                     }
                     c.beginPath();
                     c.moveTo(start.x, start.y);
                     if (constraint.render.type === "spring") {
-                      var delta = Vector.sub(end, start), normal = Vector.perp(Vector.normalise(delta)), coils = Math.ceil(Common.clamp(constraint.length / 5, 12, 20)), offset;
+                      var delta = Vector5.sub(end, start), normal = Vector5.perp(Vector5.normalise(delta)), coils = Math.ceil(Common.clamp(constraint.length / 5, 12, 20)), offset;
                       for (var j = 1; j < coils; j += 1) {
                         offset = j % 2 === 0 ? 1 : -1;
                         c.lineTo(start.x + delta.x * (j / coils) + normal.x * offset * 4, start.y + delta.y * (j / coils) + normal.y * offset * 4);
@@ -4692,12 +4692,12 @@ var require_matter = __commonJS({
           function(module2, exports2, __webpack_require__) {
             var SAT = {};
             module2.exports = SAT;
-            var Collision = __webpack_require__(8);
+            var Collision2 = __webpack_require__(8);
             var Common = __webpack_require__(0);
             var deprecated = Common.deprecated;
             (function() {
               SAT.collides = function(bodyA, bodyB) {
-                return Collision.collides(bodyA, bodyB);
+                return Collision2.collides(bodyA, bodyB);
               };
               deprecated(SAT, "collides", "SAT.collides \u27A4 replaced by Collision.collides");
             })();
@@ -82360,9 +82360,10 @@ var DogeRescueComponent = class _DogeRescueComponent {
   level = 0;
   timerDisplay = 5;
   engine;
-  dogeBody = null;
+  dogeBodies = [];
   drawnLineBody = null;
   bees = [];
+  particles = [];
   blocksDef = {};
   levelsDef = [];
   textures = {};
@@ -82376,6 +82377,8 @@ var DogeRescueComponent = class _DogeRescueComponent {
   animationFrameId = null;
   attackTimer = null;
   beeSpawnTimer = null;
+  flowFieldTimer = null;
+  flowField = null;
   onPointerDownBound = this.onPointerDown.bind(this);
   onPointerMoveBound = this.onPointerMove.bind(this);
   onPointerUpBound = this.onPointerUp.bind(this);
@@ -82394,6 +82397,8 @@ var DogeRescueComponent = class _DogeRescueComponent {
       clearInterval(this.attackTimer);
     if (this.beeSpawnTimer)
       clearInterval(this.beeSpawnTimer);
+    if (this.flowFieldTimer)
+      clearInterval(this.flowFieldTimer);
     window.removeEventListener("resize", this.onResizeBound);
     const canvas = this.canvasRef?.nativeElement;
     if (canvas) {
@@ -82451,6 +82456,105 @@ var DogeRescueComponent = class _DogeRescueComponent {
     this.level++;
     this.startLevel();
   }
+  removeEntity(body, type, color) {
+    const isBee = type === "bee";
+    for (let i = 0; i < 20; i++) {
+      this.particles.push({
+        x: body.position.x,
+        y: body.position.y,
+        vx: (Math.random() - 0.5) * 10,
+        vy: (Math.random() - 0.5) * 10,
+        color,
+        life: 0,
+        maxLife: 30 + Math.random() * 20
+      });
+    }
+    if (isBee) {
+      this.bees = this.bees.filter((b) => b.body !== body);
+      Matter.World.remove(this.engine.world, body);
+    } else {
+      this.dogeBodies = this.dogeBodies.filter((b) => b !== body);
+      Matter.World.remove(this.engine.world, body);
+      this.ngZone.run(() => {
+        this.gameState = "LOSE";
+        if (this.attackTimer)
+          clearInterval(this.attackTimer);
+        if (this.beeSpawnTimer)
+          clearInterval(this.beeSpawnTimer);
+        this.tools.playSound("sfx_8");
+      });
+    }
+  }
+  convertBlock(cell, newBlockId) {
+    const blockDef = this.blocksDef[newBlockId];
+    if (cell.body)
+      Matter.World.remove(this.engine.world, cell.body);
+    cell.id = newBlockId;
+    cell.body = null;
+    cell.convertTimer = null;
+    if (!blockDef)
+      return;
+    if (blockDef.solid || blockDef.kills || blockDef.slow_rate || blockDef.hit_converts) {
+      const hasPhys = typeof blockDef.physics === "object" ? blockDef.physics.have_physics : !!blockDef.physics;
+      const isStatic = !hasPhys;
+      const isSensor = !blockDef.solid;
+      let rest = 0.1;
+      let fric = 1;
+      let fricAir = 0.01;
+      if (typeof blockDef.physics === "object") {
+        if (blockDef.physics.bounce)
+          rest = 1;
+        if (blockDef.physics.infinite_move_x || blockDef.physics.infinite_move_y) {
+          fric = 0;
+          fricAir = 0;
+        }
+      }
+      const opts = {
+        isStatic,
+        isSensor,
+        friction: fric,
+        frictionAir: fricAir,
+        restitution: rest,
+        label: "block_" + newBlockId
+      };
+      const centerX = cell.rect.x + cell.rect.w / 2;
+      const centerY = cell.rect.y + cell.rect.h / 2;
+      if (blockDef.shape === "circle") {
+        cell.body = Matter.Bodies.circle(centerX, centerY, cell.rect.w / 2, opts);
+      } else if (blockDef.shape === "triangle_bottom") {
+        const polygon = [
+          { x: -cell.rect.w / 2, y: cell.rect.h / 2 },
+          { x: cell.rect.w / 2, y: cell.rect.h / 2 },
+          { x: 0, y: -cell.rect.h / 2 }
+        ];
+        cell.body = Matter.Bodies.fromVertices(centerX, centerY + cell.rect.h / 6, [polygon], opts);
+      } else if (blockDef.shape === "triangle_top") {
+        const polygon = [
+          { x: -cell.rect.w / 2, y: -cell.rect.h / 2 },
+          { x: cell.rect.w / 2, y: -cell.rect.h / 2 },
+          { x: 0, y: cell.rect.h / 2 }
+        ];
+        cell.body = Matter.Bodies.fromVertices(centerX, centerY - cell.rect.h / 6, [polygon], opts);
+      } else if (blockDef.shape === "triangle_left") {
+        const polygon = [
+          { x: -cell.rect.w / 2, y: -cell.rect.h / 2 },
+          { x: -cell.rect.w / 2, y: cell.rect.h / 2 },
+          { x: cell.rect.w / 2, y: 0 }
+        ];
+        cell.body = Matter.Bodies.fromVertices(centerX - cell.rect.w / 6, centerY, [polygon], opts);
+      } else if (blockDef.shape === "triangle_right") {
+        const polygon = [
+          { x: cell.rect.w / 2, y: -cell.rect.h / 2 },
+          { x: cell.rect.w / 2, y: cell.rect.h / 2 },
+          { x: -cell.rect.w / 2, y: 0 }
+        ];
+        cell.body = Matter.Bodies.fromVertices(centerX + cell.rect.w / 6, centerY, [polygon], opts);
+      } else {
+        cell.body = Matter.Bodies.rectangle(centerX, centerY, cell.rect.w + 1, cell.rect.h + 1, opts);
+      }
+      Matter.World.add(this.engine.world, cell.body);
+    }
+  }
   initPhysics() {
     this.engine = Matter.Engine.create();
     this.engine.gravity.y = 1;
@@ -82479,6 +82583,47 @@ var DogeRescueComponent = class _DogeRescueComponent {
           });
           return;
         }
+        const handleBlockCollision = (blockBody, otherBody) => {
+          const isDoge = otherBody.label === "doge";
+          const isBee = otherBody.label === "bee";
+          const blockId = blockBody.label.replace("block_", "");
+          const blockDef = this.blocksDef[blockId];
+          if (!blockDef)
+            return;
+          if (blockDef.kills) {
+            if ((blockDef.kills === "both" || blockDef.kills === "doge") && isDoge) {
+              this.removeEntity(otherBody, "doge", "#ffaa00");
+            }
+            if ((blockDef.kills === "both" || blockDef.kills === "bee") && isBee) {
+              this.removeEntity(otherBody, "bee", "#ffff00");
+            }
+          }
+          if (blockDef.hit_converts && (isDoge || isBee || otherBody.isStatic === false)) {
+            let targetCell = null;
+            for (let r = 0; r < this.mapGrid.length; r++) {
+              for (let c = 0; c < this.mapGrid[r].length; c++) {
+                if (this.mapGrid[r][c].body === blockBody) {
+                  targetCell = this.mapGrid[r][c];
+                  break;
+                }
+              }
+            }
+            if (targetCell && !targetCell.convertTimer) {
+              targetCell.convertTimer = setTimeout(() => {
+                this.ngZone.runOutsideAngular(() => {
+                  if (blockDef.hit_converts.play_sound) {
+                    this.tools.playSound(blockDef.hit_converts.play_sound);
+                  }
+                  this.convertBlock(targetCell, blockDef.hit_converts.to);
+                });
+              }, blockDef.hit_converts.after * 1e3);
+            }
+          }
+        };
+        if (bodyA.label.startsWith("block_"))
+          handleBlockCollision(bodyA, bodyB);
+        if (bodyB.label.startsWith("block_"))
+          handleBlockCollision(bodyB, bodyA);
       }
     });
     this.ngZone.runOutsideAngular(() => {
@@ -82494,7 +82639,8 @@ var DogeRescueComponent = class _DogeRescueComponent {
     this.drawnLineBody = null;
     this.mapGrid = [];
     this.beeNests = [];
-    this.dogeBody = null;
+    this.dogeBodies = [];
+    this.particles = [];
     if (this.attackTimer)
       clearInterval(this.attackTimer);
     if (this.beeSpawnTimer)
@@ -82523,31 +82669,95 @@ var DogeRescueComponent = class _DogeRescueComponent {
           if (blockDef) {
             const centerX = rect.x + blockW / 2;
             const centerY = rect.y + blockH / 2;
-            if (blockDef.solid) {
-              body = Matter.Bodies.rectangle(centerX, centerY, blockW + 1, blockH + 1, {
-                isStatic: true,
-                friction: 1,
-                restitution: 0.1
-              });
-              Matter.World.add(this.engine.world, body);
-            }
             if (blockDef.spawn === "doge") {
-              this.dogeBody = Matter.Bodies.circle(centerX, centerY, blockW * 0.4, {
+              const dogeBody = Matter.Bodies.circle(centerX, centerY, blockW * 0.4, {
                 restitution: 0.3,
                 friction: 0.8,
                 density: 0.05,
                 label: "doge"
               });
-              Matter.World.add(this.engine.world, this.dogeBody);
+              Matter.World.add(this.engine.world, dogeBody);
+              this.dogeBodies.push(dogeBody);
             } else if (blockDef.spawn === "bees") {
               this.beeNests.push({ x: centerX, y: centerY });
+            } else if (blockDef.solid || blockDef.kills || blockDef.slow_rate || blockDef.hit_converts) {
+              const hasPhys = typeof blockDef.physics === "object" ? blockDef.physics.have_physics : !!blockDef.physics;
+              const isStatic = !hasPhys;
+              const isSensor = !blockDef.solid;
+              let rest = 0.1;
+              let fric = 1;
+              let fricAir = 0.01;
+              if (typeof blockDef.physics === "object") {
+                if (blockDef.physics.bounce)
+                  rest = 1;
+                if (blockDef.physics.infinite_move_x || blockDef.physics.infinite_move_y) {
+                  fric = 0;
+                  fricAir = 0;
+                }
+              }
+              const opts = {
+                isStatic,
+                isSensor,
+                friction: fric,
+                frictionAir: fricAir,
+                restitution: rest,
+                label: "block_" + blockId
+              };
+              if (blockDef.shape === "circle") {
+                body = Matter.Bodies.circle(centerX, centerY, blockW / 2, opts);
+              } else if (blockDef.shape === "triangle_bottom") {
+                const polygon = [
+                  { x: -blockW / 2, y: blockH / 2 },
+                  { x: blockW / 2, y: blockH / 2 },
+                  { x: 0, y: -blockH / 2 }
+                ];
+                body = Matter.Bodies.fromVertices(centerX, centerY + blockH / 6, [polygon], opts);
+              } else if (blockDef.shape === "triangle_top") {
+                const polygon = [
+                  { x: -blockW / 2, y: -blockH / 2 },
+                  { x: blockW / 2, y: -blockH / 2 },
+                  { x: 0, y: blockH / 2 }
+                ];
+                body = Matter.Bodies.fromVertices(centerX, centerY - blockH / 6, [polygon], opts);
+              } else if (blockDef.shape === "triangle_left") {
+                const polygon = [
+                  { x: -blockW / 2, y: -blockH / 2 },
+                  { x: -blockW / 2, y: blockH / 2 },
+                  { x: blockW / 2, y: 0 }
+                ];
+                body = Matter.Bodies.fromVertices(centerX - blockW / 6, centerY, [polygon], opts);
+              } else if (blockDef.shape === "triangle_right") {
+                const polygon = [
+                  { x: blockW / 2, y: -blockH / 2 },
+                  { x: blockW / 2, y: blockH / 2 },
+                  { x: -blockW / 2, y: 0 }
+                ];
+                body = Matter.Bodies.fromVertices(centerX + blockW / 6, centerY, [polygon], opts);
+              } else {
+                body = Matter.Bodies.rectangle(centerX, centerY, blockW + 1, blockH + 1, opts);
+              }
+              Matter.World.add(this.engine.world, body);
             }
           }
-          rowArr.push({ id: blockId, body, rect });
+          rowArr.push({ id: blockId, body, rect, r, c });
         }
         this.mapGrid.push(rowArr);
       }
     }
+  }
+  isPointInSolidBlock(x, y) {
+    for (let r = 0; r < this.mapGrid.length; r++) {
+      for (let c = 0; c < this.mapGrid[r].length; c++) {
+        const cell = this.mapGrid[r][c];
+        const blockDef = this.blocksDef[cell.id];
+        if (blockDef && blockDef.solid) {
+          if (x >= cell.rect.x && x <= cell.rect.x + cell.rect.w && y >= cell.rect.y && y <= cell.rect.y + cell.rect.h) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
   onPointerDown(e) {
     if (this.gameState !== "DRAWING")
@@ -82555,6 +82765,8 @@ var DogeRescueComponent = class _DogeRescueComponent {
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    if (this.isPointInSolidBlock(x, y))
+      return;
     this.isDrawing = true;
     this.currentDrawing = [{ x, y }];
     this.lineLength = 0;
@@ -82565,6 +82777,8 @@ var DogeRescueComponent = class _DogeRescueComponent {
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+    if (this.isPointInSolidBlock(x, y))
+      return;
     const last4 = this.currentDrawing[this.currentDrawing.length - 1];
     const dist = Math.hypot(x - last4.x, y - last4.y);
     if (dist > 15) {
@@ -82614,6 +82828,68 @@ var DogeRescueComponent = class _DogeRescueComponent {
     });
     Matter.World.add(this.engine.world, this.drawnLineBody);
   }
+  getBlockCost(blockDef) {
+    if (!blockDef)
+      return 1;
+    if (blockDef.kills === "both" || blockDef.kills === "bee")
+      return 9999;
+    if (blockDef.solid) {
+      if (blockDef.hit_converts)
+        return 5;
+      return 1e3;
+    }
+    return 1;
+  }
+  updateFlowField() {
+    if (this.dogeBodies.length === 0 || this.mapGrid.length === 0 || this.mapGrid[0].length === 0)
+      return;
+    const rows = this.mapGrid.length;
+    const cols = this.mapGrid[0].length;
+    const blockW = this.mapGrid[0][0].rect.w;
+    const blockH = this.mapGrid[0][0].rect.h;
+    this.flowField = Array.from({ length: rows }, () => Array(cols).fill(Infinity));
+    const queue = [];
+    this.dogeBodies.forEach((doge) => {
+      let r = Math.floor((doge.position.y - this.mapGrid[0][0].rect.y) / blockH);
+      let c = Math.floor((doge.position.x - this.mapGrid[0][0].rect.x) / blockW);
+      r = Math.max(0, Math.min(rows - 1, r));
+      c = Math.max(0, Math.min(cols - 1, c));
+      this.flowField[r][c] = 0;
+      queue.push({ r, c, cost: 0 });
+    });
+    const dirs = [
+      [-1, 0],
+      [1, 0],
+      [0, -1],
+      [0, 1],
+      [-1, -1],
+      [-1, 1],
+      [1, -1],
+      [1, 1]
+    ];
+    while (queue.length > 0) {
+      queue.sort((a, b) => a.cost - b.cost);
+      const current = queue.shift();
+      if (current.cost > this.flowField[current.r][current.c])
+        continue;
+      for (let d of dirs) {
+        const nr = current.r + d[0];
+        const nc = current.c + d[1];
+        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+          const neighborCell = this.mapGrid[nr][nc];
+          const blockDef = this.blocksDef[neighborCell.id];
+          let moveCost = this.getBlockCost(blockDef);
+          if (Math.abs(d[0]) + Math.abs(d[1]) === 2)
+            moveCost *= 1.414;
+          const newCost = current.cost + moveCost;
+          if (newCost < this.flowField[nr][nc]) {
+            this.flowField[nr][nc] = newCost;
+            queue.push({ r: nr, c: nc, cost: newCost });
+          }
+        }
+      }
+    }
+  }
   startAttack() {
     this.gameState = "ATTACK";
     this.timerDisplay = this.currentLevelDef.duration;
@@ -82651,6 +82927,14 @@ var DogeRescueComponent = class _DogeRescueComponent {
         return;
       spawnBees();
     }, 500);
+    this.updateFlowField();
+    if (this.flowFieldTimer)
+      clearInterval(this.flowFieldTimer);
+    this.flowFieldTimer = setInterval(() => {
+      if (this.tools.isWindowBlurred)
+        return;
+      this.updateFlowField();
+    }, 500);
     if (this.attackTimer)
       clearInterval(this.attackTimer);
     this.attackTimer = setInterval(() => {
@@ -82661,6 +82945,7 @@ var DogeRescueComponent = class _DogeRescueComponent {
         if (this.timerDisplay <= 0) {
           clearInterval(this.attackTimer);
           clearInterval(this.beeSpawnTimer);
+          clearInterval(this.flowFieldTimer);
           this.ngZone.run(() => {
             this.gamePoints += 10;
             this.gameState = "WIN";
@@ -82676,16 +82961,113 @@ var DogeRescueComponent = class _DogeRescueComponent {
       return;
     if (this.gameState === "ATTACK") {
       Matter.Engine.update(this.engine, 1e3 / 60);
-      if (this.dogeBody) {
-        this.bees.forEach((bee) => {
-          const dx = this.dogeBody.position.x - bee.body.position.x;
-          const dy = this.dogeBody.position.y - bee.body.position.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist > 0) {
-            Matter.Body.applyForce(bee.body, bee.body.position, {
-              x: dx / dist * this.currentLevelDef.brutality.force,
-              y: dy / dist * this.currentLevelDef.brutality.force
+      for (let i = this.particles.length - 1; i >= 0; i--) {
+        const p = this.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.5;
+        p.life++;
+        if (p.life > p.maxLife) {
+          this.particles.splice(i, 1);
+        }
+      }
+      for (let r = 0; r < this.mapGrid.length; r++) {
+        for (let c = 0; c < this.mapGrid[r].length; c++) {
+          const cell = this.mapGrid[r][c];
+          const blockDef = this.blocksDef[cell.id];
+          if (blockDef && blockDef.slow_rate && cell.body) {
+            const slowMultiplier = 1 - blockDef.slow_rate;
+            const cellBody = cell.body;
+            this.dogeBodies.forEach((doge) => {
+              if (Matter.Collision.collides(doge, cellBody)) {
+                Matter.Body.setVelocity(doge, { x: doge.velocity.x * slowMultiplier, y: doge.velocity.y * slowMultiplier });
+              }
             });
+            this.bees.forEach((bee) => {
+              if (Matter.Collision.collides(bee.body, cellBody)) {
+                Matter.Body.setVelocity(bee.body, { x: bee.body.velocity.x * slowMultiplier, y: bee.body.velocity.y * slowMultiplier });
+              }
+            });
+            if (this.drawnLineBody && Matter.Collision.collides(this.drawnLineBody, cellBody)) {
+              Matter.Body.setVelocity(this.drawnLineBody, { x: this.drawnLineBody.velocity.x * slowMultiplier, y: this.drawnLineBody.velocity.y * slowMultiplier });
+            }
+          }
+        }
+      }
+      if (this.dogeBodies.length > 0) {
+        const blockW = this.mapGrid.length > 0 ? this.mapGrid[0][0].rect.w : 50;
+        const blockH = this.mapGrid.length > 0 ? this.mapGrid[0][0].rect.h : 50;
+        const startX = this.mapGrid.length > 0 ? this.mapGrid[0][0].rect.x : 0;
+        const startY = this.mapGrid.length > 0 ? this.mapGrid[0][0].rect.y : 0;
+        this.bees.forEach((bee) => {
+          let targetX = this.dogeBodies[0].position.x;
+          let targetY = this.dogeBodies[0].position.y;
+          if (this.flowField && this.mapGrid.length > 0) {
+            let r = Math.floor((bee.body.position.y - startY) / blockH);
+            let c = Math.floor((bee.body.position.x - startX) / blockW);
+            r = Math.max(0, Math.min(this.mapGrid.length - 1, r));
+            c = Math.max(0, Math.min(this.mapGrid[0].length - 1, c));
+            let minCost = this.flowField[r][c];
+            let bestR = r;
+            let bestC = c;
+            const dirs = [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]];
+            for (let d of dirs) {
+              const nr = r + d[0];
+              const nc = c + d[1];
+              if (nr >= 0 && nr < this.mapGrid.length && nc >= 0 && nc < this.mapGrid[0].length) {
+                if (this.flowField[nr][nc] < minCost) {
+                  minCost = this.flowField[nr][nc];
+                  bestR = nr;
+                  bestC = nc;
+                }
+              }
+            }
+            if (minCost !== Infinity && (bestR !== r || bestC !== c)) {
+              let nextR = bestR;
+              let nextC = bestC;
+              let nextMinCost = minCost;
+              for (let d of dirs) {
+                const nnr = bestR + d[0];
+                const nnc = bestC + d[1];
+                if (nnr >= 0 && nnr < this.mapGrid.length && nnc >= 0 && nnc < this.mapGrid[0].length) {
+                  if (this.flowField[nnr][nnc] < nextMinCost) {
+                    nextMinCost = this.flowField[nnr][nnc];
+                    nextR = nnr;
+                    nextC = nnc;
+                  }
+                }
+              }
+              targetX = (this.mapGrid[bestR][bestC].rect.x + this.mapGrid[nextR][nextC].rect.x) / 2 + blockW / 2;
+              targetY = (this.mapGrid[bestR][bestC].rect.y + this.mapGrid[nextR][nextC].rect.y) / 2 + blockH / 2;
+            }
+          } else {
+            let minDist = Infinity;
+            for (let doge of this.dogeBodies) {
+              const dist = Math.hypot(doge.position.x - bee.body.position.x, doge.position.y - bee.body.position.y);
+              if (dist < minDist) {
+                minDist = dist;
+                targetX = doge.position.x;
+                targetY = doge.position.y;
+              }
+            }
+          }
+          const dx = targetX - bee.body.position.x;
+          const dy = targetY - bee.body.position.y;
+          const distToTarget = Math.hypot(dx, dy);
+          if (distToTarget > 0) {
+            const dirX = dx / distToTarget;
+            const dirY = dy / distToTarget;
+            const desiredVx = dirX * this.currentLevelDef.brutality.maxSpeed;
+            const desiredVy = dirY * this.currentLevelDef.brutality.maxSpeed;
+            const errX = desiredVx - bee.body.velocity.x;
+            const errY = desiredVy - bee.body.velocity.y;
+            const errMag = Math.hypot(errX, errY);
+            if (errMag > 0) {
+              Matter.Body.applyForce(bee.body, bee.body.position, {
+                x: errX / errMag * this.currentLevelDef.brutality.force,
+                y: errY / errMag * this.currentLevelDef.brutality.force
+              });
+            }
           }
           if (bee.body.speed > this.currentLevelDef.brutality.maxSpeed) {
             Matter.Body.setVelocity(bee.body, {
@@ -82695,17 +83077,53 @@ var DogeRescueComponent = class _DogeRescueComponent {
           }
         });
       }
-      if (this.dogeBody) {
-        const canvas = this.canvasRef.nativeElement;
-        if (this.dogeBody.position.y > canvas.height + 50 || this.dogeBody.position.x < -50 || this.dogeBody.position.x > canvas.width + 50) {
-          this.ngZone.run(() => {
-            this.gameState = "LOSE";
-            if (this.attackTimer)
-              clearInterval(this.attackTimer);
-            if (this.beeSpawnTimer)
-              clearInterval(this.beeSpawnTimer);
-            this.tools.playSound("sfx_8");
-          });
+      const canvas = this.canvasRef.nativeElement;
+      for (let r = 0; r < this.mapGrid.length; r++) {
+        for (let c = 0; c < this.mapGrid[r].length; c++) {
+          const cell = this.mapGrid[r][c];
+          if (cell.body && !cell.body.isStatic) {
+            const blockDef = this.blocksDef[cell.id];
+            if (blockDef && typeof blockDef.physics === "object") {
+              if (blockDef.physics.infinite_move_x) {
+                const targetX = blockDef.physics.infinite_move_x;
+                if (Math.abs(cell.body.velocity.x) < targetX) {
+                  let dirX = cell.body.velocity.x >= 0 ? 1 : -1;
+                  if (cell.body.velocity.x === 0)
+                    dirX = Math.random() > 0.5 ? 1 : -1;
+                  Matter.Body.setVelocity(cell.body, { x: dirX * targetX, y: cell.body.velocity.y });
+                }
+              }
+              if (blockDef.physics.infinite_move_y) {
+                const targetY = blockDef.physics.infinite_move_y;
+                if (Math.abs(cell.body.velocity.y) < targetY) {
+                  let dirY = cell.body.velocity.y >= 0 ? 1 : -1;
+                  if (cell.body.velocity.y === 0)
+                    dirY = Math.random() > 0.5 ? 1 : -1;
+                  Matter.Body.setVelocity(cell.body, { x: cell.body.velocity.x, y: dirY * targetY });
+                }
+              }
+              if (blockDef.physics.bounce && blockDef.physics.bounce_speed) {
+                const currentSpeed = Matter.Vector.magnitude(cell.body.velocity);
+                if (currentSpeed < blockDef.physics.bounce_speed) {
+                  if (currentSpeed > 0) {
+                    const scale = blockDef.physics.bounce_speed / currentSpeed;
+                    Matter.Body.setVelocity(cell.body, { x: cell.body.velocity.x * scale, y: cell.body.velocity.y * scale });
+                  }
+                }
+              }
+            } else {
+              if (Math.abs(cell.body.velocity.x) < 1) {
+                const pushX = cell.body.position.x > canvas.width / 2 ? -1e-3 : 1e-3;
+                Matter.Body.applyForce(cell.body, cell.body.position, { x: pushX, y: 0 });
+              }
+            }
+          }
+        }
+      }
+      for (let doge of this.dogeBodies) {
+        if (doge.position.y > canvas.height + 50 || doge.position.x < -50 || doge.position.x > canvas.width + 50) {
+          this.removeEntity(doge, "doge", "#ffaa00");
+          break;
         }
       }
     }
@@ -82724,17 +83142,53 @@ var DogeRescueComponent = class _DogeRescueComponent {
         const cell = this.mapGrid[r][c];
         const blockDef = this.blocksDef[cell.id];
         if (blockDef && blockDef.src && this.textures[cell.id]) {
-          ctx.drawImage(this.textures[cell.id], cell.rect.x, cell.rect.y, cell.rect.w, cell.rect.h);
+          const hasPhys = typeof blockDef.physics === "object" ? blockDef.physics.have_physics : !!blockDef.physics;
+          ctx.save();
+          if (cell.body) {
+            if (blockDef.shape === "circle") {
+              ctx.beginPath();
+              ctx.arc(cell.body.position.x, cell.body.position.y, cell.rect.w / 2, 0, Math.PI * 2);
+              ctx.clip();
+            } else if (blockDef.shape?.startsWith("triangle") && cell.body.vertices.length >= 3) {
+              ctx.beginPath();
+              ctx.moveTo(cell.body.vertices[0].x, cell.body.vertices[0].y);
+              ctx.lineTo(cell.body.vertices[1].x, cell.body.vertices[1].y);
+              ctx.lineTo(cell.body.vertices[2].x, cell.body.vertices[2].y);
+              ctx.closePath();
+              ctx.clip();
+            }
+            if (hasPhys) {
+              ctx.translate(cell.body.position.x, cell.body.position.y);
+              ctx.rotate(cell.body.angle);
+              let offsetX = 0, offsetY = 0;
+              if (blockDef.shape === "triangle_bottom")
+                offsetY = -cell.rect.h / 6;
+              else if (blockDef.shape === "triangle_top")
+                offsetY = cell.rect.h / 6;
+              else if (blockDef.shape === "triangle_left")
+                offsetX = cell.rect.w / 6;
+              else if (blockDef.shape === "triangle_right")
+                offsetX = -cell.rect.w / 6;
+              ctx.drawImage(this.textures[cell.id], -cell.rect.w / 2 + offsetX, -cell.rect.h / 2 + offsetY, cell.rect.w, cell.rect.h);
+            } else {
+              ctx.drawImage(this.textures[cell.id], cell.rect.x, cell.rect.y, cell.rect.w, cell.rect.h);
+            }
+          } else {
+            ctx.drawImage(this.textures[cell.id], cell.rect.x, cell.rect.y, cell.rect.w, cell.rect.h);
+          }
+          ctx.restore();
         }
       }
     }
-    if (this.dogeBody && this.textures["doge"]) {
-      ctx.save();
-      ctx.translate(this.dogeBody.position.x, this.dogeBody.position.y);
-      ctx.rotate(this.dogeBody.angle);
-      const rad = this.dogeBody.circleRadius || 20;
-      ctx.drawImage(this.textures["doge"], -rad, -rad, rad * 2, rad * 2);
-      ctx.restore();
+    if (this.textures["doge"]) {
+      for (let dogeBody of this.dogeBodies) {
+        ctx.save();
+        ctx.translate(dogeBody.position.x, dogeBody.position.y);
+        ctx.rotate(dogeBody.angle);
+        const rad = dogeBody.circleRadius || 20;
+        ctx.drawImage(this.textures["doge"], -rad, -rad, rad * 2, rad * 2);
+        ctx.restore();
+      }
     }
     if (this.isDrawing && this.currentDrawing.length > 1) {
       ctx.strokeStyle = "#222";
@@ -82770,6 +83224,12 @@ var DogeRescueComponent = class _DogeRescueComponent {
         ctx.drawImage(this.textures["bee"], -rad, -rad, rad * 2, rad * 2);
         ctx.restore();
       });
+    }
+    for (let p of this.particles) {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fill();
     }
     if (this.gameState === "DRAWING" || this.gameState === "ATTACK") {
       const barWidth = canvas.width * 0.8;
@@ -82926,7 +83386,7 @@ var DogeRescueComponent = class _DogeRescueComponent {
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DogeRescueComponent, { className: "DogeRescueComponent", filePath: "src/app/games/doge_rescue/doge_rescue.component.ts", lineNumber: 28 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DogeRescueComponent, { className: "DogeRescueComponent", filePath: "src/app/games/doge_rescue/doge_rescue.component.ts", lineNumber: 39 });
 })();
 
 // src/app/games/flappy_dunk/flappy_dunk.component.ts

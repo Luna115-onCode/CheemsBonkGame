@@ -859,7 +859,7 @@
     "nameKey": "shop_minigame_block_breaker_name",
     "descKey": "shop_minigame_block_breaker_desc",
     "cost": 0,
-    "costCoins": 450,
+    "costCoins": 250,
     "costMinigames": 800,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -871,7 +871,7 @@
     "nameKey": "shop_minigame_attack_hole_name",
     "descKey": "shop_minigame_attack_hole_desc",
     "cost": 0,
-    "costCoins": 1500,
+    "costCoins": 750,
     "costMinigames": 0,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -883,7 +883,7 @@
     "nameKey": "shop_minigame_doge_rescue_name",
     "descKey": "shop_minigame_doge_rescue_desc",
     "cost": 0,
-    "costCoins": 300,
+    "costCoins": 150,
     "costMinigames": 550,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -895,7 +895,7 @@
     "nameKey": "shop_minigame_flappy_dunk_name",
     "descKey": "shop_minigame_flappy_dunk_desc",
     "cost": 0,
-    "costCoins": 800,
+    "costCoins": 400,
     "costMinigames": 800,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -907,7 +907,7 @@
     "nameKey": "shop_minigame_helix_jump_name",
     "descKey": "shop_minigame_helix_jump_desc",
     "cost": 0,
-    "costCoins": 550,
+    "costCoins": 250,
     "costMinigames": 1200,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -919,7 +919,7 @@
     "nameKey": "shop_minigame_magic_sort_name",
     "descKey": "shop_minigame_magic_sort_desc",
     "cost": 0,
-    "costCoins": 550,
+    "costCoins": 250,
     "costMinigames": 1200,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -931,7 +931,7 @@
     "nameKey": "shop_minigame_mob_control_name",
     "descKey": "shop_minigame_mob_control_desc",
     "cost": 0,
-    "costCoins": 800,
+    "costCoins": 400,
     "costMinigames": 800,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -943,7 +943,7 @@
     "nameKey": "shop_minigame_paper_io_name",
     "descKey": "shop_minigame_paper_io_desc",
     "cost": 0,
-    "costCoins": 1500,
+    "costCoins": 750,
     "costMinigames": 1500,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
@@ -955,8 +955,8 @@
     "nameKey": "shop_minigame_spiral_roll_name",
     "descKey": "shop_minigame_spiral_roll_desc",
     "cost": 0,
-    "costCoins": 1500,
-    "costMinigames": 0,
+    "costCoins": 750,
+    "costMinigames": 1500,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   },
@@ -967,7 +967,7 @@
     "nameKey": "shop_minigame_stack_colors_name",
     "descKey": "shop_minigame_stack_colors_desc",
     "cost": 0,
-    "costCoins": 300,
+    "costCoins": 150,
     "costMinigames": 550,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true

@@ -18,5 +18,94 @@
   },
   "air": {
     "solid": false
+  },
+  "lava": {
+    "src": "games/doge_rescue/assets/lava.png",
+    "solid": false,
+    "kills": "both"
+  },
+  "magma_block": {
+    "src": "games/doge_rescue/assets/magma.png",
+    "solid": true,
+    "kills": "both"
+  },
+  "magma_triangle_top": {
+    "src": "games/doge_rescue/assets/magma.png",
+    "solid": true,
+    "shape": "triangle_top",
+    "kills": "both"
+  },
+  "magma_triangle_bottom": {
+    "src": "games/doge_rescue/assets/magma.png",
+    "solid": true,
+    "shape": "triangle_bottom",
+    "kills": "both"
+  },
+  "magma_triangle_left": {
+    "src": "games/doge_rescue/assets/magma.png",
+    "solid": true,
+    "shape": "triangle_left",
+    "kills": "both"
+  },
+  "magma_triangle_right": {
+    "src": "games/doge_rescue/assets/magma.png",
+    "solid": true,
+    "shape": "triangle_right",
+    "kills": "both"
+  },
+  "cobblestone": {
+    "src": "games/doge_rescue/assets/cobblestone.png",
+    "solid": true,
+    "physics": {
+      "have_physics": true,
+      "bounce": true,
+      "bounce_speed": 3,
+      "infinite_move_x": 1,
+      "infinite_move_y": 1
+    },
+    "shape": "circle",
+    "kills": "both"
+  },
+  "water": {
+    "src": "games/doge_rescue/assets/water.png",
+    "solid": false,
+    "slow_rate": 0.128,
+    "kills": "bee"
+  },
+  "copper_grate_1": {
+    "src": "games/doge_rescue/assets/copper_grate_1.png",
+    "solid": true,
+    "hit_converts": {
+      "after": 0.25,
+      "to": "copper_grate_2",
+      "play_sound": "sfx_1"
+    }
+  },
+  "copper_grate_2": {
+    "src": "games/doge_rescue/assets/copper_grate_2.png",
+    "solid": true,
+    "hit_converts": {
+      "after": 0.25,
+      "to": "copper_grate_3",
+      "play_sound": "sfx_1"
+    }
+  },
+  "copper_grate_3": {
+    "src": "games/doge_rescue/assets/copper_grate_3.png",
+    "solid": true,
+    "hit_converts": {
+      "after": 0.25,
+      "to": "copper_grate_4",
+      "play_sound": "sfx_1"
+    }
+  },
+  "copper_grate_4": {
+    "src": "games/doge_rescue/assets/copper_grate_4.png",
+    "solid": true,
+    "hit_converts": {
+      "after": 0.25,
+      "to": "air",
+      "play_sound": "sfx_1"
+    }
   }
 }
