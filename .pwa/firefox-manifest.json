@@ -8,11 +8,14 @@
     "scripts": ["background.js"]
   },
   "icons": {
-    "128": "icon.png"
+    "512": "icon.png"
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "cheemsbonk-${Prefix}@cheems.com"
+      "id": "cheemsbonk-${Prefix}@cheems.com",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   }
 }
