@@ -7,6 +7,17 @@ interface BlockDef {
   src?: string;
   solid?: boolean;
   spawn?: 'doge' | 'bees';
+  kills?: 'both' | 'doge' | 'bee' | 'none';
+  slow_rate?: number;
+  physics?: boolean | {
+    have_physics: boolean;
+    bounce?: boolean;
+    bounce_speed?: number;
+    infinite_move_x?: number;
+    infinite_move_y?: number;
+  };
+  shape?: 'cube' | 'circle' | 'triangle_bottom' | 'triangle_top' | 'triangle_left' | 'triangle_right';
+  hit_converts?: { after: number; to: string; play_sound?: string };
 }
 
 interface LevelDef {
@@ -38,14 +49,15 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
   timerDisplay = 5;
 
   private engine!: Matter.Engine;
-  private dogeBody: Matter.Body | null = null;
+  private dogeBodies: Matter.Body[] = [];
   private drawnLineBody: Matter.Body | null = null;
   private bees: Array<{ body: Matter.Body; position: { x: number; y: number }; velocity: { x: number; y: number }; circleRadius: number }> = [];
+  private particles: { x: number; y: number; vx: number; vy: number; color: string; life: number; maxLife: number }[] = [];
   
   private blocksDef: Record<string, BlockDef> = {};
   private levelsDef: LevelDef[] = [];
   private textures: Record<string, HTMLImageElement> = {};
-  private mapGrid: { id: string; body: Matter.Body | null; rect: {x:number, y:number, w:number, h:number} }[][] = [];
+  private mapGrid: { id: string; body: Matter.Body | null; rect: {x:number, y:number, w:number, h:number}; r: number; c: number; convertTimer?: any }[][] = [];
   private beeNests: { x: number; y: number }[] = [];
   private currentLevelDef!: LevelDef;
 
@@ -56,6 +68,8 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
   private animationFrameId: number | null = null;
   private attackTimer: any = null;
   private beeSpawnTimer: any = null;
+  private flowFieldTimer: any = null;
+  private flowField: number[][] | null = null;
 
   private onPointerDownBound = this.onPointerDown.bind(this);
   private onPointerMoveBound = this.onPointerMove.bind(this);
@@ -76,6 +90,7 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     this.stopLoop();
     if (this.attackTimer) clearInterval(this.attackTimer);
     if (this.beeSpawnTimer) clearInterval(this.beeSpawnTimer);
+    if (this.flowFieldTimer) clearInterval(this.flowFieldTimer);
     window.removeEventListener('resize', this.onResizeBound);
 
     const canvas = this.canvasRef?.nativeElement;
@@ -143,6 +158,111 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     this.startLevel();
   }
 
+
+  private removeEntity(body: Matter.Body, type: 'doge' | 'bee', color: string): void {
+    const isBee = type === 'bee';
+    
+    // Spawn particles
+    for (let i = 0; i < 20; i++) {
+      this.particles.push({
+        x: body.position.x,
+        y: body.position.y,
+        vx: (Math.random() - 0.5) * 10,
+        vy: (Math.random() - 0.5) * 10,
+        color: color,
+        life: 0,
+        maxLife: 30 + Math.random() * 20
+      });
+    }
+
+    if (isBee) {
+      this.bees = this.bees.filter(b => b.body !== body);
+      Matter.World.remove(this.engine.world, body);
+    } else {
+      this.dogeBodies = this.dogeBodies.filter(b => b !== body);
+      Matter.World.remove(this.engine.world, body);
+      this.ngZone.run(() => {
+        this.gameState = 'LOSE';
+        if (this.attackTimer) clearInterval(this.attackTimer);
+        if (this.beeSpawnTimer) clearInterval(this.beeSpawnTimer);
+        this.tools.playSound('sfx_8');
+      });
+    }
+  }
+
+  private convertBlock(cell: any, newBlockId: string): void {
+    const blockDef = this.blocksDef[newBlockId];
+    if (cell.body) Matter.World.remove(this.engine.world, cell.body);
+    cell.id = newBlockId;
+    cell.body = null;
+    cell.convertTimer = null;
+
+    if (!blockDef) return;
+    if (blockDef.solid || blockDef.kills || blockDef.slow_rate || blockDef.hit_converts) {
+      const hasPhys = typeof blockDef.physics === 'object' ? blockDef.physics.have_physics : !!blockDef.physics;
+      const isStatic = !hasPhys;
+      const isSensor = !blockDef.solid;
+      
+      let rest = 0.1;
+      let fric = 1;
+      let fricAir = 0.01;
+      if (typeof blockDef.physics === 'object') {
+        if (blockDef.physics.bounce) rest = 1.0;
+        if (blockDef.physics.infinite_move_x || blockDef.physics.infinite_move_y) {
+          fric = 0;
+          fricAir = 0;
+        }
+      }
+      
+      const opts: Matter.IChamferableBodyDefinition = {
+        isStatic: isStatic,
+        isSensor: isSensor,
+        friction: fric,
+        frictionAir: fricAir,
+        restitution: rest,
+        label: 'block_' + newBlockId
+      };
+      
+      const centerX = cell.rect.x + cell.rect.w / 2;
+      const centerY = cell.rect.y + cell.rect.h / 2;
+      
+      if (blockDef.shape === 'circle') {
+        cell.body = Matter.Bodies.circle(centerX, centerY, cell.rect.w / 2, opts);
+      } else if (blockDef.shape === 'triangle_bottom') {
+        const polygon = [
+          { x: -cell.rect.w / 2, y: cell.rect.h / 2 },
+          { x: cell.rect.w / 2, y: cell.rect.h / 2 },
+          { x: 0, y: -cell.rect.h / 2 }
+        ];
+        cell.body = Matter.Bodies.fromVertices(centerX, centerY + cell.rect.h / 6, [polygon], opts);
+      } else if (blockDef.shape === 'triangle_top') {
+        const polygon = [
+          { x: -cell.rect.w / 2, y: -cell.rect.h / 2 },
+          { x: cell.rect.w / 2, y: -cell.rect.h / 2 },
+          { x: 0, y: cell.rect.h / 2 }
+        ];
+        cell.body = Matter.Bodies.fromVertices(centerX, centerY - cell.rect.h / 6, [polygon], opts);
+      } else if (blockDef.shape === 'triangle_left') {
+        const polygon = [
+          { x: -cell.rect.w / 2, y: -cell.rect.h / 2 },
+          { x: -cell.rect.w / 2, y: cell.rect.h / 2 },
+          { x: cell.rect.w / 2, y: 0 }
+        ];
+        cell.body = Matter.Bodies.fromVertices(centerX - cell.rect.w / 6, centerY, [polygon], opts);
+      } else if (blockDef.shape === 'triangle_right') {
+        const polygon = [
+          { x: cell.rect.w / 2, y: -cell.rect.h / 2 },
+          { x: cell.rect.w / 2, y: cell.rect.h / 2 },
+          { x: -cell.rect.w / 2, y: 0 }
+        ];
+        cell.body = Matter.Bodies.fromVertices(centerX + cell.rect.w / 6, centerY, [polygon], opts);
+      } else {
+        cell.body = Matter.Bodies.rectangle(centerX, centerY, cell.rect.w + 1, cell.rect.h + 1, opts);
+      }
+      Matter.World.add(this.engine.world, cell.body);
+    }
+  }
+
   private initPhysics(): void {
     this.engine = Matter.Engine.create();
     this.engine.gravity.y = 1;
@@ -157,12 +277,14 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     canvas.addEventListener('pointerup', this.onPointerUpBound);
     window.addEventListener('resize', this.onResizeBound);
 
-    // Collision listener
+
     Matter.Events.on(this.engine, 'collisionStart', (event) => {
       if (this.gameState !== 'ATTACK') return;
       const pairs = event.pairs;
       for (let i = 0; i < pairs.length; i++) {
         const { bodyA, bodyB } = pairs[i];
+        
+        // Check Bee vs Doge
         if ((bodyA.label === 'doge' && bodyB.label === 'bee') || (bodyA.label === 'bee' && bodyB.label === 'doge')) {
           this.ngZone.run(() => {
             this.gameState = 'LOSE';
@@ -172,8 +294,55 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
           });
           return;
         }
+
+        const handleBlockCollision = (blockBody: Matter.Body, otherBody: Matter.Body) => {
+          const isDoge = otherBody.label === 'doge';
+          const isBee = otherBody.label === 'bee';
+          const blockId = blockBody.label.replace('block_', '');
+          const blockDef = this.blocksDef[blockId];
+          
+          if (!blockDef) return;
+
+          // Kills check
+          if (blockDef.kills) {
+            if ((blockDef.kills === 'both' || blockDef.kills === 'doge') && isDoge) {
+              this.removeEntity(otherBody, 'doge', '#ffaa00');
+            }
+            if ((blockDef.kills === 'both' || blockDef.kills === 'bee') && isBee) {
+              this.removeEntity(otherBody, 'bee', '#ffff00');
+            }
+          }
+
+          // Hit converts check
+          if (blockDef.hit_converts && (isDoge || isBee || otherBody.isStatic === false)) {
+            // find cell
+            let targetCell: any = null;
+            for (let r = 0; r < this.mapGrid.length; r++) {
+              for (let c = 0; c < this.mapGrid[r].length; c++) {
+                if (this.mapGrid[r][c].body === blockBody) {
+                  targetCell = this.mapGrid[r][c];
+                  break;
+                }
+              }
+            }
+            if (targetCell && !targetCell.convertTimer) {
+              targetCell.convertTimer = setTimeout(() => {
+                this.ngZone.runOutsideAngular(() => {
+                  if (blockDef.hit_converts!.play_sound) {
+                    this.tools.playSound(blockDef.hit_converts!.play_sound as any);
+                  }
+                  this.convertBlock(targetCell, blockDef.hit_converts!.to);
+                });
+              }, blockDef.hit_converts.after * 1000);
+            }
+          }
+        };
+
+        if (bodyA.label.startsWith('block_')) handleBlockCollision(bodyA, bodyB);
+        if (bodyB.label.startsWith('block_')) handleBlockCollision(bodyB, bodyA);
       }
     });
+
 
     this.ngZone.runOutsideAngular(() => {
       this.loop();
@@ -189,7 +358,8 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     this.drawnLineBody = null;
     this.mapGrid = [];
     this.beeNests = [];
-    this.dogeBody = null;
+    this.dogeBodies = [];
+    this.particles = [];
 
     if (this.attackTimer) clearInterval(this.attackTimer);
     if (this.beeSpawnTimer) clearInterval(this.beeSpawnTimer);
@@ -225,32 +395,99 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
             const centerX = rect.x + blockW / 2;
             const centerY = rect.y + blockH / 2;
             
-            if (blockDef.solid) {
-              body = Matter.Bodies.rectangle(centerX, centerY, blockW + 1, blockH + 1, {
-                isStatic: true,
-                friction: 1,
-                restitution: 0.1
-              });
-              Matter.World.add(this.engine.world, body);
-            }
-            
             if (blockDef.spawn === 'doge') {
-              this.dogeBody = Matter.Bodies.circle(centerX, centerY, blockW * 0.4, {
+              const dogeBody = Matter.Bodies.circle(centerX, centerY, blockW * 0.4, {
                 restitution: 0.3,
                 friction: 0.8,
                 density: 0.05,
                 label: 'doge'
               });
-              Matter.World.add(this.engine.world, this.dogeBody);
+              Matter.World.add(this.engine.world, dogeBody);
+              this.dogeBodies.push(dogeBody);
             } else if (blockDef.spawn === 'bees') {
               this.beeNests.push({ x: centerX, y: centerY });
+            } else if (blockDef.solid || blockDef.kills || blockDef.slow_rate || blockDef.hit_converts) {
+              const hasPhys = typeof blockDef.physics === 'object' ? blockDef.physics.have_physics : !!blockDef.physics;
+              const isStatic = !hasPhys;
+              const isSensor = !blockDef.solid;
+              
+              let rest = 0.1;
+              let fric = 1;
+              let fricAir = 0.01;
+              if (typeof blockDef.physics === 'object') {
+                if (blockDef.physics.bounce) rest = 1.0;
+                if (blockDef.physics.infinite_move_x || blockDef.physics.infinite_move_y) {
+                  fric = 0;
+                  fricAir = 0;
+                }
+              }
+              
+              const opts: Matter.IChamferableBodyDefinition = {
+                isStatic: isStatic,
+                isSensor: isSensor,
+                friction: fric,
+                frictionAir: fricAir,
+                restitution: rest,
+                label: 'block_' + blockId
+              };
+              
+              if (blockDef.shape === 'circle') {
+                body = Matter.Bodies.circle(centerX, centerY, blockW / 2, opts);
+              } else if (blockDef.shape === 'triangle_bottom') {
+                const polygon = [
+                  { x: -blockW / 2, y: blockH / 2 },
+                  { x: blockW / 2, y: blockH / 2 },
+                  { x: 0, y: -blockH / 2 }
+                ];
+                body = Matter.Bodies.fromVertices(centerX, centerY + blockH / 6, [polygon], opts);
+              } else if (blockDef.shape === 'triangle_top') {
+                const polygon = [
+                  { x: -blockW / 2, y: -blockH / 2 },
+                  { x: blockW / 2, y: -blockH / 2 },
+                  { x: 0, y: blockH / 2 }
+                ];
+                body = Matter.Bodies.fromVertices(centerX, centerY - blockH / 6, [polygon], opts);
+              } else if (blockDef.shape === 'triangle_left') {
+                const polygon = [
+                  { x: -blockW / 2, y: -blockH / 2 },
+                  { x: -blockW / 2, y: blockH / 2 },
+                  { x: blockW / 2, y: 0 }
+                ];
+                body = Matter.Bodies.fromVertices(centerX - blockW / 6, centerY, [polygon], opts);
+              } else if (blockDef.shape === 'triangle_right') {
+                const polygon = [
+                  { x: blockW / 2, y: -blockH / 2 },
+                  { x: blockW / 2, y: blockH / 2 },
+                  { x: -blockW / 2, y: 0 }
+                ];
+                body = Matter.Bodies.fromVertices(centerX + blockW / 6, centerY, [polygon], opts);
+              } else {
+                body = Matter.Bodies.rectangle(centerX, centerY, blockW + 1, blockH + 1, opts);
+              }
+              Matter.World.add(this.engine.world, body);
             }
           }
-          rowArr.push({ id: blockId, body, rect });
+          rowArr.push({ id: blockId, body, rect, r, c });
         }
         this.mapGrid.push(rowArr);
       }
     }
+  }
+
+  private isPointInSolidBlock(x: number, y: number): boolean {
+    for (let r = 0; r < this.mapGrid.length; r++) {
+      for (let c = 0; c < this.mapGrid[r].length; c++) {
+        const cell = this.mapGrid[r][c];
+        const blockDef = this.blocksDef[cell.id];
+        if (blockDef && blockDef.solid) {
+          if (x >= cell.rect.x && x <= cell.rect.x + cell.rect.w &&
+              y >= cell.rect.y && y <= cell.rect.y + cell.rect.h) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   private onPointerDown(e: PointerEvent): void {
@@ -258,6 +495,9 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    if (this.isPointInSolidBlock(x, y)) return;
+
     this.isDrawing = true;
     this.currentDrawing = [{ x, y }];
     this.lineLength = 0;
@@ -268,6 +508,8 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     const rect = this.canvasRef.nativeElement.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    if (this.isPointInSolidBlock(x, y)) return;
 
     const last = this.currentDrawing[this.currentDrawing.length - 1];
     const dist = Math.hypot(x - last.x, y - last.y);
@@ -322,6 +564,68 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     Matter.World.add(this.engine.world, this.drawnLineBody);
   }
 
+  private getBlockCost(blockDef: BlockDef | undefined): number {
+    if (!blockDef) return 1;
+    if (blockDef.kills === 'both' || blockDef.kills === 'bee') return 9999;
+    if (blockDef.solid) {
+      if (blockDef.hit_converts) return 5;
+      return 1000;
+    }
+    return 1;
+  }
+
+  private updateFlowField(): void {
+    if (this.dogeBodies.length === 0 || this.mapGrid.length === 0 || this.mapGrid[0].length === 0) return;
+    
+    const rows = this.mapGrid.length;
+    const cols = this.mapGrid[0].length;
+    const blockW = this.mapGrid[0][0].rect.w;
+    const blockH = this.mapGrid[0][0].rect.h;
+    
+    this.flowField = Array.from({ length: rows }, () => Array(cols).fill(Infinity));
+    const queue: { r: number, c: number, cost: number }[] = [];
+    
+    this.dogeBodies.forEach(doge => {
+       let r = Math.floor((doge.position.y - this.mapGrid[0][0].rect.y) / blockH);
+       let c = Math.floor((doge.position.x - this.mapGrid[0][0].rect.x) / blockW);
+       r = Math.max(0, Math.min(rows - 1, r));
+       c = Math.max(0, Math.min(cols - 1, c));
+       
+       this.flowField![r][c] = 0;
+       queue.push({ r, c, cost: 0 });
+    });
+
+    const dirs = [
+      [-1, 0], [1, 0], [0, -1], [0, 1],
+      [-1, -1], [-1, 1], [1, -1], [1, 1]
+    ];
+
+    while (queue.length > 0) {
+       queue.sort((a, b) => a.cost - b.cost);
+       const current = queue.shift()!;
+       
+       if (current.cost > this.flowField![current.r][current.c]) continue;
+
+       for (let d of dirs) {
+          const nr = current.r + d[0];
+          const nc = current.c + d[1];
+          if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+             const neighborCell = this.mapGrid[nr][nc];
+             const blockDef = this.blocksDef[neighborCell.id];
+             
+             let moveCost = this.getBlockCost(blockDef);
+             if (Math.abs(d[0]) + Math.abs(d[1]) === 2) moveCost *= 1.414;
+             
+             const newCost = current.cost + moveCost;
+             if (newCost < this.flowField![nr][nc]) {
+                this.flowField![nr][nc] = newCost;
+                queue.push({ r: nr, c: nc, cost: newCost });
+             }
+          }
+       }
+    }
+  }
+
   private startAttack(): void {
     this.gameState = 'ATTACK';
     this.timerDisplay = this.currentLevelDef.duration;
@@ -362,6 +666,13 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
       spawnBees();
     }, 500);
 
+    this.updateFlowField();
+    if (this.flowFieldTimer) clearInterval(this.flowFieldTimer);
+    this.flowFieldTimer = setInterval(() => {
+      if (this.tools.isWindowBlurred) return;
+      this.updateFlowField();
+    }, 500);
+
     if (this.attackTimer) clearInterval(this.attackTimer);
     this.attackTimer = setInterval(() => {
       if (this.tools.isWindowBlurred) return;
@@ -370,6 +681,7 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.timerDisplay <= 0) {
           clearInterval(this.attackTimer);
           clearInterval(this.beeSpawnTimer);
+          clearInterval(this.flowFieldTimer);
           this.ngZone.run(() => {
             this.gamePoints += 10;
             this.gameState = 'WIN';
@@ -387,18 +699,127 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.gameState === 'ATTACK') {
       Matter.Engine.update(this.engine, 1000 / 60);
 
-      // Bee AI
-      if (this.dogeBody) {
-        this.bees.forEach(bee => {
-          const dx = this.dogeBody!.position.x - bee.body.position.x;
-          const dy = this.dogeBody!.position.y - bee.body.position.y;
-          const dist = Math.hypot(dx, dy);
+      // Particle update
+      for (let i = this.particles.length - 1; i >= 0; i--) {
+        const p = this.particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.5; // gravity
+        p.life++;
+        if (p.life > p.maxLife) {
+          this.particles.splice(i, 1);
+        }
+      }
 
-          if (dist > 0) {
-            Matter.Body.applyForce(bee.body, bee.body.position, {
-              x: (dx / dist) * this.currentLevelDef.brutality.force,
-              y: (dy / dist) * this.currentLevelDef.brutality.force
-            });
+      // Water Slow Rate
+      for (let r = 0; r < this.mapGrid.length; r++) {
+        for (let c = 0; c < this.mapGrid[r].length; c++) {
+          const cell = this.mapGrid[r][c];
+          const blockDef = this.blocksDef[cell.id];
+          if (blockDef && blockDef.slow_rate && cell.body) {
+             const slowMultiplier = 1 - blockDef.slow_rate; // 0.128 -> 0.872
+             const cellBody = cell.body as Matter.Body;
+             
+             this.dogeBodies.forEach(doge => {
+                if (Matter.Collision.collides(doge, cellBody)) {
+                    Matter.Body.setVelocity(doge, { x: doge.velocity.x * slowMultiplier, y: doge.velocity.y * slowMultiplier });
+                }
+             });
+             this.bees.forEach(bee => {
+                if (Matter.Collision.collides(bee.body, cellBody)) {
+                    Matter.Body.setVelocity(bee.body, { x: bee.body.velocity.x * slowMultiplier, y: bee.body.velocity.y * slowMultiplier });
+                }
+             });
+             if (this.drawnLineBody && Matter.Collision.collides(this.drawnLineBody, cellBody)) {
+                Matter.Body.setVelocity(this.drawnLineBody, { x: this.drawnLineBody.velocity.x * slowMultiplier, y: this.drawnLineBody.velocity.y * slowMultiplier });
+             }
+          }
+        }
+      }
+
+      // Bee AI
+      if (this.dogeBodies.length > 0) {
+        const blockW = this.mapGrid.length > 0 ? this.mapGrid[0][0].rect.w : 50;
+        const blockH = this.mapGrid.length > 0 ? this.mapGrid[0][0].rect.h : 50;
+        const startX = this.mapGrid.length > 0 ? this.mapGrid[0][0].rect.x : 0;
+        const startY = this.mapGrid.length > 0 ? this.mapGrid[0][0].rect.y : 0;
+        
+        this.bees.forEach(bee => {
+          let targetX = this.dogeBodies[0].position.x;
+          let targetY = this.dogeBodies[0].position.y;
+
+          if (this.flowField && this.mapGrid.length > 0) {
+            let r = Math.floor((bee.body.position.y - startY) / blockH);
+            let c = Math.floor((bee.body.position.x - startX) / blockW);
+            r = Math.max(0, Math.min(this.mapGrid.length - 1, r));
+            c = Math.max(0, Math.min(this.mapGrid[0].length - 1, c));
+            
+            let minCost = this.flowField[r][c];
+            let bestR = r;
+            let bestC = c;
+            const dirs = [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]];
+            for (let d of dirs) {
+              const nr = r + d[0];
+              const nc = c + d[1];
+              if (nr >= 0 && nr < this.mapGrid.length && nc >= 0 && nc < this.mapGrid[0].length) {
+                if (this.flowField[nr][nc] < minCost) {
+                  minCost = this.flowField[nr][nc];
+                  bestR = nr;
+                  bestC = nc;
+                }
+              }
+            }
+            if (minCost !== Infinity && (bestR !== r || bestC !== c)) {
+              let nextR = bestR;
+              let nextC = bestC;
+              let nextMinCost = minCost;
+              for (let d of dirs) {
+                const nnr = bestR + d[0];
+                const nnc = bestC + d[1];
+                if (nnr >= 0 && nnr < this.mapGrid.length && nnc >= 0 && nnc < this.mapGrid[0].length) {
+                  if (this.flowField[nnr][nnc] < nextMinCost) {
+                    nextMinCost = this.flowField[nnr][nnc];
+                    nextR = nnr;
+                    nextC = nnc;
+                  }
+                }
+              }
+              targetX = (this.mapGrid[bestR][bestC].rect.x + this.mapGrid[nextR][nextC].rect.x) / 2 + blockW / 2;
+              targetY = (this.mapGrid[bestR][bestC].rect.y + this.mapGrid[nextR][nextC].rect.y) / 2 + blockH / 2;
+            }
+          } else {
+             let minDist = Infinity;
+             for (let doge of this.dogeBodies) {
+                const dist = Math.hypot(doge.position.x - bee.body.position.x, doge.position.y - bee.body.position.y);
+                if (dist < minDist) {
+                   minDist = dist;
+                   targetX = doge.position.x;
+                   targetY = doge.position.y;
+                }
+             }
+          }
+
+          const dx = targetX - bee.body.position.x;
+          const dy = targetY - bee.body.position.y;
+          const distToTarget = Math.hypot(dx, dy);
+          
+          if (distToTarget > 0) {
+            const dirX = dx / distToTarget;
+            const dirY = dy / distToTarget;
+            
+            const desiredVx = dirX * this.currentLevelDef.brutality.maxSpeed;
+            const desiredVy = dirY * this.currentLevelDef.brutality.maxSpeed;
+            
+            const errX = desiredVx - bee.body.velocity.x;
+            const errY = desiredVy - bee.body.velocity.y;
+            const errMag = Math.hypot(errX, errY);
+            
+            if (errMag > 0) {
+              Matter.Body.applyForce(bee.body, bee.body.position, {
+                x: (errX / errMag) * this.currentLevelDef.brutality.force,
+                y: (errY / errMag) * this.currentLevelDef.brutality.force
+              });
+            }
           }
 
           if (bee.body.speed > this.currentLevelDef.brutality.maxSpeed) {
@@ -410,16 +831,57 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
 
+      // Keep physics blocks moving
+      const canvas = this.canvasRef.nativeElement;
+      for (let r = 0; r < this.mapGrid.length; r++) {
+        for (let c = 0; c < this.mapGrid[r].length; c++) {
+          const cell = this.mapGrid[r][c];
+          if (cell.body && !cell.body.isStatic) {
+            const blockDef = this.blocksDef[cell.id];
+            
+            if (blockDef && typeof blockDef.physics === 'object') {
+              if (blockDef.physics.infinite_move_x) {
+                const targetX = blockDef.physics.infinite_move_x;
+                if (Math.abs(cell.body.velocity.x) < targetX) {
+                  let dirX = cell.body.velocity.x >= 0 ? 1 : -1;
+                  if (cell.body.velocity.x === 0) dirX = Math.random() > 0.5 ? 1 : -1;
+                  Matter.Body.setVelocity(cell.body, { x: dirX * targetX, y: cell.body.velocity.y });
+                }
+              }
+              if (blockDef.physics.infinite_move_y) {
+                const targetY = blockDef.physics.infinite_move_y;
+                if (Math.abs(cell.body.velocity.y) < targetY) {
+                  let dirY = cell.body.velocity.y >= 0 ? 1 : -1;
+                  if (cell.body.velocity.y === 0) dirY = Math.random() > 0.5 ? 1 : -1;
+                  Matter.Body.setVelocity(cell.body, { x: cell.body.velocity.x, y: dirY * targetY });
+                }
+              }
+              if (blockDef.physics.bounce && blockDef.physics.bounce_speed) {
+                 const currentSpeed = Matter.Vector.magnitude(cell.body.velocity);
+                 if (currentSpeed < blockDef.physics.bounce_speed) {
+                    // maintain speed slightly
+                    if (currentSpeed > 0) {
+                      const scale = blockDef.physics.bounce_speed / currentSpeed;
+                      Matter.Body.setVelocity(cell.body, { x: cell.body.velocity.x * scale, y: cell.body.velocity.y * scale });
+                    }
+                 }
+              }
+            } else {
+              // Legacy minimal horizontal movement
+              if (Math.abs(cell.body.velocity.x) < 1.0) {
+                const pushX = cell.body.position.x > canvas.width / 2 ? -0.001 : 0.001;
+                Matter.Body.applyForce(cell.body, cell.body.position, { x: pushX, y: 0 });
+              }
+            }
+          }
+        }
+      }
+
       // Check Doge out of bounds
-      if (this.dogeBody) {
-        const canvas = this.canvasRef.nativeElement;
-        if (this.dogeBody.position.y > canvas.height + 50 || this.dogeBody.position.x < -50 || this.dogeBody.position.x > canvas.width + 50) {
-          this.ngZone.run(() => {
-            this.gameState = 'LOSE';
-            if (this.attackTimer) clearInterval(this.attackTimer);
-            if (this.beeSpawnTimer) clearInterval(this.beeSpawnTimer);
-            this.tools.playSound('sfx_8');
-          });
+      for (let doge of this.dogeBodies) {
+        if (doge.position.y > canvas.height + 50 || doge.position.x < -50 || doge.position.x > canvas.width + 50) {
+          this.removeEntity(doge, 'doge', '#ffaa00');
+          break; // removeEntity handles LOSE state
         }
       }
     }
@@ -441,19 +903,52 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
         const cell = this.mapGrid[r][c];
         const blockDef = this.blocksDef[cell.id];
         if (blockDef && blockDef.src && this.textures[cell.id]) {
-          ctx.drawImage(this.textures[cell.id], cell.rect.x, cell.rect.y, cell.rect.w, cell.rect.h);
+          const hasPhys = typeof blockDef.physics === 'object' ? blockDef.physics.have_physics : !!blockDef.physics;
+          ctx.save();
+          if (cell.body) {
+            if (blockDef.shape === 'circle') {
+              ctx.beginPath();
+              ctx.arc(cell.body.position.x, cell.body.position.y, cell.rect.w / 2, 0, Math.PI * 2);
+              ctx.clip();
+            } else if (blockDef.shape?.startsWith('triangle') && cell.body.vertices.length >= 3) {
+              ctx.beginPath();
+              ctx.moveTo(cell.body.vertices[0].x, cell.body.vertices[0].y);
+              ctx.lineTo(cell.body.vertices[1].x, cell.body.vertices[1].y);
+              ctx.lineTo(cell.body.vertices[2].x, cell.body.vertices[2].y);
+              ctx.closePath();
+              ctx.clip();
+            }
+
+            if (hasPhys) {
+              ctx.translate(cell.body.position.x, cell.body.position.y);
+              ctx.rotate(cell.body.angle);
+              let offsetX = 0, offsetY = 0;
+              if (blockDef.shape === 'triangle_bottom') offsetY = -cell.rect.h / 6;
+              else if (blockDef.shape === 'triangle_top') offsetY = cell.rect.h / 6;
+              else if (blockDef.shape === 'triangle_left') offsetX = cell.rect.w / 6;
+              else if (blockDef.shape === 'triangle_right') offsetX = -cell.rect.w / 6;
+              ctx.drawImage(this.textures[cell.id], -cell.rect.w/2 + offsetX, -cell.rect.h/2 + offsetY, cell.rect.w, cell.rect.h);
+            } else {
+              ctx.drawImage(this.textures[cell.id], cell.rect.x, cell.rect.y, cell.rect.w, cell.rect.h);
+            }
+          } else {
+            ctx.drawImage(this.textures[cell.id], cell.rect.x, cell.rect.y, cell.rect.w, cell.rect.h);
+          }
+          ctx.restore();
         }
       }
     }
 
-    // Draw Doge
-    if (this.dogeBody && this.textures['doge']) {
-      ctx.save();
-      ctx.translate(this.dogeBody.position.x, this.dogeBody.position.y);
-      ctx.rotate(this.dogeBody.angle);
-      const rad = this.dogeBody.circleRadius || 20;
-      ctx.drawImage(this.textures['doge'], -rad, -rad, rad * 2, rad * 2);
-      ctx.restore();
+    // Draw Doges
+    if (this.textures['doge']) {
+      for (let dogeBody of this.dogeBodies) {
+        ctx.save();
+        ctx.translate(dogeBody.position.x, dogeBody.position.y);
+        ctx.rotate(dogeBody.angle);
+        const rad = dogeBody.circleRadius || 20;
+        ctx.drawImage(this.textures['doge'], -rad, -rad, rad * 2, rad * 2);
+        ctx.restore();
+      }
     }
 
     // Draw Pre-physics Line
@@ -490,12 +985,19 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
         ctx.save();
         ctx.translate(bee.body.position.x, bee.body.position.y);
         let angle = Math.atan2(bee.body.velocity.y, bee.body.velocity.x);
-        // If speed is very low, stay upright or last angle, but simple rotation here is fine
         ctx.rotate(angle);
-        const rad = bee.circleRadius * 1.5; // Visual size vs physics size
+        const rad = bee.circleRadius * 1.5;
         ctx.drawImage(this.textures['bee'], -rad, -rad, rad * 2, rad * 2);
         ctx.restore();
       });
+    }
+
+    // Draw Particles
+    for (let p of this.particles) {
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     // Draw Ink Bar UI
