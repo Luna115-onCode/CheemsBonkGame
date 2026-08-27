@@ -971,5 +971,29 @@
     "costMinigames": 550,
     "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_rock_paper_poke",
+    "type": "minigame",
+    "targetId": "rock_paper_poke",
+    "nameKey": "shop_minigame_rock_paper_poke_name",
+    "descKey": "shop_minigame_rock_paper_poke_desc",
+    "cost": 0,
+    "costCoins": 150,
+    "costMinigames": 500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_tic_tac_toe",
+    "type": "minigame",
+    "targetId": "tic_tac_toe",
+    "nameKey": "shop_minigame_tic_tac_toe_name",
+    "descKey": "shop_minigame_tic_tac_toe_desc",
+    "cost": 0,
+    "costCoins": 50,
+    "costMinigames": 200,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
   }
 ]

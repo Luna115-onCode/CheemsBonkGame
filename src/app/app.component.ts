@@ -24,6 +24,7 @@ export class AppComponent implements OnInit {
     document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
 
     window.addEventListener('beforeunload', (event: BeforeUnloadEvent) => {
+      if (this.tools.isImportingSave) return;
       if (navigator.userAgent.toLowerCase().includes('electron')) {
         return;
       }

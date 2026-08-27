@@ -23,6 +23,8 @@ export interface PageName {
   minigames?: string;
   stats?: string;
   licenses?: string;
+  rock_paper_poke?: string;
+  tic_tac_toe?: string;
 }
 
 export function createLangMap<T extends object>(base: T): Record<string, T> {
@@ -89,7 +91,7 @@ export const AVAILABLE_LANGUAGES: Array<LanguageItem> = [
 ];
 
 export const showCoins: Array<string> = [
-  "game", "redeem", "closet", "menu", "block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors", "minigames"
+  "game", "redeem", "closet", "menu", "block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors", "minigames", "rock_paper_poke", "tic_tac_toe"
 ];
 
 export const pageName: PageName = {
@@ -114,7 +116,9 @@ export const pageName: PageName = {
   stack_colors: "",
   minigames: "",
   stats: "",
-  licenses: ""
+  licenses: "",
+  rock_paper_poke: "",
+  tic_tac_toe: ""
 };
 
 export const menuText = {
@@ -144,6 +148,8 @@ export const minigamesText = {
   paper_io_title: "",
   spiral_roll_title: "",
   stack_colors_title: "",
+  rock_paper_poke_title: "",
+  tic_tac_toe_title: "",
   playerLevel: "",
   lvl: "",
   trash: "",
@@ -393,4 +399,33 @@ export const spiral_rollText = {
 
 export const stack_colorsText = {
   title: ""
+};
+
+export const rock_paper_pokeText = {
+  title: "",
+  choosePokemon: "",
+  you: "",
+  opponent: "",
+  win: "",
+  lose: "",
+  draw: "",
+  shinyMultiplier: "",
+  superEffective: "",
+  notVeryEffective: "",
+  immune: "",
+  playAgain: "",
+  score: "",
+  multiplier: "",
+  finalScore: ""
+};
+
+export const tic_tac_toeText = {
+  player: "",
+  aiThinking: "",
+  yourTurn: "",
+  youWon: "",
+  aiWon: "",
+  draw: "",
+  ai: "",
+  leave: ""
 };

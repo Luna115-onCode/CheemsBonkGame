@@ -1,0 +1,103 @@
+<div class="rock-paper-poke-container">
+  <div class="top-bar">
+    <button class="back-btn" (click)="tools.redirectBack()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="game-stats">
+      <div class="stat-badge level"><i class="fa-solid fa-star"></i> {{ lang?.lvl || 'Level' }}: {{ level }}</div>
+      <div class="stat-badge points"><i class="fa-solid fa-coins"></i> {{ lang?.score || 'Points' }}: {{ points }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div *ngIf="!isLoading" class="game-board">
+    
+    <div class="opponent-section">
+      <h3>{{ lang?.opponent || 'Opponent' }}</h3>
+      <div class="choices-row">
+        <div class="choice-card opponent-card" 
+             *ngFor="let o of opponentChoices; let i = index"
+             [class.selected]="selectedOpponentPokemon === o"
+             [class.revealed]="battleState === 'RESULT' || (battleState !== 'SELECT' && selectedOpponentPokemon === o)">
+          <div class="card-inner">
+            <div class="card-front">
+              <img [src]="eggSkin" alt="egg">
+            </div>
+            <div class="card-back">
+              <img [src]="o.isShiny ? o.shiny : o.skin" alt="opponent-pokemon">
+              <div class="poke-info">
+                <span class="poke-name" [class.is-shiny]="o.isShiny">{{ o.name }}</span>
+                <div class="types-row">
+                  <span class="type-badge" *ngFor="let t of o.types" [attr.data-type]="t">{{ t }}</span>
+                </div>
+                <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ o.dice_roll[0] }} - {{ o.dice_roll[1] }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="battle-arena" *ngIf="battleState !== 'SELECT' && battleState !== 'REVEAL'">
+      <div class="result-banner" [ngClass]="battleResult" *ngIf="battleState === 'RESULT'">
+        <h1 *ngIf="battleResult === 'win'">{{ lang?.win || 'You Win!' }}</h1>
+        <h1 *ngIf="battleResult === 'lose'">{{ lang?.lose || 'You Lose!' }}</h1>
+        <h1 *ngIf="battleResult === 'draw'">{{ lang?.draw || 'Draw!' }}</h1>
+      </div>
+
+      <div class="battle-stats">
+        <div class="stat-box player-stat" [class.winner]="battleState === 'RESULT' && battleResult === 'win'">
+          <h4>{{ lang?.you || 'You' }}</h4>
+          <div class="roll" *ngIf="battleState === 'BASE_POINTS' || battleState === 'MULTIPLIERS' || battleState === 'RESULT'">{{ playerCurrentDisplayScore }}</div>
+          
+          <div class="multipliers" *ngIf="pMults">
+            <span class="tag shiny" *ngIf="showShiny && selectedPlayerPokemon?.isShiny">Shiny! x1.5</span>
+            <span class="tag super-effective" *ngIf="showStrong && pMults.strong">{{ getDynamicTagText(lang?.superEffective || 'Super Effective! x2', pMults.value) }}</span>
+            <span class="tag not-effective" *ngIf="showWeak && pMults.weak">{{ getDynamicTagText(lang?.notVeryEffective || 'Not Very Effective x0.5', pMults.value) }}</span>
+            <span class="tag immune" *ngIf="showImmune && pMults.immune">{{ lang?.immune || 'Immune! x0' }}</span>
+          </div>
+        </div>
+
+        <div class="vs">VS</div>
+
+        <div class="stat-box opponent-stat" [class.winner]="battleState === 'RESULT' && battleResult === 'lose'">
+          <h4>{{ lang?.opponent || 'Opponent' }}</h4>
+          <div class="roll" *ngIf="battleState === 'BASE_POINTS' || battleState === 'MULTIPLIERS' || battleState === 'RESULT'">{{ opponentCurrentDisplayScore }}</div>
+          
+          <div class="multipliers" *ngIf="oMults">
+            <span class="tag shiny" *ngIf="showShiny && selectedOpponentPokemon?.isShiny">Shiny! x1.5</span>
+            <span class="tag super-effective" *ngIf="showStrong && oMults.strong">{{ getDynamicTagText(lang?.superEffective || 'Super Effective! x2', oMults.value) }}</span>
+            <span class="tag not-effective" *ngIf="showWeak && oMults.weak">{{ getDynamicTagText(lang?.notVeryEffective || 'Not Very Effective x0.5', oMults.value) }}</span>
+            <span class="tag immune" *ngIf="showImmune && oMults.immune">{{ lang?.immune || 'Immune! x0' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="play-again-btn" *ngIf="battleState === 'RESULT'" (click)="startNewGame()">{{ lang?.playAgain || 'Play Again' }}</button>
+    </div>
+
+    <div class="player-section" [class.disabled]="battleState !== 'SELECT'">
+      <h3>{{ lang?.choosePokemon || 'Choose your Pokemon' }}</h3>
+      <div class="choices-row">
+        <div class="choice-card player-card" 
+             *ngFor="let p of playerChoices; let i = index"
+             (click)="selectPokemon(p, i)"
+             [class.selected]="selectedPlayerPokemon === p"
+             [class.unselected]="selectedPlayerPokemon && selectedPlayerPokemon !== p">
+          <img [src]="p.isShiny ? p.shiny : p.skin" alt="player-pokemon">
+          <div class="poke-info">
+            <span class="poke-name" [class.is-shiny]="p.isShiny">{{ p.name }}</span>
+            <div class="types-row">
+              <span class="type-badge" *ngFor="let t of p.types" [attr.data-type]="t">{{ t }}</span>
+            </div>
+            <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ p.dice_roll[0] }} - {{ p.dice_roll[1] }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>

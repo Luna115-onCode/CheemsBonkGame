@@ -1,0 +1,38 @@
+<div class="game-container">
+  <div class="header">
+    <div class="score-card player-score">
+      <div class="score-label">{{ lang.player || 'Player' }}</div>
+      <div class="score-value">{{ playerWins }}</div>
+    </div>
+    
+    <div class="status-panel">
+      <div class="difficulty-badge" [ngClass]="difficulty.toLowerCase()">
+        {{ difficulty }}
+      </div>
+      <div class="turn-indicator">
+        <span *ngIf="gameStatus === 'playing'">
+          {{ turn === 1 ? (lang.yourTurn || 'Your Turn') : (lang.aiThinking || 'AI Thinking...') }}
+        </span>
+        <span *ngIf="gameStatus === 'player_win'" class="win-text">{{ lang.youWon || 'You Won!' }}</span>
+        <span *ngIf="gameStatus === 'ai_win'" class="lose-text">{{ lang.aiWon || 'AI Won!' }}</span>
+        <span *ngIf="gameStatus === 'draw'" class="draw-text">{{ lang.draw || 'Draw!' }}</span>
+      </div>
+    </div>
+
+    <div class="score-card ai-score">
+      <div class="score-label">{{ lang.ai || 'AI' }}</div>
+      <div class="score-value">{{ aiWins }}</div>
+    </div>
+  </div>
+
+  <div class="board" [class.disabled]="gameStatus !== 'playing' || turn !== 1">
+    <div class="cell" *ngFor="let cell of board; let i = index" 
+         (click)="onCellClick(i)"
+         [class.winning]="winningLine.includes(i)"
+         [class.occupied]="cell !== 0">
+      <div class="cell-content" *ngIf="cell !== 0">
+        <img [src]="cell === 1 ? playerImg : aiImg" alt="piece" class="piece">
+      </div>
+    </div>
+  </div>
+</div>

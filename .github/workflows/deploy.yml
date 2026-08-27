@@ -221,7 +221,7 @@ jobs:
           
           # Use our consistent debug keystore so the signature doesn't change on every run
           mkdir -p ~/.android
-          cp android-debug.keystore ~/.android/debug.keystore
+          cp .pwa/android-debug.keystore ~/.android/debug.keystore
           
           cd android
           VERSION=$(cat ../ver | tr -d '\r\n').${{ github.run_number }}
@@ -363,7 +363,7 @@ jobs:
           $SignTool = (Get-ChildItem -Path "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\signtool.exe" -ErrorAction SilentlyContinue | Sort-Object FullName -Descending | Select-Object -First 1).FullName
           & $MakeAppx pack /d $AppDir /p cheems-bundled-$Prefix.msix
           # Use our consistent certificate so the signature doesn't change on every run
-          Copy-Item windows-msix.pfx cheems.pfx
+          Copy-Item .pwa/windows-msix.pfx cheems.pfx
           
           & $SignTool sign /fd SHA256 /a /f cheems.pfx /p password cheems-bundled-$Prefix.msix
           

@@ -37,7 +37,9 @@ import {
   mob_controlText,
   paper_ioText,
   spiral_rollText,
-  stack_colorsText
+  stack_colorsText,
+  rock_paper_pokeText,
+  tic_tac_toeText
 } from './constants.service';
 
 @Injectable({
@@ -103,6 +105,8 @@ export class ToolsService {
   paper_io: any = createLangMap(paper_ioText);
   spiral_roll: any = createLangMap(spiral_rollText);
   stack_colors: any = createLangMap(stack_colorsText);
+  rock_paper_poke: any = createLangMap(rock_paper_pokeText);
+  tic_tac_toe: any = createLangMap(tic_tac_toeText);
   shopItemsText: Record<string, Record<string, string>> = {};
   itemsText: Record<string, Record<string, string>> = {};
   shopItems: Array<ShopItem> = [];
@@ -118,7 +122,8 @@ export class ToolsService {
     'mob_control': { points: 100, mgPoints: 10, levelMgPoints: 5 },
     'paper_io': { points: 100, mgPoints: 10, levelMgPoints: 5 },
     'spiral_roll': { points: 100, mgPoints: 10, levelMgPoints: 5 },
-    'stack_colors': { points: 100, mgPoints: 10, levelMgPoints: 5 }
+    'stack_colors': { points: 100, mgPoints: 10, levelMgPoints: 5 },
+    'rock_paper_poke': { points: 10, mgPoints: 1, levelMgPoints: 1 }
   };
   private audioCtx: AudioContext | null = null;
   private musicSource: AudioBufferSourceNode | null = null;
@@ -126,6 +131,7 @@ export class ToolsService {
   private currentMusicBuffer: AudioBuffer | null = null;
   private currentMusicFile: string = "";
   public isWindowBlurred: boolean = false;
+  public isImportingSave: boolean = false;
   public isBackgroundMusicPaused: boolean = false;
 
   availableLanguages: Array<LanguageItem> = AVAILABLE_LANGUAGES;
@@ -286,6 +292,8 @@ export class ToolsService {
         if (data.paper_io) this.paper_io[langCode] = { ...this.paper_io[langCode], ...data.paper_io };
         if (data.spiral_roll) this.spiral_roll[langCode] = { ...this.spiral_roll[langCode], ...data.spiral_roll };
         if (data.stack_colors) this.stack_colors[langCode] = { ...this.stack_colors[langCode], ...data.stack_colors };
+        if (data.rock_paper_poke) this.rock_paper_poke[langCode] = { ...this.rock_paper_poke[langCode], ...data.rock_paper_poke };
+        if (data.tic_tac_toe) this.tic_tac_toe[langCode] = { ...this.tic_tac_toe[langCode], ...data.tic_tac_toe };
         if (data.gallery) this.gallery[langCode] = { ...this.gallery[langCode], ...data.gallery };
         if (data.licensesPage) this.licensesPage[langCode] = { ...this.licensesPage[langCode], ...data.licensesPage };
         if (data.shopItemsText) this.shopItemsText[langCode] = { ...this.shopItemsText[langCode], ...data.shopItemsText };
@@ -390,7 +398,7 @@ export class ToolsService {
   }
 
   redirectBack(fromSystem: boolean = false): void {
-    const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
+    const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors", "rock_paper_poke", "tic_tac_toe"];
     if (minigamePages.includes(this.actPage as string)) {
       this.redirect("minigames");
     } else if (["redeem", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage as string)) {
@@ -475,7 +483,7 @@ export class ToolsService {
     if ((!gamePoints || gamePoints <= 0) && (!gameLevel || gameLevel <= 0)) return;
     const cfg = this.minigameConversions[gameId] || { points: 100, mgPoints: 10, levelMgPoints: 5 };
     const levelMult = cfg.levelMgPoints || 5;
-    const earnedFromPoints = gamePoints > 0 ? Math.floor((gamePoints / cfg.points) * cfg.mgPoints) : 0;
+    const earnedFromPoints = (gamePoints > 0 && cfg.points > 0) ? Math.floor((gamePoints / cfg.points) * cfg.mgPoints) : 0;
     const earnedFromLevel = gameLevel > 0 ? (gameLevel * levelMult) : 0;
     const totalEarned = earnedFromPoints + earnedFromLevel;
 
@@ -811,7 +819,7 @@ export class ToolsService {
     this.highScore = 999999;
     this.dogeCoins = 999999;
     this.minigameCoins = 999999;
-    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors'];
+    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors', 'rock_paper_poke', 'tic_tac_toe'];
     allMinigames.forEach(id => {
       this.unlockedMinigames[id] = true;
     });
@@ -1003,7 +1011,7 @@ export class ToolsService {
   }
 
   loadUnlocks(): void {
-    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors'];
+    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors', 'rock_paper_poke', 'tic_tac_toe'];
     const unlockedMgs = this.parseArrayString(this.loadData("unlocked_minigames") || "");
     allMinigames.forEach(id => {
       this.unlockedMinigames[id] = unlockedMgs.includes(id);
@@ -1556,6 +1564,9 @@ export class ToolsService {
         const jsonStr = decodeURIComponent(atob(result));
         const saveData = JSON.parse(jsonStr);
         
+        if (this.idleTimer) clearInterval(this.idleTimer);
+        this.isImportingSave = true;
+
         for (let i = localStorage.length - 1; i >= 0; i--) {
           const key = localStorage.key(i);
           if (key && key.startsWith(this.PREFIX)) {
@@ -1572,7 +1583,7 @@ export class ToolsService {
         this.showToast(this.redeem[this.lang]?.success || "Success");
         setTimeout(() => {
           location.reload();
-        }, 1000);
+        }, 100);
       } catch (err) {
         console.error("Save import failed", err);
         this.showToast("Import failed! Invalid save file.");

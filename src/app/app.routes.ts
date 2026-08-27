@@ -18,6 +18,8 @@ import { MobControlComponent } from './games/mob_control/mob_control.component';
 import { PaperIoComponent } from './games/paper_io/paper_io.component';
 import { SpiralRollComponent } from './games/spiral_roll/spiral_roll.component';
 import { StackColorsComponent } from './games/stack_colors/stack_colors.component';
+import { RockPaperPokeComponent } from './games/rock_paper_poke/rock_paper_poke.component';
+import { TicTacToeComponent } from './games/tic_tac_toe/tic_tac_toe.component'; // Trigger recompile
 import { MinigamesComponent } from './pages/minigames/minigames.component';
 import { StatsComponent } from './pages/stats/stats.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
@@ -46,6 +48,8 @@ export const routes: Routes = [
     {path: "minigames/paper_io", component: PaperIoComponent, pathMatch: "full"},
     {path: "minigames/spiral_roll", component: SpiralRollComponent, pathMatch: "full"},
     {path: "minigames/stack_colors", component: StackColorsComponent, pathMatch: "full"},
+    {path: "minigames/rock_paper_poke", component: RockPaperPokeComponent, pathMatch: "full"},
+    {path: "minigames/tic_tac_toe", component: TicTacToeComponent, pathMatch: "full"},
     {path: "p404", component: P404Component, pathMatch: "full"},
     {path: "", redirectTo: "game", pathMatch: "full"},
     {path: "dev", component: GameComponent, canActivate: [devGuard]},

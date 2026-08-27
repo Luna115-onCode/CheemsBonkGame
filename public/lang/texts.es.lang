@@ -22,7 +22,9 @@
     "minigames": "Minijuegos",
     "licenses": "Licencias y Créditos",
     "gallery": "Galería",
-    "redeem": "Canjear Código"
+    "redeem": "Canjear Código",
+    "rock_paper_poke": "Piedra-Papel-Poke",
+    "tic_tac_toe": "Tres en Raya"
   },
   "minigames": {
     "trash": "BASURA",
@@ -36,7 +38,19 @@
     "flappy_dunk_inst": "¡Toca para hacer volar la pelota y encestar en los aros!",
     "magic_sort_inst": "¡Vierte líquidos de color entre botellas hasta ordenar los colores!",
     "spiral_roll_inst": "¡Mantén presionado para tallar espirales de madera y saltar obstáculos!",
-    "spiral_roll_play_again": "JUGAR DE NUEVO"
+    "spiral_roll_play_again": "JUGAR DE NUEVO",
+    "rock_paper_poke_title": "Piedra-Papel-Poke",
+    "tic_tac_toe_title": "Tres en Raya"
+  },
+  "tic_tac_toe": {
+    "player": "Jugador",
+    "aiThinking": "IA Pensando...",
+    "yourTurn": "Tu Turno",
+    "youWon": "¡Ganaste!",
+    "aiWon": "¡IA Ganó!",
+    "draw": "¡Empate!",
+    "ai": "IA",
+    "leave": "Salir"
   },
   "licensesPage": {
     "aiGeneratedSong": "Canción generada por Gemini Lyria 3 Pro",
@@ -274,6 +288,10 @@
     "shop_minigame_spiral_roll_desc": "Desbloquea el minijuego 3D de tallar madera en espiral.",
     "shop_minigame_stack_colors_name": "Stack Colors",
     "shop_minigame_stack_colors_desc": "Desbloquea el minijuego 3D de apilar bloques por color.",
+    "shop_minigame_rock_paper_poke_name": "Piedra-Papel-Poke",
+    "shop_minigame_rock_paper_poke_desc": "¡Juega un juego estilo batalla pokemon para ganar puntos mg! Advertencia: Este juego depende de la suerte y los tipos.",
+    "shop_minigame_tic_tac_toe_name": "Tres en Raya",
+    "shop_minigame_tic_tac_toe_desc": "Juega al clásico Tres en Raya contra la IA.",
     "shop_curr_dgc_to_mg_name": "10 Puntos de Minijuegos",
     "shop_curr_dgc_to_mg_desc": "Intercambia 1 DogeCoin por 10 Puntos de Minijuegos.",
     "shop_curr_mg_to_dgc_name": "1 DogeCoin",
@@ -532,5 +550,22 @@
     "stack_colors_game_over": "¡FIN DEL JUEGO!",
     "stack_colors_bonus": "¡BONUS!",
     "title": "Stack Colors"
+  },
+  "rock_paper_poke": {
+    "title": "Piedra, Papel o Poke",
+    "choosePokemon": "Elige tu Pokémon",
+    "you": "Tú",
+    "opponent": "Oponente",
+    "win": "¡Ganaste!",
+    "lose": "¡Perdiste!",
+    "draw": "¡Empate!",
+    "shinyMultiplier": "¡Shiny! x1.5",
+    "superEffective": "¡Súper Efectivo! x2",
+    "notVeryEffective": "Poco Efectivo x0.5",
+    "immune": "¡Inmune! x0",
+    "playAgain": "Jugar de Nuevo",
+    "score": "Puntuación",
+    "multiplier": "Multiplicador",
+    "finalScore": "Puntuación Final"
   }
 }

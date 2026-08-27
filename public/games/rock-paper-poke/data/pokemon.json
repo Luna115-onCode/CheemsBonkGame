@@ -1,0 +1,5215 @@
+[
+  {
+    "id": 0,
+    "name": "Egg",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      0,
+      0
+    ],
+    "skin": "games/rock-paper-poke/assets/egg.png",
+    "shiny": "games/rock-paper-poke/assets/egg.png"
+  },
+  {
+    "id": 1,
+    "name": "Bulbasaur",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/1.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/1.png"
+  },
+  {
+    "id": 2,
+    "name": "Ivysaur",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/2.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/2.png"
+  },
+  {
+    "id": 3,
+    "name": "Venusaur",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/3.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/3.png"
+  },
+  {
+    "id": 4,
+    "name": "Charmander",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/4.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/4.png"
+  },
+  {
+    "id": 5,
+    "name": "Charmeleon",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/5.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/5.png"
+  },
+  {
+    "id": 6,
+    "name": "Charizard",
+    "types": [
+      "fire",
+      "flying"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/6.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/6.png"
+  },
+  {
+    "id": 7,
+    "name": "Squirtle",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/7.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/7.png"
+  },
+  {
+    "id": 8,
+    "name": "Wartortle",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/8.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/8.png"
+  },
+  {
+    "id": 9,
+    "name": "Blastoise",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/9.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/9.png"
+  },
+  {
+    "id": 10,
+    "name": "Caterpie",
+    "types": [
+      "bug"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/10.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/10.png"
+  },
+  {
+    "id": 11,
+    "name": "Metapod",
+    "types": [
+      "bug"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/11.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/11.png"
+  },
+  {
+    "id": 12,
+    "name": "Butterfree",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/12.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/12.png"
+  },
+  {
+    "id": 13,
+    "name": "Weedle",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/13.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/13.png"
+  },
+  {
+    "id": 14,
+    "name": "Kakuna",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/14.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/14.png"
+  },
+  {
+    "id": 15,
+    "name": "Beedrill",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/15.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/15.png"
+  },
+  {
+    "id": 16,
+    "name": "Pidgey",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/16.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/16.png"
+  },
+  {
+    "id": 17,
+    "name": "Pidgeotto",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/17.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/17.png"
+  },
+  {
+    "id": 18,
+    "name": "Pidgeot",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/18.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/18.png"
+  },
+  {
+    "id": 19,
+    "name": "Rattata",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/19.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/19.png"
+  },
+  {
+    "id": 20,
+    "name": "Raticate",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/20.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/20.png"
+  },
+  {
+    "id": 21,
+    "name": "Spearow",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/21.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/21.png"
+  },
+  {
+    "id": 22,
+    "name": "Fearow",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/22.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/22.png"
+  },
+  {
+    "id": 23,
+    "name": "Ekans",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/23.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/23.png"
+  },
+  {
+    "id": 24,
+    "name": "Arbok",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/24.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/24.png"
+  },
+  {
+    "id": 25,
+    "name": "Pikachu",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/25.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/25.png"
+  },
+  {
+    "id": 26,
+    "name": "Raichu",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/26.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/26.png"
+  },
+  {
+    "id": 27,
+    "name": "Sandshrew",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/27.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/27.png"
+  },
+  {
+    "id": 28,
+    "name": "Sandslash",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/28.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/28.png"
+  },
+  {
+    "id": 29,
+    "name": "Nidoran-f",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/29.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/29.png"
+  },
+  {
+    "id": 30,
+    "name": "Nidorina",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/30.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/30.png"
+  },
+  {
+    "id": 31,
+    "name": "Nidoqueen",
+    "types": [
+      "poison",
+      "ground"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/31.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/31.png"
+  },
+  {
+    "id": 32,
+    "name": "Nidoran-m",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/32.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/32.png"
+  },
+  {
+    "id": 33,
+    "name": "Nidorino",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/33.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/33.png"
+  },
+  {
+    "id": 34,
+    "name": "Nidoking",
+    "types": [
+      "poison",
+      "ground"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/34.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/34.png"
+  },
+  {
+    "id": 35,
+    "name": "Clefairy",
+    "types": [
+      "fairy"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/35.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/35.png"
+  },
+  {
+    "id": 36,
+    "name": "Clefable",
+    "types": [
+      "fairy"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/36.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/36.png"
+  },
+  {
+    "id": 37,
+    "name": "Vulpix",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/37.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/37.png"
+  },
+  {
+    "id": 38,
+    "name": "Ninetales",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/38.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/38.png"
+  },
+  {
+    "id": 39,
+    "name": "Jigglypuff",
+    "types": [
+      "normal",
+      "fairy"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/39.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/39.png"
+  },
+  {
+    "id": 40,
+    "name": "Wigglytuff",
+    "types": [
+      "normal",
+      "fairy"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/40.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/40.png"
+  },
+  {
+    "id": 41,
+    "name": "Zubat",
+    "types": [
+      "poison",
+      "flying"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/41.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/41.png"
+  },
+  {
+    "id": 42,
+    "name": "Golbat",
+    "types": [
+      "poison",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/42.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/42.png"
+  },
+  {
+    "id": 43,
+    "name": "Oddish",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/43.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/43.png"
+  },
+  {
+    "id": 44,
+    "name": "Gloom",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/44.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/44.png"
+  },
+  {
+    "id": 45,
+    "name": "Vileplume",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/45.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/45.png"
+  },
+  {
+    "id": 46,
+    "name": "Paras",
+    "types": [
+      "bug",
+      "grass"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/46.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/46.png"
+  },
+  {
+    "id": 47,
+    "name": "Parasect",
+    "types": [
+      "bug",
+      "grass"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/47.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/47.png"
+  },
+  {
+    "id": 48,
+    "name": "Venonat",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/48.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/48.png"
+  },
+  {
+    "id": 49,
+    "name": "Venomoth",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/49.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/49.png"
+  },
+  {
+    "id": 50,
+    "name": "Diglett",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/50.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/50.png"
+  },
+  {
+    "id": 51,
+    "name": "Dugtrio",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/51.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/51.png"
+  },
+  {
+    "id": 52,
+    "name": "Meowth",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/52.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/52.png"
+  },
+  {
+    "id": 53,
+    "name": "Persian",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/53.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/53.png"
+  },
+  {
+    "id": 54,
+    "name": "Psyduck",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/54.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/54.png"
+  },
+  {
+    "id": 55,
+    "name": "Golduck",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/55.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/55.png"
+  },
+  {
+    "id": 56,
+    "name": "Mankey",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/56.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/56.png"
+  },
+  {
+    "id": 57,
+    "name": "Primeape",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/57.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/57.png"
+  },
+  {
+    "id": 58,
+    "name": "Growlithe",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/58.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/58.png"
+  },
+  {
+    "id": 59,
+    "name": "Arcanine",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/59.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/59.png"
+  },
+  {
+    "id": 60,
+    "name": "Poliwag",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/60.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/60.png"
+  },
+  {
+    "id": 61,
+    "name": "Poliwhirl",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/61.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/61.png"
+  },
+  {
+    "id": 62,
+    "name": "Poliwrath",
+    "types": [
+      "water",
+      "fighting"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/62.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/62.png"
+  },
+  {
+    "id": 63,
+    "name": "Abra",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/63.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/63.png"
+  },
+  {
+    "id": 64,
+    "name": "Kadabra",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/64.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/64.png"
+  },
+  {
+    "id": 65,
+    "name": "Alakazam",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/65.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/65.png"
+  },
+  {
+    "id": 66,
+    "name": "Machop",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/66.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/66.png"
+  },
+  {
+    "id": 67,
+    "name": "Machoke",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/67.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/67.png"
+  },
+  {
+    "id": 68,
+    "name": "Machamp",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/68.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/68.png"
+  },
+  {
+    "id": 69,
+    "name": "Bellsprout",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/69.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/69.png"
+  },
+  {
+    "id": 70,
+    "name": "Weepinbell",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/70.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/70.png"
+  },
+  {
+    "id": 71,
+    "name": "Victreebel",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/71.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/71.png"
+  },
+  {
+    "id": 72,
+    "name": "Tentacool",
+    "types": [
+      "water",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/72.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/72.png"
+  },
+  {
+    "id": 73,
+    "name": "Tentacruel",
+    "types": [
+      "water",
+      "poison"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/73.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/73.png"
+  },
+  {
+    "id": 74,
+    "name": "Geodude",
+    "types": [
+      "rock",
+      "ground"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/74.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/74.png"
+  },
+  {
+    "id": 75,
+    "name": "Graveler",
+    "types": [
+      "rock",
+      "ground"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/75.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/75.png"
+  },
+  {
+    "id": 76,
+    "name": "Golem",
+    "types": [
+      "rock",
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/76.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/76.png"
+  },
+  {
+    "id": 77,
+    "name": "Ponyta",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/77.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/77.png"
+  },
+  {
+    "id": 78,
+    "name": "Rapidash",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/78.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/78.png"
+  },
+  {
+    "id": 79,
+    "name": "Slowpoke",
+    "types": [
+      "water",
+      "psychic"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/79.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/79.png"
+  },
+  {
+    "id": 80,
+    "name": "Slowbro",
+    "types": [
+      "water",
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/80.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/80.png"
+  },
+  {
+    "id": 81,
+    "name": "Magnemite",
+    "types": [
+      "electric",
+      "steel"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/81.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/81.png"
+  },
+  {
+    "id": 82,
+    "name": "Magneton",
+    "types": [
+      "electric",
+      "steel"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/82.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/82.png"
+  },
+  {
+    "id": 83,
+    "name": "Farfetchd",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/83.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/83.png"
+  },
+  {
+    "id": 84,
+    "name": "Doduo",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/84.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/84.png"
+  },
+  {
+    "id": 85,
+    "name": "Dodrio",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/85.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/85.png"
+  },
+  {
+    "id": 86,
+    "name": "Seel",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/86.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/86.png"
+  },
+  {
+    "id": 87,
+    "name": "Dewgong",
+    "types": [
+      "water",
+      "ice"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/87.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/87.png"
+  },
+  {
+    "id": 88,
+    "name": "Grimer",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/88.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/88.png"
+  },
+  {
+    "id": 89,
+    "name": "Muk",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/89.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/89.png"
+  },
+  {
+    "id": 90,
+    "name": "Shellder",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/90.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/90.png"
+  },
+  {
+    "id": 91,
+    "name": "Cloyster",
+    "types": [
+      "water",
+      "ice"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/91.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/91.png"
+  },
+  {
+    "id": 92,
+    "name": "Gastly",
+    "types": [
+      "ghost",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/92.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/92.png"
+  },
+  {
+    "id": 93,
+    "name": "Haunter",
+    "types": [
+      "ghost",
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/93.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/93.png"
+  },
+  {
+    "id": 94,
+    "name": "Gengar",
+    "types": [
+      "ghost",
+      "poison"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/94.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/94.png"
+  },
+  {
+    "id": 95,
+    "name": "Onix",
+    "types": [
+      "rock",
+      "ground"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/95.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/95.png"
+  },
+  {
+    "id": 96,
+    "name": "Drowzee",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/96.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/96.png"
+  },
+  {
+    "id": 97,
+    "name": "Hypno",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/97.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/97.png"
+  },
+  {
+    "id": 98,
+    "name": "Krabby",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/98.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/98.png"
+  },
+  {
+    "id": 99,
+    "name": "Kingler",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/99.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/99.png"
+  },
+  {
+    "id": 100,
+    "name": "Voltorb",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/100.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/100.png"
+  },
+  {
+    "id": 101,
+    "name": "Electrode",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/101.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/101.png"
+  },
+  {
+    "id": 102,
+    "name": "Exeggcute",
+    "types": [
+      "grass",
+      "psychic"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/102.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/102.png"
+  },
+  {
+    "id": 103,
+    "name": "Exeggutor",
+    "types": [
+      "grass",
+      "psychic"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/103.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/103.png"
+  },
+  {
+    "id": 104,
+    "name": "Cubone",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/104.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/104.png"
+  },
+  {
+    "id": 105,
+    "name": "Marowak",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/105.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/105.png"
+  },
+  {
+    "id": 106,
+    "name": "Hitmonlee",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/106.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/106.png"
+  },
+  {
+    "id": 107,
+    "name": "Hitmonchan",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/107.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/107.png"
+  },
+  {
+    "id": 108,
+    "name": "Lickitung",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/108.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/108.png"
+  },
+  {
+    "id": 109,
+    "name": "Koffing",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/109.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/109.png"
+  },
+  {
+    "id": 110,
+    "name": "Weezing",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/110.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/110.png"
+  },
+  {
+    "id": 111,
+    "name": "Rhyhorn",
+    "types": [
+      "ground",
+      "rock"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/111.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/111.png"
+  },
+  {
+    "id": 112,
+    "name": "Rhydon",
+    "types": [
+      "ground",
+      "rock"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/112.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/112.png"
+  },
+  {
+    "id": 113,
+    "name": "Chansey",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/113.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/113.png"
+  },
+  {
+    "id": 114,
+    "name": "Tangela",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/114.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/114.png"
+  },
+  {
+    "id": 115,
+    "name": "Kangaskhan",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/115.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/115.png"
+  },
+  {
+    "id": 116,
+    "name": "Horsea",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/116.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/116.png"
+  },
+  {
+    "id": 117,
+    "name": "Seadra",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/117.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/117.png"
+  },
+  {
+    "id": 118,
+    "name": "Goldeen",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/118.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/118.png"
+  },
+  {
+    "id": 119,
+    "name": "Seaking",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/119.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/119.png"
+  },
+  {
+    "id": 120,
+    "name": "Staryu",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/120.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/120.png"
+  },
+  {
+    "id": 121,
+    "name": "Starmie",
+    "types": [
+      "water",
+      "psychic"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/121.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/121.png"
+  },
+  {
+    "id": 122,
+    "name": "Mr-mime",
+    "types": [
+      "psychic",
+      "fairy"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/122.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/122.png"
+  },
+  {
+    "id": 123,
+    "name": "Scyther",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/123.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/123.png"
+  },
+  {
+    "id": 124,
+    "name": "Jynx",
+    "types": [
+      "ice",
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/124.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/124.png"
+  },
+  {
+    "id": 125,
+    "name": "Electabuzz",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/125.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/125.png"
+  },
+  {
+    "id": 126,
+    "name": "Magmar",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/126.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/126.png"
+  },
+  {
+    "id": 127,
+    "name": "Pinsir",
+    "types": [
+      "bug"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/127.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/127.png"
+  },
+  {
+    "id": 128,
+    "name": "Tauros",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/128.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/128.png"
+  },
+  {
+    "id": 129,
+    "name": "Magikarp",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/129.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/129.png"
+  },
+  {
+    "id": 130,
+    "name": "Gyarados",
+    "types": [
+      "water",
+      "flying"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/130.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/130.png"
+  },
+  {
+    "id": 131,
+    "name": "Lapras",
+    "types": [
+      "water",
+      "ice"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/131.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/131.png"
+  },
+  {
+    "id": 132,
+    "name": "Ditto",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/132.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/132.png"
+  },
+  {
+    "id": 133,
+    "name": "Eevee",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/133.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/133.png"
+  },
+  {
+    "id": 134,
+    "name": "Vaporeon",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/134.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/134.png"
+  },
+  {
+    "id": 135,
+    "name": "Jolteon",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/135.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/135.png"
+  },
+  {
+    "id": 136,
+    "name": "Flareon",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/136.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/136.png"
+  },
+  {
+    "id": 137,
+    "name": "Porygon",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/137.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/137.png"
+  },
+  {
+    "id": 138,
+    "name": "Omanyte",
+    "types": [
+      "rock",
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/138.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/138.png"
+  },
+  {
+    "id": 139,
+    "name": "Omastar",
+    "types": [
+      "rock",
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/139.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/139.png"
+  },
+  {
+    "id": 140,
+    "name": "Kabuto",
+    "types": [
+      "rock",
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/140.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/140.png"
+  },
+  {
+    "id": 141,
+    "name": "Kabutops",
+    "types": [
+      "rock",
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/141.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/141.png"
+  },
+  {
+    "id": 142,
+    "name": "Aerodactyl",
+    "types": [
+      "rock",
+      "flying"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/142.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/142.png"
+  },
+  {
+    "id": 143,
+    "name": "Snorlax",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/143.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/143.png"
+  },
+  {
+    "id": 144,
+    "name": "Articuno",
+    "types": [
+      "ice",
+      "flying"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/144.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/144.png"
+  },
+  {
+    "id": 145,
+    "name": "Zapdos",
+    "types": [
+      "electric",
+      "flying"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/145.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/145.png"
+  },
+  {
+    "id": 146,
+    "name": "Moltres",
+    "types": [
+      "fire",
+      "flying"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/146.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/146.png"
+  },
+  {
+    "id": 147,
+    "name": "Dratini",
+    "types": [
+      "dragon"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/147.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/147.png"
+  },
+  {
+    "id": 148,
+    "name": "Dragonair",
+    "types": [
+      "dragon"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/148.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/148.png"
+  },
+  {
+    "id": 149,
+    "name": "Dragonite",
+    "types": [
+      "dragon",
+      "flying"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/149.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/149.png"
+  },
+  {
+    "id": 150,
+    "name": "Mewtwo",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/150.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/150.png"
+  },
+  {
+    "id": 151,
+    "name": "Mew",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/151.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/151.png"
+  },
+  {
+    "id": 152,
+    "name": "Chikorita",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/152.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/152.png"
+  },
+  {
+    "id": 153,
+    "name": "Bayleef",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/153.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/153.png"
+  },
+  {
+    "id": 154,
+    "name": "Meganium",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/154.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/154.png"
+  },
+  {
+    "id": 155,
+    "name": "Cyndaquil",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/155.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/155.png"
+  },
+  {
+    "id": 156,
+    "name": "Quilava",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/156.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/156.png"
+  },
+  {
+    "id": 157,
+    "name": "Typhlosion",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/157.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/157.png"
+  },
+  {
+    "id": 158,
+    "name": "Totodile",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/158.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/158.png"
+  },
+  {
+    "id": 159,
+    "name": "Croconaw",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/159.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/159.png"
+  },
+  {
+    "id": 160,
+    "name": "Feraligatr",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/160.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/160.png"
+  },
+  {
+    "id": 161,
+    "name": "Sentret",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/161.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/161.png"
+  },
+  {
+    "id": 162,
+    "name": "Furret",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/162.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/162.png"
+  },
+  {
+    "id": 163,
+    "name": "Hoothoot",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/163.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/163.png"
+  },
+  {
+    "id": 164,
+    "name": "Noctowl",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/164.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/164.png"
+  },
+  {
+    "id": 165,
+    "name": "Ledyba",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/165.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/165.png"
+  },
+  {
+    "id": 166,
+    "name": "Ledian",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/166.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/166.png"
+  },
+  {
+    "id": 167,
+    "name": "Spinarak",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/167.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/167.png"
+  },
+  {
+    "id": 168,
+    "name": "Ariados",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/168.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/168.png"
+  },
+  {
+    "id": 169,
+    "name": "Crobat",
+    "types": [
+      "poison",
+      "flying"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/169.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/169.png"
+  },
+  {
+    "id": 170,
+    "name": "Chinchou",
+    "types": [
+      "water",
+      "electric"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/170.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/170.png"
+  },
+  {
+    "id": 171,
+    "name": "Lanturn",
+    "types": [
+      "water",
+      "electric"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/171.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/171.png"
+  },
+  {
+    "id": 172,
+    "name": "Pichu",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/172.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/172.png"
+  },
+  {
+    "id": 173,
+    "name": "Cleffa",
+    "types": [
+      "fairy"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/173.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/173.png"
+  },
+  {
+    "id": 174,
+    "name": "Igglybuff",
+    "types": [
+      "normal",
+      "fairy"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/174.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/174.png"
+  },
+  {
+    "id": 175,
+    "name": "Togepi",
+    "types": [
+      "fairy"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/175.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/175.png"
+  },
+  {
+    "id": 176,
+    "name": "Togetic",
+    "types": [
+      "fairy",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/176.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/176.png"
+  },
+  {
+    "id": 177,
+    "name": "Natu",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/177.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/177.png"
+  },
+  {
+    "id": 178,
+    "name": "Xatu",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/178.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/178.png"
+  },
+  {
+    "id": 179,
+    "name": "Mareep",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/179.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/179.png"
+  },
+  {
+    "id": 180,
+    "name": "Flaaffy",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/180.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/180.png"
+  },
+  {
+    "id": 181,
+    "name": "Ampharos",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/181.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/181.png"
+  },
+  {
+    "id": 182,
+    "name": "Bellossom",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/182.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/182.png"
+  },
+  {
+    "id": 183,
+    "name": "Marill",
+    "types": [
+      "water",
+      "fairy"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/183.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/183.png"
+  },
+  {
+    "id": 184,
+    "name": "Azumarill",
+    "types": [
+      "water",
+      "fairy"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/184.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/184.png"
+  },
+  {
+    "id": 185,
+    "name": "Sudowoodo",
+    "types": [
+      "rock"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/185.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/185.png"
+  },
+  {
+    "id": 186,
+    "name": "Politoed",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/186.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/186.png"
+  },
+  {
+    "id": 187,
+    "name": "Hoppip",
+    "types": [
+      "grass",
+      "flying"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/187.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/187.png"
+  },
+  {
+    "id": 188,
+    "name": "Skiploom",
+    "types": [
+      "grass",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/188.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/188.png"
+  },
+  {
+    "id": 189,
+    "name": "Jumpluff",
+    "types": [
+      "grass",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/189.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/189.png"
+  },
+  {
+    "id": 190,
+    "name": "Aipom",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/190.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/190.png"
+  },
+  {
+    "id": 191,
+    "name": "Sunkern",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/191.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/191.png"
+  },
+  {
+    "id": 192,
+    "name": "Sunflora",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/192.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/192.png"
+  },
+  {
+    "id": 193,
+    "name": "Yanma",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/193.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/193.png"
+  },
+  {
+    "id": 194,
+    "name": "Wooper",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/194.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/194.png"
+  },
+  {
+    "id": 195,
+    "name": "Quagsire",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/195.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/195.png"
+  },
+  {
+    "id": 196,
+    "name": "Espeon",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/196.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/196.png"
+  },
+  {
+    "id": 197,
+    "name": "Umbreon",
+    "types": [
+      "dark"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/197.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/197.png"
+  },
+  {
+    "id": 198,
+    "name": "Murkrow",
+    "types": [
+      "dark",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/198.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/198.png"
+  },
+  {
+    "id": 199,
+    "name": "Slowking",
+    "types": [
+      "water",
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/199.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/199.png"
+  },
+  {
+    "id": 200,
+    "name": "Misdreavus",
+    "types": [
+      "ghost"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/200.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/200.png"
+  },
+  {
+    "id": 201,
+    "name": "Unown",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/201.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/201.png"
+  },
+  {
+    "id": 202,
+    "name": "Wobbuffet",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/202.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/202.png"
+  },
+  {
+    "id": 203,
+    "name": "Girafarig",
+    "types": [
+      "normal",
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/203.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/203.png"
+  },
+  {
+    "id": 204,
+    "name": "Pineco",
+    "types": [
+      "bug"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/204.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/204.png"
+  },
+  {
+    "id": 205,
+    "name": "Forretress",
+    "types": [
+      "bug",
+      "steel"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/205.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/205.png"
+  },
+  {
+    "id": 206,
+    "name": "Dunsparce",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/206.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/206.png"
+  },
+  {
+    "id": 207,
+    "name": "Gligar",
+    "types": [
+      "ground",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/207.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/207.png"
+  },
+  {
+    "id": 208,
+    "name": "Steelix",
+    "types": [
+      "steel",
+      "ground"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/208.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/208.png"
+  },
+  {
+    "id": 209,
+    "name": "Snubbull",
+    "types": [
+      "fairy"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/209.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/209.png"
+  },
+  {
+    "id": 210,
+    "name": "Granbull",
+    "types": [
+      "fairy"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/210.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/210.png"
+  },
+  {
+    "id": 211,
+    "name": "Qwilfish",
+    "types": [
+      "water",
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/211.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/211.png"
+  },
+  {
+    "id": 212,
+    "name": "Scizor",
+    "types": [
+      "bug",
+      "steel"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/212.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/212.png"
+  },
+  {
+    "id": 213,
+    "name": "Shuckle",
+    "types": [
+      "bug",
+      "rock"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/213.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/213.png"
+  },
+  {
+    "id": 214,
+    "name": "Heracross",
+    "types": [
+      "bug",
+      "fighting"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/214.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/214.png"
+  },
+  {
+    "id": 215,
+    "name": "Sneasel",
+    "types": [
+      "dark",
+      "ice"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/215.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/215.png"
+  },
+  {
+    "id": 216,
+    "name": "Teddiursa",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/216.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/216.png"
+  },
+  {
+    "id": 217,
+    "name": "Ursaring",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/217.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/217.png"
+  },
+  {
+    "id": 218,
+    "name": "Slugma",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/218.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/218.png"
+  },
+  {
+    "id": 219,
+    "name": "Magcargo",
+    "types": [
+      "fire",
+      "rock"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/219.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/219.png"
+  },
+  {
+    "id": 220,
+    "name": "Swinub",
+    "types": [
+      "ice",
+      "ground"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/220.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/220.png"
+  },
+  {
+    "id": 221,
+    "name": "Piloswine",
+    "types": [
+      "ice",
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/221.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/221.png"
+  },
+  {
+    "id": 222,
+    "name": "Corsola",
+    "types": [
+      "water",
+      "rock"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/222.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/222.png"
+  },
+  {
+    "id": 223,
+    "name": "Remoraid",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/223.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/223.png"
+  },
+  {
+    "id": 224,
+    "name": "Octillery",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/224.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/224.png"
+  },
+  {
+    "id": 225,
+    "name": "Delibird",
+    "types": [
+      "ice",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/225.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/225.png"
+  },
+  {
+    "id": 226,
+    "name": "Mantine",
+    "types": [
+      "water",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/226.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/226.png"
+  },
+  {
+    "id": 227,
+    "name": "Skarmory",
+    "types": [
+      "steel",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/227.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/227.png"
+  },
+  {
+    "id": 228,
+    "name": "Houndour",
+    "types": [
+      "dark",
+      "fire"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/228.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/228.png"
+  },
+  {
+    "id": 229,
+    "name": "Houndoom",
+    "types": [
+      "dark",
+      "fire"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/229.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/229.png"
+  },
+  {
+    "id": 230,
+    "name": "Kingdra",
+    "types": [
+      "water",
+      "dragon"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/230.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/230.png"
+  },
+  {
+    "id": 231,
+    "name": "Phanpy",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/231.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/231.png"
+  },
+  {
+    "id": 232,
+    "name": "Donphan",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/232.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/232.png"
+  },
+  {
+    "id": 233,
+    "name": "Porygon2",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/233.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/233.png"
+  },
+  {
+    "id": 234,
+    "name": "Stantler",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/234.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/234.png"
+  },
+  {
+    "id": 235,
+    "name": "Smeargle",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/235.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/235.png"
+  },
+  {
+    "id": 236,
+    "name": "Tyrogue",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/236.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/236.png"
+  },
+  {
+    "id": 237,
+    "name": "Hitmontop",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/237.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/237.png"
+  },
+  {
+    "id": 238,
+    "name": "Smoochum",
+    "types": [
+      "ice",
+      "psychic"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/238.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/238.png"
+  },
+  {
+    "id": 239,
+    "name": "Elekid",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/239.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/239.png"
+  },
+  {
+    "id": 240,
+    "name": "Magby",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/240.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/240.png"
+  },
+  {
+    "id": 241,
+    "name": "Miltank",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/241.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/241.png"
+  },
+  {
+    "id": 242,
+    "name": "Blissey",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/242.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/242.png"
+  },
+  {
+    "id": 243,
+    "name": "Raikou",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/243.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/243.png"
+  },
+  {
+    "id": 244,
+    "name": "Entei",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/244.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/244.png"
+  },
+  {
+    "id": 245,
+    "name": "Suicune",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/245.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/245.png"
+  },
+  {
+    "id": 246,
+    "name": "Larvitar",
+    "types": [
+      "rock",
+      "ground"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/246.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/246.png"
+  },
+  {
+    "id": 247,
+    "name": "Pupitar",
+    "types": [
+      "rock",
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/247.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/247.png"
+  },
+  {
+    "id": 248,
+    "name": "Tyranitar",
+    "types": [
+      "rock",
+      "dark"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/248.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/248.png"
+  },
+  {
+    "id": 249,
+    "name": "Lugia",
+    "types": [
+      "psychic",
+      "flying"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/249.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/249.png"
+  },
+  {
+    "id": 250,
+    "name": "Ho-oh",
+    "types": [
+      "fire",
+      "flying"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/250.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/250.png"
+  },
+  {
+    "id": 251,
+    "name": "Celebi",
+    "types": [
+      "psychic",
+      "grass"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/251.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/251.png"
+  },
+  {
+    "id": 252,
+    "name": "Treecko",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/252.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/252.png"
+  },
+  {
+    "id": 253,
+    "name": "Grovyle",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/253.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/253.png"
+  },
+  {
+    "id": 254,
+    "name": "Sceptile",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/254.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/254.png"
+  },
+  {
+    "id": 255,
+    "name": "Torchic",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/255.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/255.png"
+  },
+  {
+    "id": 256,
+    "name": "Combusken",
+    "types": [
+      "fire",
+      "fighting"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/256.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/256.png"
+  },
+  {
+    "id": 257,
+    "name": "Blaziken",
+    "types": [
+      "fire",
+      "fighting"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/257.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/257.png"
+  },
+  {
+    "id": 258,
+    "name": "Mudkip",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/258.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/258.png"
+  },
+  {
+    "id": 259,
+    "name": "Marshtomp",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/259.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/259.png"
+  },
+  {
+    "id": 260,
+    "name": "Swampert",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/260.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/260.png"
+  },
+  {
+    "id": 261,
+    "name": "Poochyena",
+    "types": [
+      "dark"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/261.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/261.png"
+  },
+  {
+    "id": 262,
+    "name": "Mightyena",
+    "types": [
+      "dark"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/262.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/262.png"
+  },
+  {
+    "id": 263,
+    "name": "Zigzagoon",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/263.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/263.png"
+  },
+  {
+    "id": 264,
+    "name": "Linoone",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/264.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/264.png"
+  },
+  {
+    "id": 265,
+    "name": "Wurmple",
+    "types": [
+      "bug"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/265.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/265.png"
+  },
+  {
+    "id": 266,
+    "name": "Silcoon",
+    "types": [
+      "bug"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/266.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/266.png"
+  },
+  {
+    "id": 267,
+    "name": "Beautifly",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/267.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/267.png"
+  },
+  {
+    "id": 268,
+    "name": "Cascoon",
+    "types": [
+      "bug"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/268.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/268.png"
+  },
+  {
+    "id": 269,
+    "name": "Dustox",
+    "types": [
+      "bug",
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/269.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/269.png"
+  },
+  {
+    "id": 270,
+    "name": "Lotad",
+    "types": [
+      "water",
+      "grass"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/270.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/270.png"
+  },
+  {
+    "id": 271,
+    "name": "Lombre",
+    "types": [
+      "water",
+      "grass"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/271.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/271.png"
+  },
+  {
+    "id": 272,
+    "name": "Ludicolo",
+    "types": [
+      "water",
+      "grass"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/272.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/272.png"
+  },
+  {
+    "id": 273,
+    "name": "Seedot",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/273.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/273.png"
+  },
+  {
+    "id": 274,
+    "name": "Nuzleaf",
+    "types": [
+      "grass",
+      "dark"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/274.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/274.png"
+  },
+  {
+    "id": 275,
+    "name": "Shiftry",
+    "types": [
+      "grass",
+      "dark"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/275.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/275.png"
+  },
+  {
+    "id": 276,
+    "name": "Taillow",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/276.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/276.png"
+  },
+  {
+    "id": 277,
+    "name": "Swellow",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/277.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/277.png"
+  },
+  {
+    "id": 278,
+    "name": "Wingull",
+    "types": [
+      "water",
+      "flying"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/278.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/278.png"
+  },
+  {
+    "id": 279,
+    "name": "Pelipper",
+    "types": [
+      "water",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/279.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/279.png"
+  },
+  {
+    "id": 280,
+    "name": "Ralts",
+    "types": [
+      "psychic",
+      "fairy"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/280.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/280.png"
+  },
+  {
+    "id": 281,
+    "name": "Kirlia",
+    "types": [
+      "psychic",
+      "fairy"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/281.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/281.png"
+  },
+  {
+    "id": 282,
+    "name": "Gardevoir",
+    "types": [
+      "psychic",
+      "fairy"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/282.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/282.png"
+  },
+  {
+    "id": 283,
+    "name": "Surskit",
+    "types": [
+      "bug",
+      "water"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/283.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/283.png"
+  },
+  {
+    "id": 284,
+    "name": "Masquerain",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/284.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/284.png"
+  },
+  {
+    "id": 285,
+    "name": "Shroomish",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/285.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/285.png"
+  },
+  {
+    "id": 286,
+    "name": "Breloom",
+    "types": [
+      "grass",
+      "fighting"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/286.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/286.png"
+  },
+  {
+    "id": 287,
+    "name": "Slakoth",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/287.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/287.png"
+  },
+  {
+    "id": 288,
+    "name": "Vigoroth",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/288.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/288.png"
+  },
+  {
+    "id": 289,
+    "name": "Slaking",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/289.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/289.png"
+  },
+  {
+    "id": 290,
+    "name": "Nincada",
+    "types": [
+      "bug",
+      "ground"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/290.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/290.png"
+  },
+  {
+    "id": 291,
+    "name": "Ninjask",
+    "types": [
+      "bug",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/291.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/291.png"
+  },
+  {
+    "id": 292,
+    "name": "Shedinja",
+    "types": [
+      "bug",
+      "ghost"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/292.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/292.png"
+  },
+  {
+    "id": 293,
+    "name": "Whismur",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/293.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/293.png"
+  },
+  {
+    "id": 294,
+    "name": "Loudred",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/294.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/294.png"
+  },
+  {
+    "id": 295,
+    "name": "Exploud",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/295.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/295.png"
+  },
+  {
+    "id": 296,
+    "name": "Makuhita",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/296.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/296.png"
+  },
+  {
+    "id": 297,
+    "name": "Hariyama",
+    "types": [
+      "fighting"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/297.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/297.png"
+  },
+  {
+    "id": 298,
+    "name": "Azurill",
+    "types": [
+      "normal",
+      "fairy"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/298.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/298.png"
+  },
+  {
+    "id": 299,
+    "name": "Nosepass",
+    "types": [
+      "rock"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/299.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/299.png"
+  },
+  {
+    "id": 300,
+    "name": "Skitty",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/300.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/300.png"
+  },
+  {
+    "id": 301,
+    "name": "Delcatty",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/301.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/301.png"
+  },
+  {
+    "id": 302,
+    "name": "Sableye",
+    "types": [
+      "dark",
+      "ghost"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/302.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/302.png"
+  },
+  {
+    "id": 303,
+    "name": "Mawile",
+    "types": [
+      "steel",
+      "fairy"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/303.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/303.png"
+  },
+  {
+    "id": 304,
+    "name": "Aron",
+    "types": [
+      "steel",
+      "rock"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/304.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/304.png"
+  },
+  {
+    "id": 305,
+    "name": "Lairon",
+    "types": [
+      "steel",
+      "rock"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/305.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/305.png"
+  },
+  {
+    "id": 306,
+    "name": "Aggron",
+    "types": [
+      "steel",
+      "rock"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/306.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/306.png"
+  },
+  {
+    "id": 307,
+    "name": "Meditite",
+    "types": [
+      "fighting",
+      "psychic"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/307.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/307.png"
+  },
+  {
+    "id": 308,
+    "name": "Medicham",
+    "types": [
+      "fighting",
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/308.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/308.png"
+  },
+  {
+    "id": 309,
+    "name": "Electrike",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/309.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/309.png"
+  },
+  {
+    "id": 310,
+    "name": "Manectric",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/310.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/310.png"
+  },
+  {
+    "id": 311,
+    "name": "Plusle",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/311.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/311.png"
+  },
+  {
+    "id": 312,
+    "name": "Minun",
+    "types": [
+      "electric"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/312.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/312.png"
+  },
+  {
+    "id": 313,
+    "name": "Volbeat",
+    "types": [
+      "bug"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/313.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/313.png"
+  },
+  {
+    "id": 314,
+    "name": "Illumise",
+    "types": [
+      "bug"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/314.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/314.png"
+  },
+  {
+    "id": 315,
+    "name": "Roselia",
+    "types": [
+      "grass",
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/315.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/315.png"
+  },
+  {
+    "id": 316,
+    "name": "Gulpin",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/316.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/316.png"
+  },
+  {
+    "id": 317,
+    "name": "Swalot",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/317.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/317.png"
+  },
+  {
+    "id": 318,
+    "name": "Carvanha",
+    "types": [
+      "water",
+      "dark"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/318.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/318.png"
+  },
+  {
+    "id": 319,
+    "name": "Sharpedo",
+    "types": [
+      "water",
+      "dark"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/319.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/319.png"
+  },
+  {
+    "id": 320,
+    "name": "Wailmer",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/320.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/320.png"
+  },
+  {
+    "id": 321,
+    "name": "Wailord",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/321.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/321.png"
+  },
+  {
+    "id": 322,
+    "name": "Numel",
+    "types": [
+      "fire",
+      "ground"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/322.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/322.png"
+  },
+  {
+    "id": 323,
+    "name": "Camerupt",
+    "types": [
+      "fire",
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/323.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/323.png"
+  },
+  {
+    "id": 324,
+    "name": "Torkoal",
+    "types": [
+      "fire"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/324.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/324.png"
+  },
+  {
+    "id": 325,
+    "name": "Spoink",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/325.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/325.png"
+  },
+  {
+    "id": 326,
+    "name": "Grumpig",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/326.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/326.png"
+  },
+  {
+    "id": 327,
+    "name": "Spinda",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/327.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/327.png"
+  },
+  {
+    "id": 328,
+    "name": "Trapinch",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/328.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/328.png"
+  },
+  {
+    "id": 329,
+    "name": "Vibrava",
+    "types": [
+      "ground",
+      "dragon"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/329.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/329.png"
+  },
+  {
+    "id": 330,
+    "name": "Flygon",
+    "types": [
+      "ground",
+      "dragon"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/330.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/330.png"
+  },
+  {
+    "id": 331,
+    "name": "Cacnea",
+    "types": [
+      "grass"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/331.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/331.png"
+  },
+  {
+    "id": 332,
+    "name": "Cacturne",
+    "types": [
+      "grass",
+      "dark"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/332.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/332.png"
+  },
+  {
+    "id": 333,
+    "name": "Swablu",
+    "types": [
+      "normal",
+      "flying"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/333.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/333.png"
+  },
+  {
+    "id": 334,
+    "name": "Altaria",
+    "types": [
+      "dragon",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/334.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/334.png"
+  },
+  {
+    "id": 335,
+    "name": "Zangoose",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/335.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/335.png"
+  },
+  {
+    "id": 336,
+    "name": "Seviper",
+    "types": [
+      "poison"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/336.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/336.png"
+  },
+  {
+    "id": 337,
+    "name": "Lunatone",
+    "types": [
+      "rock",
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/337.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/337.png"
+  },
+  {
+    "id": 338,
+    "name": "Solrock",
+    "types": [
+      "rock",
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/338.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/338.png"
+  },
+  {
+    "id": 339,
+    "name": "Barboach",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/339.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/339.png"
+  },
+  {
+    "id": 340,
+    "name": "Whiscash",
+    "types": [
+      "water",
+      "ground"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/340.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/340.png"
+  },
+  {
+    "id": 341,
+    "name": "Corphish",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/341.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/341.png"
+  },
+  {
+    "id": 342,
+    "name": "Crawdaunt",
+    "types": [
+      "water",
+      "dark"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/342.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/342.png"
+  },
+  {
+    "id": 343,
+    "name": "Baltoy",
+    "types": [
+      "ground",
+      "psychic"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/343.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/343.png"
+  },
+  {
+    "id": 344,
+    "name": "Claydol",
+    "types": [
+      "ground",
+      "psychic"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/344.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/344.png"
+  },
+  {
+    "id": 345,
+    "name": "Lileep",
+    "types": [
+      "rock",
+      "grass"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/345.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/345.png"
+  },
+  {
+    "id": 346,
+    "name": "Cradily",
+    "types": [
+      "rock",
+      "grass"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/346.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/346.png"
+  },
+  {
+    "id": 347,
+    "name": "Anorith",
+    "types": [
+      "rock",
+      "bug"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/347.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/347.png"
+  },
+  {
+    "id": 348,
+    "name": "Armaldo",
+    "types": [
+      "rock",
+      "bug"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/348.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/348.png"
+  },
+  {
+    "id": 349,
+    "name": "Feebas",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/349.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/349.png"
+  },
+  {
+    "id": 350,
+    "name": "Milotic",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/350.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/350.png"
+  },
+  {
+    "id": 351,
+    "name": "Castform",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/351.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/351.png"
+  },
+  {
+    "id": 352,
+    "name": "Kecleon",
+    "types": [
+      "normal"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/352.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/352.png"
+  },
+  {
+    "id": 353,
+    "name": "Shuppet",
+    "types": [
+      "ghost"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/353.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/353.png"
+  },
+  {
+    "id": 354,
+    "name": "Banette",
+    "types": [
+      "ghost"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/354.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/354.png"
+  },
+  {
+    "id": 355,
+    "name": "Duskull",
+    "types": [
+      "ghost"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/355.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/355.png"
+  },
+  {
+    "id": 356,
+    "name": "Dusclops",
+    "types": [
+      "ghost"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/356.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/356.png"
+  },
+  {
+    "id": 357,
+    "name": "Tropius",
+    "types": [
+      "grass",
+      "flying"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/357.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/357.png"
+  },
+  {
+    "id": 358,
+    "name": "Chimecho",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/358.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/358.png"
+  },
+  {
+    "id": 359,
+    "name": "Absol",
+    "types": [
+      "dark"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/359.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/359.png"
+  },
+  {
+    "id": 360,
+    "name": "Wynaut",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/360.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/360.png"
+  },
+  {
+    "id": 361,
+    "name": "Snorunt",
+    "types": [
+      "ice"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/361.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/361.png"
+  },
+  {
+    "id": 362,
+    "name": "Glalie",
+    "types": [
+      "ice"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/362.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/362.png"
+  },
+  {
+    "id": 363,
+    "name": "Spheal",
+    "types": [
+      "ice",
+      "water"
+    ],
+    "dice_roll": [
+      1,
+      6
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/363.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/363.png"
+  },
+  {
+    "id": 364,
+    "name": "Sealeo",
+    "types": [
+      "ice",
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/364.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/364.png"
+  },
+  {
+    "id": 365,
+    "name": "Walrein",
+    "types": [
+      "ice",
+      "water"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/365.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/365.png"
+  },
+  {
+    "id": 366,
+    "name": "Clamperl",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/366.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/366.png"
+  },
+  {
+    "id": 367,
+    "name": "Huntail",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/367.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/367.png"
+  },
+  {
+    "id": 368,
+    "name": "Gorebyss",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/368.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/368.png"
+  },
+  {
+    "id": 369,
+    "name": "Relicanth",
+    "types": [
+      "water",
+      "rock"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/369.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/369.png"
+  },
+  {
+    "id": 370,
+    "name": "Luvdisc",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/370.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/370.png"
+  },
+  {
+    "id": 371,
+    "name": "Bagon",
+    "types": [
+      "dragon"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/371.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/371.png"
+  },
+  {
+    "id": 372,
+    "name": "Shelgon",
+    "types": [
+      "dragon"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/372.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/372.png"
+  },
+  {
+    "id": 373,
+    "name": "Salamence",
+    "types": [
+      "dragon",
+      "flying"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/373.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/373.png"
+  },
+  {
+    "id": 374,
+    "name": "Beldum",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "dice_roll": [
+      2,
+      7
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/374.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/374.png"
+  },
+  {
+    "id": 375,
+    "name": "Metang",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "dice_roll": [
+      3,
+      8
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/375.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/375.png"
+  },
+  {
+    "id": 376,
+    "name": "Metagross",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/376.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/376.png"
+  },
+  {
+    "id": 377,
+    "name": "Regirock",
+    "types": [
+      "rock"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/377.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/377.png"
+  },
+  {
+    "id": 378,
+    "name": "Regice",
+    "types": [
+      "ice"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/378.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/378.png"
+  },
+  {
+    "id": 379,
+    "name": "Registeel",
+    "types": [
+      "steel"
+    ],
+    "dice_roll": [
+      4,
+      9
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/379.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/379.png"
+  },
+  {
+    "id": 380,
+    "name": "Latias",
+    "types": [
+      "dragon",
+      "psychic"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/380.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/380.png"
+  },
+  {
+    "id": 381,
+    "name": "Latios",
+    "types": [
+      "dragon",
+      "psychic"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/381.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/381.png"
+  },
+  {
+    "id": 382,
+    "name": "Kyogre",
+    "types": [
+      "water"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/382.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/382.png"
+  },
+  {
+    "id": 383,
+    "name": "Groudon",
+    "types": [
+      "ground"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/383.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/383.png"
+  },
+  {
+    "id": 384,
+    "name": "Rayquaza",
+    "types": [
+      "dragon",
+      "flying"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/384.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/384.png"
+  },
+  {
+    "id": 385,
+    "name": "Jirachi",
+    "types": [
+      "steel",
+      "psychic"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/385.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/385.png"
+  },
+  {
+    "id": 386,
+    "name": "Deoxys-normal",
+    "types": [
+      "psychic"
+    ],
+    "dice_roll": [
+      5,
+      10
+    ],
+    "skin": "games/rock-paper-poke/assets/pokemon/386.png",
+    "shiny": "games/rock-paper-poke/assets/pokemon-shiny/386.png"
+  }
+]

@@ -22,7 +22,9 @@
     "minigames": "Minigames",
     "licenses": "Licenses & Credits",
     "gallery": "Gallery",
-    "redeem": "Redeem code"
+    "redeem": "Redeem code",
+    "rock_paper_poke": "Rock-Paper-Poke",
+    "tic_tac_toe": "Tic Tac Toe"
   },
   "minigames": {
     "trash": "TRASH",
@@ -36,7 +38,19 @@
     "flappy_dunk_inst": "Tap to make the ball fly and score through the hoops!",
     "magic_sort_inst": "Pour colored liquids between bottles until each is one color!",
     "spiral_roll_inst": "Tap and hold to carve wood spirals and clear obstacles!",
-    "spiral_roll_play_again": "PLAY AGAIN"
+    "spiral_roll_play_again": "PLAY AGAIN",
+    "rock_paper_poke_title": "Rock-Paper-Poke",
+    "tic_tac_toe_title": "Tic Tac Toe"
+  },
+  "tic_tac_toe": {
+    "player": "Player",
+    "aiThinking": "AI Thinking...",
+    "yourTurn": "Your Turn",
+    "youWon": "You Won!",
+    "aiWon": "AI Won!",
+    "draw": "Draw!",
+    "ai": "AI",
+    "leave": "Leave"
   },
   "licensesPage": {
     "aiGeneratedSong": "Gemini Lyria 3 Pro created song",
@@ -274,6 +288,10 @@
     "shop_minigame_spiral_roll_desc": "Unlock the 3D Spiral Roll wood carving minigame.",
     "shop_minigame_stack_colors_name": "Stack Colors",
     "shop_minigame_stack_colors_desc": "Unlock the 3D Stack Colors runner minigame.",
+    "shop_minigame_rock_paper_poke_name": "Rock-Paper-Poke",
+    "shop_minigame_rock_paper_poke_desc": "Play a pokemon battle style game to earn mg points! Warning: This game relies on luck and types.",
+    "shop_minigame_tic_tac_toe_name": "Tic Tac Toe",
+    "shop_minigame_tic_tac_toe_desc": "Play the classic Tic Tac Toe game against AI.",
     "shop_curr_dgc_to_mg_name": "10 Minigame Points",
     "shop_curr_dgc_to_mg_desc": "Exchange 1 DogeCoin for 10 Minigame Points.",
     "shop_curr_mg_to_dgc_name": "1 DogeCoin",
@@ -532,5 +550,22 @@
     "stack_colors_game_over": "GAME OVER",
     "stack_colors_bonus": "BONUS!",
     "title": "Stack Colors"
+  },
+  "rock_paper_poke": {
+    "title": "Rock-Paper-Poke",
+    "choosePokemon": "Choose your Pokemon",
+    "you": "You",
+    "opponent": "Opponent",
+    "win": "You Win!",
+    "lose": "You Lose!",
+    "draw": "Draw!",
+    "shinyMultiplier": "Shiny! x1.5",
+    "superEffective": "Super Effective! x2",
+    "notVeryEffective": "Not Very Effective x0.5",
+    "immune": "Immune! x0",
+    "playAgain": "Play Again",
+    "score": "Score",
+    "multiplier": "Multiplier",
+    "finalScore": "Final Score"
   }
 }
