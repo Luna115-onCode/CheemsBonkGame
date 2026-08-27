@@ -1,73 +1,5 @@
 [
   {
-    "_comment": "--- Upgrades ---"
-  },
-  {
-    "id": "upgrade_idle_quantity_1",
-    "type": "upgrade",
-    "upgradeType": "quantity",
-    "upgradeValue": 1,
-    "priceMultiplier": 1.12,
-    "nameKey": "shop_upgrade_qty_1_name",
-    "descKey": "shop_upgrade_qty_1_desc",
-    "cost": 0,
-    "costCoins": 5,
-    "icon": "img/icons/report-svgrepo-com.svg",
-    "dailyLimit": 0
-  },
-  {
-    "id": "upgrade_idle_quantity_2",
-    "type": "upgrade",
-    "upgradeType": "quantity",
-    "upgradeValue": 2,
-    "priceMultiplier": 1.15,
-    "nameKey": "shop_upgrade_qty_2_name",
-    "descKey": "shop_upgrade_qty_2_desc",
-    "cost": 0,
-    "costCoins": 8,
-    "icon": "img/icons/report-svgrepo-com.svg",
-    "dailyLimit": 0
-  },
-  {
-    "id": "upgrade_idle_quantity_3",
-    "type": "upgrade",
-    "upgradeType": "quantity",
-    "upgradeValue": 3,
-    "priceMultiplier": 1.18,
-    "nameKey": "shop_upgrade_qty_3_name",
-    "descKey": "shop_upgrade_qty_3_desc",
-    "cost": 0,
-    "costCoins": 12,
-    "icon": "img/icons/report-svgrepo-com.svg",
-    "dailyLimit": 0
-  },
-  {
-    "id": "upgrade_idle_quantity_5",
-    "type": "upgrade",
-    "upgradeType": "quantity",
-    "upgradeValue": 5,
-    "priceMultiplier": 1.25,
-    "nameKey": "shop_upgrade_qty_5_name",
-    "descKey": "shop_upgrade_qty_5_desc",
-    "cost": 0,
-    "costCoins": 18,
-    "icon": "img/icons/report-svgrepo-com.svg",
-    "dailyLimit": 0
-  },
-  {
-    "id": "upgrade_idle_quantity_10",
-    "type": "upgrade",
-    "upgradeType": "quantity",
-    "upgradeValue": 10,
-    "priceMultiplier": 1.4,
-    "nameKey": "shop_upgrade_qty_10_name",
-    "descKey": "shop_upgrade_qty_10_desc",
-    "cost": 0,
-    "costCoins": 30,
-    "icon": "img/icons/report-svgrepo-com.svg",
-    "dailyLimit": 0
-  },
-  {
     "_comment": "--- Currencies ---"
   },
   {
@@ -210,6 +142,139 @@
     "icon": "img/dogecoin.png"
   },
   {
+    "_comment": "--- Upgrades ---"
+  },
+  {
+    "id": "upgrade_idle_quantity_1",
+    "type": "upgrade",
+    "upgradeType": "quantity",
+    "upgradeValue": 1,
+    "priceMultiplier": 1.12,
+    "nameKey": "shop_upgrade_qty_1_name",
+    "descKey": "shop_upgrade_qty_1_desc",
+    "cost": 0,
+    "costCoins": 5,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "upgrade_idle_quantity_2",
+    "type": "upgrade",
+    "upgradeType": "quantity",
+    "upgradeValue": 2,
+    "priceMultiplier": 1.15,
+    "nameKey": "shop_upgrade_qty_2_name",
+    "descKey": "shop_upgrade_qty_2_desc",
+    "cost": 0,
+    "costCoins": 8,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "upgrade_idle_quantity_3",
+    "type": "upgrade",
+    "upgradeType": "quantity",
+    "upgradeValue": 3,
+    "priceMultiplier": 1.18,
+    "nameKey": "shop_upgrade_qty_3_name",
+    "descKey": "shop_upgrade_qty_3_desc",
+    "cost": 0,
+    "costCoins": 12,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "upgrade_idle_quantity_5",
+    "type": "upgrade",
+    "upgradeType": "quantity",
+    "upgradeValue": 5,
+    "priceMultiplier": 1.25,
+    "nameKey": "shop_upgrade_qty_5_name",
+    "descKey": "shop_upgrade_qty_5_desc",
+    "cost": 0,
+    "costCoins": 18,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "upgrade_idle_quantity_10",
+    "type": "upgrade",
+    "upgradeType": "quantity",
+    "upgradeValue": 10,
+    "priceMultiplier": 1.4,
+    "nameKey": "shop_upgrade_qty_10_name",
+    "descKey": "shop_upgrade_qty_10_desc",
+    "cost": 0,
+    "costCoins": 30,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "upgrade_click_quantity_1",
+    "type": "upgrade",
+    "upgradeType": "click",
+    "upgradeValue": 1,
+    "priceMultiplier": 1.25,
+    "nameKey": "shop_upgrade_click_1_name",
+    "descKey": "shop_upgrade_click_1_desc",
+    "cost": 0,
+    "costCoins": 5,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "upgrade_click_quantity_2",
+    "type": "upgrade",
+    "upgradeType": "click",
+    "upgradeValue": 2,
+    "priceMultiplier": 1.15,
+    "nameKey": "shop_upgrade_click_2_name",
+    "descKey": "shop_upgrade_click_2_desc",
+    "cost": 0,
+    "costCoins": 8,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "upgrade_click_quantity_3",
+    "type": "upgrade",
+    "upgradeType": "click",
+    "upgradeValue": 3,
+    "priceMultiplier": 1.18,
+    "nameKey": "shop_upgrade_click_3_name",
+    "descKey": "shop_upgrade_click_3_desc",
+    "cost": 0,
+    "costCoins": 12,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "upgrade_click_quantity_5",
+    "type": "upgrade",
+    "upgradeType": "click",
+    "upgradeValue": 5,
+    "priceMultiplier": 1.25,
+    "nameKey": "shop_upgrade_click_5_name",
+    "descKey": "shop_upgrade_click_5_desc",
+    "cost": 0,
+    "costCoins": 18,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
+    "id": "upgrade_click_quantity_10",
+    "type": "upgrade",
+    "upgradeType": "click",
+    "upgradeValue": 10,
+    "priceMultiplier": 1.4,
+    "nameKey": "shop_upgrade_click_10_name",
+    "descKey": "shop_upgrade_click_10_desc",
+    "cost": 0,
+    "costCoins": 30,
+    "icon": "img/icons/report-svgrepo-com.svg",
+    "dailyLimit": 0
+  },
+  {
     "_comment": "--- Boosters ---"
   },
   {
@@ -319,6 +384,153 @@
     "durationMin": 20,
     "icon": "img/icons/trophy-svgrepo-com.svg",
     "dailyLimit": 0
+  },
+  {
+    "_comment": "--- Minigames ---"
+  },
+  {
+    "id": "minigame_block_breaker",
+    "type": "minigame",
+    "targetId": "block_breaker",
+    "nameKey": "shop_minigame_block_breaker_name",
+    "descKey": "shop_minigame_block_breaker_desc",
+    "cost": 0,
+    "costCoins": 250,
+    "costMinigames": 800,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_attack_hole",
+    "type": "minigame",
+    "targetId": "attack_hole",
+    "nameKey": "shop_minigame_attack_hole_name",
+    "descKey": "shop_minigame_attack_hole_desc",
+    "cost": 0,
+    "costCoins": 750,
+    "costMinigames": 0,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_doge_rescue",
+    "type": "minigame",
+    "targetId": "doge_rescue",
+    "nameKey": "shop_minigame_doge_rescue_name",
+    "descKey": "shop_minigame_doge_rescue_desc",
+    "cost": 0,
+    "costCoins": 150,
+    "costMinigames": 550,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_flappy_dunk",
+    "type": "minigame",
+    "targetId": "flappy_dunk",
+    "nameKey": "shop_minigame_flappy_dunk_name",
+    "descKey": "shop_minigame_flappy_dunk_desc",
+    "cost": 0,
+    "costCoins": 400,
+    "costMinigames": 800,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_helix_jump",
+    "type": "minigame",
+    "targetId": "helix_jump",
+    "nameKey": "shop_minigame_helix_jump_name",
+    "descKey": "shop_minigame_helix_jump_desc",
+    "cost": 0,
+    "costCoins": 250,
+    "costMinigames": 1200,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_magic_sort",
+    "type": "minigame",
+    "targetId": "magic_sort",
+    "nameKey": "shop_minigame_magic_sort_name",
+    "descKey": "shop_minigame_magic_sort_desc",
+    "cost": 0,
+    "costCoins": 250,
+    "costMinigames": 1200,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_mob_control",
+    "type": "minigame",
+    "targetId": "mob_control",
+    "nameKey": "shop_minigame_mob_control_name",
+    "descKey": "shop_minigame_mob_control_desc",
+    "cost": 0,
+    "costCoins": 400,
+    "costMinigames": 800,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_paper_io",
+    "type": "minigame",
+    "targetId": "paper_io",
+    "nameKey": "shop_minigame_paper_io_name",
+    "descKey": "shop_minigame_paper_io_desc",
+    "cost": 0,
+    "costCoins": 750,
+    "costMinigames": 1500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_spiral_roll",
+    "type": "minigame",
+    "targetId": "spiral_roll",
+    "nameKey": "shop_minigame_spiral_roll_name",
+    "descKey": "shop_minigame_spiral_roll_desc",
+    "cost": 0,
+    "costCoins": 750,
+    "costMinigames": 1500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_stack_colors",
+    "type": "minigame",
+    "targetId": "stack_colors",
+    "nameKey": "shop_minigame_stack_colors_name",
+    "descKey": "shop_minigame_stack_colors_desc",
+    "cost": 0,
+    "costCoins": 150,
+    "costMinigames": 550,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_rock_paper_poke",
+    "type": "minigame",
+    "targetId": "rock_paper_poke",
+    "nameKey": "shop_minigame_rock_paper_poke_name",
+    "descKey": "shop_minigame_rock_paper_poke_desc",
+    "cost": 0,
+    "costCoins": 150,
+    "costMinigames": 500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "minigame_tic_tac_toe",
+    "type": "minigame",
+    "targetId": "tic_tac_toe",
+    "nameKey": "shop_minigame_tic_tac_toe_name",
+    "descKey": "shop_minigame_tic_tac_toe_desc",
+    "cost": 0,
+    "costCoins": 50,
+    "costMinigames": 200,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
   },
   {
     "_comment": "--- Characters ---"
@@ -847,153 +1059,6 @@
     "costCoins": 1100,
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "_comment": "--- Minigames ---"
-  },
-  {
-    "id": "minigame_block_breaker",
-    "type": "minigame",
-    "targetId": "block_breaker",
-    "nameKey": "shop_minigame_block_breaker_name",
-    "descKey": "shop_minigame_block_breaker_desc",
-    "cost": 0,
-    "costCoins": 250,
-    "costMinigames": 800,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_attack_hole",
-    "type": "minigame",
-    "targetId": "attack_hole",
-    "nameKey": "shop_minigame_attack_hole_name",
-    "descKey": "shop_minigame_attack_hole_desc",
-    "cost": 0,
-    "costCoins": 750,
-    "costMinigames": 0,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_doge_rescue",
-    "type": "minigame",
-    "targetId": "doge_rescue",
-    "nameKey": "shop_minigame_doge_rescue_name",
-    "descKey": "shop_minigame_doge_rescue_desc",
-    "cost": 0,
-    "costCoins": 150,
-    "costMinigames": 550,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_flappy_dunk",
-    "type": "minigame",
-    "targetId": "flappy_dunk",
-    "nameKey": "shop_minigame_flappy_dunk_name",
-    "descKey": "shop_minigame_flappy_dunk_desc",
-    "cost": 0,
-    "costCoins": 400,
-    "costMinigames": 800,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_helix_jump",
-    "type": "minigame",
-    "targetId": "helix_jump",
-    "nameKey": "shop_minigame_helix_jump_name",
-    "descKey": "shop_minigame_helix_jump_desc",
-    "cost": 0,
-    "costCoins": 250,
-    "costMinigames": 1200,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_magic_sort",
-    "type": "minigame",
-    "targetId": "magic_sort",
-    "nameKey": "shop_minigame_magic_sort_name",
-    "descKey": "shop_minigame_magic_sort_desc",
-    "cost": 0,
-    "costCoins": 250,
-    "costMinigames": 1200,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_mob_control",
-    "type": "minigame",
-    "targetId": "mob_control",
-    "nameKey": "shop_minigame_mob_control_name",
-    "descKey": "shop_minigame_mob_control_desc",
-    "cost": 0,
-    "costCoins": 400,
-    "costMinigames": 800,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_paper_io",
-    "type": "minigame",
-    "targetId": "paper_io",
-    "nameKey": "shop_minigame_paper_io_name",
-    "descKey": "shop_minigame_paper_io_desc",
-    "cost": 0,
-    "costCoins": 750,
-    "costMinigames": 1500,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_spiral_roll",
-    "type": "minigame",
-    "targetId": "spiral_roll",
-    "nameKey": "shop_minigame_spiral_roll_name",
-    "descKey": "shop_minigame_spiral_roll_desc",
-    "cost": 0,
-    "costCoins": 750,
-    "costMinigames": 1500,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_stack_colors",
-    "type": "minigame",
-    "targetId": "stack_colors",
-    "nameKey": "shop_minigame_stack_colors_name",
-    "descKey": "shop_minigame_stack_colors_desc",
-    "cost": 0,
-    "costCoins": 150,
-    "costMinigames": 550,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_rock_paper_poke",
-    "type": "minigame",
-    "targetId": "rock_paper_poke",
-    "nameKey": "shop_minigame_rock_paper_poke_name",
-    "descKey": "shop_minigame_rock_paper_poke_desc",
-    "cost": 0,
-    "costCoins": 150,
-    "costMinigames": 500,
-    "icon": "img/icons/play-svgrepo-com.svg",
-    "oneTimePurchase": true
-  },
-  {
-    "id": "minigame_tic_tac_toe",
-    "type": "minigame",
-    "targetId": "tic_tac_toe",
-    "nameKey": "shop_minigame_tic_tac_toe_name",
-    "descKey": "shop_minigame_tic_tac_toe_desc",
-    "cost": 0,
-    "costCoins": 50,
-    "costMinigames": 200,
-    "icon": "img/icons/play-svgrepo-com.svg",
     "oneTimePurchase": true
   }
 ]

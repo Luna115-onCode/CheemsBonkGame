@@ -68,6 +68,7 @@ export class ToolsService {
 
   idlePoints: number = 0;
   idleTime: number = 1;
+  clickPoints: number = 1;
   private idleTimer: any = null;
   purchasedUpgrades: Record<string, number> = {};
 
@@ -630,14 +631,24 @@ export class ToolsService {
       }
       if (this.currentMusicFile !== file) {
         this.currentMusicFile = file;
-        const res = await fetch(targetSrc);
-        if (res.ok) {
-          const arrayBuf = await res.arrayBuffer();
-          const audioBuf = await this.audioCtx.decodeAudioData(arrayBuf);
-          this.currentMusicBuffer = audioBuf;
-          this.startWebAudioMusic();
-          return;
-        }
+        const arrayBuf = await new Promise<ArrayBuffer>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('GET', targetSrc, true);
+          xhr.responseType = 'arraybuffer';
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(xhr.response);
+            } else {
+              reject(new Error(xhr.statusText));
+            }
+          };
+          xhr.onerror = () => reject(new Error('XHR Network error'));
+          xhr.send();
+        });
+        const audioBuf = await this.audioCtx.decodeAudioData(arrayBuf);
+        this.currentMusicBuffer = audioBuf;
+        this.startWebAudioMusic();
+        return;
       } else {
         if (this.audioCtx.state === 'suspended' && !this.isWindowBlurred) {
           this.audioCtx.resume().catch(() => {});
@@ -1143,15 +1154,16 @@ export class ToolsService {
   }
 
   getActiveMultiplier(): number {
+    let base = this.clickPoints;
     const now = Date.now();
     if (now < this.boosterEndTime) {
-      return this.boosterMultiplier;
+      return base * this.boosterMultiplier;
     } else if (this.boosterEndTime !== 0) {
       this.boosterEndTime = 0;
       this.boosterMultiplier = 1;
       this.saveData("active_booster", "multiplier:1,end_time:0");
     }
-    return 1;
+    return base;
   }
 
   getBoosterRemainingSeconds(): number {
@@ -1620,6 +1632,7 @@ export class ToolsService {
   recalculateIdleStats(): void {
     let basePoints = 0;
     let baseTime = 1;
+    let clickPoints = 1;
 
     const idleConfigStr = this.loadData("idle_points");
     if (idleConfigStr) {
@@ -1637,6 +1650,8 @@ export class ToolsService {
           if (item && item.type === 'upgrade' && item.upgradeValue) {
             if (item.upgradeType === 'quantity') {
               basePoints += item.upgradeValue * times;
+            } else if (item.upgradeType === 'click') {
+              clickPoints += item.upgradeValue * times;
             }
           }
         }
@@ -1644,6 +1659,8 @@ export class ToolsService {
     }
 
     this.idlePoints = basePoints;
+    this.clickPoints = clickPoints;
+    this.saveData("touch_points", String(this.clickPoints));
     this.idleTime = 1;
     
     // Restart the timer so the new interval takes effect

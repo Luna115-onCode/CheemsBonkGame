@@ -358,7 +358,7 @@ export interface ShopItem {
   icon: string;
   dailyLimit?: number;
   oneTimePurchase?: boolean;
-  upgradeType?: 'frequency' | 'quantity';
+  upgradeType?: 'frequency' | 'quantity' | 'click';
   upgradeValue?: number;
   priceMultiplier?: number;
 }

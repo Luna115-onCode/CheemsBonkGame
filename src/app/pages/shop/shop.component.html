@@ -17,14 +17,14 @@
                 {{tools.shop[tools.lang]?.upgradesSection || 'Upgrades'}}
             </button>
         }
-        @if (minigameItems.length > 0) {
-            <button class="shop-nav-btn nav-booster" (click)="scrollToSection('sec-minigame')">
-                {{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}
-            </button>
-        }
         @if (boosterItems.length > 0) {
             <button class="shop-nav-btn nav-booster" (click)="scrollToSection('sec-booster')">
                 {{tools.shop[tools.lang]?.boosterSection || 'Boosters'}}
+            </button>
+        }
+        @if (minigameItems.length > 0) {
+            <button class="shop-nav-btn nav-minigames" (click)="scrollToSection('sec-minigame')">
+                {{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}
             </button>
         }
         @if (cheemsItems.length > 0) {
@@ -87,6 +87,7 @@
              [class.cheems-card]="item.type === 'cheems'"
              [class.sound-card]="item.type === 'sound'"
              [class.music-card]="item.type === 'music'"
+             [class.minigames-card]="item.type === 'minigame'"
              [class.currency-dgc-to-mg-card]="item.id === 'curr_dgc_to_mg'"
              [class.currency-mg-to-dgc-card]="item.id === 'curr_mg_to_dgc'">
             <div class="shop-card-icon-wrapper">
@@ -173,18 +174,6 @@
         </div>
     }
 
-    <!-- Minigames Section -->
-    @if (minigameItems.length > 0) {
-        <div class="section-separator" id="sec-minigame">
-            <h2 class="section-title minigame-title">{{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}</h2>
-        </div>
-        <div class="shop-grid">
-            @for (item of minigameItems; track item.id) {
-                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
-            }
-        </div>
-    }
-
     <!-- Boosters Section -->
     @if (boosterItems.length > 0) {
         <div class="section-separator" id="sec-booster">
@@ -192,6 +181,18 @@
         </div>
         <div class="shop-grid">
             @for (item of boosterItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Minigames Section -->
+    @if (minigameItems.length > 0) {
+        <div class="section-separator" id="sec-minigame">
+            <h2 class="section-title minigames-title">{{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of minigameItems; track item.id) {
                 <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
             }
         </div>

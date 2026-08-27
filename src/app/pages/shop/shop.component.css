@@ -17,6 +17,7 @@
     margin-bottom: 0.5rem;
     background: linear-gradient(135deg, #ffd700, #ff8c00);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);
 }
@@ -180,6 +181,16 @@
 .section-separator:has(.dogecoin-title)::before,
 .section-separator:has(.dogecoin-title)::after {
     background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.5), transparent);
+}
+
+.minigames-title {
+    color: #ff8c00;
+    border-color: rgba(255, 140, 0, 0.4);
+    background: rgba(255, 140, 0, 0.08);
+}
+.section-separator:has(.minigames-title)::before,
+.section-separator:has(.minigames-title)::after {
+    background: linear-gradient(90deg, transparent, rgba(255, 140, 0, 0.5), transparent);
 }
 
 .booster-title {
@@ -361,6 +372,15 @@
 .shop-card.booster-card:hover {
     border-color: rgba(0, 200, 255, 0.5);
     box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);
+}
+
+.shop-card.minigames-card {
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.08), rgba(200, 100, 0, 0.05));
+    border-color: rgba(255, 140, 0, 0.25);
+}
+.shop-card.minigames-card:hover {
+    border-color: rgba(255, 140, 0, 0.5);
+    box-shadow: 0 14px 40px rgba(255, 140, 0, 0.12);
 }
 
 /* Cheems Skins card color */
@@ -671,6 +691,7 @@
 .shop-container.theme-light .shop-title {
     background: linear-gradient(135deg, #b35900, #d97706);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: none;
 }
@@ -770,6 +791,15 @@
     background: linear-gradient(90deg, transparent, rgba(179, 89, 0, 0.4), transparent);
 }
 
+.shop-container.theme-light .minigames-title {
+    color: #cc7000;
+    border-color: rgba(204, 112, 0, 0.4);
+}
+.shop-container.theme-light .section-separator:has(.minigames-title)::before,
+.shop-container.theme-light .section-separator:has(.minigames-title)::after {
+    background: linear-gradient(90deg, transparent, rgba(204, 112, 0, 0.4), transparent);
+}
+
 .shop-container.theme-light .booster-title {
     color: #0072cc;
     border-color: rgba(0, 114, 204, 0.4);
@@ -842,6 +872,11 @@
 .shop-container.theme-light .shop-card.booster-card {
     background: linear-gradient(135deg, rgba(230, 248, 255, 0.95), rgba(240, 235, 255, 0.95));
     border-color: #0072ff;
+}
+
+.shop-container.theme-light .shop-card.minigames-card {
+    background: linear-gradient(135deg, rgba(255, 240, 220, 0.95), rgba(255, 225, 200, 0.95));
+    border-color: #cc7000;
 }
 
 .shop-container.theme-light .shop-card.cheems-card {
@@ -936,6 +971,7 @@
 .shop-container.theme-contrast .shop-title {
     background: none;
     -webkit-background-clip: unset;
+    background-clip: unset;
     -webkit-text-fill-color: #ffff00;
     text-shadow: none;
 }
@@ -1000,6 +1036,7 @@
 /* Override all section title colors in contrast */
 .shop-container.theme-contrast .dogecoin-title,
 .shop-container.theme-contrast .booster-title,
+.shop-container.theme-contrast .minigames-title,
 .shop-container.theme-contrast .cheems-title,
 .shop-container.theme-contrast .sound-title,
 .shop-container.theme-contrast .music-title {
@@ -1046,6 +1083,7 @@
 /* All card type variants collapse to same contrast style */
 .shop-container.theme-contrast .shop-card.coin-card,
 .shop-container.theme-contrast .shop-card.booster-card,
+.shop-container.theme-contrast .shop-card.minigames-card,
 .shop-container.theme-contrast .shop-card.cheems-card,
 .shop-container.theme-contrast .shop-card.sound-card,
 .shop-container.theme-contrast .shop-card.music-card {
@@ -1054,6 +1092,7 @@
 }
 .shop-container.theme-contrast .shop-card.coin-card:hover,
 .shop-container.theme-contrast .shop-card.booster-card:hover,
+.shop-container.theme-contrast .shop-card.minigames-card:hover,
 .shop-container.theme-contrast .shop-card.cheems-card:hover,
 .shop-container.theme-contrast .shop-card.sound-card:hover,
 .shop-container.theme-contrast .shop-card.music-card:hover {
