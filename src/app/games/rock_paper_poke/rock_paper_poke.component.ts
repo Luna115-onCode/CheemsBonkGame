@@ -139,6 +139,7 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
     
     this.playerChoices = this.getRandomPokemon(3);
     this.opponentChoices = this.getRandomPokemon(3);
+    this.selectedOpponentPokemon = this.opponentChoices[Math.floor(Math.random() * this.opponentChoices.length)];
   }
   
   getRandomPokemon(count: number): Pokemon[] {
@@ -157,9 +158,18 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
   
   selectPokemon(pokemon: Pokemon, index: number) {
     if (this.battleState !== 'SELECT') return;
+    this.tools.playSound('sfx_1');
     
-    this.selectedPlayerPokemon = pokemon;
-    this.selectedOpponentPokemon = this.opponentChoices[index];
+    if (this.selectedPlayerPokemon === pokemon) {
+      this.selectedPlayerPokemon = null;
+    } else {
+      this.selectedPlayerPokemon = pokemon;
+    }
+  }
+  
+  confirmSelection() {
+    if (this.battleState !== 'SELECT' || !this.selectedPlayerPokemon || !this.selectedOpponentPokemon) return;
+    this.tools.playSound('sfx_1');
     
     this.prepareBattleData();
     this.runBattleSequence();
@@ -200,6 +210,7 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
     if (this.hasImmuneMultiplier) {
       this.battleState = 'MULTIPLIERS';
       this.showImmune = true;
+      this.tools.playSound('sfx_5');
       if (this.pMults.immune) this.playerCurrentDisplayScore = 0;
       if (this.oMults.immune) this.opponentCurrentDisplayScore = 0;
       await this.delay(1500);
@@ -207,6 +218,7 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
       if (this.hasWeakMultiplier) {
         this.battleState = 'MULTIPLIERS';
         this.showWeak = true;
+        this.tools.playSound('sfx_5');
         if (this.pMults.weak) this.playerCurrentDisplayScore *= this.pMults.value;
         if (this.oMults.weak) this.opponentCurrentDisplayScore *= this.oMults.value;
         await this.delay(1500);
@@ -214,6 +226,7 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
       if (this.hasStrongMultiplier) {
         this.battleState = 'MULTIPLIERS';
         this.showStrong = true;
+        this.tools.playSound('sfx_5');
         if (this.pMults.strong) this.playerCurrentDisplayScore *= this.pMults.value;
         if (this.oMults.strong) this.opponentCurrentDisplayScore *= this.oMults.value;
         await this.delay(1500);
@@ -223,6 +236,7 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
     if (this.selectedPlayerPokemon?.isShiny || this.selectedOpponentPokemon?.isShiny) {
       this.battleState = 'MULTIPLIERS';
       this.showShiny = true;
+      this.tools.playSound('sfx_5');
       if (this.selectedPlayerPokemon?.isShiny) this.playerCurrentDisplayScore *= 1.5;
       if (this.selectedOpponentPokemon?.isShiny) this.opponentCurrentDisplayScore *= 1.5;
       await this.delay(1500);
@@ -233,12 +247,13 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
     if (this.playerFinalScore > this.opponentFinalScore) {
       this.battleResult = 'win';
       this.level++;
-      this.tools.playSound('sfx_success');
+      this.tools.playSound('sfx_4');
     } else if (this.playerFinalScore < this.opponentFinalScore) {
       this.battleResult = 'lose';
-      this.tools.playSound('sfx_fail');
+      this.tools.playSound('sfx_2');
     } else {
       this.battleResult = 'draw';
+      this.tools.playSound('sfx_1');
     }
     
     const diff = this.playerFinalScore - this.opponentFinalScore;

@@ -241,7 +241,8 @@ export const gameText = {
     actScore: "",
     totalScore: ""
   },
-  tapToBonk: ""
+  tapToBonk: "",
+  idleBonusToast: ""
 };
 
 export const closetText = {

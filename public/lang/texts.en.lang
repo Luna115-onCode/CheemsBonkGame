@@ -24,33 +24,16 @@
     "gallery": "Gallery",
     "redeem": "Redeem code",
     "rock_paper_poke": "Rock-Paper-Poke",
-    "tic_tac_toe": "Tic Tac Toe"
+    "tic_tac_toe": "Tic-Tac-Toe"
   },
   "minigames": {
-    "trash": "TRASH",
-    "buyShovel": "Buy Shovel",
-    "buyPickaxe": "Buy Pickaxe",
-    "best": "Best: ",
-    "youWin": "You Win!",
-    "restart": "Restart",
-    "defeat": "Defeat!",
     "convertedPointsToast": "{0} game points were converted into +{1} MG Coins!",
     "flappy_dunk_inst": "Tap to make the ball fly and score through the hoops!",
     "magic_sort_inst": "Pour colored liquids between bottles until each is one color!",
     "spiral_roll_inst": "Tap and hold to carve wood spirals and clear obstacles!",
     "spiral_roll_play_again": "PLAY AGAIN",
     "rock_paper_poke_title": "Rock-Paper-Poke",
-    "tic_tac_toe_title": "Tic Tac Toe"
-  },
-  "tic_tac_toe": {
-    "player": "Player",
-    "aiThinking": "AI Thinking...",
-    "yourTurn": "Your Turn",
-    "youWon": "You Won!",
-    "aiWon": "AI Won!",
-    "draw": "Draw!",
-    "ai": "AI",
-    "leave": "Leave"
+    "tic_tac_toe_title": "Tic-Tac-Toe"
   },
   "licensesPage": {
     "aiGeneratedSong": "Gemini Lyria 3 Pro created song",
@@ -112,12 +95,13 @@
   },
   "game": {
     "navbar": {
-      "highScore": "High score",
-      "actScore": "Current touches",
-      "totalScore": "Total touches",
+      "highScore": "High Score",
+      "actScore": "Score",
+      "totalScore": "Total",
       "booster": "Booster"
     },
-    "tapToBonk": "Click Cheems for a BONK!",
+    "tapToBonk": "Tap Cheems to BONK him!",
+    "idleBonusToast": "Idle Bonus: +{0} pts while you were away!",
     "idleStats": "Idle Stats",
     "activeAppOpen": "Active (App Open):",
     "offlineBackground": "Offline (Background):",
@@ -566,6 +550,17 @@
     "playAgain": "Play Again",
     "score": "Score",
     "multiplier": "Multiplier",
-    "finalScore": "Final Score"
+    "finalScore": "Final Score",
+    "confirm": "Confirm"
+  },
+  "tic_tac_toe": {
+    "player": "Player",
+    "aiThinking": "AI Thinking...",
+    "yourTurn": "Your Turn",
+    "youWon": "You Won!",
+    "aiWon": "AI Won!",
+    "draw": "Draw!",
+    "ai": "AI",
+    "leave": "Leave"
   }
 }

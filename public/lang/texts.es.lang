@@ -23,34 +23,17 @@
     "licenses": "Licencias y Créditos",
     "gallery": "Galería",
     "redeem": "Canjear Código",
-    "rock_paper_poke": "Piedra-Papel-Poke",
-    "tic_tac_toe": "Tres en Raya"
+    "rock_paper_poke": "Rock-Paper-Poke",
+    "tic_tac_toe": "Tic-Tac-Toe"
   },
   "minigames": {
-    "trash": "BASURA",
-    "buyShovel": "Comprar pala",
-    "buyPickaxe": "Comprar pico",
-    "best": "Mejor: ",
-    "youWin": "¡Ganaste!",
-    "restart": "Reiniciar",
-    "defeat": "¡Derrota!",
     "convertedPointsToast": "¡Se convirtieron {0} puntos del juego en +{1} MG Coins!",
     "flappy_dunk_inst": "¡Toca para hacer volar la pelota y encestar en los aros!",
     "magic_sort_inst": "¡Vierte líquidos de color entre botellas hasta ordenar los colores!",
     "spiral_roll_inst": "¡Mantén presionado para tallar espirales de madera y saltar obstáculos!",
     "spiral_roll_play_again": "JUGAR DE NUEVO",
-    "rock_paper_poke_title": "Piedra-Papel-Poke",
-    "tic_tac_toe_title": "Tres en Raya"
-  },
-  "tic_tac_toe": {
-    "player": "Jugador",
-    "aiThinking": "IA Pensando...",
-    "yourTurn": "Tu Turno",
-    "youWon": "¡Ganaste!",
-    "aiWon": "¡IA Ganó!",
-    "draw": "¡Empate!",
-    "ai": "IA",
-    "leave": "Salir"
+    "rock_paper_poke_title": "Rock-Paper-Poke",
+    "tic_tac_toe_title": "Tic-Tac-Toe"
   },
   "licensesPage": {
     "aiGeneratedSong": "Canción generada por Gemini Lyria 3 Pro",
@@ -113,11 +96,12 @@
   "game": {
     "navbar": {
       "highScore": "Mayor puntaje",
-      "actScore": "Toques actuales",
-      "totalScore": "Toques totales",
+      "actScore": "Puntos",
+      "totalScore": "Puntos totales",
       "booster": "Potenciador"
     },
     "tapToBonk": "¡Haz clic en Cheems para un BONK!",
+    "idleBonusToast": "¡Bono Inactivo: +{0} pts mientras no estabas!",
     "idleStats": "Puntos Inactivo",
     "activeAppOpen": "Activo (App Abierta):",
     "offlineBackground": "Desconectado (App cerrada):",
@@ -566,6 +550,17 @@
     "playAgain": "Jugar de Nuevo",
     "score": "Puntuación",
     "multiplier": "Multiplicador",
-    "finalScore": "Puntuación Final"
+    "finalScore": "Puntuación Final",
+    "confirm": "Confirmar"
+  },
+  "tic_tac_toe": {
+    "player": "Jugador",
+    "aiThinking": "IA Pensando...",
+    "yourTurn": "Tu Turno",
+    "youWon": "¡Ganaste!",
+    "aiWon": "¡IA Ganó!",
+    "draw": "¡Empate!",
+    "ai": "IA",
+    "leave": "Salir"
   }
 }

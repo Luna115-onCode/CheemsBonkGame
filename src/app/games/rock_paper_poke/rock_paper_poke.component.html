@@ -97,6 +97,9 @@
           </div>
         </div>
       </div>
+      <button class="confirm-btn play-again-btn" *ngIf="battleState === 'SELECT' && selectedPlayerPokemon" (click)="confirmSelection()">
+        {{ lang?.confirm || 'Confirm' }}
+      </button>
     </div>
     
   </div>

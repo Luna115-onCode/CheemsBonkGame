@@ -1675,7 +1675,8 @@ export class ToolsService {
 
         if (offlinePoints > 0) {
           this.updateScore(offlinePoints);
-          this.showToast(`Idle Bonus: +${offlinePoints} pts while you were away!`);
+          let msg = this.game[this.lang]?.idleBonusToast?.replace('{0}', String(offlinePoints)) || `Idle Bonus: +${offlinePoints} pts while you were away!`;
+          this.showToast(msg);
         }
       }
     }
