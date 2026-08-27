@@ -533,6 +533,18 @@
     "oneTimePurchase": true
   },
   {
+    "id": "minigame_black_jack",
+    "type": "minigame",
+    "targetId": "black_jack",
+    "nameKey": "shop_minigame_black_jack_name",
+    "descKey": "shop_minigame_black_jack_desc",
+    "cost": 0,
+    "costCoins": 150,
+    "costMinigames": 500,
+    "icon": "img/icons/play-svgrepo-com.svg",
+    "oneTimePurchase": true
+  },
+  {
     "_comment": "--- Characters ---"
   },
   {

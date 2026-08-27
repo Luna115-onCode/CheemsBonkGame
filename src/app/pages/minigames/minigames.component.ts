@@ -28,7 +28,8 @@ export class MinigamesComponent implements OnInit {
     { id: 'spiral_roll', key: 'spiral_roll_title', defaultTitle: 'Spiral Roll' },
     { id: 'stack_colors', key: 'stack_colors_title', defaultTitle: 'Stack Colors' },
     { id: 'rock_paper_poke', key: 'rock_paper_poke_title', defaultTitle: 'Rock-Paper-Poke' },
-    { id: 'tic_tac_toe', key: 'tic_tac_toe_title', defaultTitle: 'Tic Tac Toe' }
+    { id: 'tic_tac_toe', key: 'tic_tac_toe_title', defaultTitle: 'Tic Tac Toe' },
+    { id: 'black_jack', key: 'black_jack_title', defaultTitle: 'Black Jack' }
   ];
 
   ngOnInit(): void {

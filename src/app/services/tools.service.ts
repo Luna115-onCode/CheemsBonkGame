@@ -39,7 +39,8 @@ import {
   spiral_rollText,
   stack_colorsText,
   rock_paper_pokeText,
-  tic_tac_toeText
+  tic_tac_toeText,
+  black_jackText
 } from './constants.service';
 
 @Injectable({
@@ -108,6 +109,7 @@ export class ToolsService {
   stack_colors: any = createLangMap(stack_colorsText);
   rock_paper_poke: any = createLangMap(rock_paper_pokeText);
   tic_tac_toe: any = createLangMap(tic_tac_toeText);
+  black_jack: any = createLangMap(black_jackText);
   shopItemsText: Record<string, Record<string, string>> = {};
   itemsText: Record<string, Record<string, string>> = {};
   shopItems: Array<ShopItem> = [];
@@ -295,6 +297,7 @@ export class ToolsService {
         if (data.stack_colors) this.stack_colors[langCode] = { ...this.stack_colors[langCode], ...data.stack_colors };
         if (data.rock_paper_poke) this.rock_paper_poke[langCode] = { ...this.rock_paper_poke[langCode], ...data.rock_paper_poke };
         if (data.tic_tac_toe) this.tic_tac_toe[langCode] = { ...this.tic_tac_toe[langCode], ...data.tic_tac_toe };
+        if (data.black_jack) this.black_jack[langCode] = { ...this.black_jack[langCode], ...data.black_jack };
         if (data.gallery) this.gallery[langCode] = { ...this.gallery[langCode], ...data.gallery };
         if (data.licensesPage) this.licensesPage[langCode] = { ...this.licensesPage[langCode], ...data.licensesPage };
         if (data.shopItemsText) this.shopItemsText[langCode] = { ...this.shopItemsText[langCode], ...data.shopItemsText };
@@ -399,7 +402,7 @@ export class ToolsService {
   }
 
   redirectBack(fromSystem: boolean = false): void {
-    const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors", "rock_paper_poke", "tic_tac_toe"];
+    const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors", "rock_paper_poke", "tic_tac_toe", "black_jack"];
     if (minigamePages.includes(this.actPage as string)) {
       this.redirect("minigames");
     } else if (["redeem", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage as string)) {
@@ -830,7 +833,7 @@ export class ToolsService {
     this.highScore = 999999;
     this.dogeCoins = 999999;
     this.minigameCoins = 999999;
-    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors', 'rock_paper_poke', 'tic_tac_toe'];
+    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors', 'rock_paper_poke', 'tic_tac_toe', 'black_jack'];
     allMinigames.forEach(id => {
       this.unlockedMinigames[id] = true;
     });
@@ -1022,7 +1025,7 @@ export class ToolsService {
   }
 
   loadUnlocks(): void {
-    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors', 'rock_paper_poke', 'tic_tac_toe'];
+    const allMinigames = ['block_breaker', 'attack_hole', 'doge_rescue', 'flappy_dunk', 'helix_jump', 'magic_sort', 'mob_control', 'paper_io', 'spiral_roll', 'stack_colors', 'rock_paper_poke', 'tic_tac_toe', 'black_jack'];
     const unlockedMgs = this.parseArrayString(this.loadData("unlocked_minigames") || "");
     allMinigames.forEach(id => {
       this.unlockedMinigames[id] = unlockedMgs.includes(id);

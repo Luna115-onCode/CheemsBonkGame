@@ -1,0 +1,340 @@
+.black-jack-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #111;
+  color: white;
+  user-select: none;
+}
+
+.felt-table {
+  flex: 1;
+  background: radial-gradient(circle at center, #0e632d, #083b1a);
+  border: 4px solid #4a2e12;
+  border-radius: 12px;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dealer-area, .player-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 0.3s;
+}
+
+.dimmed {
+  opacity: 0.3;
+}
+
+.hand-label {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 10px 0;
+  color: #e0e0e0;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  position: relative;
+  z-index: 50;
+}
+
+.hand-value {
+  background: rgba(0,0,0,0.6);
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+  color: #ffd700;
+}
+
+.cards {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  height: 140px;
+  margin-left: 30px; /* Offset the negative translation */
+}
+
+.card {
+  width: 90px;
+  height: 130px;
+  transition: transform 0.2s ease-out;
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.4));
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.center-message {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.result-text {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #ffd700;
+  text-transform: uppercase;
+  text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.bet-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+}
+
+.visual-chip-stack-container {
+  display: flex;
+  gap: 15px;
+  min-height: 80px;
+  align-items: flex-end;
+  overflow-x: auto;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  margin-right: calc(-50vw + 50%);
+  padding: 0 20px 10px 20px;
+}
+
+.visual-chip-stack-container::before,
+.visual-chip-stack-container::after {
+  content: '';
+  margin: auto;
+}
+
+.controls-panel {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  padding: 10px 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.bet-info {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.1rem;
+  color: #ffd700;
+  font-weight: 600;
+  position: relative;
+  z-index: 50;
+}
+
+.chip-rack {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+  margin: 10px calc(-50vw + 50%);
+  width: 100vw;
+  overflow-x: auto;
+  padding: 0 20px 10px 20px;
+}
+
+.chip-rack::before,
+.chip-rack::after {
+  content: '';
+  margin: auto;
+}
+
+.rack-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.piles-container {
+  display: flex;
+  gap: 10px;
+}
+
+.visual-stack {
+  position: relative;
+  width: 50px;
+}
+
+.rack-stack {
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.rack-stack:hover:not(.disabled) {
+  transform: scale(1.1) translateY(-5px);
+}
+.rack-stack:active:not(.disabled) {
+  transform: scale(0.95);
+}
+
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chip-img {
+  position: absolute;
+  width: 100%;
+  height: 50px;
+  object-fit: contain;
+  left: 0;
+}
+
+.chip-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.8rem;
+  border: 1px solid #ffd700;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.chip-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255,255,255,0.5);
+  font-weight: bold;
+  font-size: 1.2rem;
+  pointer-events: none;
+}
+
+.chip-val-text {
+  font-size: 0.8rem;
+  color: #ccc;
+  font-family: 'Poppins', sans-serif;
+}
+
+.exchange-buttons {
+  display: flex;
+  gap: 5px;
+  min-height: 24px;
+}
+
+.exchange-btn {
+  background: #333;
+  color: white;
+  border: 1px solid #666;
+  border-radius: 4px;
+  padding: 2px 5px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+.exchange-btn:hover:not(.disabled) { background: #555; }
+.exchange-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #222;
+}
+
+.bet-actions, .play-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.btn:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0,0,0,0.4);
+}
+.btn:active:not(.disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+}
+
+.btn-red { background: linear-gradient(180deg, #ff4d4d, #cc0000); color: white; }
+.btn-green { background: linear-gradient(180deg, #4dff4d, #00cc00); color: white; }
+.btn-hit { background: linear-gradient(180deg, #4da6ff, #0066cc); color: white; }
+.btn-stand { background: linear-gradient(180deg, #ffd700, #ccaa00); color: black; }
+.btn-double { background: linear-gradient(180deg, #ff9933, #cc6600); color: white; }
+
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.stats-row {
+  display: flex;
+  gap: 30px;
+  align-items: center;
+}
+
+.bankrupt-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0,0,0,0.85);
+  padding: 30px;
+  border-radius: 12px;
+  border: 2px solid #ff4d4d;
+  box-shadow: 0 0 20px rgba(255, 77, 77, 0.5);
+  pointer-events: auto;
+}
+
+.bankrupt-panel p {
+  font-size: 1.5rem;
+  font-family: 'Poppins', sans-serif;
+  color: #ffb3b3;
+  margin-bottom: 20px;
+}
+
+.bankrupt-actions {
+  display: flex;
+  gap: 15px;
+}

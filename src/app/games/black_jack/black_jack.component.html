@@ -1,0 +1,145 @@
+<div class="black-jack-container {{tools.themeColor}}">
+  <div class="felt-table">
+    
+    @if(gameState !== 'loading') {
+      
+      <!-- Dealer Area -->
+      <div class="dealer-area" [class.dimmed]="gameState === 'betting'">
+        <div class="hand-label">{{lang.dealer_cards || "Dealer's Cards"}} 
+          @if(gameState === 'dealer_turn' || gameState === 'game_over') {
+            <span class="hand-value">{{getHandValue(dealerHand)}}</span>
+          }
+        </div>
+        <div class="cards">
+          @for (c of dealerHand; track c.id; let idx = $index) {
+            <div class="card" [style.transform]="'translateX(' + (idx * -30) + 'px)'">
+              @if (idx === 0 && gameState === 'playing') {
+                <img [src]="c.back_texture" alt="Hidden Card">
+              } @else {
+                <img [src]="c.front_texture" alt="{{c.name}}">
+              }
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Result / Bankrupt Message -->
+      <div class="center-message">
+        @if (gameState === 'game_over') {
+          <h1 class="result-text">{{resultMessage}}</h1>
+        }
+        @if (gameState === 'bankrupt') {
+          <div class="bankrupt-panel">
+            <h1 class="result-text">{{lang.game_over || "Game Over"}}</h1>
+            <p>{{lang.bankrupt || "You lost all your chips!"}}</p>
+            <div class="bankrupt-actions">
+              <button class="btn btn-green" (click)="restartGame()">{{lang.restart || "Restart"}}</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Player Area -->
+      <div class="player-area" [class.dimmed]="gameState === 'betting'">
+        <div class="cards">
+          @for (c of playerHand; track c.id; let idx = $index) {
+            <div class="card" [style.transform]="'translateX(' + (idx * -30) + 'px)'">
+              <img [src]="c.front_texture" alt="{{c.name}}">
+            </div>
+          }
+        </div>
+        <div class="hand-label">{{lang.player_cards || "Your Cards"}}
+          @if(playerHand.length > 0) {
+            <span class="hand-value">{{getHandValue(playerHand)}}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Bet Area (Visual Chips) -->
+      <div class="bet-area">
+        <div class="bet-info">
+          {{lang.total_bet || "Total Bet: "}} <span class="bet-amount">{{currentBet | number}}</span>
+        </div>
+        <div class="visual-chip-stack-container">
+          @for (chip of chips; track chip.id) {
+            @if (betInventory[chip.id] > 0) {
+              <div class="piles-container">
+                @for (pile of getChipPiles(betInventory[chip.id]); track $index) {
+                  @if (pile > 0) {
+                    <div class="visual-stack bet-stack" [style.height.px]="getStackHeight(pile)">
+                      @for (i of getArray(pile > 80 ? 80 : pile); track $index) {
+                        <img class="chip-img" [src]="chip.texture" alt="{{chip.name}}" [style.bottom]="($index * 3) + 'px'">
+                      }
+                      <div class="chip-label">{{pile}}</div>
+                    </div>
+                  }
+                }
+              </div>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+        <div class="stats-row">
+          <div class="bet-info">
+            Total Value: <span class="bet-amount">{{playerChips | number}}</span>
+          </div>
+        </div>
+
+        @if (gameState === 'betting') {
+          <div class="chip-rack">
+            @for (chip of chips; track chip.id) {
+              <div class="rack-slot">
+                <div class="piles-container">
+                  @for (pile of getChipPiles(playerInventory[chip.id]); track $index) {
+                    <div class="visual-stack rack-stack" (click)="addBet(chip.id)" [class.disabled]="playerInventory[chip.id] === 0" [style.height.px]="getStackHeight(pile)">
+                      @for (i of getArray(pile > 80 ? 80 : pile); track $index) {
+                        <img class="chip-img" [src]="chip.texture" alt="{{chip.name}}" [style.bottom]="($index * 3) + 'px'">
+                      }
+                      @if (playerInventory[chip.id] > 0) {
+                        <div class="chip-label">{{pile}}</div>
+                      } @else {
+                        <div class="chip-empty">0</div>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="chip-val-text">{{chip.value}}</div>
+                <div class="exchange-buttons">
+                  @if (chip.id !== 'chips_black') {
+                    <button class="exchange-btn" (click)="exchangeUp(chip.id)" title="Upgrade" [class.disabled]="!canExchangeUp(chip.id)">⬅️</button>
+                  }
+                  @if (chip.id !== 'chips_white' && playerInventory[chip.id] > 0) {
+                    <button class="exchange-btn" (click)="exchange(chip.id)" title="Break down">➡️</button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          <div class="bet-actions">
+            <button class="btn btn-red" (click)="clearBet()">{{lang.clear_bet || "Clear"}}</button>
+            <button class="btn btn-green" (click)="deal()">{{lang.deal || "Deal"}}</button>
+          </div>
+        } 
+        
+        @if (gameState === 'playing') {
+          <div class="play-actions">
+            <button class="btn btn-hit" (click)="hit()">{{lang.hit || "Hit"}}</button>
+            <button class="btn btn-stand" (click)="stand()">{{lang.stand || "Stand"}}</button>
+            @if (playerHand.length === 2 && canDouble()) {
+              <button class="btn btn-double" (click)="double()">{{lang.double || "Double"}}</button>
+            } @else if (playerHand.length === 2) {
+              <button class="btn btn-double disabled" title="Not enough chips to double">{{lang.double || "Double"}}</button>
+            }
+          </div>
+        }
+      </div>
+
+    } @else {
+      <div class="loading">Loading assets...</div>
+    }
+
+  </div>
+</div>

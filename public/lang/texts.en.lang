@@ -288,6 +288,8 @@
     "shop_minigame_rock_paper_poke_desc": "Play a pokemon battle style game to earn mg points! Warning: This game relies on luck and types.",
     "shop_minigame_tic_tac_toe_name": "Tic Tac Toe",
     "shop_minigame_tic_tac_toe_desc": "Play the classic Tic Tac Toe game against AI.",
+    "shop_minigame_black_jack_name": "Black Jack Minigame",
+    "shop_minigame_black_jack_desc": "Play Black Jack and multiply your chips!",
     "shop_curr_dgc_to_mg_name": "10 Minigame Points",
     "shop_curr_dgc_to_mg_desc": "Exchange 1 DogeCoin for 10 Minigame Points.",
     "shop_curr_mg_to_dgc_name": "1 DogeCoin",
@@ -574,5 +576,29 @@
     "draw": "Draw!",
     "ai": "AI",
     "leave": "Leave"
+  },
+  "black_jack": {
+    "black_jack_title": "Black Jack",
+    "hit": "Hit",
+    "stand": "Stand",
+    "double": "Double",
+    "place_bet": "Place Bet",
+    "player_win": "Player Wins!",
+    "dealer_win": "Dealer Wins!",
+    "push": "Push",
+    "blackjack": "Blackjack!",
+    "bust": "Bust!",
+    "dealer_bust": "Dealer Busts!",
+    "dealer_cards": "Dealer's Cards",
+    "player_cards": "Your Cards",
+    "clear_bet": "Clear",
+    "deal": "Deal",
+    "total_bet": "Total Bet: ",
+    "you_won": "You won ",
+    "chips": " Chips!",
+    "restart": "Restart",
+    "leave": "Leave",
+    "game_over": "Game Over",
+    "bankrupt": "You lost all your chips!"
   }
 }

@@ -82,5 +82,12 @@
     "points": 0,
     "mgPoints": 0,
     "levelMgPoints": 5
+  },
+  {
+    "id": "blackjack",
+    "name": "Blackjack",
+    "points": 100,
+    "mgPoints": 10,
+    "levelMgPoints": 0
   }
 ]

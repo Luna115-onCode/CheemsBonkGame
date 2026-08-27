@@ -25,6 +25,7 @@ export interface PageName {
   licenses?: string;
   rock_paper_poke?: string;
   tic_tac_toe?: string;
+  black_jack?: string;
 }
 
 export function createLangMap<T extends object>(base: T): Record<string, T> {
@@ -118,7 +119,8 @@ export const pageName: PageName = {
   stats: "",
   licenses: "",
   rock_paper_poke: "",
-  tic_tac_toe: ""
+  tic_tac_toe: "",
+  black_jack: ""
 };
 
 export const menuText = {
@@ -150,6 +152,7 @@ export const minigamesText = {
   stack_colors_title: "",
   rock_paper_poke_title: "",
   tic_tac_toe_title: "",
+  black_jack_title: "",
   playerLevel: "",
   lvl: "",
   trash: "",
@@ -429,4 +432,25 @@ export const tic_tac_toeText = {
   draw: "",
   ai: "",
   leave: ""
+};
+
+export const black_jackText = {
+  black_jack_title: "",
+  hit: "",
+  stand: "",
+  double: "",
+  place_bet: "",
+  player_win: "",
+  dealer_win: "",
+  push: "",
+  blackjack: "",
+  bust: "",
+  dealer_bust: "",
+  dealer_cards: "",
+  player_cards: "",
+  clear_bet: "",
+  deal: "",
+  total_bet: "",
+  you_won: "",
+  chips: ""
 };
