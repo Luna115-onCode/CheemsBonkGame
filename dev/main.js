@@ -40576,7 +40576,10 @@ var pageName = {
   stack_colors: "",
   minigames: "",
   stats: "",
-  licenses: ""
+  licenses: "",
+  rock_paper_poke: "",
+  tic_tac_toe: "",
+  black_jack: ""
 };
 var menuText = {
   minigames: "",
@@ -40604,6 +40607,9 @@ var minigamesText = {
   paper_io_title: "",
   spiral_roll_title: "",
   stack_colors_title: "",
+  rock_paper_poke_title: "",
+  tic_tac_toe_title: "",
+  black_jack_title: "",
   playerLevel: "",
   lvl: "",
   trash: "",
@@ -40692,7 +40698,8 @@ var gameText = {
     actScore: "",
     totalScore: ""
   },
-  tapToBonk: ""
+  tapToBonk: "",
+  idleBonusToast: ""
 };
 var closetText = {
   title: "",
@@ -40809,6 +40816,53 @@ var spiral_rollText = {
 var stack_colorsText = {
   title: ""
 };
+var rock_paper_pokeText = {
+  title: "",
+  choosePokemon: "",
+  you: "",
+  opponent: "",
+  win: "",
+  lose: "",
+  draw: "",
+  shinyMultiplier: "",
+  superEffective: "",
+  notVeryEffective: "",
+  immune: "",
+  playAgain: "",
+  score: "",
+  multiplier: "",
+  finalScore: ""
+};
+var tic_tac_toeText = {
+  player: "",
+  aiThinking: "",
+  yourTurn: "",
+  youWon: "",
+  aiWon: "",
+  draw: "",
+  ai: "",
+  leave: ""
+};
+var black_jackText = {
+  black_jack_title: "",
+  hit: "",
+  stand: "",
+  double: "",
+  place_bet: "",
+  player_win: "",
+  dealer_win: "",
+  push: "",
+  blackjack: "",
+  bust: "",
+  dealer_bust: "",
+  dealer_cards: "",
+  player_cards: "",
+  clear_bet: "",
+  deal: "",
+  total_bet: "",
+  you_won: "",
+  chips: ""
+};
 
 // src/app/services/tools.service.ts
 var ToolsService = class _ToolsService {
@@ -40833,6 +40887,7 @@ var ToolsService = class _ToolsService {
   totalMinigameCoinsEarned = 0;
   idlePoints = 0;
   idleTime = 1;
+  clickPoints = 1;
   idleTimer = null;
   purchasedUpgrades = {};
   effVol = 100;
@@ -40866,6 +40921,9 @@ var ToolsService = class _ToolsService {
   paper_io = createLangMap(paper_ioText);
   spiral_roll = createLangMap(spiral_rollText);
   stack_colors = createLangMap(stack_colorsText);
+  rock_paper_poke = createLangMap(rock_paper_pokeText);
+  tic_tac_toe = createLangMap(tic_tac_toeText);
+  black_jack = createLangMap(black_jackText);
   shopItemsText = {};
   itemsText = {};
   shopItems = [];
@@ -40881,7 +40939,8 @@ var ToolsService = class _ToolsService {
     "mob_control": { points: 100, mgPoints: 10, levelMgPoints: 5 },
     "paper_io": { points: 100, mgPoints: 10, levelMgPoints: 5 },
     "spiral_roll": { points: 100, mgPoints: 10, levelMgPoints: 5 },
-    "stack_colors": { points: 100, mgPoints: 10, levelMgPoints: 5 }
+    "stack_colors": { points: 100, mgPoints: 10, levelMgPoints: 5 },
+    "rock_paper_poke": { points: 10, mgPoints: 1, levelMgPoints: 1 }
   };
   audioCtx = null;
   musicSource = null;
@@ -40889,6 +40948,7 @@ var ToolsService = class _ToolsService {
   currentMusicBuffer = null;
   currentMusicFile = "";
   isWindowBlurred = false;
+  isImportingSave = false;
   isBackgroundMusicPaused = false;
   availableLanguages = AVAILABLE_LANGUAGES;
   cheemsSkins = CHEEMS_SKINS;
@@ -41056,6 +41116,12 @@ var ToolsService = class _ToolsService {
             this.spiral_roll[langCode] = __spreadValues(__spreadValues({}, this.spiral_roll[langCode]), data.spiral_roll);
           if (data.stack_colors)
             this.stack_colors[langCode] = __spreadValues(__spreadValues({}, this.stack_colors[langCode]), data.stack_colors);
+          if (data.rock_paper_poke)
+            this.rock_paper_poke[langCode] = __spreadValues(__spreadValues({}, this.rock_paper_poke[langCode]), data.rock_paper_poke);
+          if (data.tic_tac_toe)
+            this.tic_tac_toe[langCode] = __spreadValues(__spreadValues({}, this.tic_tac_toe[langCode]), data.tic_tac_toe);
+          if (data.black_jack)
+            this.black_jack[langCode] = __spreadValues(__spreadValues({}, this.black_jack[langCode]), data.black_jack);
           if (data.gallery)
             this.gallery[langCode] = __spreadValues(__spreadValues({}, this.gallery[langCode]), data.gallery);
           if (data.licensesPage)
@@ -41151,7 +41217,7 @@ var ToolsService = class _ToolsService {
     window.location.reload();
   }
   redirectBack(fromSystem = false) {
-    const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
+    const minigamePages = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors", "rock_paper_poke", "tic_tac_toe", "black_jack"];
     if (minigamePages.includes(this.actPage)) {
       this.redirect("minigames");
     } else if (["redeem", "closet", "gallery", "settings", "onWork", "shop", "minigames", "stats", "licenses"].includes(this.actPage)) {
@@ -41227,7 +41293,7 @@ var ToolsService = class _ToolsService {
       return;
     const cfg = this.minigameConversions[gameId] || { points: 100, mgPoints: 10, levelMgPoints: 5 };
     const levelMult = cfg.levelMgPoints || 5;
-    const earnedFromPoints = gamePoints > 0 ? Math.floor(gamePoints / cfg.points * cfg.mgPoints) : 0;
+    const earnedFromPoints = gamePoints > 0 && cfg.points > 0 ? Math.floor(gamePoints / cfg.points * cfg.mgPoints) : 0;
     const earnedFromLevel = gameLevel > 0 ? gameLevel * levelMult : 0;
     const totalEarned = earnedFromPoints + earnedFromLevel;
     if (totalEarned > 0) {
@@ -41360,14 +41426,24 @@ var ToolsService = class _ToolsService {
         }
         if (this.currentMusicFile !== file) {
           this.currentMusicFile = file;
-          const res = yield fetch(targetSrc);
-          if (res.ok) {
-            const arrayBuf = yield res.arrayBuffer();
-            const audioBuf = yield this.audioCtx.decodeAudioData(arrayBuf);
-            this.currentMusicBuffer = audioBuf;
-            this.startWebAudioMusic();
-            return;
-          }
+          const arrayBuf = yield new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open("GET", targetSrc, true);
+            xhr.responseType = "arraybuffer";
+            xhr.onload = () => {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                resolve(xhr.response);
+              } else {
+                reject(new Error(xhr.statusText));
+              }
+            };
+            xhr.onerror = () => reject(new Error("XHR Network error"));
+            xhr.send();
+          });
+          const audioBuf = yield this.audioCtx.decodeAudioData(arrayBuf);
+          this.currentMusicBuffer = audioBuf;
+          this.startWebAudioMusic();
+          return;
         } else {
           if (this.audioCtx.state === "suspended" && !this.isWindowBlurred) {
             this.audioCtx.resume().catch(() => {
@@ -41571,7 +41647,7 @@ var ToolsService = class _ToolsService {
     this.highScore = 999999;
     this.dogeCoins = 999999;
     this.minigameCoins = 999999;
-    const allMinigames = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
+    const allMinigames = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors", "rock_paper_poke", "tic_tac_toe", "black_jack"];
     allMinigames.forEach((id) => {
       this.unlockedMinigames[id] = true;
     });
@@ -41733,7 +41809,7 @@ var ToolsService = class _ToolsService {
     this.minigameCoins = mgCoins ? this.parseNumber(mgCoins) : 0;
   }
   loadUnlocks() {
-    const allMinigames = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors"];
+    const allMinigames = ["block_breaker", "attack_hole", "doge_rescue", "flappy_dunk", "helix_jump", "magic_sort", "mob_control", "paper_io", "spiral_roll", "stack_colors", "rock_paper_poke", "tic_tac_toe", "black_jack"];
     const unlockedMgs = this.parseArrayString(this.loadData("unlocked_minigames") || "");
     allMinigames.forEach((id) => {
       this.unlockedMinigames[id] = unlockedMgs.includes(id);
@@ -41850,15 +41926,16 @@ var ToolsService = class _ToolsService {
     }
   }
   getActiveMultiplier() {
+    let base = this.clickPoints;
     const now = Date.now();
     if (now < this.boosterEndTime) {
-      return this.boosterMultiplier;
+      return base * this.boosterMultiplier;
     } else if (this.boosterEndTime !== 0) {
       this.boosterEndTime = 0;
       this.boosterMultiplier = 1;
       this.saveData("active_booster", "multiplier:1,end_time:0");
     }
-    return 1;
+    return base;
   }
   getBoosterRemainingSeconds() {
     const now = Date.now();
@@ -42241,6 +42318,9 @@ var ToolsService = class _ToolsService {
         const result = e.target?.result;
         const jsonStr = decodeURIComponent(atob(result));
         const saveData = JSON.parse(jsonStr);
+        if (this.idleTimer)
+          clearInterval(this.idleTimer);
+        this.isImportingSave = true;
         for (let i = localStorage.length - 1; i >= 0; i--) {
           const key = localStorage.key(i);
           if (key && key.startsWith(this.PREFIX)) {
@@ -42255,7 +42335,7 @@ var ToolsService = class _ToolsService {
         this.showToast(this.redeem[this.lang]?.success || "Success");
         setTimeout(() => {
           location.reload();
-        }, 1e3);
+        }, 100);
       } catch (err) {
         console.error("Save import failed", err);
         this.showToast("Import failed! Invalid save file.");
@@ -42289,6 +42369,7 @@ var ToolsService = class _ToolsService {
   recalculateIdleStats() {
     let basePoints = 0;
     let baseTime = 1;
+    let clickPoints = 1;
     const idleConfigStr = this.loadData("idle_points");
     if (idleConfigStr) {
       const cfg = this.parseObjectString(idleConfigStr);
@@ -42305,12 +42386,16 @@ var ToolsService = class _ToolsService {
           if (item && item.type === "upgrade" && item.upgradeValue) {
             if (item.upgradeType === "quantity") {
               basePoints += item.upgradeValue * times;
+            } else if (item.upgradeType === "click") {
+              clickPoints += item.upgradeValue * times;
             }
           }
         }
       }
     }
     this.idlePoints = basePoints;
+    this.clickPoints = clickPoints;
+    this.saveData("touch_points", String(this.clickPoints));
     this.idleTime = 1;
     this.startIdleTimer();
   }
@@ -42336,7 +42421,8 @@ var ToolsService = class _ToolsService {
         const offlinePoints = Math.floor(missedOfflineIntervals * (this.idlePoints / 4));
         if (offlinePoints > 0) {
           this.updateScore(offlinePoints);
-          this.showToast(`Idle Bonus: +${offlinePoints} pts while you were away!`);
+          let msg = this.game[this.lang]?.idleBonusToast?.replace("{0}", String(offlinePoints)) || `Idle Bonus: +${offlinePoints} pts while you were away!`;
+          this.showToast(msg);
         }
       }
     }
@@ -42676,7 +42762,7 @@ var MenuComponent = class _MenuComponent {
   static \u0275fac = function MenuComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MenuComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 42, vars: 35, consts: [[1, "container"], [3, "click"], ["src", "img/icons/trophy-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/picture-svgrepo-com.svg", "alt", "Gallery", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Redeem Code", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 42, vars: 35, consts: [[1, "container"], [3, "click"], ["src", "img/icons/shopping-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/picture-svgrepo-com.svg", "alt", "Gallery", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Redeem Code", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_2_listener() {
@@ -42788,7 +42874,7 @@ var MenuComponent = class _MenuComponent {
     <div class="group {{tools.themeColor}} menu-grid">
         <!-- Shop Card -->
         <div class="menu-card dogecoin-card {{tools.themeColor}}" (click)="tools.redirect('shop')">
-            <img src="img/icons/trophy-svgrepo-com.svg" class="menu-icon coin-glow" alt="Shop">
+            <img src="img/icons/shopping-svgrepo-com.svg" class="menu-icon coin-glow" alt="Shop">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].shop}}</div>
             </div>
@@ -50513,7 +50599,7 @@ var LicensesComponent = class _LicensesComponent {
   static \u0275fac = function LicensesComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _LicensesComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LicensesComponent, selectors: [["app-licenses"]], decls: 223, vars: 24, consts: [[1, "container"], [1, "licenses-title"], [1, "licenses-content"], ["href", "https://www.svgrepo.com/page/licensing/#CC0", "target", "_blank"], ["href", "https://www.svgrepo.com/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/solar-bold-icons/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/isometric-3d-interface-icons/", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-a-jazz-piano-110481/", "target", "_blank"], ["href", "https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-when-you-smile-151423/", "target", "_blank"], ["href", "https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-tradicional-magic-night-134393/", "target", "_blank"], ["href", "https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-titanium-170190/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-coffee-shop-189585/", "target", "_blank"], ["href", "https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com/es/music/cafeter%C3%ADa-believe-me-143530/", "target", "_blank"], ["href", "https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-city-streets-background-version-166003/", "target", "_blank"], ["href", "https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-trap-future-bass-royalty-free-music-167020/", "target", "_blank"], ["href", "https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com/es/music/electro-electro-summer-positive-party-141081/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"]], template: function LicensesComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LicensesComponent, selectors: [["app-licenses"]], decls: 233, vars: 24, consts: [[1, "container"], [1, "licenses-title"], [1, "licenses-content"], ["href", "https://www.svgrepo.com/page/licensing/#CC0", "target", "_blank"], ["href", "https://www.svgrepo.com/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/solar-bold-icons/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/isometric-3d-interface-icons/", "target", "_blank"], ["href", "https://cosme.itch.io/snake", "target", "_blank"], ["href", "https://opengameart.org/", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-a-jazz-piano-110481/", "target", "_blank"], ["href", "https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-when-you-smile-151423/", "target", "_blank"], ["href", "https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-tradicional-magic-night-134393/", "target", "_blank"], ["href", "https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-titanium-170190/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-coffee-shop-189585/", "target", "_blank"], ["href", "https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com/es/music/cafeter%C3%ADa-believe-me-143530/", "target", "_blank"], ["href", "https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-city-streets-background-version-166003/", "target", "_blank"], ["href", "https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-trap-future-bass-royalty-free-music-167020/", "target", "_blank"], ["href", "https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com/es/music/electro-electro-summer-positive-party-141081/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"]], template: function LicensesComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "h2", 1);
       \u0275\u0275text(3);
@@ -50544,226 +50630,238 @@ var LicensesComponent = class _LicensesComponent {
       \u0275\u0275elementEnd();
       \u0275\u0275elementStart(26, "a", 6);
       \u0275\u0275text(27, "Collection");
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(28, "h3");
-      \u0275\u0275text(29, "Music");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(30, "ul")(31, "li")(32, "strong")(33, "a", 7);
-      \u0275\u0275text(34, "Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]");
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(35, "li")(36, "strong")(37, "a", 8);
-      \u0275\u0275text(38, "Jack Bootleg");
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(39, "li")(40, "strong")(41, "a", 9);
-      \u0275\u0275text(42, "Minimalism N. 10, Notre envol II - Rapha\xEBl Novarina [Piano]");
-      \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(43, "li")(44, "strong")(45, "a", 10);
-      \u0275\u0275text(46, "A Jazz Piano");
       \u0275\u0275elementEnd()();
-      \u0275\u0275text(47, " Music by ");
-      \u0275\u0275elementStart(48, "a", 11);
-      \u0275\u0275text(49, "Oleg Kyrylkovv");
+      \u0275\u0275elementStart(28, "li")(29, "strong");
+      \u0275\u0275text(30, "Snake Assets:");
       \u0275\u0275elementEnd();
-      \u0275\u0275text(50, " from ");
-      \u0275\u0275elementStart(51, "a", 12);
-      \u0275\u0275text(52, "Pixabay");
+      \u0275\u0275elementStart(31, "a", 7);
+      \u0275\u0275text(32, "Snake Game Assets");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(53, "li")(54, "strong")(55, "a", 13);
-      \u0275\u0275text(56, "When you smile");
+      \u0275\u0275elementStart(33, "li")(34, "strong");
+      \u0275\u0275text(35, "Board game assets:");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(36, "a", 8);
+      \u0275\u0275text(37, "OpenGameArt.Org");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(38, "h3");
+      \u0275\u0275text(39, "Music");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(40, "ul")(41, "li")(42, "strong")(43, "a", 9);
+      \u0275\u0275text(44, "Minimalism N. 9, Notre envol - Rapha\xEBl Novarina [Piano]");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(45, "li")(46, "strong")(47, "a", 10);
+      \u0275\u0275text(48, "Jack Bootleg");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(49, "li")(50, "strong")(51, "a", 11);
+      \u0275\u0275text(52, "Minimalism N. 10, Notre envol II - Rapha\xEBl Novarina [Piano]");
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(53, "li")(54, "strong")(55, "a", 12);
+      \u0275\u0275text(56, "A Jazz Piano");
       \u0275\u0275elementEnd()();
       \u0275\u0275text(57, " Music by ");
-      \u0275\u0275elementStart(58, "a", 14);
-      \u0275\u0275text(59, "Aleksey Chistilin");
+      \u0275\u0275elementStart(58, "a", 13);
+      \u0275\u0275text(59, "Oleg Kyrylkovv");
       \u0275\u0275elementEnd();
       \u0275\u0275text(60, " from ");
-      \u0275\u0275elementStart(61, "a", 15);
+      \u0275\u0275elementStart(61, "a", 14);
       \u0275\u0275text(62, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(63, "li")(64, "strong")(65, "a", 16);
-      \u0275\u0275text(66, "Magic Night");
+      \u0275\u0275elementStart(63, "li")(64, "strong")(65, "a", 15);
+      \u0275\u0275text(66, "When you smile");
       \u0275\u0275elementEnd()();
       \u0275\u0275text(67, " Music by ");
-      \u0275\u0275elementStart(68, "a", 17);
-      \u0275\u0275text(69, "Keyframe Audio");
+      \u0275\u0275elementStart(68, "a", 16);
+      \u0275\u0275text(69, "Aleksey Chistilin");
       \u0275\u0275elementEnd();
       \u0275\u0275text(70, " from ");
-      \u0275\u0275elementStart(71, "a", 18);
+      \u0275\u0275elementStart(71, "a", 17);
       \u0275\u0275text(72, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(73, "li")(74, "strong")(75, "a", 19);
-      \u0275\u0275text(76, "Titanium");
+      \u0275\u0275elementStart(73, "li")(74, "strong")(75, "a", 18);
+      \u0275\u0275text(76, "Magic Night");
       \u0275\u0275elementEnd()();
       \u0275\u0275text(77, " Music by ");
-      \u0275\u0275elementStart(78, "a", 20);
-      \u0275\u0275text(79, "Alisia");
+      \u0275\u0275elementStart(78, "a", 19);
+      \u0275\u0275text(79, "Keyframe Audio");
       \u0275\u0275elementEnd();
       \u0275\u0275text(80, " from ");
-      \u0275\u0275elementStart(81, "a", 21);
+      \u0275\u0275elementStart(81, "a", 20);
       \u0275\u0275text(82, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(83, "li")(84, "strong")(85, "a", 22);
-      \u0275\u0275text(86, "Coffe Shop");
+      \u0275\u0275elementStart(83, "li")(84, "strong")(85, "a", 21);
+      \u0275\u0275text(86, "Titanium");
       \u0275\u0275elementEnd()();
       \u0275\u0275text(87, " Music by ");
-      \u0275\u0275elementStart(88, "a", 23);
-      \u0275\u0275text(89, "Barnabas");
+      \u0275\u0275elementStart(88, "a", 22);
+      \u0275\u0275text(89, "Alisia");
       \u0275\u0275elementEnd();
       \u0275\u0275text(90, " from ");
-      \u0275\u0275elementStart(91, "a", 24);
+      \u0275\u0275elementStart(91, "a", 23);
       \u0275\u0275text(92, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(93, "li")(94, "strong")(95, "a", 25);
-      \u0275\u0275text(96, "Believe me");
+      \u0275\u0275elementStart(93, "li")(94, "strong")(95, "a", 24);
+      \u0275\u0275text(96, "Coffe Shop");
       \u0275\u0275elementEnd()();
       \u0275\u0275text(97, " Music by ");
-      \u0275\u0275elementStart(98, "a", 26);
-      \u0275\u0275text(99, "Oleksii Holubiev");
+      \u0275\u0275elementStart(98, "a", 25);
+      \u0275\u0275text(99, "Barnabas");
       \u0275\u0275elementEnd();
       \u0275\u0275text(100, " from ");
-      \u0275\u0275elementStart(101, "a", 27);
+      \u0275\u0275elementStart(101, "a", 26);
       \u0275\u0275text(102, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(103, "li")(104, "strong")(105, "a", 28);
-      \u0275\u0275text(106, "City Streets (Background version)");
+      \u0275\u0275elementStart(103, "li")(104, "strong")(105, "a", 27);
+      \u0275\u0275text(106, "Believe me");
       \u0275\u0275elementEnd()();
       \u0275\u0275text(107, " Music by ");
-      \u0275\u0275elementStart(108, "a", 29);
-      \u0275\u0275text(109, "Nathaniel");
+      \u0275\u0275elementStart(108, "a", 28);
+      \u0275\u0275text(109, "Oleksii Holubiev");
       \u0275\u0275elementEnd();
       \u0275\u0275text(110, " from ");
-      \u0275\u0275elementStart(111, "a", 30);
+      \u0275\u0275elementStart(111, "a", 29);
       \u0275\u0275text(112, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(113, "li")(114, "strong")(115, "a", 31);
-      \u0275\u0275text(116, "Trap Future bass (Royalty free music)");
+      \u0275\u0275elementStart(113, "li")(114, "strong")(115, "a", 30);
+      \u0275\u0275text(116, "City Streets (Background version)");
       \u0275\u0275elementEnd()();
       \u0275\u0275text(117, " Music by ");
-      \u0275\u0275elementStart(118, "a", 32);
-      \u0275\u0275text(119, "Nver Avetyan");
+      \u0275\u0275elementStart(118, "a", 31);
+      \u0275\u0275text(119, "Nathaniel");
       \u0275\u0275elementEnd();
       \u0275\u0275text(120, " from ");
-      \u0275\u0275elementStart(121, "a", 33);
+      \u0275\u0275elementStart(121, "a", 32);
       \u0275\u0275text(122, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(123, "li")(124, "strong")(125, "a", 34);
-      \u0275\u0275text(126, "Electro summer positive party");
+      \u0275\u0275elementStart(123, "li")(124, "strong")(125, "a", 33);
+      \u0275\u0275text(126, "Trap Future bass (Royalty free music)");
       \u0275\u0275elementEnd()();
       \u0275\u0275text(127, " Music by ");
-      \u0275\u0275elementStart(128, "a", 35);
-      \u0275\u0275text(129, "Alex_Kizenkov");
+      \u0275\u0275elementStart(128, "a", 34);
+      \u0275\u0275text(129, "Nver Avetyan");
       \u0275\u0275elementEnd();
       \u0275\u0275text(130, " from ");
-      \u0275\u0275elementStart(131, "a", 36);
+      \u0275\u0275elementStart(131, "a", 35);
       \u0275\u0275text(132, "Pixabay");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(133, "li")(134, "strong")(135, "a", 37);
-      \u0275\u0275text(136, "TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD");
-      \u0275\u0275elementEnd()()()();
-      \u0275\u0275elementStart(137, "h3");
-      \u0275\u0275text(138, "AI Generated Music");
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(139, "ul")(140, "li")(141, "strong");
-      \u0275\u0275text(142, "Bonk The Amber");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(143);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(144, "li")(145, "strong");
-      \u0275\u0275text(146, "Bonk The Avatar");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(147);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(148, "li")(149, "strong");
-      \u0275\u0275text(150, "Bonus Level Bounce");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(151);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(152, "li")(153, "strong");
-      \u0275\u0275text(154, "Button Smash Routine");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(155);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(156, "li")(157, "strong");
-      \u0275\u0275text(158, "Cheems Chan Bonk");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(159);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(160, "li")(161, "strong");
-      \u0275\u0275text(162, "Click For A Bonk");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(163);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(164, "li")(165, "strong");
-      \u0275\u0275text(166, "Hardwood Strike");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(167);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(168, "li")(169, "strong");
-      \u0275\u0275text(170, "Perfect Round");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(171);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(172, "li")(173, "strong");
-      \u0275\u0275text(174, "Pocket Change Victory");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(175);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(176, "li")(177, "strong");
-      \u0275\u0275text(178, "Quick Loot Run");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(179);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(180, "li")(181, "strong");
-      \u0275\u0275text(182, "Target In The Sight");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(183);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(184, "li")(185, "strong");
-      \u0275\u0275text(186, "The Hammer Falls");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(187);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(188, "li")(189, "strong");
-      \u0275\u0275text(190, "The Late Commute");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(191);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(192, "li")(193, "strong");
-      \u0275\u0275text(194, "The Unwritten Page");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(195);
-      \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(196, "li")(197, "strong");
-      \u0275\u0275text(198, "Where The Path Bends");
-      \u0275\u0275elementEnd();
-      \u0275\u0275text(199);
+      \u0275\u0275elementStart(133, "li")(134, "strong")(135, "a", 36);
+      \u0275\u0275text(136, "Electro summer positive party");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(200, "h3");
-      \u0275\u0275text(201, "AI Generated Images");
+      \u0275\u0275text(137, " Music by ");
+      \u0275\u0275elementStart(138, "a", 37);
+      \u0275\u0275text(139, "Alex_Kizenkov");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(202, "ul")(203, "li")(204, "strong");
-      \u0275\u0275text(205, "Cheems Minecraft");
+      \u0275\u0275text(140, " from ");
+      \u0275\u0275elementStart(141, "a", 38);
+      \u0275\u0275text(142, "Pixabay");
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(143, "li")(144, "strong")(145, "a", 39);
+      \u0275\u0275text(146, "TETRIS (Joey iLLah Bootleg) FREE DOWNLOAD");
+      \u0275\u0275elementEnd()()()();
+      \u0275\u0275elementStart(147, "h3");
+      \u0275\u0275text(148, "AI Generated Music");
       \u0275\u0275elementEnd();
-      \u0275\u0275text(206);
+      \u0275\u0275elementStart(149, "ul")(150, "li")(151, "strong");
+      \u0275\u0275text(152, "Bonk The Amber");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(207, "li")(208, "strong");
-      \u0275\u0275text(209, "Cheems not a dog");
+      \u0275\u0275text(153);
       \u0275\u0275elementEnd();
-      \u0275\u0275text(210);
+      \u0275\u0275elementStart(154, "li")(155, "strong");
+      \u0275\u0275text(156, "Bonk The Avatar");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(211, "li")(212, "strong");
-      \u0275\u0275text(213, "Cheems not a plumber");
+      \u0275\u0275text(157);
       \u0275\u0275elementEnd();
-      \u0275\u0275text(214);
+      \u0275\u0275elementStart(158, "li")(159, "strong");
+      \u0275\u0275text(160, "Bonus Level Bounce");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(215, "li")(216, "strong");
-      \u0275\u0275text(217, "Cheems not ai");
+      \u0275\u0275text(161);
       \u0275\u0275elementEnd();
-      \u0275\u0275text(218);
+      \u0275\u0275elementStart(162, "li")(163, "strong");
+      \u0275\u0275text(164, "Button Smash Routine");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(219, "li")(220, "strong");
-      \u0275\u0275text(221, "Cheems realistic");
+      \u0275\u0275text(165);
       \u0275\u0275elementEnd();
-      \u0275\u0275text(222);
+      \u0275\u0275elementStart(166, "li")(167, "strong");
+      \u0275\u0275text(168, "Cheems Chan Bonk");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(169);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(170, "li")(171, "strong");
+      \u0275\u0275text(172, "Click For A Bonk");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(173);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(174, "li")(175, "strong");
+      \u0275\u0275text(176, "Hardwood Strike");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(177);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(178, "li")(179, "strong");
+      \u0275\u0275text(180, "Perfect Round");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(181);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(182, "li")(183, "strong");
+      \u0275\u0275text(184, "Pocket Change Victory");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(185);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(186, "li")(187, "strong");
+      \u0275\u0275text(188, "Quick Loot Run");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(189);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(190, "li")(191, "strong");
+      \u0275\u0275text(192, "Target In The Sight");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(193);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(194, "li")(195, "strong");
+      \u0275\u0275text(196, "The Hammer Falls");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(197);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(198, "li")(199, "strong");
+      \u0275\u0275text(200, "The Late Commute");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(201);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(202, "li")(203, "strong");
+      \u0275\u0275text(204, "The Unwritten Page");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(205);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(206, "li")(207, "strong");
+      \u0275\u0275text(208, "Where The Path Bends");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(209);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(210, "h3");
+      \u0275\u0275text(211, "AI Generated Images");
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(212, "ul")(213, "li")(214, "strong");
+      \u0275\u0275text(215, "Cheems Minecraft");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(216);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(217, "li")(218, "strong");
+      \u0275\u0275text(219, "Cheems not a dog");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(220);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(221, "li")(222, "strong");
+      \u0275\u0275text(223, "Cheems not a plumber");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(224);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(225, "li")(226, "strong");
+      \u0275\u0275text(227, "Cheems not ai");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(228);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(229, "li")(230, "strong");
+      \u0275\u0275text(231, "Cheems realistic");
+      \u0275\u0275elementEnd();
+      \u0275\u0275text(232);
       \u0275\u0275elementEnd()()()()();
     }
     if (rf & 2) {
@@ -50771,7 +50869,7 @@ var LicensesComponent = class _LicensesComponent {
       \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " licenses-box");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate((ctx.tools.pageName[ctx.tools.lang] == null ? null : ctx.tools.pageName[ctx.tools.lang].licenses) || "Licenses");
-      \u0275\u0275advance(140);
+      \u0275\u0275advance(150);
       \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
       \u0275\u0275advance(4);
       \u0275\u0275textInterpolate1(" - ", ctx.tools.licensesPage[ctx.tools.lang] == null ? null : ctx.tools.licensesPage[ctx.tools.lang].aiGeneratedSong, "");
@@ -50828,6 +50926,8 @@ var LicensesComponent = class _LicensesComponent {
                 <li><strong>Page:</strong> <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a></li>
                 <li><strong>Solar Bold Icons:</strong> <a href="https://www.svgrepo.com/collection/solar-bold-icons/" target="_blank">Collection</a></li>
                 <li><strong>Isometric 3D Interface Icons:</strong> <a href="https://www.svgrepo.com/collection/isometric-3d-interface-icons/" target="_blank">Collection</a></li>
+                <li><strong>Snake Assets:</strong> <a href="https://cosme.itch.io/snake" target="_blank">Snake Game Assets</a></li>
+                <li><strong>Board game assets:</strong> <a href="https://opengameart.org/" target="_blank">OpenGameArt.Org</a></li>
             </ul>
 
             <h3>Music</h3>
@@ -50949,7 +51049,7 @@ var _forTrack03 = ($index, $item) => $item.id;
 function ShopComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 21);
+    \u0275\u0275elementStart(0, "button", 22);
     \u0275\u0275listener("click", function ShopComponent_Conditional_7_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -50967,7 +51067,7 @@ function ShopComponent_Conditional_7_Template(rf, ctx) {
 function ShopComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 22);
+    \u0275\u0275elementStart(0, "button", 23);
     \u0275\u0275listener("click", function ShopComponent_Conditional_8_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -50985,27 +51085,9 @@ function ShopComponent_Conditional_8_Template(rf, ctx) {
 function ShopComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275elementStart(0, "button", 24);
     \u0275\u0275listener("click", function ShopComponent_Conditional_9_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r5);
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-minigame"));
-    });
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].minigamesSection) || "Minigames", " ");
-  }
-}
-function ShopComponent_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r6);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-booster"));
     });
@@ -51018,10 +51100,28 @@ function ShopComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].boosterSection) || "Boosters", " ");
   }
 }
+function ShopComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 25);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-minigame"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].minigamesSection) || "Minigames", " ");
+  }
+}
 function ShopComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 24);
+    \u0275\u0275elementStart(0, "button", 26);
     \u0275\u0275listener("click", function ShopComponent_Conditional_11_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51039,7 +51139,7 @@ function ShopComponent_Conditional_11_Template(rf, ctx) {
 function ShopComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 25);
+    \u0275\u0275elementStart(0, "button", 27);
     \u0275\u0275listener("click", function ShopComponent_Conditional_12_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51057,7 +51157,7 @@ function ShopComponent_Conditional_12_Template(rf, ctx) {
 function ShopComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 26);
+    \u0275\u0275elementStart(0, "button", 28);
     \u0275\u0275listener("click", function ShopComponent_Conditional_13_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51074,15 +51174,15 @@ function ShopComponent_Conditional_13_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 12)(1, "div", 27);
+    \u0275\u0275elementStart(0, "div", 13)(1, "div", 29);
     \u0275\u0275text(2, "\u26A1");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 28)(4, "span", 29);
+    \u0275\u0275elementStart(3, "div", 30)(4, "span", 31);
     \u0275\u0275text(5);
     \u0275\u0275elementStart(6, "strong");
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "span", 30);
+    \u0275\u0275elementStart(8, "span", 32);
     \u0275\u0275text(9);
     \u0275\u0275elementEnd()()();
   }
@@ -51098,7 +51198,7 @@ function ShopComponent_Conditional_14_Template(rf, ctx) {
 }
 function ShopComponent_ng_template_34_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 33);
+    \u0275\u0275element(0, "img", 35);
   }
   if (rf & 2) {
     const item_r10 = \u0275\u0275nextContext().$implicit;
@@ -51108,7 +51208,7 @@ function ShopComponent_ng_template_34_Conditional_2_Template(rf, ctx) {
 }
 function ShopComponent_ng_template_34_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 34);
+    \u0275\u0275elementStart(0, "span", 36);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51120,7 +51220,7 @@ function ShopComponent_ng_template_34_Conditional_3_Template(rf, ctx) {
 }
 function ShopComponent_ng_template_34_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 35);
+    \u0275\u0275elementStart(0, "span", 37);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51151,7 +51251,7 @@ function ShopComponent_ng_template_34_Conditional_5_Conditional_2_Template(rf, c
 }
 function ShopComponent_ng_template_34_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 36);
+    \u0275\u0275elementStart(0, "span", 38);
     \u0275\u0275template(1, ShopComponent_ng_template_34_Conditional_5_Conditional_1_Template, 1, 1)(2, ShopComponent_ng_template_34_Conditional_5_Conditional_2_Template, 1, 1);
     \u0275\u0275elementEnd();
   }
@@ -51164,7 +51264,7 @@ function ShopComponent_ng_template_34_Conditional_5_Template(rf, ctx) {
 }
 function ShopComponent_ng_template_34_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 40);
+    \u0275\u0275elementStart(0, "div", 42);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51176,7 +51276,7 @@ function ShopComponent_ng_template_34_Conditional_11_Template(rf, ctx) {
 }
 function ShopComponent_ng_template_34_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 43);
+    \u0275\u0275elementStart(0, "div", 45);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51190,10 +51290,10 @@ function ShopComponent_ng_template_34_Conditional_12_Template(rf, ctx) {
 }
 function ShopComponent_ng_template_34_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 44)(1, "span", 45);
+    \u0275\u0275elementStart(0, "div", 46)(1, "span", 47);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "button", 46);
+    \u0275\u0275elementStart(3, "button", 48);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
   }
@@ -51207,7 +51307,7 @@ function ShopComponent_ng_template_34_Conditional_14_Template(rf, ctx) {
 }
 function ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 47);
+    \u0275\u0275elementStart(0, "span", 49);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51220,12 +51320,12 @@ function ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template(rf, 
 function ShopComponent_ng_template_34_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 44);
-    \u0275\u0275template(1, ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template, 2, 1, "span", 47);
-    \u0275\u0275elementStart(2, "span", 48);
+    \u0275\u0275elementStart(0, "div", 46);
+    \u0275\u0275template(1, ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template, 2, 1, "span", 49);
+    \u0275\u0275elementStart(2, "span", 50);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "button", 49);
+    \u0275\u0275elementStart(4, "button", 51);
     \u0275\u0275listener("click", function ShopComponent_ng_template_34_Conditional_15_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r11);
       const item_r10 = \u0275\u0275nextContext().$implicit;
@@ -51252,25 +51352,25 @@ function ShopComponent_ng_template_34_Conditional_15_Template(rf, ctx) {
 }
 function ShopComponent_ng_template_34_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 31)(1, "div", 32);
-    \u0275\u0275template(2, ShopComponent_ng_template_34_Conditional_2_Template, 1, 2, "img", 33)(3, ShopComponent_ng_template_34_Conditional_3_Template, 2, 1, "span", 34)(4, ShopComponent_ng_template_34_Conditional_4_Template, 2, 1, "span", 35)(5, ShopComponent_ng_template_34_Conditional_5_Template, 3, 1, "span", 36);
+    \u0275\u0275elementStart(0, "div", 33)(1, "div", 34);
+    \u0275\u0275template(2, ShopComponent_ng_template_34_Conditional_2_Template, 1, 2, "img", 35)(3, ShopComponent_ng_template_34_Conditional_3_Template, 2, 1, "span", 36)(4, ShopComponent_ng_template_34_Conditional_4_Template, 2, 1, "span", 37)(5, ShopComponent_ng_template_34_Conditional_5_Template, 3, 1, "span", 38);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 37)(7, "h3", 38);
+    \u0275\u0275elementStart(6, "div", 39)(7, "h3", 40);
     \u0275\u0275text(8);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "p", 39);
+    \u0275\u0275elementStart(9, "p", 41);
     \u0275\u0275text(10);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(11, ShopComponent_ng_template_34_Conditional_11_Template, 2, 1, "div", 40)(12, ShopComponent_ng_template_34_Conditional_12_Template, 2, 5, "div", 41);
+    \u0275\u0275template(11, ShopComponent_ng_template_34_Conditional_11_Template, 2, 1, "div", 42)(12, ShopComponent_ng_template_34_Conditional_12_Template, 2, 5, "div", 43);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "div", 42);
+    \u0275\u0275elementStart(13, "div", 44);
     \u0275\u0275template(14, ShopComponent_ng_template_34_Conditional_14_Template, 5, 2)(15, ShopComponent_ng_template_34_Conditional_15_Template, 6, 6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const item_r10 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("coin-card", item_r10.type === "dogecoin")("booster-card", item_r10.type === "booster")("cheems-card", item_r10.type === "cheems")("sound-card", item_r10.type === "sound")("music-card", item_r10.type === "music")("currency-dgc-to-mg-card", item_r10.id === "curr_dgc_to_mg")("currency-mg-to-dgc-card", item_r10.id === "curr_mg_to_dgc");
+    \u0275\u0275classProp("coin-card", item_r10.type === "dogecoin")("booster-card", item_r10.type === "booster")("cheems-card", item_r10.type === "cheems")("sound-card", item_r10.type === "sound")("music-card", item_r10.type === "music")("minigames-card", item_r10.type === "minigame")("currency-dgc-to-mg-card", item_r10.id === "curr_dgc_to_mg")("currency-mg-to-dgc-card", item_r10.id === "curr_mg_to_dgc");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(item_r10.icon.endsWith(".svg") || item_r10.icon.endsWith(".png") || item_r10.icon.endsWith(".webp") ? 2 : 3);
     \u0275\u0275advance(2);
@@ -51294,7 +51394,7 @@ function ShopComponent_Conditional_36_For_5_ng_container_0_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_36_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_36_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
+    \u0275\u0275template(0, ShopComponent_Conditional_36_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
   }
   if (rf & 2) {
     const item_r12 = ctx.$implicit;
@@ -51305,10 +51405,10 @@ function ShopComponent_Conditional_36_For_5_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 50)(1, "h2", 51);
+    \u0275\u0275elementStart(0, "div", 52)(1, "h2", 53);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275elementStart(3, "div", 54);
     \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
@@ -51327,7 +51427,7 @@ function ShopComponent_Conditional_37_For_5_ng_container_0_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_37_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_37_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
+    \u0275\u0275template(0, ShopComponent_Conditional_37_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
   }
   if (rf & 2) {
     const item_r14 = ctx.$implicit;
@@ -51338,10 +51438,10 @@ function ShopComponent_Conditional_37_For_5_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 54)(1, "h2", 55);
+    \u0275\u0275elementStart(0, "div", 56)(1, "h2", 57);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275elementStart(3, "div", 54);
     \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
@@ -51360,7 +51460,7 @@ function ShopComponent_Conditional_38_For_5_ng_container_0_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_38_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_38_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
+    \u0275\u0275template(0, ShopComponent_Conditional_38_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
   }
   if (rf & 2) {
     const item_r15 = ctx.$implicit;
@@ -51371,44 +51471,11 @@ function ShopComponent_Conditional_38_For_5_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 56)(1, "h2", 57);
-    \u0275\u0275text(2);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 52);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].minigamesSection) || "Minigames");
-    \u0275\u0275advance(2);
-    \u0275\u0275repeater(ctx_r2.minigameItems);
-  }
-}
-function ShopComponent_Conditional_39_For_5_ng_container_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementContainer(0);
-  }
-}
-function ShopComponent_Conditional_39_For_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_39_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
-  }
-  if (rf & 2) {
-    const item_r16 = ctx.$implicit;
-    \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(35);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r16));
-  }
-}
-function ShopComponent_Conditional_39_Template(rf, ctx) {
-  if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 58)(1, "h2", 59);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 52);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 54);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51419,6 +51486,39 @@ function ShopComponent_Conditional_39_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.boosterItems);
   }
 }
+function ShopComponent_Conditional_39_For_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function ShopComponent_Conditional_39_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShopComponent_Conditional_39_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
+  }
+  if (rf & 2) {
+    const item_r16 = ctx.$implicit;
+    \u0275\u0275nextContext(2);
+    const shopCard_r13 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r16));
+  }
+}
+function ShopComponent_Conditional_39_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 60)(1, "h2", 61);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "div", 54);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].minigamesSection) || "Minigames");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.minigameItems);
+  }
+}
 function ShopComponent_Conditional_40_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
@@ -51426,7 +51526,7 @@ function ShopComponent_Conditional_40_For_5_ng_container_0_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_40_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_40_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
+    \u0275\u0275template(0, ShopComponent_Conditional_40_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
   }
   if (rf & 2) {
     const item_r17 = ctx.$implicit;
@@ -51437,10 +51537,10 @@ function ShopComponent_Conditional_40_For_5_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 60)(1, "h2", 61);
+    \u0275\u0275elementStart(0, "div", 62)(1, "h2", 63);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275elementStart(3, "div", 54);
     \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
@@ -51459,7 +51559,7 @@ function ShopComponent_Conditional_41_For_5_ng_container_0_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_41_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_41_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
+    \u0275\u0275template(0, ShopComponent_Conditional_41_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
   }
   if (rf & 2) {
     const item_r18 = ctx.$implicit;
@@ -51470,10 +51570,10 @@ function ShopComponent_Conditional_41_For_5_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_41_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 62)(1, "h2", 63);
+    \u0275\u0275elementStart(0, "div", 64)(1, "h2", 65);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275elementStart(3, "div", 54);
     \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_41_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
@@ -51492,7 +51592,7 @@ function ShopComponent_Conditional_42_For_5_ng_container_0_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_42_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_42_For_5_ng_container_0_Template, 1, 0, "ng-container", 53);
+    \u0275\u0275template(0, ShopComponent_Conditional_42_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
   }
   if (rf & 2) {
     const item_r19 = ctx.$implicit;
@@ -51503,10 +51603,10 @@ function ShopComponent_Conditional_42_For_5_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_42_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 64)(1, "h2", 65);
+    \u0275\u0275elementStart(0, "div", 66)(1, "h2", 67);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 52);
+    \u0275\u0275elementStart(3, "div", 54);
     \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_42_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
@@ -51729,7 +51829,7 @@ var ShopComponent = class _ShopComponent {
         return ctx.onWindowScroll();
       }, false, \u0275\u0275resolveWindow);
     }
-  }, decls: 45, vars: 32, consts: [["shopCard", ""], ["id", "shop-top"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-upgrade"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin.png", "alt", "DogeCoin", 1, "mini-coin-icon"], [1, "balance-value"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-upgrade", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "upgrade-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-upgrade", 1, "section-separator"], [1, "section-title", "upgrade-title"], ["id", "sec-minigame", 1, "section-separator"], [1, "section-title", "minigame-title"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
+  }, decls: 45, vars: 32, consts: [["shopCard", ""], ["id", "shop-top"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-upgrade"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-minigames"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin.png", "alt", "DogeCoin", 1, "mini-coin-icon"], [1, "balance-value"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-upgrade", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-minigames", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "upgrade-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-upgrade", 1, "section-separator"], [1, "section-title", "upgrade-title"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-minigame", 1, "section-separator"], [1, "section-title", "minigames-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "div", 1)(1, "header", 2)(2, "h1", 3);
@@ -51739,32 +51839,32 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275text(5);
       \u0275\u0275elementEnd()();
       \u0275\u0275elementStart(6, "div", 5);
-      \u0275\u0275template(7, ShopComponent_Conditional_7_Template, 2, 1, "button", 6)(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 8)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 8)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 9)(12, ShopComponent_Conditional_12_Template, 2, 1, "button", 10)(13, ShopComponent_Conditional_13_Template, 2, 1, "button", 11);
+      \u0275\u0275template(7, ShopComponent_Conditional_7_Template, 2, 1, "button", 6)(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 8)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 9)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 10)(12, ShopComponent_Conditional_12_Template, 2, 1, "button", 11)(13, ShopComponent_Conditional_13_Template, 2, 1, "button", 12);
       \u0275\u0275elementEnd();
-      \u0275\u0275template(14, ShopComponent_Conditional_14_Template, 10, 5, "div", 12);
-      \u0275\u0275elementStart(15, "div", 13)(16, "div", 14)(17, "span", 15);
+      \u0275\u0275template(14, ShopComponent_Conditional_14_Template, 10, 5, "div", 13);
+      \u0275\u0275elementStart(15, "div", 14)(16, "div", 15)(17, "span", 16);
       \u0275\u0275text(18, "Points:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(19, "span", 16);
+      \u0275\u0275elementStart(19, "span", 17);
       \u0275\u0275text(20);
       \u0275\u0275pipe(21, "number");
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(22, "div", 14)(23, "span", 15);
+      \u0275\u0275elementStart(22, "div", 15)(23, "span", 16);
       \u0275\u0275text(24, "DogeCoins:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(25, "span", 17);
-      \u0275\u0275element(26, "img", 18);
+      \u0275\u0275elementStart(25, "span", 18);
+      \u0275\u0275element(26, "img", 19);
       \u0275\u0275text(27);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(28, "div", 14)(29, "span", 15);
+      \u0275\u0275elementStart(28, "div", 15)(29, "span", 16);
       \u0275\u0275text(30, "Minigame Pts:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(31, "span", 19);
+      \u0275\u0275elementStart(31, "span", 20);
       \u0275\u0275text(32);
       \u0275\u0275pipe(33, "number");
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(34, ShopComponent_ng_template_34_Template, 16, 21, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(36, ShopComponent_Conditional_36_Template, 6, 1)(37, ShopComponent_Conditional_37_Template, 6, 1)(38, ShopComponent_Conditional_38_Template, 6, 1)(39, ShopComponent_Conditional_39_Template, 6, 1)(40, ShopComponent_Conditional_40_Template, 6, 1)(41, ShopComponent_Conditional_41_Template, 6, 1)(42, ShopComponent_Conditional_42_Template, 6, 1);
-      \u0275\u0275elementStart(43, "button", 20);
+      \u0275\u0275template(34, ShopComponent_ng_template_34_Template, 16, 23, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(36, ShopComponent_Conditional_36_Template, 6, 1)(37, ShopComponent_Conditional_37_Template, 6, 1)(38, ShopComponent_Conditional_38_Template, 6, 1)(39, ShopComponent_Conditional_39_Template, 6, 1)(40, ShopComponent_Conditional_40_Template, 6, 1)(41, ShopComponent_Conditional_41_Template, 6, 1)(42, ShopComponent_Conditional_42_Template, 6, 1);
+      \u0275\u0275elementStart(43, "button", 21);
       \u0275\u0275listener("click", function ShopComponent_Template_button_click_43_listener() {
         \u0275\u0275restoreView(_r1);
         return \u0275\u0275resetView(ctx.scrollToTop());
@@ -51783,9 +51883,9 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 8 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 9 : -1);
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 9 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 10 : -1);
+      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 10 : -1);
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 11 : -1);
       \u0275\u0275advance();
@@ -51805,9 +51905,9 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 37 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 38 : -1);
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 38 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 39 : -1);
+      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 39 : -1);
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 40 : -1);
       \u0275\u0275advance();
@@ -51818,7 +51918,7 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275classMapInterpolate1("back-to-top-btn ", ctx.tools.themeColor, "");
       \u0275\u0275classProp("visible", ctx.showScrollTop);
     }
-  }, dependencies: [CommonModule, NgTemplateOutlet, DecimalPipe], styles: ['\n\n.shop-container[_ngcontent-%COMP%] {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn[_ngcontent-%COMP%] {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade[_ngcontent-%COMP%] {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin[_ngcontent-%COMP%] {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster[_ngcontent-%COMP%] {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems[_ngcontent-%COMP%] {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound[_ngcontent-%COMP%] {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music[_ngcontent-%COMP%] {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames[_ngcontent-%COMP%] {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator[_ngcontent-%COMP%]::before, \n.section-separator[_ngcontent-%COMP%]::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title[_ngcontent-%COMP%] {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title[_ngcontent-%COMP%] {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title[_ngcontent-%COMP%] {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title[_ngcontent-%COMP%] {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title[_ngcontent-%COMP%] {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title[_ngcontent-%COMP%] {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: _ngcontent-%COMP%_boosterPulse 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon[_ngcontent-%COMP%] {\n  font-size: 2.2rem;\n}\n.booster-banner-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label[_ngcontent-%COMP%] {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value[_ngcontent-%COMP%] {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.doge-val[_ngcontent-%COMP%] {\n  color: #ff9900;\n}\n.mini-coin-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.upgrade-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge[_ngcontent-%COMP%] {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible[_ngcontent-%COMP%] {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%]:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title[_ngcontent-%COMP%] {\n    font-size: 2rem;\n  }\n  .booster-banner-content[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar[_ngcontent-%COMP%] {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title[_ngcontent-%COMP%] {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn[_ngcontent-%COMP%] {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light[_ngcontent-%COMP%] {\n  color: #2b1f14;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .upgrade-title[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #059669;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::before, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .multiplier-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */'] });
+  }, dependencies: [CommonModule, NgTemplateOutlet, DecimalPipe], styles: ['\n\n.shop-container[_ngcontent-%COMP%] {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn[_ngcontent-%COMP%] {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade[_ngcontent-%COMP%] {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin[_ngcontent-%COMP%] {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster[_ngcontent-%COMP%] {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems[_ngcontent-%COMP%] {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound[_ngcontent-%COMP%] {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music[_ngcontent-%COMP%] {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames[_ngcontent-%COMP%] {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator[_ngcontent-%COMP%]::before, \n.section-separator[_ngcontent-%COMP%]::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title[_ngcontent-%COMP%] {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title[_ngcontent-%COMP%] {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.minigames-title[_ngcontent-%COMP%] {\n  color: #ff8c00;\n  border-color: rgba(255, 140, 0, 0.4);\n  background: rgba(255, 140, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.minigames-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 140, 0, 0.5),\n      transparent);\n}\n.booster-title[_ngcontent-%COMP%] {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title[_ngcontent-%COMP%] {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title[_ngcontent-%COMP%] {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title[_ngcontent-%COMP%] {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: _ngcontent-%COMP%_boosterPulse 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon[_ngcontent-%COMP%] {\n  font-size: 2.2rem;\n}\n.booster-banner-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label[_ngcontent-%COMP%] {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value[_ngcontent-%COMP%] {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.doge-val[_ngcontent-%COMP%] {\n  color: #ff9900;\n}\n.mini-coin-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.minigames-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.08),\n      rgba(200, 100, 0, 0.05));\n  border-color: rgba(255, 140, 0, 0.25);\n}\n.shop-card.minigames-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 140, 0, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 140, 0, 0.12);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.upgrade-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge[_ngcontent-%COMP%] {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible[_ngcontent-%COMP%] {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%]:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title[_ngcontent-%COMP%] {\n    font-size: 2rem;\n  }\n  .booster-banner-content[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar[_ngcontent-%COMP%] {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title[_ngcontent-%COMP%] {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn[_ngcontent-%COMP%] {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light[_ngcontent-%COMP%] {\n  color: #2b1f14;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .upgrade-title[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .minigames-title[_ngcontent-%COMP%] {\n  color: #cc7000;\n  border-color: rgba(204, 112, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.minigames-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(204, 112, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.minigames-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 240, 220, 0.95),\n      rgba(255, 225, 200, 0.95));\n  border-color: #cc7000;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #059669;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background: none;\n  -webkit-background-clip: unset;\n  background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::before, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .minigames-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.minigames-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.minigames-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .multiplier-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ShopComponent, [{
@@ -51842,14 +51942,14 @@ var ShopComponent = class _ShopComponent {
                 {{tools.shop[tools.lang]?.upgradesSection || 'Upgrades'}}
             </button>
         }
-        @if (minigameItems.length > 0) {
-            <button class="shop-nav-btn nav-booster" (click)="scrollToSection('sec-minigame')">
-                {{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}
-            </button>
-        }
         @if (boosterItems.length > 0) {
             <button class="shop-nav-btn nav-booster" (click)="scrollToSection('sec-booster')">
                 {{tools.shop[tools.lang]?.boosterSection || 'Boosters'}}
+            </button>
+        }
+        @if (minigameItems.length > 0) {
+            <button class="shop-nav-btn nav-minigames" (click)="scrollToSection('sec-minigame')">
+                {{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}
             </button>
         }
         @if (cheemsItems.length > 0) {
@@ -51912,6 +52012,7 @@ var ShopComponent = class _ShopComponent {
              [class.cheems-card]="item.type === 'cheems'"
              [class.sound-card]="item.type === 'sound'"
              [class.music-card]="item.type === 'music'"
+             [class.minigames-card]="item.type === 'minigame'"
              [class.currency-dgc-to-mg-card]="item.id === 'curr_dgc_to_mg'"
              [class.currency-mg-to-dgc-card]="item.id === 'curr_mg_to_dgc'">
             <div class="shop-card-icon-wrapper">
@@ -51998,18 +52099,6 @@ var ShopComponent = class _ShopComponent {
         </div>
     }
 
-    <!-- Minigames Section -->
-    @if (minigameItems.length > 0) {
-        <div class="section-separator" id="sec-minigame">
-            <h2 class="section-title minigame-title">{{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}</h2>
-        </div>
-        <div class="shop-grid">
-            @for (item of minigameItems; track item.id) {
-                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
-            }
-        </div>
-    }
-
     <!-- Boosters Section -->
     @if (boosterItems.length > 0) {
         <div class="section-separator" id="sec-booster">
@@ -52017,6 +52106,18 @@ var ShopComponent = class _ShopComponent {
         </div>
         <div class="shop-grid">
             @for (item of boosterItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Minigames Section -->
+    @if (minigameItems.length > 0) {
+        <div class="section-separator" id="sec-minigame">
+            <h2 class="section-title minigames-title">{{tools.shop[tools.lang]?.minigamesSection || 'Minigames'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of minigameItems; track item.id) {
                 <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
             }
         </div>
@@ -52066,7 +52167,7 @@ var ShopComponent = class _ShopComponent {
         \u2191
     </button>
 </div>
-`, styles: ['/* src/app/pages/shop/shop.component.css */\n.shop-container {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator::before,\n.section-separator::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator:has(.upgrade-title)::before,\n.section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator:has(.dogecoin-title)::before,\n.section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.booster-title {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator:has(.booster-title)::before,\n.section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator:has(.cheems-title)::before,\n.section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator:has(.sound-title)::before,\n.section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator:has(.music-title)::before,\n.section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: boosterPulse 2s infinite ease-in-out;\n}\n@keyframes boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon {\n  font-size: 2.2rem;\n}\n.booster-banner-content {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val {\n  color: #ffd700;\n}\n.doge-val {\n  color: #ff9900;\n}\n.mini-coin-icon {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card .item-name {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card .item-name {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji {\n  font-size: 3rem;\n}\n.upgrade-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title {\n    font-size: 2rem;\n  }\n  .booster-banner-content {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light {\n  color: #2b1f14;\n}\n.shop-container.theme-light .shop-title {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light .shop-subtitle {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light .shop-nav-bar {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light .shop-nav-btn {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .nav-upgrade {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .nav-upgrade:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light .nav-dogecoin {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .nav-dogecoin:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light .nav-booster {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .nav-booster:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light .nav-cheems {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .nav-cheems:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light .nav-sound {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .nav-sound:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light .nav-music {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .nav-music:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light .section-title {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light .upgrade-title {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.upgrade-title)::before,\n.shop-container.theme-light .section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light .dogecoin-title {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::before,\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .booster-title {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.booster-title)::before,\n.shop-container.theme-light .section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light .cheems-title {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.cheems-title)::before,\n.shop-container.theme-light .section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light .sound-title {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.sound-title)::before,\n.shop-container.theme-light .section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light .music-title {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.music-title)::before,\n.shop-container.theme-light .section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light .shop-balance-bar {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .balance-label {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light .points-val {\n  color: #b35900;\n}\n.shop-container.theme-light .doge-val {\n  color: #d97706;\n}\n.shop-container.theme-light .shop-card {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light .shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light .shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light .shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light .shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light .item-name {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light .item-desc {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light .cost-label {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light .cost-val {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light .shop-card-footer {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .active-booster-banner {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .booster-banner-timer {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light .daily-limit-badge {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light .daily-limit-badge.limit-reached {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light .cost-val.free-cost {\n  color: #059669;\n}\n.shop-container.theme-light .buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light .buy-btn:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light .buy-btn:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .shop-title {\n  background: none;\n  -webkit-background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast .shop-subtitle {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-nav-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast .shop-nav-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-nav-btn:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .nav-dogecoin,\n.shop-container.theme-contrast .nav-booster,\n.shop-container.theme-contrast .nav-cheems,\n.shop-container.theme-contrast .nav-sound,\n.shop-container.theme-contrast .nav-music {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .nav-dogecoin:hover,\n.shop-container.theme-contrast .nav-booster:hover,\n.shop-container.theme-contrast .nav-cheems:hover,\n.shop-container.theme-contrast .nav-sound:hover,\n.shop-container.theme-contrast .nav-music:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .section-separator::before,\n.shop-container.theme-contrast .section-separator::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast .section-title {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .dogecoin-title,\n.shop-container.theme-contrast .booster-title,\n.shop-container.theme-contrast .cheems-title,\n.shop-container.theme-contrast .sound-title,\n.shop-container.theme-contrast .music-title {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast .shop-balance-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .balance-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .points-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .doge-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .shop-card {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-card:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .shop-card.coin-card,\n.shop-container.theme-contrast .shop-card.booster-card,\n.shop-container.theme-contrast .shop-card.cheems-card,\n.shop-container.theme-contrast .shop-card.sound-card,\n.shop-container.theme-contrast .shop-card.music-card {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast .shop-card.coin-card:hover,\n.shop-container.theme-contrast .shop-card.booster-card:hover,\n.shop-container.theme-contrast .shop-card.cheems-card:hover,\n.shop-container.theme-contrast .shop-card.sound-card:hover,\n.shop-container.theme-contrast .shop-card.music-card:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .item-name {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .item-desc {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .cost-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .cost-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-card-footer {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast .multiplier-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .active-booster-banner {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast .booster-banner-timer {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge.limit-reached {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast .cost-val.free-cost {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */\n'] }]
+`, styles: ['/* src/app/pages/shop/shop.component.css */\n.shop-container {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator::before,\n.section-separator::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator:has(.upgrade-title)::before,\n.section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator:has(.dogecoin-title)::before,\n.section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.minigames-title {\n  color: #ff8c00;\n  border-color: rgba(255, 140, 0, 0.4);\n  background: rgba(255, 140, 0, 0.08);\n}\n.section-separator:has(.minigames-title)::before,\n.section-separator:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 140, 0, 0.5),\n      transparent);\n}\n.booster-title {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator:has(.booster-title)::before,\n.section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator:has(.cheems-title)::before,\n.section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator:has(.sound-title)::before,\n.section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator:has(.music-title)::before,\n.section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: boosterPulse 2s infinite ease-in-out;\n}\n@keyframes boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon {\n  font-size: 2.2rem;\n}\n.booster-banner-content {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val {\n  color: #ffd700;\n}\n.doge-val {\n  color: #ff9900;\n}\n.mini-coin-icon {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.minigames-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.08),\n      rgba(200, 100, 0, 0.05));\n  border-color: rgba(255, 140, 0, 0.25);\n}\n.shop-card.minigames-card:hover {\n  border-color: rgba(255, 140, 0, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 140, 0, 0.12);\n}\n.shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card .item-name {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card .item-name {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji {\n  font-size: 3rem;\n}\n.upgrade-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title {\n    font-size: 2rem;\n  }\n  .booster-banner-content {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light {\n  color: #2b1f14;\n}\n.shop-container.theme-light .shop-title {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light .shop-subtitle {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light .shop-nav-bar {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light .shop-nav-btn {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .nav-upgrade {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .nav-upgrade:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light .nav-dogecoin {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .nav-dogecoin:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light .nav-booster {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .nav-booster:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light .nav-cheems {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .nav-cheems:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light .nav-sound {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .nav-sound:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light .nav-music {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .nav-music:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light .section-title {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light .upgrade-title {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.upgrade-title)::before,\n.shop-container.theme-light .section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light .dogecoin-title {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::before,\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .minigames-title {\n  color: #cc7000;\n  border-color: rgba(204, 112, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.minigames-title)::before,\n.shop-container.theme-light .section-separator:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(204, 112, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .booster-title {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.booster-title)::before,\n.shop-container.theme-light .section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light .cheems-title {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.cheems-title)::before,\n.shop-container.theme-light .section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light .sound-title {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.sound-title)::before,\n.shop-container.theme-light .section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light .music-title {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.music-title)::before,\n.shop-container.theme-light .section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light .shop-balance-bar {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .balance-label {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light .points-val {\n  color: #b35900;\n}\n.shop-container.theme-light .doge-val {\n  color: #d97706;\n}\n.shop-container.theme-light .shop-card {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light .shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light .shop-card.minigames-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 240, 220, 0.95),\n      rgba(255, 225, 200, 0.95));\n  border-color: #cc7000;\n}\n.shop-container.theme-light .shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light .shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light .shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light .item-name {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light .item-desc {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light .cost-label {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light .cost-val {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light .shop-card-footer {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .active-booster-banner {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .booster-banner-timer {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light .daily-limit-badge {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light .daily-limit-badge.limit-reached {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light .cost-val.free-cost {\n  color: #059669;\n}\n.shop-container.theme-light .buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light .buy-btn:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light .buy-btn:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .shop-title {\n  background: none;\n  -webkit-background-clip: unset;\n  background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast .shop-subtitle {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-nav-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast .shop-nav-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-nav-btn:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .nav-dogecoin,\n.shop-container.theme-contrast .nav-booster,\n.shop-container.theme-contrast .nav-cheems,\n.shop-container.theme-contrast .nav-sound,\n.shop-container.theme-contrast .nav-music {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .nav-dogecoin:hover,\n.shop-container.theme-contrast .nav-booster:hover,\n.shop-container.theme-contrast .nav-cheems:hover,\n.shop-container.theme-contrast .nav-sound:hover,\n.shop-container.theme-contrast .nav-music:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .section-separator::before,\n.shop-container.theme-contrast .section-separator::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast .section-title {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .dogecoin-title,\n.shop-container.theme-contrast .booster-title,\n.shop-container.theme-contrast .minigames-title,\n.shop-container.theme-contrast .cheems-title,\n.shop-container.theme-contrast .sound-title,\n.shop-container.theme-contrast .music-title {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast .shop-balance-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .balance-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .points-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .doge-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .shop-card {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-card:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .shop-card.coin-card,\n.shop-container.theme-contrast .shop-card.booster-card,\n.shop-container.theme-contrast .shop-card.minigames-card,\n.shop-container.theme-contrast .shop-card.cheems-card,\n.shop-container.theme-contrast .shop-card.sound-card,\n.shop-container.theme-contrast .shop-card.music-card {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast .shop-card.coin-card:hover,\n.shop-container.theme-contrast .shop-card.booster-card:hover,\n.shop-container.theme-contrast .shop-card.minigames-card:hover,\n.shop-container.theme-contrast .shop-card.cheems-card:hover,\n.shop-container.theme-contrast .shop-card.sound-card:hover,\n.shop-container.theme-contrast .shop-card.music-card:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .item-name {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .item-desc {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .cost-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .cost-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-card-footer {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast .multiplier-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .active-booster-banner {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast .booster-banner-timer {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge.limit-reached {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast .cost-val.free-cost {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */\n'] }]
   }], null, { onWindowScroll: [{
     type: HostListener,
     args: ["window:scroll"]
@@ -88144,8 +88245,2248 @@ var StackColorsComponent = class _StackColorsComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(StackColorsComponent, { className: "StackColorsComponent", filePath: "src/app/games/stack_colors/stack_colors.component.ts", lineNumber: 19 });
 })();
 
-// src/app/pages/minigames/minigames.component.ts
+// src/app/games/rock_paper_poke/rock_paper_poke.component.ts
+function RockPaperPokeComponent_div_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275element(1, "div", 12);
+    \u0275\u0275elementEnd();
+  }
+}
+function RockPaperPokeComponent_div_12_div_5_span_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 33);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const t_r1 = ctx.$implicit;
+    \u0275\u0275attribute("data-type", t_r1);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(t_r1);
+  }
+}
+function RockPaperPokeComponent_div_12_div_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 21)(1, "div", 22)(2, "div", 23);
+    \u0275\u0275element(3, "img", 24);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 25);
+    \u0275\u0275element(5, "img", 26);
+    \u0275\u0275elementStart(6, "div", 27)(7, "span", 28);
+    \u0275\u0275text(8);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(9, "div", 29);
+    \u0275\u0275template(10, RockPaperPokeComponent_div_12_div_5_span_10_Template, 2, 2, "span", 30);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(11, "span", 31);
+    \u0275\u0275element(12, "i", 32);
+    \u0275\u0275text(13);
+    \u0275\u0275elementEnd()()()()();
+  }
+  if (rf & 2) {
+    const o_r2 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("selected", ctx_r2.selectedOpponentPokemon === o_r2)("revealed", ctx_r2.battleState === "RESULT" || ctx_r2.battleState !== "SELECT" && ctx_r2.selectedOpponentPokemon === o_r2);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("src", ctx_r2.eggSkin, \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("src", o_r2.isShiny ? o_r2.shiny : o_r2.skin, \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("is-shiny", o_r2.isShiny);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(o_r2.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngForOf", o_r2.types);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate2(" ", o_r2.dice_roll[0], " - ", o_r2.dice_roll[1], "");
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_1_h1_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h1");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.win) || "You Win!");
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_1_h1_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h1");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.lose) || "You Lose!");
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_1_h1_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h1");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.draw) || "Draw!");
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 43);
+    \u0275\u0275template(1, RockPaperPokeComponent_div_12_div_6_div_1_h1_1_Template, 2, 1, "h1", 44)(2, RockPaperPokeComponent_div_12_div_6_div_1_h1_2_Template, 2, 1, "h1", 44)(3, RockPaperPokeComponent_div_12_div_6_div_1_h1_3_Template, 2, 1, "h1", 44);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("ngClass", ctx_r2.battleResult);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleResult === "win");
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleResult === "lose");
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleResult === "draw");
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 45);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.playerCurrentDisplayScore);
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_7_span_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 51);
+    \u0275\u0275text(1, "Shiny! x1.5");
+    \u0275\u0275elementEnd();
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_7_span_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 52);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.getDynamicTagText((ctx_r2.lang == null ? null : ctx_r2.lang.superEffective) || "Super Effective! x2", ctx_r2.pMults.value));
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_7_span_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 53);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.getDynamicTagText((ctx_r2.lang == null ? null : ctx_r2.lang.notVeryEffective) || "Not Very Effective x0.5", ctx_r2.pMults.value));
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_7_span_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 54);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.immune) || "Immune! x0");
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 46);
+    \u0275\u0275template(1, RockPaperPokeComponent_div_12_div_6_div_7_span_1_Template, 2, 0, "span", 47)(2, RockPaperPokeComponent_div_12_div_6_div_7_span_2_Template, 2, 1, "span", 48)(3, RockPaperPokeComponent_div_12_div_6_div_7_span_3_Template, 2, 1, "span", 49)(4, RockPaperPokeComponent_div_12_div_6_div_7_span_4_Template, 2, 1, "span", 50);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.showShiny && (ctx_r2.selectedPlayerPokemon == null ? null : ctx_r2.selectedPlayerPokemon.isShiny));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.showStrong && ctx_r2.pMults.strong);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.showWeak && ctx_r2.pMults.weak);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.showImmune && ctx_r2.pMults.immune);
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 45);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.opponentCurrentDisplayScore);
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_14_span_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 51);
+    \u0275\u0275text(1, "Shiny! x1.5");
+    \u0275\u0275elementEnd();
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_14_span_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 52);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.getDynamicTagText((ctx_r2.lang == null ? null : ctx_r2.lang.superEffective) || "Super Effective! x2", ctx_r2.oMults.value));
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_14_span_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 53);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.getDynamicTagText((ctx_r2.lang == null ? null : ctx_r2.lang.notVeryEffective) || "Not Very Effective x0.5", ctx_r2.oMults.value));
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_14_span_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 54);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.immune) || "Immune! x0");
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_div_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 46);
+    \u0275\u0275template(1, RockPaperPokeComponent_div_12_div_6_div_14_span_1_Template, 2, 0, "span", 47)(2, RockPaperPokeComponent_div_12_div_6_div_14_span_2_Template, 2, 1, "span", 48)(3, RockPaperPokeComponent_div_12_div_6_div_14_span_3_Template, 2, 1, "span", 49)(4, RockPaperPokeComponent_div_12_div_6_div_14_span_4_Template, 2, 1, "span", 50);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.showShiny && (ctx_r2.selectedOpponentPokemon == null ? null : ctx_r2.selectedOpponentPokemon.isShiny));
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.showStrong && ctx_r2.oMults.strong);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.showWeak && ctx_r2.oMults.weak);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.showImmune && ctx_r2.oMults.immune);
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_button_15_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 55);
+    \u0275\u0275listener("click", function RockPaperPokeComponent_div_12_div_6_button_15_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r2 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r2.startNewGame());
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.playAgain) || "Play Again");
+  }
+}
+function RockPaperPokeComponent_div_12_div_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 34);
+    \u0275\u0275template(1, RockPaperPokeComponent_div_12_div_6_div_1_Template, 4, 4, "div", 35);
+    \u0275\u0275elementStart(2, "div", 36)(3, "div", 37)(4, "h4");
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(6, RockPaperPokeComponent_div_12_div_6_div_6_Template, 2, 1, "div", 38)(7, RockPaperPokeComponent_div_12_div_6_div_7_Template, 5, 4, "div", 39);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "div", 40);
+    \u0275\u0275text(9, "VS");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "div", 41)(11, "h4");
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(13, RockPaperPokeComponent_div_12_div_6_div_13_Template, 2, 1, "div", 38)(14, RockPaperPokeComponent_div_12_div_6_div_14_Template, 5, 4, "div", 39);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275template(15, RockPaperPokeComponent_div_12_div_6_button_15_Template, 2, 1, "button", 42);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleState === "RESULT");
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("winner", ctx_r2.battleState === "RESULT" && ctx_r2.battleResult === "win");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.you) || "You");
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleState === "BASE_POINTS" || ctx_r2.battleState === "MULTIPLIERS" || ctx_r2.battleState === "RESULT");
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.pMults);
+    \u0275\u0275advance(3);
+    \u0275\u0275classProp("winner", ctx_r2.battleState === "RESULT" && ctx_r2.battleResult === "lose");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.opponent) || "Opponent");
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleState === "BASE_POINTS" || ctx_r2.battleState === "MULTIPLIERS" || ctx_r2.battleState === "RESULT");
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.oMults);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleState === "RESULT");
+  }
+}
+function RockPaperPokeComponent_div_12_div_11_span_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 33);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const t_r9 = ctx.$implicit;
+    \u0275\u0275attribute("data-type", t_r9);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(t_r9);
+  }
+}
+function RockPaperPokeComponent_div_12_div_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 56);
+    \u0275\u0275listener("click", function RockPaperPokeComponent_div_12_div_11_Template_div_click_0_listener() {
+      const ctx_r5 = \u0275\u0275restoreView(_r5);
+      const p_r7 = ctx_r5.$implicit;
+      const i_r8 = ctx_r5.index;
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.selectPokemon(p_r7, i_r8));
+    });
+    \u0275\u0275elementStart(1, "div", 22)(2, "div", 23);
+    \u0275\u0275element(3, "img", 24);
+    \u0275\u0275elementStart(4, "div", 27)(5, "span", 28);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(7, "div", 25);
+    \u0275\u0275element(8, "img", 57);
+    \u0275\u0275elementStart(9, "div", 27)(10, "span", 28);
+    \u0275\u0275text(11);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "div", 29);
+    \u0275\u0275template(13, RockPaperPokeComponent_div_12_div_11_span_13_Template, 2, 2, "span", 30);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "span", 31);
+    \u0275\u0275element(15, "i", 32);
+    \u0275\u0275text(16);
+    \u0275\u0275elementEnd()()()()();
+  }
+  if (rf & 2) {
+    const p_r7 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("selected", ctx_r2.selectedPlayerPokemon === p_r7)("unselected", ctx_r2.selectedPlayerPokemon && ctx_r2.selectedPlayerPokemon !== p_r7)("revealed", !p_r7.isSurprise || ctx_r2.battleState !== "SELECT");
+    \u0275\u0275advance(3);
+    \u0275\u0275property("src", ctx_r2.eggSkin, \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.surprise_roll) || "Surprise roll");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("src", p_r7.isShiny ? p_r7.shiny : p_r7.skin, \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("is-shiny", p_r7.isShiny);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(p_r7.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngForOf", p_r7.types);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate2(" ", p_r7.dice_roll[0], " - ", p_r7.dice_roll[1], "");
+  }
+}
+function RockPaperPokeComponent_div_12_button_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 58);
+    \u0275\u0275listener("click", function RockPaperPokeComponent_div_12_button_12_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.confirmSelection());
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.lang == null ? null : ctx_r2.lang.confirm) || "Confirm", " ");
+  }
+}
+function RockPaperPokeComponent_div_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 13)(1, "div", 14)(2, "h3");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 15);
+    \u0275\u0275template(5, RockPaperPokeComponent_div_12_div_5_Template, 14, 12, "div", 16);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275template(6, RockPaperPokeComponent_div_12_div_6_Template, 16, 12, "div", 17);
+    \u0275\u0275elementStart(7, "div", 18)(8, "h3");
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "div", 15);
+    \u0275\u0275template(11, RockPaperPokeComponent_div_12_div_11_Template, 17, 15, "div", 19);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(12, RockPaperPokeComponent_div_12_button_12_Template, 2, 1, "button", 20);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.opponent) || "Opponent");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngForOf", ctx_r2.opponentChoices);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleState !== "SELECT" && ctx_r2.battleState !== "REVEAL");
+    \u0275\u0275advance();
+    \u0275\u0275classProp("disabled", ctx_r2.battleState !== "SELECT");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.choosePokemon) || "Choose your Pokemon");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngForOf", ctx_r2.playerChoices);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleState === "SELECT" && ctx_r2.selectedPlayerPokemon);
+  }
+}
+var RockPaperPokeComponent = class _RockPaperPokeComponent {
+  tools = inject(ToolsService);
+  pokemonList = [];
+  typeChart = {};
+  playerChoices = [];
+  opponentChoices = [];
+  selectedPlayerPokemon = null;
+  selectedOpponentPokemon = null;
+  playerRoll = 0;
+  opponentRoll = 0;
+  playerFinalScore = 0;
+  opponentFinalScore = 0;
+  playerMultiplier = 1;
+  opponentMultiplier = 1;
+  battleResult = null;
+  eggSkin = "games/rock-paper-poke/assets/egg.png";
+  isLoading = true;
+  level = 0;
+  points = 0;
+  battleState = "SELECT";
+  showImmune = false;
+  showWeak = false;
+  showStrong = false;
+  showShiny = false;
+  hasImmuneMultiplier = false;
+  hasWeakMultiplier = false;
+  hasStrongMultiplier = false;
+  playerCurrentDisplayScore = 0;
+  opponentCurrentDisplayScore = 0;
+  pMults;
+  oMults;
+  get lang() {
+    return this.tools.rock_paper_poke[this.tools.lang] || {};
+  }
+  ngOnInit() {
+    return __async(this, null, function* () {
+      this.tools.setTitle("rock_paper_poke");
+      this.tools.actPage = "rock_paper_poke";
+      yield this.loadData();
+      this.startNewGame();
+    });
+  }
+  loadData() {
+    return __async(this, null, function* () {
+      try {
+        const [pokeRes, typeRes] = yield Promise.all([
+          fetch("games/rock-paper-poke/data/pokemon.json"),
+          fetch("games/rock-paper-poke/data/type_chart.json")
+        ]);
+        let pokeData = [];
+        let typeData = {};
+        if (pokeRes.ok) {
+          pokeData = yield pokeRes.json();
+        } else {
+          const fallbackRes = yield fetch("/games/rock-paper-poke/data/pokemon.json");
+          pokeData = yield fallbackRes.json();
+        }
+        if (typeRes.ok) {
+          typeData = yield typeRes.json();
+        } else {
+          const fallbackRes = yield fetch("/games/rock-paper-poke/data/type_chart.json");
+          typeData = yield fallbackRes.json();
+        }
+        this.pokemonList = pokeData.filter((p) => p.id !== 0);
+        this.typeChart = typeData;
+        const eggData = pokeData.find((p) => p.id === 0);
+        if (eggData) {
+          this.eggSkin = eggData.skin;
+        }
+        this.isLoading = false;
+      } catch (e) {
+        console.error("Failed to load pokemon data:", e);
+        this.isLoading = false;
+      }
+    });
+  }
+  startNewGame() {
+    this.selectedPlayerPokemon = null;
+    this.selectedOpponentPokemon = null;
+    this.battleResult = null;
+    this.battleState = "SELECT";
+    this.showImmune = false;
+    this.showWeak = false;
+    this.showStrong = false;
+    this.showShiny = false;
+    this.playerCurrentDisplayScore = 0;
+    this.opponentCurrentDisplayScore = 0;
+    this.playerChoices = this.getRandomPokemon(3);
+    const surprise = this.getRandomPokemon(1)[0];
+    this.playerChoices.push(__spreadProps(__spreadValues({}, surprise), { isSurprise: true }));
+    this.opponentChoices = this.getRandomPokemon(3);
+    this.selectedOpponentPokemon = this.opponentChoices[Math.floor(Math.random() * this.opponentChoices.length)];
+  }
+  getRandomPokemon(count) {
+    const result = [];
+    const listCopy = [...this.pokemonList];
+    for (let i = 0; i < count; i++) {
+      if (listCopy.length === 0)
+        break;
+      const randIndex = Math.floor(Math.random() * listCopy.length);
+      const chosen = listCopy.splice(randIndex, 1)[0];
+      result.push(__spreadProps(__spreadValues({}, chosen), { isShiny: Math.random() < 0.1 }));
+    }
+    return result;
+  }
+  selectPokemon(pokemon, index) {
+    if (this.battleState !== "SELECT")
+      return;
+    this.tools.playSound("sfx_1");
+    if (this.selectedPlayerPokemon === pokemon) {
+      this.selectedPlayerPokemon = null;
+    } else {
+      this.selectedPlayerPokemon = pokemon;
+    }
+  }
+  confirmSelection() {
+    if (this.battleState !== "SELECT" || !this.selectedPlayerPokemon || !this.selectedOpponentPokemon)
+      return;
+    this.tools.playSound("sfx_1");
+    this.prepareBattleData();
+    this.runBattleSequence();
+  }
+  prepareBattleData() {
+    if (!this.selectedPlayerPokemon || !this.selectedOpponentPokemon)
+      return;
+    const p = this.selectedPlayerPokemon;
+    const o = this.selectedOpponentPokemon;
+    this.playerRoll = Math.floor(Math.random() * (p.dice_roll[1] - p.dice_roll[0] + 1)) + p.dice_roll[0];
+    this.opponentRoll = Math.floor(Math.random() * (o.dice_roll[1] - o.dice_roll[0] + 1)) + o.dice_roll[0];
+    this.pMults = this.getMultiplierDetails(p, o);
+    this.oMults = this.getMultiplierDetails(o, p);
+    this.hasImmuneMultiplier = this.pMults.immune || this.oMults.immune;
+    this.hasWeakMultiplier = this.pMults.weak || this.oMults.weak;
+    this.hasStrongMultiplier = this.pMults.strong || this.oMults.strong;
+    this.playerMultiplier = this.pMults.value * (p.isShiny ? 1.5 : 1);
+    this.opponentMultiplier = this.oMults.value * (o.isShiny ? 1.5 : 1);
+    this.playerFinalScore = this.playerRoll * this.playerMultiplier;
+    this.opponentFinalScore = this.opponentRoll * this.opponentMultiplier;
+  }
+  runBattleSequence() {
+    return __async(this, null, function* () {
+      this.battleState = "REVEAL";
+      yield this.delay(1e3);
+      this.battleState = "BASE_POINTS";
+      this.playerCurrentDisplayScore = this.playerRoll;
+      this.opponentCurrentDisplayScore = this.opponentRoll;
+      yield this.delay(1500);
+      if (this.hasImmuneMultiplier) {
+        this.battleState = "MULTIPLIERS";
+        this.showImmune = true;
+        this.tools.playSound("sfx_5");
+        if (this.pMults.immune)
+          this.playerCurrentDisplayScore = 0;
+        if (this.oMults.immune)
+          this.opponentCurrentDisplayScore = 0;
+        yield this.delay(1500);
+      } else {
+        if (this.hasWeakMultiplier) {
+          this.battleState = "MULTIPLIERS";
+          this.showWeak = true;
+          this.tools.playSound("sfx_5");
+          if (this.pMults.weak)
+            this.playerCurrentDisplayScore *= this.pMults.value;
+          if (this.oMults.weak)
+            this.opponentCurrentDisplayScore *= this.oMults.value;
+          yield this.delay(1500);
+        }
+        if (this.hasStrongMultiplier) {
+          this.battleState = "MULTIPLIERS";
+          this.showStrong = true;
+          this.tools.playSound("sfx_5");
+          if (this.pMults.strong)
+            this.playerCurrentDisplayScore *= this.pMults.value;
+          if (this.oMults.strong)
+            this.opponentCurrentDisplayScore *= this.oMults.value;
+          yield this.delay(1500);
+        }
+      }
+      if (this.selectedPlayerPokemon?.isShiny || this.selectedOpponentPokemon?.isShiny) {
+        this.battleState = "MULTIPLIERS";
+        this.showShiny = true;
+        this.tools.playSound("sfx_5");
+        if (this.selectedPlayerPokemon?.isShiny)
+          this.playerCurrentDisplayScore *= 1.5;
+        if (this.selectedOpponentPokemon?.isShiny)
+          this.opponentCurrentDisplayScore *= 1.5;
+        yield this.delay(1500);
+      }
+      this.battleState = "RESULT";
+      if (this.playerFinalScore > this.opponentFinalScore) {
+        this.battleResult = "win";
+        this.level++;
+        this.tools.playSound("sfx_4");
+      } else if (this.playerFinalScore < this.opponentFinalScore) {
+        this.battleResult = "lose";
+        this.tools.playSound("sfx_2");
+      } else {
+        this.battleResult = "draw";
+        this.tools.playSound("sfx_1");
+      }
+      const diff = this.playerFinalScore - this.opponentFinalScore;
+      this.points = Math.max(0, this.points + diff);
+    });
+  }
+  delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  getMultiplierDetails(attacker, defender) {
+    let bestValue = 0;
+    for (const aType of attacker.types) {
+      const aTypeInfo = this.typeChart[aType];
+      let currentTypeMult = 1;
+      for (const dType of defender.types) {
+        const dTypeInfo = this.typeChart[dType];
+        if (aTypeInfo && aTypeInfo.strong_against.includes(dType)) {
+          currentTypeMult *= 2;
+        }
+        if (aTypeInfo && aTypeInfo.weak_to.includes(dType)) {
+          currentTypeMult *= 0.5;
+        }
+        if (dTypeInfo && dTypeInfo.immune_to.includes(aType)) {
+          currentTypeMult *= 0;
+        }
+      }
+      if (currentTypeMult > bestValue) {
+        bestValue = currentTypeMult;
+      }
+    }
+    return {
+      strong: bestValue > 1,
+      weak: bestValue > 0 && bestValue < 1,
+      immune: bestValue === 0,
+      value: bestValue
+    };
+  }
+  getDynamicTagText(baseText, value) {
+    return baseText.replace(/x[0-9.]+/, "x" + value);
+  }
+  ngOnDestroy() {
+    this.tools.leaveMinigame("rock_paper_poke", this.points, this.level);
+  }
+  static \u0275fac = function RockPaperPokeComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _RockPaperPokeComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RockPaperPokeComponent, selectors: [["app-rock-paper-poke"]], decls: 13, vars: 6, consts: [[1, "rock-paper-poke-container"], [1, "top-bar"], [1, "back-btn", 3, "click"], [1, "fa-solid", "fa-arrow-left"], [1, "game-stats"], [1, "stat-badge", "level"], [1, "fa-solid", "fa-star"], [1, "stat-badge", "points"], [1, "fa-solid", "fa-coins"], ["class", "loading", 4, "ngIf"], ["class", "game-board", 4, "ngIf"], [1, "loading"], [1, "spinner"], [1, "game-board"], [1, "opponent-section"], [1, "choices-row"], ["class", "choice-card opponent-card", 3, "selected", "revealed", 4, "ngFor", "ngForOf"], ["class", "battle-arena", 4, "ngIf"], [1, "player-section"], ["class", "choice-card player-card", 3, "selected", "unselected", "revealed", "click", 4, "ngFor", "ngForOf"], ["class", "confirm-btn play-again-btn", 3, "click", 4, "ngIf"], [1, "choice-card", "opponent-card"], [1, "card-inner"], [1, "card-front"], ["alt", "egg", 3, "src"], [1, "card-back"], ["alt", "opponent-pokemon", 3, "src"], [1, "poke-info"], [1, "poke-name"], [1, "types-row"], ["class", "type-badge", 4, "ngFor", "ngForOf"], [1, "poke-roll-range"], [1, "fa-solid", "fa-dice"], [1, "type-badge"], [1, "battle-arena"], ["class", "result-banner", 3, "ngClass", 4, "ngIf"], [1, "battle-stats"], [1, "stat-box", "player-stat"], ["class", "roll", 4, "ngIf"], ["class", "multipliers", 4, "ngIf"], [1, "vs"], [1, "stat-box", "opponent-stat"], ["class", "play-again-btn", 3, "click", 4, "ngIf"], [1, "result-banner", 3, "ngClass"], [4, "ngIf"], [1, "roll"], [1, "multipliers"], ["class", "tag shiny", 4, "ngIf"], ["class", "tag super-effective", 4, "ngIf"], ["class", "tag not-effective", 4, "ngIf"], ["class", "tag immune", 4, "ngIf"], [1, "tag", "shiny"], [1, "tag", "super-effective"], [1, "tag", "not-effective"], [1, "tag", "immune"], [1, "play-again-btn", 3, "click"], [1, "choice-card", "player-card", 3, "click"], ["alt", "player-pokemon", 3, "src"], [1, "confirm-btn", "play-again-btn", 3, "click"]], template: function RockPaperPokeComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "button", 2);
+      \u0275\u0275listener("click", function RockPaperPokeComponent_Template_button_click_2_listener() {
+        return ctx.tools.redirectBack();
+      });
+      \u0275\u0275element(3, "i", 3);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(4, "div", 4)(5, "div", 5);
+      \u0275\u0275element(6, "i", 6);
+      \u0275\u0275text(7);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(8, "div", 7);
+      \u0275\u0275element(9, "i", 8);
+      \u0275\u0275text(10);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275template(11, RockPaperPokeComponent_div_11_Template, 2, 0, "div", 9)(12, RockPaperPokeComponent_div_12_Template, 13, 8, "div", 10);
+      \u0275\u0275elementEnd();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(7);
+      \u0275\u0275textInterpolate2(" ", (ctx.lang == null ? null : ctx.lang.lvl) || "Level", ": ", ctx.level, "");
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate2(" ", (ctx.lang == null ? null : ctx.lang.score) || "Points", ": ", ctx.points, "");
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.isLoading);
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", !ctx.isLoading);
+    }
+  }, dependencies: [CommonModule, NgClass, NgForOf, NgIf], styles: ['\n\n.rock-paper-poke-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  background:\n    linear-gradient(\n      135deg,\n      #1e3c72 0%,\n      #2a5298 100%);\n  color: white;\n  font-family:\n    "Fredoka One",\n    cursive,\n    sans-serif;\n  overflow-y: auto;\n}\n.top-bar[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 15px 20px;\n  background: rgba(0, 0, 0, 0.3);\n}\n.back-btn[_ngcontent-%COMP%] {\n  background: none;\n  border: none;\n  color: white;\n  font-size: 24px;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.back-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.1);\n}\n.game-stats[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n}\n.stat-badge[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.5);\n  padding: 8px 15px;\n  border-radius: 20px;\n  font-size: 16px;\n  font-weight: bold;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.stat-badge.level[_ngcontent-%COMP%]   i[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.stat-badge.points[_ngcontent-%COMP%]   i[_ngcontent-%COMP%] {\n  color: #ff9800;\n}\n.loading[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex: 1;\n}\n.spinner[_ngcontent-%COMP%] {\n  width: 50px;\n  height: 50px;\n  border: 5px solid rgba(255, 255, 255, 0.3);\n  border-radius: 50%;\n  border-top-color: white;\n  animation: _ngcontent-%COMP%_spin 1s ease-in-out infinite;\n}\n@keyframes _ngcontent-%COMP%_spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.game-board[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  padding: 20px;\n  gap: 20px;\n  max-width: 800px;\n  margin: 0 auto;\n  width: 100%;\n}\n.opponent-section[_ngcontent-%COMP%], \n.player-section[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n}\n.opponent-section[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%], \n.player-section[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 20px;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n}\n.choices-row[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 15px;\n  width: 100%;\n}\n.choice-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.1);\n  border: 2px solid rgba(255, 255, 255, 0.2);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 120px;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  transition: all 0.3s ease;\n  perspective: 1000px;\n}\n.choice-card[_ngcontent-%COMP%]   .card-inner[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  text-align: center;\n  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);\n  transform-style: preserve-3d;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n}\n.choice-card.revealed[_ngcontent-%COMP%]   .card-inner[_ngcontent-%COMP%] {\n  transform: rotateY(180deg);\n}\n.card-front[_ngcontent-%COMP%], \n.card-back[_ngcontent-%COMP%] {\n  width: 100%;\n  backface-visibility: hidden;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.card-front[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  justify-content: center;\n}\n.card-back[_ngcontent-%COMP%] {\n  transform: rotateY(180deg);\n}\n.player-card[_ngcontent-%COMP%] {\n  cursor: pointer;\n}\n.player-section[_ngcontent-%COMP%]:not(.disabled)   .player-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-5px);\n  border-color: #ffd700;\n  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);\n}\n.choice-card[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  object-fit: contain;\n  margin-bottom: 10px;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));\n}\n.card-front[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  margin-bottom: 0;\n}\n.poke-info[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 100%;\n  text-align: center;\n}\n.poke-name[_ngcontent-%COMP%] {\n  font-size: 14px;\n  font-weight: bold;\n  margin-bottom: 5px;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  width: 100%;\n}\n.poke-name.is-shiny[_ngcontent-%COMP%] {\n  color: #ffd700;\n  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);\n}\n.poke-roll-range[_ngcontent-%COMP%] {\n  font-size: 12px;\n  background: rgba(0, 0, 0, 0.5);\n  padding: 3px 8px;\n  border-radius: 10px;\n  margin-top: 5px;\n}\n.types-row[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 3px;\n  margin-bottom: 5px;\n}\n.type-badge[_ngcontent-%COMP%] {\n  font-size: 10px;\n  padding: 2px 5px;\n  border-radius: 4px;\n  background: #555;\n  text-transform: uppercase;\n}\n.player-section.disabled[_ngcontent-%COMP%]   .player-card[_ngcontent-%COMP%] {\n  cursor: default;\n  opacity: 0.8;\n}\n.player-card.selected[_ngcontent-%COMP%] {\n  border-color: #4CAF50;\n  background: rgba(76, 175, 80, 0.2);\n  transform: scale(1.05);\n}\n.player-card.unselected[_ngcontent-%COMP%] {\n  opacity: 0.5;\n  filter: grayscale(1);\n}\n.opponent-card.selected[_ngcontent-%COMP%] {\n  border-color: #f44336;\n  background: rgba(244, 67, 54, 0.2);\n}\n.battle-arena[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  border-radius: 16px;\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 20px;\n  animation: _ngcontent-%COMP%_slideIn 0.5s ease-out;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);\n}\n@keyframes _ngcontent-%COMP%_slideIn {\n  from {\n    opacity: 0;\n    transform: scale(0.9);\n  }\n  to {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n.result-banner[_ngcontent-%COMP%] {\n  padding: 10px 40px;\n  border-radius: 30px;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n}\n.result-banner[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 28px;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.result-banner.win[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #4CAF50,\n      #8BC34A);\n  box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);\n}\n.result-banner.lose[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #f44336,\n      #e91e63);\n  box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);\n}\n.result-banner.draw[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #9e9e9e,\n      #607d8b);\n  box-shadow: 0 0 20px rgba(158, 158, 158, 0.6);\n}\n.battle-stats[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: stretch;\n  justify-content: space-between;\n  width: 100%;\n  max-width: 500px;\n}\n.stat-box[_ngcontent-%COMP%] {\n  flex: 1;\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n}\n.stat-box.winner[_ngcontent-%COMP%] {\n  background: rgba(255, 215, 0, 0.15);\n  border: 1px solid rgba(255, 215, 0, 0.5);\n}\n.stat-box[_ngcontent-%COMP%]   h4[_ngcontent-%COMP%] {\n  margin: 0 0 10px 0;\n  font-size: 18px;\n  color: #ddd;\n}\n.roll[_ngcontent-%COMP%] {\n  font-size: 36px;\n  font-weight: bold;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n  margin-bottom: 10px;\n}\n.multipliers[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  margin-bottom: 15px;\n  min-height: 40px;\n}\n.tag[_ngcontent-%COMP%] {\n  font-size: 11px;\n  padding: 4px 8px;\n  border-radius: 4px;\n  font-weight: bold;\n}\n.tag.shiny[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      45deg,\n      #ffd700,\n      #ff8c00);\n  color: black;\n  box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);\n}\n.tag.super-effective[_ngcontent-%COMP%] {\n  background: #4CAF50;\n}\n.tag.not-effective[_ngcontent-%COMP%] {\n  background: #f44336;\n}\n.tag.immune[_ngcontent-%COMP%] {\n  background: #9e9e9e;\n}\n.final-score[_ngcontent-%COMP%] {\n  margin-top: auto;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 8px 15px;\n  border-radius: 20px;\n  display: flex;\n  gap: 10px;\n  align-items: center;\n}\n.final-score[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  font-size: 12px;\n  color: #bbb;\n}\n.final-score[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  font-size: 20px;\n  color: #ffd700;\n}\n.vs[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 0 15px;\n  color: #ff9800;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n}\n.play-again-btn[_ngcontent-%COMP%] {\n  background: #2196F3;\n  color: white;\n  border: none;\n  padding: 12px 30px;\n  border-radius: 25px;\n  font-size: 18px;\n  font-family: inherit;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n  transition: all 0.2s;\n  margin-top: 10px;\n}\n.play-again-btn[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n  transform: translateY(-2px);\n  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);\n}\n.play-again-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n}\n.type-badge[data-type=normal][_ngcontent-%COMP%] {\n  background-color: #A8A77A;\n}\n.type-badge[data-type=fire][_ngcontent-%COMP%] {\n  background-color: #EE8130;\n}\n.type-badge[data-type=water][_ngcontent-%COMP%] {\n  background-color: #6390F0;\n}\n.type-badge[data-type=electric][_ngcontent-%COMP%] {\n  background-color: #F7D02C;\n  color: black;\n}\n.type-badge[data-type=grass][_ngcontent-%COMP%] {\n  background-color: #7AC74C;\n  color: black;\n}\n.type-badge[data-type=ice][_ngcontent-%COMP%] {\n  background-color: #96D9D6;\n  color: black;\n}\n.type-badge[data-type=fighting][_ngcontent-%COMP%] {\n  background-color: #C22E28;\n}\n.type-badge[data-type=poison][_ngcontent-%COMP%] {\n  background-color: #A33EA1;\n}\n.type-badge[data-type=ground][_ngcontent-%COMP%] {\n  background-color: #E2BF65;\n  color: black;\n}\n.type-badge[data-type=flying][_ngcontent-%COMP%] {\n  background-color: #A98FF3;\n}\n.type-badge[data-type=psychic][_ngcontent-%COMP%] {\n  background-color: #F95587;\n}\n.type-badge[data-type=bug][_ngcontent-%COMP%] {\n  background-color: #A6B91A;\n  color: black;\n}\n.type-badge[data-type=rock][_ngcontent-%COMP%] {\n  background-color: #B6A136;\n}\n.type-badge[data-type=ghost][_ngcontent-%COMP%] {\n  background-color: #735797;\n}\n.type-badge[data-type=dragon][_ngcontent-%COMP%] {\n  background-color: #6F35FC;\n}\n.type-badge[data-type=dark][_ngcontent-%COMP%] {\n  background-color: #705848;\n}\n.type-badge[data-type=steel][_ngcontent-%COMP%] {\n  background-color: #B7B7CE;\n  color: black;\n}\n.type-badge[data-type=fairy][_ngcontent-%COMP%] {\n  background-color: #D685AD;\n  color: black;\n}\n/*# sourceMappingURL=rock_paper_poke.component.css.map */'] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RockPaperPokeComponent, [{
+    type: Component,
+    args: [{ selector: "app-rock-paper-poke", standalone: true, imports: [CommonModule], template: `<div class="rock-paper-poke-container">
+  <div class="top-bar">
+    <button class="back-btn" (click)="tools.redirectBack()">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="game-stats">
+      <div class="stat-badge level"><i class="fa-solid fa-star"></i> {{ lang?.lvl || 'Level' }}: {{ level }}</div>
+      <div class="stat-badge points"><i class="fa-solid fa-coins"></i> {{ lang?.score || 'Points' }}: {{ points }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <div *ngIf="!isLoading" class="game-board">
+    
+    <div class="opponent-section">
+      <h3>{{ lang?.opponent || 'Opponent' }}</h3>
+      <div class="choices-row">
+        <div class="choice-card opponent-card" 
+             *ngFor="let o of opponentChoices; let i = index"
+             [class.selected]="selectedOpponentPokemon === o"
+             [class.revealed]="battleState === 'RESULT' || (battleState !== 'SELECT' && selectedOpponentPokemon === o)">
+          <div class="card-inner">
+            <div class="card-front">
+              <img [src]="eggSkin" alt="egg">
+            </div>
+            <div class="card-back">
+              <img [src]="o.isShiny ? o.shiny : o.skin" alt="opponent-pokemon">
+              <div class="poke-info">
+                <span class="poke-name" [class.is-shiny]="o.isShiny">{{ o.name }}</span>
+                <div class="types-row">
+                  <span class="type-badge" *ngFor="let t of o.types" [attr.data-type]="t">{{ t }}</span>
+                </div>
+                <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ o.dice_roll[0] }} - {{ o.dice_roll[1] }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="battle-arena" *ngIf="battleState !== 'SELECT' && battleState !== 'REVEAL'">
+      <div class="result-banner" [ngClass]="battleResult" *ngIf="battleState === 'RESULT'">
+        <h1 *ngIf="battleResult === 'win'">{{ lang?.win || 'You Win!' }}</h1>
+        <h1 *ngIf="battleResult === 'lose'">{{ lang?.lose || 'You Lose!' }}</h1>
+        <h1 *ngIf="battleResult === 'draw'">{{ lang?.draw || 'Draw!' }}</h1>
+      </div>
+
+      <div class="battle-stats">
+        <div class="stat-box player-stat" [class.winner]="battleState === 'RESULT' && battleResult === 'win'">
+          <h4>{{ lang?.you || 'You' }}</h4>
+          <div class="roll" *ngIf="battleState === 'BASE_POINTS' || battleState === 'MULTIPLIERS' || battleState === 'RESULT'">{{ playerCurrentDisplayScore }}</div>
+          
+          <div class="multipliers" *ngIf="pMults">
+            <span class="tag shiny" *ngIf="showShiny && selectedPlayerPokemon?.isShiny">Shiny! x1.5</span>
+            <span class="tag super-effective" *ngIf="showStrong && pMults.strong">{{ getDynamicTagText(lang?.superEffective || 'Super Effective! x2', pMults.value) }}</span>
+            <span class="tag not-effective" *ngIf="showWeak && pMults.weak">{{ getDynamicTagText(lang?.notVeryEffective || 'Not Very Effective x0.5', pMults.value) }}</span>
+            <span class="tag immune" *ngIf="showImmune && pMults.immune">{{ lang?.immune || 'Immune! x0' }}</span>
+          </div>
+        </div>
+
+        <div class="vs">VS</div>
+
+        <div class="stat-box opponent-stat" [class.winner]="battleState === 'RESULT' && battleResult === 'lose'">
+          <h4>{{ lang?.opponent || 'Opponent' }}</h4>
+          <div class="roll" *ngIf="battleState === 'BASE_POINTS' || battleState === 'MULTIPLIERS' || battleState === 'RESULT'">{{ opponentCurrentDisplayScore }}</div>
+          
+          <div class="multipliers" *ngIf="oMults">
+            <span class="tag shiny" *ngIf="showShiny && selectedOpponentPokemon?.isShiny">Shiny! x1.5</span>
+            <span class="tag super-effective" *ngIf="showStrong && oMults.strong">{{ getDynamicTagText(lang?.superEffective || 'Super Effective! x2', oMults.value) }}</span>
+            <span class="tag not-effective" *ngIf="showWeak && oMults.weak">{{ getDynamicTagText(lang?.notVeryEffective || 'Not Very Effective x0.5', oMults.value) }}</span>
+            <span class="tag immune" *ngIf="showImmune && oMults.immune">{{ lang?.immune || 'Immune! x0' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="play-again-btn" *ngIf="battleState === 'RESULT'" (click)="startNewGame()">{{ lang?.playAgain || 'Play Again' }}</button>
+    </div>
+
+    <div class="player-section" [class.disabled]="battleState !== 'SELECT'">
+      <h3>{{ lang?.choosePokemon || 'Choose your Pokemon' }}</h3>
+      <div class="choices-row">
+        <div class="choice-card player-card" 
+             *ngFor="let p of playerChoices; let i = index"
+             (click)="selectPokemon(p, i)"
+             [class.selected]="selectedPlayerPokemon === p"
+             [class.unselected]="selectedPlayerPokemon && selectedPlayerPokemon !== p"
+             [class.revealed]="!p.isSurprise || battleState !== 'SELECT'">
+          <div class="card-inner">
+            <div class="card-front">
+              <img [src]="eggSkin" alt="egg">
+              <div class="poke-info">
+                <span class="poke-name">{{ lang?.surprise_roll || "Surprise roll" }}</span>
+              </div>
+            </div>
+            <div class="card-back">
+              <img [src]="p.isShiny ? p.shiny : p.skin" alt="player-pokemon">
+              <div class="poke-info">
+                <span class="poke-name" [class.is-shiny]="p.isShiny">{{ p.name }}</span>
+                <div class="types-row">
+                  <span class="type-badge" *ngFor="let t of p.types" [attr.data-type]="t">{{ t }}</span>
+                </div>
+                <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ p.dice_roll[0] }} - {{ p.dice_roll[1] }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="confirm-btn play-again-btn" *ngIf="battleState === 'SELECT' && selectedPlayerPokemon" (click)="confirmSelection()">
+        {{ lang?.confirm || 'Confirm' }}
+      </button>
+    </div>
+    
+  </div>
+</div>
+`, styles: ['/* src/app/games/rock_paper_poke/rock_paper_poke.component.css */\n.rock-paper-poke-container {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  background:\n    linear-gradient(\n      135deg,\n      #1e3c72 0%,\n      #2a5298 100%);\n  color: white;\n  font-family:\n    "Fredoka One",\n    cursive,\n    sans-serif;\n  overflow-y: auto;\n}\n.top-bar {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 15px 20px;\n  background: rgba(0, 0, 0, 0.3);\n}\n.back-btn {\n  background: none;\n  border: none;\n  color: white;\n  font-size: 24px;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.back-btn:hover {\n  transform: scale(1.1);\n}\n.game-stats {\n  display: flex;\n  gap: 15px;\n}\n.stat-badge {\n  background: rgba(0, 0, 0, 0.5);\n  padding: 8px 15px;\n  border-radius: 20px;\n  font-size: 16px;\n  font-weight: bold;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.stat-badge.level i {\n  color: #ffd700;\n}\n.stat-badge.points i {\n  color: #ff9800;\n}\n.loading {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex: 1;\n}\n.spinner {\n  width: 50px;\n  height: 50px;\n  border: 5px solid rgba(255, 255, 255, 0.3);\n  border-radius: 50%;\n  border-top-color: white;\n  animation: spin 1s ease-in-out infinite;\n}\n@keyframes spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.game-board {\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  padding: 20px;\n  gap: 20px;\n  max-width: 800px;\n  margin: 0 auto;\n  width: 100%;\n}\n.opponent-section,\n.player-section {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n}\n.opponent-section h3,\n.player-section h3 {\n  margin: 0;\n  font-size: 20px;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n}\n.choices-row {\n  display: flex;\n  justify-content: center;\n  gap: 15px;\n  width: 100%;\n}\n.choice-card {\n  background: rgba(255, 255, 255, 0.1);\n  border: 2px solid rgba(255, 255, 255, 0.2);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 120px;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  transition: all 0.3s ease;\n  perspective: 1000px;\n}\n.choice-card .card-inner {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  text-align: center;\n  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);\n  transform-style: preserve-3d;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n}\n.choice-card.revealed .card-inner {\n  transform: rotateY(180deg);\n}\n.card-front,\n.card-back {\n  width: 100%;\n  backface-visibility: hidden;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.card-front {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  justify-content: center;\n}\n.card-back {\n  transform: rotateY(180deg);\n}\n.player-card {\n  cursor: pointer;\n}\n.player-section:not(.disabled) .player-card:hover {\n  transform: translateY(-5px);\n  border-color: #ffd700;\n  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);\n}\n.choice-card img {\n  width: 80px;\n  height: 80px;\n  object-fit: contain;\n  margin-bottom: 10px;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));\n}\n.card-front img {\n  margin-bottom: 0;\n}\n.poke-info {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 100%;\n  text-align: center;\n}\n.poke-name {\n  font-size: 14px;\n  font-weight: bold;\n  margin-bottom: 5px;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  width: 100%;\n}\n.poke-name.is-shiny {\n  color: #ffd700;\n  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);\n}\n.poke-roll-range {\n  font-size: 12px;\n  background: rgba(0, 0, 0, 0.5);\n  padding: 3px 8px;\n  border-radius: 10px;\n  margin-top: 5px;\n}\n.types-row {\n  display: flex;\n  gap: 3px;\n  margin-bottom: 5px;\n}\n.type-badge {\n  font-size: 10px;\n  padding: 2px 5px;\n  border-radius: 4px;\n  background: #555;\n  text-transform: uppercase;\n}\n.player-section.disabled .player-card {\n  cursor: default;\n  opacity: 0.8;\n}\n.player-card.selected {\n  border-color: #4CAF50;\n  background: rgba(76, 175, 80, 0.2);\n  transform: scale(1.05);\n}\n.player-card.unselected {\n  opacity: 0.5;\n  filter: grayscale(1);\n}\n.opponent-card.selected {\n  border-color: #f44336;\n  background: rgba(244, 67, 54, 0.2);\n}\n.battle-arena {\n  background: rgba(0, 0, 0, 0.4);\n  border-radius: 16px;\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 20px;\n  animation: slideIn 0.5s ease-out;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);\n}\n@keyframes slideIn {\n  from {\n    opacity: 0;\n    transform: scale(0.9);\n  }\n  to {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n.result-banner {\n  padding: 10px 40px;\n  border-radius: 30px;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n}\n.result-banner h1 {\n  margin: 0;\n  font-size: 28px;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.result-banner.win {\n  background:\n    linear-gradient(\n      90deg,\n      #4CAF50,\n      #8BC34A);\n  box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);\n}\n.result-banner.lose {\n  background:\n    linear-gradient(\n      90deg,\n      #f44336,\n      #e91e63);\n  box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);\n}\n.result-banner.draw {\n  background:\n    linear-gradient(\n      90deg,\n      #9e9e9e,\n      #607d8b);\n  box-shadow: 0 0 20px rgba(158, 158, 158, 0.6);\n}\n.battle-stats {\n  display: flex;\n  align-items: stretch;\n  justify-content: space-between;\n  width: 100%;\n  max-width: 500px;\n}\n.stat-box {\n  flex: 1;\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n}\n.stat-box.winner {\n  background: rgba(255, 215, 0, 0.15);\n  border: 1px solid rgba(255, 215, 0, 0.5);\n}\n.stat-box h4 {\n  margin: 0 0 10px 0;\n  font-size: 18px;\n  color: #ddd;\n}\n.roll {\n  font-size: 36px;\n  font-weight: bold;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n  margin-bottom: 10px;\n}\n.multipliers {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  margin-bottom: 15px;\n  min-height: 40px;\n}\n.tag {\n  font-size: 11px;\n  padding: 4px 8px;\n  border-radius: 4px;\n  font-weight: bold;\n}\n.tag.shiny {\n  background:\n    linear-gradient(\n      45deg,\n      #ffd700,\n      #ff8c00);\n  color: black;\n  box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);\n}\n.tag.super-effective {\n  background: #4CAF50;\n}\n.tag.not-effective {\n  background: #f44336;\n}\n.tag.immune {\n  background: #9e9e9e;\n}\n.final-score {\n  margin-top: auto;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 8px 15px;\n  border-radius: 20px;\n  display: flex;\n  gap: 10px;\n  align-items: center;\n}\n.final-score span {\n  font-size: 12px;\n  color: #bbb;\n}\n.final-score strong {\n  font-size: 20px;\n  color: #ffd700;\n}\n.vs {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 0 15px;\n  color: #ff9800;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n}\n.play-again-btn {\n  background: #2196F3;\n  color: white;\n  border: none;\n  padding: 12px 30px;\n  border-radius: 25px;\n  font-size: 18px;\n  font-family: inherit;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n  transition: all 0.2s;\n  margin-top: 10px;\n}\n.play-again-btn:hover {\n  background: #1976D2;\n  transform: translateY(-2px);\n  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);\n}\n.play-again-btn:active {\n  transform: translateY(1px);\n}\n.type-badge[data-type=normal] {\n  background-color: #A8A77A;\n}\n.type-badge[data-type=fire] {\n  background-color: #EE8130;\n}\n.type-badge[data-type=water] {\n  background-color: #6390F0;\n}\n.type-badge[data-type=electric] {\n  background-color: #F7D02C;\n  color: black;\n}\n.type-badge[data-type=grass] {\n  background-color: #7AC74C;\n  color: black;\n}\n.type-badge[data-type=ice] {\n  background-color: #96D9D6;\n  color: black;\n}\n.type-badge[data-type=fighting] {\n  background-color: #C22E28;\n}\n.type-badge[data-type=poison] {\n  background-color: #A33EA1;\n}\n.type-badge[data-type=ground] {\n  background-color: #E2BF65;\n  color: black;\n}\n.type-badge[data-type=flying] {\n  background-color: #A98FF3;\n}\n.type-badge[data-type=psychic] {\n  background-color: #F95587;\n}\n.type-badge[data-type=bug] {\n  background-color: #A6B91A;\n  color: black;\n}\n.type-badge[data-type=rock] {\n  background-color: #B6A136;\n}\n.type-badge[data-type=ghost] {\n  background-color: #735797;\n}\n.type-badge[data-type=dragon] {\n  background-color: #6F35FC;\n}\n.type-badge[data-type=dark] {\n  background-color: #705848;\n}\n.type-badge[data-type=steel] {\n  background-color: #B7B7CE;\n  color: black;\n}\n.type-badge[data-type=fairy] {\n  background-color: #D685AD;\n  color: black;\n}\n/*# sourceMappingURL=rock_paper_poke.component.css.map */\n'] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(RockPaperPokeComponent, { className: "RockPaperPokeComponent", filePath: "src/app/games/rock_paper_poke/rock_paper_poke.component.ts", lineNumber: 31 });
+})();
+
+// src/app/games/tic_tac_toe/tic_tac_toe.component.ts
+function TicTacToeComponent_span_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r0.turn === 1 ? ctx_r0.lang.yourTurn || "Your Turn" : ctx_r0.lang.aiThinking || "AI Thinking...", " ");
+  }
+}
+function TicTacToeComponent_span_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 15);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.lang.youWon || "You Won!");
+  }
+}
+function TicTacToeComponent_span_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 16);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.lang.aiWon || "AI Won!");
+  }
+}
+function TicTacToeComponent_span_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 17);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.lang.draw || "Draw!");
+  }
+}
+function TicTacToeComponent_div_21_div_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275element(1, "img", 21);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const cell_r4 = \u0275\u0275nextContext().$implicit;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("src", cell_r4 === 1 ? ctx_r0.playerImg : ctx_r0.aiImg, \u0275\u0275sanitizeUrl);
+  }
+}
+function TicTacToeComponent_div_21_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275listener("click", function TicTacToeComponent_div_21_Template_div_click_0_listener() {
+      const i_r3 = \u0275\u0275restoreView(_r2).index;
+      const ctx_r0 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r0.onCellClick(i_r3));
+    });
+    \u0275\u0275template(1, TicTacToeComponent_div_21_div_1_Template, 2, 1, "div", 19);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const cell_r4 = ctx.$implicit;
+    const i_r3 = ctx.index;
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("winning", ctx_r0.winningLine.includes(i_r3))("occupied", cell_r4 !== 0);
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", cell_r4 !== 0);
+  }
+}
+var TicTacToeComponent = class _TicTacToeComponent {
+  tools = inject(ToolsService);
+  router = inject(Router);
+  board = Array(9).fill(0);
+  turn = 1;
+  // 1 = Player, 2 = AI
+  playerWins = 0;
+  aiWins = 0;
+  difficulty = "Normal";
+  gameStatus = "playing";
+  winningLine = [];
+  playerImg = "games/tic-tac-toe/assets/x.webp";
+  aiImg = "games/tic-tac-toe/assets/o.webp";
+  leaveTimeout;
+  aiTimeout;
+  get lang() {
+    return this.tools.tic_tac_toe[this.tools.lang] || {};
+  }
+  ngOnInit() {
+    this.tools.actPage = "tic_tac_toe";
+    this.tools.setTitle("Tic Tac Toe");
+    this.tools.playMusic("music_1");
+    this.startNewGame();
+  }
+  startNewGame() {
+    this.board = Array(9).fill(0);
+    this.gameStatus = "playing";
+    this.winningLine = [];
+    const diffs = ["Easy", "Normal", "Hard"];
+    this.difficulty = diffs[Math.floor(Math.random() * diffs.length)];
+    this.turn = Math.random() < 0.5 ? 1 : 2;
+    if (this.turn === 2) {
+      this.scheduleAIMove();
+    }
+  }
+  onCellClick(index) {
+    if (this.gameStatus !== "playing" || this.turn !== 1 || this.board[index] !== 0) {
+      if (this.board[index] !== 0 && this.gameStatus === "playing") {
+        this.tools.playSound("sfx_1");
+      }
+      return;
+    }
+    this.board[index] = 1;
+    this.tools.playSound("sfx_3");
+    this.checkGameState();
+    if (this.gameStatus === "playing") {
+      this.turn = 2;
+      this.scheduleAIMove();
+    }
+  }
+  scheduleAIMove() {
+    if (this.aiTimeout)
+      clearTimeout(this.aiTimeout);
+    this.aiTimeout = setTimeout(() => {
+      this.makeAIMove();
+    }, 800 + Math.random() * 500);
+  }
+  makeAIMove() {
+    if (this.gameStatus !== "playing")
+      return;
+    let moveIndex = -1;
+    if (this.difficulty === "Easy") {
+      moveIndex = this.getRandomMove();
+    } else if (this.difficulty === "Normal") {
+      moveIndex = this.getHeuristicMove();
+    } else {
+      moveIndex = this.getMinimaxMove();
+    }
+    if (moveIndex !== -1) {
+      this.board[moveIndex] = 2;
+      this.tools.playSound("sfx_2");
+      this.checkGameState();
+      if (this.gameStatus === "playing") {
+        this.turn = 1;
+      }
+    }
+  }
+  getRandomMove() {
+    const emptyIndices = this.board.map((val, idx) => val === 0 ? idx : -1).filter((idx) => idx !== -1);
+    if (emptyIndices.length === 0)
+      return -1;
+    return emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+  }
+  getHeuristicMove() {
+    const winMove = this.findWinningMove(2);
+    if (winMove !== -1)
+      return winMove;
+    const blockMove = this.findWinningMove(1);
+    if (blockMove !== -1)
+      return blockMove;
+    if (this.board[4] === 0)
+      return 4;
+    return this.getRandomMove();
+  }
+  findWinningMove(player) {
+    for (let i = 0; i < 9; i++) {
+      if (this.board[i] === 0) {
+        this.board[i] = player;
+        const win = this.checkWinState(this.board) === player;
+        this.board[i] = 0;
+        if (win)
+          return i;
+      }
+    }
+    return -1;
+  }
+  getMinimaxMove() {
+    let bestScore = -Infinity;
+    let move = -1;
+    const emptyIndices = this.board.map((val, idx) => val === 0 ? idx : -1).filter((idx) => idx !== -1);
+    if (emptyIndices.length === 9) {
+      const corners = [0, 2, 4, 6, 8];
+      return corners[Math.floor(Math.random() * corners.length)];
+    }
+    for (let i = 0; i < 9; i++) {
+      if (this.board[i] === 0) {
+        this.board[i] = 2;
+        let score = this.minimax(this.board, 0, false);
+        this.board[i] = 0;
+        if (score > bestScore) {
+          bestScore = score;
+          move = i;
+        }
+      }
+    }
+    return move !== -1 ? move : this.getRandomMove();
+  }
+  minimax(board, depth, isMaximizing) {
+    const result = this.checkWinState(board);
+    if (result === 2)
+      return 10 - depth;
+    if (result === 1)
+      return depth - 10;
+    if (this.isBoardFull(board))
+      return 0;
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (board[i] === 0) {
+          board[i] = 2;
+          let score = this.minimax(board, depth + 1, false);
+          board[i] = 0;
+          bestScore = Math.max(score, bestScore);
+        }
+      }
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (board[i] === 0) {
+          board[i] = 1;
+          let score = this.minimax(board, depth + 1, true);
+          board[i] = 0;
+          bestScore = Math.min(score, bestScore);
+        }
+      }
+      return bestScore;
+    }
+  }
+  checkWinState(board) {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+    for (let line of lines) {
+      if (board[line[0]] !== 0 && board[line[0]] === board[line[1]] && board[line[1]] === board[line[2]]) {
+        return board[line[0]];
+      }
+    }
+    return 0;
+  }
+  isBoardFull(board) {
+    return board.indexOf(0) === -1;
+  }
+  checkGameState() {
+    const lines = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6]
+    ];
+    for (let line of lines) {
+      if (this.board[line[0]] !== 0 && this.board[line[0]] === this.board[line[1]] && this.board[line[1]] === this.board[line[2]]) {
+        this.winningLine = line;
+        const winner = this.board[line[0]];
+        if (winner === 1) {
+          this.gameStatus = "player_win";
+          this.playerWins++;
+          this.tools.playSound("sfx_4");
+        } else {
+          this.gameStatus = "ai_win";
+          this.aiWins++;
+          this.tools.playSound("sfx_1");
+        }
+        this.scheduleRestart();
+        return;
+      }
+    }
+    if (this.isBoardFull(this.board)) {
+      this.gameStatus = "draw";
+      this.tools.playSound("sfx_3");
+      this.scheduleRestart();
+    }
+  }
+  scheduleRestart() {
+    setTimeout(() => {
+      this.startNewGame();
+    }, 2500);
+  }
+  ngOnDestroy() {
+    if (this.leaveTimeout)
+      clearTimeout(this.leaveTimeout);
+    if (this.aiTimeout)
+      clearTimeout(this.aiTimeout);
+    if (this.playerWins > 0) {
+      this.tools.leaveMinigame("tic_tac_toe", 0, this.playerWins);
+    }
+  }
+  static \u0275fac = function TicTacToeComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _TicTacToeComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TicTacToeComponent, selectors: [["app-tic-tac-toe"]], decls: 22, vars: 13, consts: [[1, "game-container"], [1, "header"], [1, "score-card", "player-score"], [1, "score-label"], [1, "score-value"], [1, "status-panel"], [1, "difficulty-badge", 3, "ngClass"], [1, "turn-indicator"], [4, "ngIf"], ["class", "win-text", 4, "ngIf"], ["class", "lose-text", 4, "ngIf"], ["class", "draw-text", 4, "ngIf"], [1, "score-card", "ai-score"], [1, "board"], ["class", "cell", 3, "winning", "occupied", "click", 4, "ngFor", "ngForOf"], [1, "win-text"], [1, "lose-text"], [1, "draw-text"], [1, "cell", 3, "click"], ["class", "cell-content", 4, "ngIf"], [1, "cell-content"], ["alt", "piece", 1, "piece", 3, "src"]], template: function TicTacToeComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2)(3, "div", 3);
+      \u0275\u0275text(4);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(5, "div", 4);
+      \u0275\u0275text(6);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(7, "div", 5)(8, "div", 6);
+      \u0275\u0275text(9);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(10, "div", 7);
+      \u0275\u0275template(11, TicTacToeComponent_span_11_Template, 2, 1, "span", 8)(12, TicTacToeComponent_span_12_Template, 2, 1, "span", 9)(13, TicTacToeComponent_span_13_Template, 2, 1, "span", 10)(14, TicTacToeComponent_span_14_Template, 2, 1, "span", 11);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(15, "div", 12)(16, "div", 3);
+      \u0275\u0275text(17);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(18, "div", 4);
+      \u0275\u0275text(19);
+      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(20, "div", 13);
+      \u0275\u0275template(21, TicTacToeComponent_div_21_Template, 2, 5, "div", 14);
+      \u0275\u0275elementEnd()();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance(4);
+      \u0275\u0275textInterpolate(ctx.lang.player || "Player");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.playerWins);
+      \u0275\u0275advance(2);
+      \u0275\u0275property("ngClass", ctx.difficulty.toLowerCase());
+      \u0275\u0275advance();
+      \u0275\u0275textInterpolate1(" ", ctx.difficulty, " ");
+      \u0275\u0275advance(2);
+      \u0275\u0275property("ngIf", ctx.gameStatus === "playing");
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.gameStatus === "player_win");
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.gameStatus === "ai_win");
+      \u0275\u0275advance();
+      \u0275\u0275property("ngIf", ctx.gameStatus === "draw");
+      \u0275\u0275advance(3);
+      \u0275\u0275textInterpolate(ctx.lang.ai || "AI");
+      \u0275\u0275advance(2);
+      \u0275\u0275textInterpolate(ctx.aiWins);
+      \u0275\u0275advance();
+      \u0275\u0275classProp("disabled", ctx.gameStatus !== "playing" || ctx.turn !== 1);
+      \u0275\u0275advance();
+      \u0275\u0275property("ngForOf", ctx.board);
+    }
+  }, dependencies: [CommonModule, NgClass, NgForOf, NgIf], styles: ['\n\n.game-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 100vh;\n  width: 100%;\n  padding: 20px;\n  background: var(--bg-color, #1a1a1a);\n  color: var(--text-color, #fff);\n  font-family: "Inter", sans-serif;\n}\n.header[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  width: 100%;\n  max-width: 400px;\n  margin-bottom: 30px;\n}\n.score-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.1);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  padding: 15px 25px;\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  text-align: center;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n}\n.player-score[_ngcontent-%COMP%] {\n  border-bottom: 4px solid #4CAF50;\n}\n.ai-score[_ngcontent-%COMP%] {\n  border-bottom: 4px solid #F44336;\n}\n.score-label[_ngcontent-%COMP%] {\n  font-size: 0.9rem;\n  opacity: 0.8;\n  margin-bottom: 5px;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value[_ngcontent-%COMP%] {\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.status-panel[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.difficulty-badge[_ngcontent-%COMP%] {\n  padding: 4px 12px;\n  border-radius: 20px;\n  font-size: 0.8rem;\n  font-weight: bold;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.difficulty-badge.easy[_ngcontent-%COMP%] {\n  background: rgba(76, 175, 80, 0.2);\n  color: #4CAF50;\n  border: 1px solid #4CAF50;\n}\n.difficulty-badge.normal[_ngcontent-%COMP%] {\n  background: rgba(33, 150, 243, 0.2);\n  color: #2196F3;\n  border: 1px solid #2196F3;\n}\n.difficulty-badge.hard[_ngcontent-%COMP%] {\n  background: rgba(244, 67, 54, 0.2);\n  color: #F44336;\n  border: 1px solid #F44336;\n}\n.turn-indicator[_ngcontent-%COMP%] {\n  font-size: 1.2rem;\n  font-weight: 600;\n  text-align: center;\n  min-width: 120px;\n}\n.win-text[_ngcontent-%COMP%] {\n  color: #4CAF50;\n  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);\n}\n.lose-text[_ngcontent-%COMP%] {\n  color: #F44336;\n  text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);\n}\n.draw-text[_ngcontent-%COMP%] {\n  color: #FFC107;\n  text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);\n}\n.board[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 12px;\n  background: rgba(255, 255, 255, 0.05);\n  padding: 15px;\n  border-radius: 20px;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);\n  max-width: 400px;\n  width: 100%;\n  aspect-ratio: 1;\n}\n.board.disabled[_ngcontent-%COMP%] {\n  pointer-events: none;\n}\n.cell[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  border: 2px solid transparent;\n}\n.cell[_ngcontent-%COMP%]:not(.occupied):not(.disabled):hover {\n  background: rgba(255, 255, 255, 0.2);\n  transform: translateY(-2px);\n}\n.cell.occupied[_ngcontent-%COMP%] {\n  cursor: default;\n}\n.cell.winning[_ngcontent-%COMP%] {\n  background: rgba(76, 175, 80, 0.2);\n  border-color: #4CAF50;\n  animation: _ngcontent-%COMP%_pulse 1.5s infinite;\n}\n.cell-content[_ngcontent-%COMP%] {\n  width: 70%;\n  height: 70%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  animation: _ngcontent-%COMP%_popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n.piece[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));\n}\n.footer[_ngcontent-%COMP%] {\n  margin-top: 40px;\n}\n.leave-btn[_ngcontent-%COMP%] {\n  padding: 12px 30px;\n  font-size: 1.1rem;\n  font-weight: bold;\n  border-radius: 25px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  background:\n    linear-gradient(\n      135deg,\n      #FF5722 0%,\n      #FF9800 100%);\n  color: white;\n  border: none;\n  box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);\n}\n.leave-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);\n}\n@keyframes _ngcontent-%COMP%_popIn {\n  0% {\n    transform: scale(0);\n    opacity: 0;\n  }\n  80% {\n    transform: scale(1.1);\n    opacity: 1;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n@keyframes _ngcontent-%COMP%_pulse {\n  0% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);\n  }\n  70% {\n    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);\n  }\n  100% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);\n  }\n}\n@media (max-width: 400px) {\n  .header[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 15px;\n  }\n  .score-card[_ngcontent-%COMP%] {\n    width: 100%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    padding: 10px 20px;\n  }\n  .score-label[_ngcontent-%COMP%] {\n    margin: 0;\n  }\n}\n/*# sourceMappingURL=tic_tac_toe.component.css.map */'] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TicTacToeComponent, [{
+    type: Component,
+    args: [{ selector: "app-tic-tac-toe", standalone: true, imports: [CommonModule], template: `<div class="game-container">
+  <div class="header">
+    <div class="score-card player-score">
+      <div class="score-label">{{ lang.player || 'Player' }}</div>
+      <div class="score-value">{{ playerWins }}</div>
+    </div>
+    
+    <div class="status-panel">
+      <div class="difficulty-badge" [ngClass]="difficulty.toLowerCase()">
+        {{ difficulty }}
+      </div>
+      <div class="turn-indicator">
+        <span *ngIf="gameStatus === 'playing'">
+          {{ turn === 1 ? (lang.yourTurn || 'Your Turn') : (lang.aiThinking || 'AI Thinking...') }}
+        </span>
+        <span *ngIf="gameStatus === 'player_win'" class="win-text">{{ lang.youWon || 'You Won!' }}</span>
+        <span *ngIf="gameStatus === 'ai_win'" class="lose-text">{{ lang.aiWon || 'AI Won!' }}</span>
+        <span *ngIf="gameStatus === 'draw'" class="draw-text">{{ lang.draw || 'Draw!' }}</span>
+      </div>
+    </div>
+
+    <div class="score-card ai-score">
+      <div class="score-label">{{ lang.ai || 'AI' }}</div>
+      <div class="score-value">{{ aiWins }}</div>
+    </div>
+  </div>
+
+  <div class="board" [class.disabled]="gameStatus !== 'playing' || turn !== 1">
+    <div class="cell" *ngFor="let cell of board; let i = index" 
+         (click)="onCellClick(i)"
+         [class.winning]="winningLine.includes(i)"
+         [class.occupied]="cell !== 0">
+      <div class="cell-content" *ngIf="cell !== 0">
+        <img [src]="cell === 1 ? playerImg : aiImg" alt="piece" class="piece">
+      </div>
+    </div>
+  </div>
+</div>
+`, styles: ['/* src/app/games/tic_tac_toe/tic_tac_toe.component.css */\n.game-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 100vh;\n  width: 100%;\n  padding: 20px;\n  background: var(--bg-color, #1a1a1a);\n  color: var(--text-color, #fff);\n  font-family: "Inter", sans-serif;\n}\n.header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  width: 100%;\n  max-width: 400px;\n  margin-bottom: 30px;\n}\n.score-card {\n  background: rgba(255, 255, 255, 0.1);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  padding: 15px 25px;\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  text-align: center;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n}\n.player-score {\n  border-bottom: 4px solid #4CAF50;\n}\n.ai-score {\n  border-bottom: 4px solid #F44336;\n}\n.score-label {\n  font-size: 0.9rem;\n  opacity: 0.8;\n  margin-bottom: 5px;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value {\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.status-panel {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.difficulty-badge {\n  padding: 4px 12px;\n  border-radius: 20px;\n  font-size: 0.8rem;\n  font-weight: bold;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.difficulty-badge.easy {\n  background: rgba(76, 175, 80, 0.2);\n  color: #4CAF50;\n  border: 1px solid #4CAF50;\n}\n.difficulty-badge.normal {\n  background: rgba(33, 150, 243, 0.2);\n  color: #2196F3;\n  border: 1px solid #2196F3;\n}\n.difficulty-badge.hard {\n  background: rgba(244, 67, 54, 0.2);\n  color: #F44336;\n  border: 1px solid #F44336;\n}\n.turn-indicator {\n  font-size: 1.2rem;\n  font-weight: 600;\n  text-align: center;\n  min-width: 120px;\n}\n.win-text {\n  color: #4CAF50;\n  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);\n}\n.lose-text {\n  color: #F44336;\n  text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);\n}\n.draw-text {\n  color: #FFC107;\n  text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);\n}\n.board {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 12px;\n  background: rgba(255, 255, 255, 0.05);\n  padding: 15px;\n  border-radius: 20px;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);\n  max-width: 400px;\n  width: 100%;\n  aspect-ratio: 1;\n}\n.board.disabled {\n  pointer-events: none;\n}\n.cell {\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  border: 2px solid transparent;\n}\n.cell:not(.occupied):not(.disabled):hover {\n  background: rgba(255, 255, 255, 0.2);\n  transform: translateY(-2px);\n}\n.cell.occupied {\n  cursor: default;\n}\n.cell.winning {\n  background: rgba(76, 175, 80, 0.2);\n  border-color: #4CAF50;\n  animation: pulse 1.5s infinite;\n}\n.cell-content {\n  width: 70%;\n  height: 70%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n.piece {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));\n}\n.footer {\n  margin-top: 40px;\n}\n.leave-btn {\n  padding: 12px 30px;\n  font-size: 1.1rem;\n  font-weight: bold;\n  border-radius: 25px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  background:\n    linear-gradient(\n      135deg,\n      #FF5722 0%,\n      #FF9800 100%);\n  color: white;\n  border: none;\n  box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);\n}\n.leave-btn:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);\n}\n@keyframes popIn {\n  0% {\n    transform: scale(0);\n    opacity: 0;\n  }\n  80% {\n    transform: scale(1.1);\n    opacity: 1;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n@keyframes pulse {\n  0% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);\n  }\n  70% {\n    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);\n  }\n  100% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);\n  }\n}\n@media (max-width: 400px) {\n  .header {\n    flex-direction: column;\n    gap: 15px;\n  }\n  .score-card {\n    width: 100%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    padding: 10px 20px;\n  }\n  .score-label {\n    margin: 0;\n  }\n}\n/*# sourceMappingURL=tic_tac_toe.component.css.map */\n'] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TicTacToeComponent, { className: "TicTacToeComponent", filePath: "src/app/games/tic_tac_toe/tic_tac_toe.component.ts", lineNumber: 15 });
+})();
+
+// src/app/games/black_jack/black_jack.component.ts
 var _forTrack05 = ($index, $item) => $item.id;
+function BlackJackComponent_Conditional_2_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 4);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.getHandValue(ctx_r0.dealerHand));
+  }
+}
+function BlackJackComponent_Conditional_2_For_6_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 19);
+  }
+  if (rf & 2) {
+    const c_r2 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275property("src", c_r2.back_texture, \u0275\u0275sanitizeUrl);
+  }
+}
+function BlackJackComponent_Conditional_2_For_6_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 20);
+  }
+  if (rf & 2) {
+    const c_r2 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275propertyInterpolate("alt", c_r2.name);
+    \u0275\u0275property("src", c_r2.front_texture, \u0275\u0275sanitizeUrl);
+  }
+}
+function BlackJackComponent_Conditional_2_For_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275template(1, BlackJackComponent_Conditional_2_For_6_Conditional_1_Template, 1, 1, "img", 19)(2, BlackJackComponent_Conditional_2_For_6_Conditional_2_Template, 1, 2, "img", 20);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const \u0275$index_17_r3 = ctx.$index;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275styleProp("transform", "translateX(" + \u0275$index_17_r3 * -30 + "px)");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(\u0275$index_17_r3 === 0 && ctx_r0.gameState === "playing" ? 1 : 2);
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h1", 8);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.resultMessage);
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 9)(1, "h1", 8);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "p");
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 21)(6, "button", 22);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_9_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.restartGame());
+    });
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.lang.game_over || "Game Over");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.lang.bankrupt || "You lost all your chips!");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r0.lang.restart || "Restart");
+  }
+}
+function BlackJackComponent_Conditional_2_For_13_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275element(1, "img", 20);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const c_r5 = ctx.$implicit;
+    const \u0275$index_50_r6 = ctx.$index;
+    \u0275\u0275styleProp("transform", "translateX(" + \u0275$index_50_r6 * -30 + "px)");
+    \u0275\u0275advance();
+    \u0275\u0275propertyInterpolate("alt", c_r5.name);
+    \u0275\u0275property("src", c_r5.front_texture, \u0275\u0275sanitizeUrl);
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 4);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.getHandValue(ctx_r0.playerHand));
+  }
+}
+function BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional_0_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 28);
+  }
+  if (rf & 2) {
+    const $index_r7 = ctx.$index;
+    const chip_r8 = \u0275\u0275nextContext(4).$implicit;
+    \u0275\u0275styleProp("bottom", $index_r7 * 3 + "px");
+    \u0275\u0275propertyInterpolate("alt", chip_r8.name);
+    \u0275\u0275property("src", chip_r8.texture, \u0275\u0275sanitizeUrl);
+  }
+}
+function BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 25);
+    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional_0_For_2_Template, 1, 4, "img", 26, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(3, "div", 27);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const pile_r9 = \u0275\u0275nextContext().$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(4);
+    \u0275\u0275styleProp("height", ctx_r0.getStackHeight(pile_r9), "px");
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r0.getArray(pile_r9 > 80 ? 80 : pile_r9));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(pile_r9);
+  }
+}
+function BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional_0_Template, 5, 3, "div", 24);
+  }
+  if (rf & 2) {
+    const pile_r9 = ctx.$implicit;
+    \u0275\u0275conditional(pile_r9 > 0 ? 0 : -1);
+  }
+}
+function BlackJackComponent_Conditional_2_For_25_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 23);
+    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Template, 1, 1, null, null, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const chip_r8 = \u0275\u0275nextContext().$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r0.getChipPiles(ctx_r0.betInventory[chip_r8.id]));
+  }
+}
+function BlackJackComponent_Conditional_2_For_25_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, BlackJackComponent_Conditional_2_For_25_Conditional_0_Template, 3, 0, "div", 23);
+  }
+  if (rf & 2) {
+    const chip_r8 = ctx.$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275conditional(ctx_r0.betInventory[chip_r8.id] > 0 ? 0 : -1);
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 28);
+  }
+  if (rf & 2) {
+    const $index_r13 = ctx.$index;
+    const chip_r12 = \u0275\u0275nextContext(2).$implicit;
+    \u0275\u0275styleProp("bottom", $index_r13 * 3 + "px");
+    \u0275\u0275propertyInterpolate("alt", chip_r12.name);
+    \u0275\u0275property("src", chip_r12.texture, \u0275\u0275sanitizeUrl);
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 27);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const pile_r14 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(pile_r14);
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 39);
+    \u0275\u0275text(1, "0");
+    \u0275\u0275elementEnd();
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 38);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r11);
+      const chip_r12 = \u0275\u0275nextContext().$implicit;
+      const ctx_r0 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r0.addBet(chip_r12.id));
+    });
+    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_For_2_Template, 1, 4, "img", 26, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275template(3, BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Conditional_3_Template, 2, 1, "div", 27)(4, BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Conditional_4_Template, 2, 0, "div", 39);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const pile_r14 = ctx.$implicit;
+    const chip_r12 = \u0275\u0275nextContext().$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275styleProp("height", ctx_r0.getStackHeight(pile_r14), "px");
+    \u0275\u0275classProp("disabled", ctx_r0.playerInventory[chip_r12.id] === 0);
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r0.getArray(pile_r14 > 80 ? 80 : pile_r14));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.playerInventory[chip_r12.id] > 0 ? 3 : 4);
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r15 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 40);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_7_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r15);
+      const chip_r12 = \u0275\u0275nextContext().$implicit;
+      const ctx_r0 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r0.exchangeUp(chip_r12.id));
+    });
+    \u0275\u0275text(1, "\u2B05\uFE0F");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const chip_r12 = \u0275\u0275nextContext().$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275classProp("disabled", !ctx_r0.canExchangeUp(chip_r12.id));
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r16 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 41);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_8_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r16);
+      const chip_r12 = \u0275\u0275nextContext().$implicit;
+      const ctx_r0 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r0.exchange(chip_r12.id));
+    });
+    \u0275\u0275text(1, "\u27A1\uFE0F");
+    \u0275\u0275elementEnd();
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_33_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 30)(1, "div", 23);
+    \u0275\u0275repeaterCreate(2, BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Template, 5, 5, "div", 33, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 34);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 35);
+    \u0275\u0275template(7, BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_7_Template, 2, 2, "button", 36)(8, BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_8_Template, 2, 0, "button", 37);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const chip_r12 = ctx.$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r0.getChipPiles(ctx_r0.playerInventory[chip_r12.id]));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(chip_r12.value);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(chip_r12.id !== "chips_black" ? 7 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(chip_r12.id !== "chips_white" && ctx_r0.playerInventory[chip_r12.id] > 0 ? 8 : -1);
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_33_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 29);
+    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_Conditional_33_For_2_Template, 9, 3, "div", 30, _forTrack05);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 31)(4, "button", 32);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.clearBet());
+    });
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "button", 22);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.deal());
+    });
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r0.chips);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(ctx_r0.lang.clear_bet || "Clear");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.lang.deal || "Deal");
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_34_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r18 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 46);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_34_Conditional_5_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r18);
+      const ctx_r0 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r0.double());
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.lang.double || "Double");
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_34_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "button", 45);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.lang.double || "Double");
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_34_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r17 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 17)(1, "button", 42);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_34_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r17);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.hit());
+    });
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "button", 43);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_34_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r17);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.stand());
+    });
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(5, BlackJackComponent_Conditional_2_Conditional_34_Conditional_5_Template, 2, 1, "button", 44)(6, BlackJackComponent_Conditional_2_Conditional_34_Conditional_6_Template, 2, 1, "button", 45);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.lang.hit || "Hit");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.lang.stand || "Stand");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.playerHand.length === 2 && ctx_r0.canDouble() ? 5 : ctx_r0.playerHand.length === 2 ? 6 : -1);
+  }
+}
+function BlackJackComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "div", 3);
+    \u0275\u0275text(2);
+    \u0275\u0275template(3, BlackJackComponent_Conditional_2_Conditional_3_Template, 2, 1, "span", 4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 5);
+    \u0275\u0275repeaterCreate(5, BlackJackComponent_Conditional_2_For_6_Template, 3, 3, "div", 6, _forTrack05);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 7);
+    \u0275\u0275template(8, BlackJackComponent_Conditional_2_Conditional_8_Template, 2, 1, "h1", 8)(9, BlackJackComponent_Conditional_2_Conditional_9_Template, 8, 3, "div", 9);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(10, "div", 10)(11, "div", 5);
+    \u0275\u0275repeaterCreate(12, BlackJackComponent_Conditional_2_For_13_Template, 2, 4, "div", 6, _forTrack05);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "div", 3);
+    \u0275\u0275text(15);
+    \u0275\u0275template(16, BlackJackComponent_Conditional_2_Conditional_16_Template, 2, 1, "span", 4);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(17, "div", 11)(18, "div", 12);
+    \u0275\u0275text(19);
+    \u0275\u0275elementStart(20, "span", 13);
+    \u0275\u0275text(21);
+    \u0275\u0275pipe(22, "number");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(23, "div", 14);
+    \u0275\u0275repeaterCreate(24, BlackJackComponent_Conditional_2_For_25_Template, 1, 1, null, null, _forTrack05);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(26, "div", 15)(27, "div", 16)(28, "div", 12);
+    \u0275\u0275text(29, " Total Value: ");
+    \u0275\u0275elementStart(30, "span", 13);
+    \u0275\u0275text(31);
+    \u0275\u0275pipe(32, "number");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275template(33, BlackJackComponent_Conditional_2_Conditional_33_Template, 8, 2)(34, BlackJackComponent_Conditional_2_Conditional_34_Template, 7, 3, "div", 17);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("dimmed", ctx_r0.gameState === "betting");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1("", ctx_r0.lang.dealer_cards || "Dealer's Cards", " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.gameState === "dealer_turn" || ctx_r0.gameState === "game_over" ? 3 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r0.dealerHand);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx_r0.gameState === "game_over" ? 8 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.gameState === "bankrupt" ? 9 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275classProp("dimmed", ctx_r0.gameState === "betting");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r0.playerHand);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1("", ctx_r0.lang.player_cards || "Your Cards", " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.playerHand.length > 0 ? 16 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", ctx_r0.lang.total_bet || "Total Bet: ", " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(22, 15, ctx_r0.currentBet));
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(ctx_r0.chips);
+    \u0275\u0275advance(7);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(32, 17, ctx_r0.playerChips));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.gameState === "betting" ? 33 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.gameState === "playing" ? 34 : -1);
+  }
+}
+function BlackJackComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275text(1, "Loading assets...");
+    \u0275\u0275elementEnd();
+  }
+}
+var BlackJackComponent = class _BlackJackComponent {
+  tools = inject(ToolsService);
+  router = inject(Router);
+  allCards = [];
+  deck = [];
+  chips = [];
+  playerHand = [];
+  dealerHand = [];
+  gameState = "loading";
+  resultMessage = "";
+  playerInventory = {};
+  betInventory = {};
+  get currentBet() {
+    return this.getInventoryValue(this.betInventory);
+  }
+  get playerChips() {
+    return this.getInventoryValue(this.playerInventory);
+  }
+  get lang() {
+    return this.tools.black_jack[this.tools.lang] || {};
+  }
+  ngOnInit() {
+    return __async(this, null, function* () {
+      this.tools.actPage = "black_jack";
+      this.tools.setTitle("Black Jack");
+      this.tools.playMusic("music_1");
+      yield this.loadAssets();
+      this.restartGame();
+    });
+  }
+  loadAssets() {
+    return __async(this, null, function* () {
+      try {
+        const [cardsRes, chipsRes] = yield Promise.all([
+          fetch("games/pokar-cards/data/cards.json"),
+          fetch("games/pokar-cards/data/chips.json")
+        ]);
+        const cards = yield cardsRes.json();
+        this.chips = yield chipsRes.json();
+        this.chips.sort((a, b) => b.value - a.value);
+        this.allCards = cards.filter((c) => c.type !== "joker");
+      } catch (e) {
+        console.error("Failed to load blackjack assets", e);
+      }
+    });
+  }
+  restartGame() {
+    this.playerInventory = {
+      "chips_black": 3,
+      // 300
+      "chips_blue": 5,
+      // 100
+      "chips_green": 5,
+      // 50
+      "chips_red": 8,
+      // 40
+      "chips_white": 10
+      // 10
+    };
+    this.betInventory = {};
+    for (const c of this.chips) {
+      if (!this.playerInventory[c.id])
+        this.playerInventory[c.id] = 0;
+      this.betInventory[c.id] = 0;
+    }
+    this.gameState = "betting";
+  }
+  getInventoryValue(inv) {
+    let total = 0;
+    for (const chip of this.chips) {
+      total += (inv[chip.id] || 0) * chip.value;
+    }
+    return total;
+  }
+  addBet(chipId) {
+    if (this.playerInventory[chipId] > 0) {
+      this.playerInventory[chipId]--;
+      this.betInventory[chipId] = (this.betInventory[chipId] || 0) + 1;
+      this.tools.playSound("sfx_1");
+    }
+  }
+  clearBet() {
+    let cleared = false;
+    for (const chip of this.chips) {
+      if (this.betInventory[chip.id] > 0) {
+        this.playerInventory[chip.id] += this.betInventory[chip.id];
+        this.betInventory[chip.id] = 0;
+        cleared = true;
+      }
+    }
+    if (cleared)
+      this.tools.playSound("sfx_1");
+  }
+  exchange(chipId) {
+    if (this.playerInventory[chipId] <= 0)
+      return;
+    const rules = {
+      "chips_black": { to: "chips_blue", qty: 5 },
+      // 100 -> 5x20
+      "chips_blue": { to: "chips_green", qty: 2 },
+      // 20 -> 2x10
+      "chips_green": { to: "chips_red", qty: 2 },
+      // 10 -> 2x5
+      "chips_red": { to: "chips_white", qty: 5 }
+      // 5 -> 5x1
+    };
+    const rule = rules[chipId];
+    if (rule) {
+      this.playerInventory[chipId]--;
+      this.playerInventory[rule.to] += rule.qty;
+      this.tools.playSound("sfx_1");
+    }
+  }
+  canExchangeUp(chipId) {
+    const rules = {
+      "chips_blue": { to: "chips_black", qty: 5 },
+      "chips_green": { to: "chips_blue", qty: 2 },
+      "chips_red": { to: "chips_green", qty: 2 },
+      "chips_white": { to: "chips_red", qty: 5 }
+    };
+    const rule = rules[chipId];
+    return !!rule && this.playerInventory[chipId] >= rule.qty;
+  }
+  exchangeUp(chipId) {
+    const rules = {
+      "chips_blue": { to: "chips_black", qty: 5 },
+      "chips_green": { to: "chips_blue", qty: 2 },
+      "chips_red": { to: "chips_green", qty: 2 },
+      "chips_white": { to: "chips_red", qty: 5 }
+    };
+    const rule = rules[chipId];
+    if (rule && this.playerInventory[chipId] >= rule.qty) {
+      this.playerInventory[chipId] -= rule.qty;
+      this.playerInventory[rule.to]++;
+      this.tools.playSound("sfx_1");
+    }
+  }
+  deal() {
+    if (this.currentBet === 0) {
+      this.tools.showToast("Place a bet first!");
+      this.tools.playSound("sfx_2");
+      return;
+    }
+    this.tools.playSound("sfx_1");
+    this.deck = [...this.allCards];
+    for (let i = this.deck.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.deck[i], this.deck[j]] = [this.deck[j], this.deck[i]];
+    }
+    this.playerHand = [this.deck.pop(), this.deck.pop()];
+    this.dealerHand = [this.deck.pop(), this.deck.pop()];
+    this.gameState = "playing";
+    const pVal = this.getHandValue(this.playerHand);
+    if (pVal === 21) {
+      this.endGame("blackjack");
+    }
+  }
+  hit() {
+    if (this.gameState !== "playing")
+      return;
+    this.tools.playSound("sfx_3");
+    this.playerHand.push(this.deck.pop());
+    if (this.getHandValue(this.playerHand) > 21) {
+      this.endGame("bust");
+    }
+  }
+  stand() {
+    if (this.gameState !== "playing")
+      return;
+    this.tools.playSound("sfx_1");
+    this.playDealer();
+  }
+  canDouble() {
+    return this.canPayAmount(this.currentBet);
+  }
+  double() {
+    if (this.gameState !== "playing" || this.playerHand.length !== 2)
+      return;
+    const betAmt = this.currentBet;
+    if (this.payAmount(betAmt)) {
+      for (const chip of this.chips) {
+        this.betInventory[chip.id] += this.betInventory[chip.id];
+      }
+      this.greedyAdd(this.betInventory, betAmt);
+      this.tools.playSound("sfx_1");
+      this.hit();
+      if (this.gameState === "playing") {
+        this.playDealer();
+      }
+    } else {
+      this.tools.showToast("Not enough correct chips to double! Try exchanging.");
+      this.tools.playSound("sfx_2");
+    }
+  }
+  // Checks if the player can pay a specific amount using their chips
+  canPayAmount(amount) {
+    if (this.playerChips < amount)
+      return false;
+    let remaining = amount;
+    const tempInv = __spreadValues({}, this.playerInventory);
+    for (const chip of this.chips) {
+      while (remaining >= chip.value && tempInv[chip.id] > 0) {
+        remaining -= chip.value;
+        tempInv[chip.id]--;
+      }
+    }
+    if (remaining === 0)
+      return true;
+    for (let i = this.chips.length - 1; i >= 0; i--) {
+      const chip = this.chips[i];
+      if (tempInv[chip.id] > 0 && chip.value >= remaining) {
+        return true;
+      }
+    }
+    return false;
+  }
+  // Deducts the amount from playerInventory and returns true, or false if unable
+  payAmount(amount) {
+    if (!this.canPayAmount(amount))
+      return false;
+    let remaining = amount;
+    for (const chip of this.chips) {
+      while (remaining >= chip.value && this.playerInventory[chip.id] > 0) {
+        remaining -= chip.value;
+        this.playerInventory[chip.id]--;
+      }
+    }
+    if (remaining === 0)
+      return true;
+    let usedLarger = false;
+    for (let i = this.chips.length - 1; i >= 0; i--) {
+      const chip = this.chips[i];
+      if (this.playerInventory[chip.id] > 0 && chip.value > remaining) {
+        this.playerInventory[chip.id]--;
+        const change = chip.value - remaining;
+        this.greedyAdd(this.playerInventory, change);
+        usedLarger = true;
+        break;
+      }
+    }
+    return usedLarger;
+  }
+  // Adds an amount to an inventory greedily
+  greedyAdd(inv, amount) {
+    let remaining = amount;
+    for (const chip of this.chips) {
+      const count = Math.floor(remaining / chip.value);
+      if (count > 0) {
+        inv[chip.id] = (inv[chip.id] || 0) + count;
+        remaining %= chip.value;
+      }
+    }
+  }
+  playDealer() {
+    return __async(this, null, function* () {
+      this.gameState = "dealer_turn";
+      while (this.getHandValue(this.dealerHand) < 17) {
+        yield new Promise((r) => setTimeout(r, 600));
+        this.dealerHand.push(this.deck.pop());
+        this.tools.playSound("sfx_3");
+      }
+      const pVal = this.getHandValue(this.playerHand);
+      const dVal = this.getHandValue(this.dealerHand);
+      if (dVal > 21) {
+        this.endGame("dealer_bust");
+      } else if (dVal > pVal) {
+        this.endGame("dealer_win");
+      } else if (dVal < pVal) {
+        this.endGame("player_win");
+      } else {
+        this.endGame("push");
+      }
+    });
+  }
+  getHandValue(hand) {
+    let value = 0;
+    let aces = 0;
+    for (const c of hand) {
+      if (c.rank === "ace") {
+        aces += 1;
+        value += 11;
+      } else if (c.value >= 10) {
+        value += 10;
+      } else {
+        value += c.value;
+      }
+    }
+    while (value > 21 && aces > 0) {
+      value -= 10;
+      aces -= 1;
+    }
+    return value;
+  }
+  endGame(reason) {
+    this.gameState = "game_over";
+    const originalBet = this.currentBet;
+    if (reason === "blackjack") {
+      this.resultMessage = this.lang.blackjack || "Blackjack!";
+      const win = Math.floor(originalBet * 2.5);
+      this.greedyAdd(this.playerInventory, win);
+      this.tools.playSound("sfx_4");
+    } else if (reason === "player_win" || reason === "dealer_bust") {
+      this.resultMessage = reason === "dealer_bust" ? this.lang.dealer_bust || "Dealer Busts!" : this.lang.player_win || "Player Wins!";
+      this.greedyAdd(this.playerInventory, originalBet * 2);
+      this.tools.playSound("sfx_4");
+    } else if (reason === "push") {
+      this.resultMessage = this.lang.push || "Push";
+      this.greedyAdd(this.playerInventory, originalBet);
+      this.tools.playSound("sfx_1");
+    } else {
+      this.resultMessage = reason === "bust" ? this.lang.bust || "Bust!" : this.lang.dealer_win || "Dealer Wins!";
+      this.tools.playSound("sfx_2");
+    }
+    for (const chip of this.chips) {
+      this.betInventory[chip.id] = 0;
+    }
+    setTimeout(() => {
+      if (this.playerChips <= 0) {
+        this.gameState = "bankrupt";
+      } else {
+        this.gameState = "betting";
+      }
+    }, 3e3);
+  }
+  ngOnDestroy() {
+    let earnedPoints = this.playerChips - 500;
+    if (earnedPoints > 0) {
+      this.tools.leaveMinigame("blackjack", earnedPoints, 0);
+    }
+  }
+  // UI Helpers
+  getArray(n) {
+    return Array(n).fill(0);
+  }
+  getChipPiles(total) {
+    if (total <= 0)
+      return [0];
+    const piles = [];
+    let remaining = total;
+    while (remaining > 0 && piles.length < 2) {
+      piles.push(Math.min(remaining, 80));
+      remaining -= 80;
+    }
+    if (remaining > 0) {
+      piles.push(remaining);
+    }
+    return piles;
+  }
+  getStackHeight(pile) {
+    if (pile <= 0)
+      return 50;
+    const count = pile > 80 ? 80 : pile;
+    return 47 + count * 3;
+  }
+  static \u0275fac = function BlackJackComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BlackJackComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlackJackComponent, selectors: [["app-black-jack"]], decls: 4, vars: 4, consts: [[1, "felt-table"], [1, "loading"], [1, "dealer-area"], [1, "hand-label"], [1, "hand-value"], [1, "cards"], [1, "card", 3, "transform"], [1, "center-message"], [1, "result-text"], [1, "bankrupt-panel"], [1, "player-area"], [1, "bet-area"], [1, "bet-info"], [1, "bet-amount"], [1, "visual-chip-stack-container"], [1, "controls-panel"], [1, "stats-row"], [1, "play-actions"], [1, "card"], ["alt", "Hidden Card", 3, "src"], [3, "src", "alt"], [1, "bankrupt-actions"], [1, "btn", "btn-green", 3, "click"], [1, "piles-container"], [1, "visual-stack", "bet-stack", 3, "height"], [1, "visual-stack", "bet-stack"], [1, "chip-img", 3, "src", "alt", "bottom"], [1, "chip-label"], [1, "chip-img", 3, "src", "alt"], [1, "chip-rack"], [1, "rack-slot"], [1, "bet-actions"], [1, "btn", "btn-red", 3, "click"], [1, "visual-stack", "rack-stack", 3, "disabled", "height"], [1, "chip-val-text"], [1, "exchange-buttons"], ["title", "Upgrade", 1, "exchange-btn", 3, "disabled"], ["title", "Break down", 1, "exchange-btn"], [1, "visual-stack", "rack-stack", 3, "click"], [1, "chip-empty"], ["title", "Upgrade", 1, "exchange-btn", 3, "click"], ["title", "Break down", 1, "exchange-btn", 3, "click"], [1, "btn", "btn-hit", 3, "click"], [1, "btn", "btn-stand", 3, "click"], [1, "btn", "btn-double"], ["title", "Not enough chips to double", 1, "btn", "btn-double", "disabled"], [1, "btn", "btn-double", 3, "click"]], template: function BlackJackComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div")(1, "div", 0);
+      \u0275\u0275template(2, BlackJackComponent_Conditional_2_Template, 35, 19)(3, BlackJackComponent_Conditional_3_Template, 2, 0, "div", 1);
+      \u0275\u0275elementEnd()();
+    }
+    if (rf & 2) {
+      \u0275\u0275classMapInterpolate1("black-jack-container ", ctx.tools.themeColor, "");
+      \u0275\u0275advance(2);
+      \u0275\u0275conditional(ctx.gameState !== "loading" ? 2 : 3);
+    }
+  }, dependencies: [CommonModule, DecimalPipe], styles: ['\n\n.black-jack-container[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  background: #111;\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.felt-table[_ngcontent-%COMP%] {\n  flex: 1;\n  background:\n    radial-gradient(\n      circle at center,\n      #0e632d,\n      #083b1a);\n  border: 4px solid #4a2e12;\n  border-radius: 12px;\n  margin: 10px;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  padding: 10px;\n  position: relative;\n  overflow: hidden;\n}\n.dealer-area[_ngcontent-%COMP%], \n.player-area[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  transition: opacity 0.3s;\n}\n.dimmed[_ngcontent-%COMP%] {\n  opacity: 0.3;\n}\n.hand-label[_ngcontent-%COMP%] {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.2rem;\n  font-weight: 600;\n  margin: 10px 0;\n  color: #e0e0e0;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n  position: relative;\n  z-index: 50;\n}\n.hand-value[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.6);\n  padding: 2px 8px;\n  border-radius: 10px;\n  margin-left: 8px;\n  color: #ffd700;\n}\n.cards[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  height: 140px;\n  margin-left: 30px;\n}\n.card[_ngcontent-%COMP%] {\n  width: 90px;\n  height: 130px;\n  transition: transform 0.2s ease-out;\n  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));\n}\n.card[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n}\n.center-message[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 45%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  text-align: center;\n  z-index: 10;\n  pointer-events: none;\n}\n.result-text[_ngcontent-%COMP%] {\n  font-family: "Poppins", sans-serif;\n  font-size: 3rem;\n  font-weight: 900;\n  color: #ffd700;\n  text-transform: uppercase;\n  text-shadow:\n    3px 3px 0 #000,\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  animation: _ngcontent-%COMP%_popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n@keyframes _ngcontent-%COMP%_popIn {\n  0% {\n    transform: scale(0.5);\n    opacity: 0;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.bet-area[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 80px;\n}\n.visual-chip-stack-container[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n  min-height: 80px;\n  align-items: flex-end;\n  overflow-x: auto;\n  width: 100vw;\n  margin-left: calc(-50vw + 50%);\n  margin-right: calc(-50vw + 50%);\n  padding: 0 20px 10px 20px;\n}\n.visual-chip-stack-container[_ngcontent-%COMP%]::before, \n.visual-chip-stack-container[_ngcontent-%COMP%]::after {\n  content: "";\n  margin: auto;\n}\n.controls-panel[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.5);\n  border-radius: 12px;\n  padding: 10px 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.bet-info[_ngcontent-%COMP%] {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.1rem;\n  color: #ffd700;\n  font-weight: 600;\n  position: relative;\n  z-index: 50;\n}\n.chip-rack[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 20px;\n  align-items: flex-end;\n  margin: 10px calc(-50vw + 50%);\n  width: 100vw;\n  overflow-x: auto;\n  padding: 0 20px 10px 20px;\n}\n.chip-rack[_ngcontent-%COMP%]::before, \n.chip-rack[_ngcontent-%COMP%]::after {\n  content: "";\n  margin: auto;\n}\n.rack-slot[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: flex-end;\n  gap: 5px;\n}\n.piles-container[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n}\n.visual-stack[_ngcontent-%COMP%] {\n  position: relative;\n  width: 50px;\n}\n.rack-stack[_ngcontent-%COMP%] {\n  cursor: pointer;\n  transition: transform 0.1s;\n}\n.rack-stack[_ngcontent-%COMP%]:hover:not(.disabled) {\n  transform: scale(1.1) translateY(-5px);\n}\n.rack-stack[_ngcontent-%COMP%]:active:not(.disabled) {\n  transform: scale(0.95);\n}\n.disabled[_ngcontent-%COMP%] {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.chip-img[_ngcontent-%COMP%] {\n  position: absolute;\n  width: 100%;\n  height: 50px;\n  object-fit: contain;\n  left: 0;\n}\n.chip-label[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background: rgba(0, 0, 0, 0.8);\n  color: white;\n  border-radius: 50%;\n  width: 24px;\n  height: 24px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border: 1px solid #ffd700;\n  z-index: 10;\n  pointer-events: none;\n}\n.chip-empty[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  color: rgba(255, 255, 255, 0.5);\n  font-weight: bold;\n  font-size: 1.2rem;\n  pointer-events: none;\n}\n.chip-val-text[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  color: #ccc;\n  font-family: "Poppins", sans-serif;\n}\n.exchange-buttons[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 5px;\n  min-height: 24px;\n}\n.exchange-btn[_ngcontent-%COMP%] {\n  background: #333;\n  color: white;\n  border: 1px solid #666;\n  border-radius: 4px;\n  padding: 2px 5px;\n  cursor: pointer;\n  font-size: 0.8rem;\n}\n.exchange-btn[_ngcontent-%COMP%]:hover:not(.disabled) {\n  background: #555;\n}\n.exchange-btn.disabled[_ngcontent-%COMP%] {\n  opacity: 0.4;\n  cursor: not-allowed;\n  background: #222;\n}\n.bet-actions[_ngcontent-%COMP%], \n.play-actions[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 8px 16px;\n  font-size: 1rem;\n  font-family: "Poppins", sans-serif;\n  font-weight: 700;\n  border: none;\n  border-radius: 8px;\n  cursor: pointer;\n  text-transform: uppercase;\n  transition: all 0.2s;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n}\n.btn.disabled[_ngcontent-%COMP%] {\n  opacity: 0.5;\n  cursor: not-allowed;\n  filter: grayscale(1);\n}\n.btn[_ngcontent-%COMP%]:hover:not(.disabled) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);\n}\n.btn[_ngcontent-%COMP%]:active:not(.disabled) {\n  transform: translateY(2px);\n  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);\n}\n.btn-red[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #ff4d4d,\n      #cc0000);\n  color: white;\n}\n.btn-green[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #4dff4d,\n      #00cc00);\n  color: white;\n}\n.btn-hit[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #4da6ff,\n      #0066cc);\n  color: white;\n}\n.btn-stand[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #ffd700,\n      #ccaa00);\n  color: black;\n}\n.btn-double[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #ff9933,\n      #cc6600);\n  color: white;\n}\n.loading[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  font-size: 1.5rem;\n  color: #fff;\n}\n.stats-row[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 30px;\n  align-items: center;\n}\n.bankrupt-panel[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.85);\n  padding: 30px;\n  border-radius: 12px;\n  border: 2px solid #ff4d4d;\n  box-shadow: 0 0 20px rgba(255, 77, 77, 0.5);\n  pointer-events: auto;\n}\n.bankrupt-panel[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-family: "Poppins", sans-serif;\n  color: #ffb3b3;\n  margin-bottom: 20px;\n}\n.bankrupt-actions[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n}\n/*# sourceMappingURL=black_jack.component.css.map */'] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BlackJackComponent, [{
+    type: Component,
+    args: [{ selector: "app-black-jack", standalone: true, imports: [CommonModule], template: `<div class="black-jack-container {{tools.themeColor}}">
+  <div class="felt-table">
+    
+    @if(gameState !== 'loading') {
+      
+      <!-- Dealer Area -->
+      <div class="dealer-area" [class.dimmed]="gameState === 'betting'">
+        <div class="hand-label">{{lang.dealer_cards || "Dealer's Cards"}} 
+          @if(gameState === 'dealer_turn' || gameState === 'game_over') {
+            <span class="hand-value">{{getHandValue(dealerHand)}}</span>
+          }
+        </div>
+        <div class="cards">
+          @for (c of dealerHand; track c.id; let idx = $index) {
+            <div class="card" [style.transform]="'translateX(' + (idx * -30) + 'px)'">
+              @if (idx === 0 && gameState === 'playing') {
+                <img [src]="c.back_texture" alt="Hidden Card">
+              } @else {
+                <img [src]="c.front_texture" alt="{{c.name}}">
+              }
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Result / Bankrupt Message -->
+      <div class="center-message">
+        @if (gameState === 'game_over') {
+          <h1 class="result-text">{{resultMessage}}</h1>
+        }
+        @if (gameState === 'bankrupt') {
+          <div class="bankrupt-panel">
+            <h1 class="result-text">{{lang.game_over || "Game Over"}}</h1>
+            <p>{{lang.bankrupt || "You lost all your chips!"}}</p>
+            <div class="bankrupt-actions">
+              <button class="btn btn-green" (click)="restartGame()">{{lang.restart || "Restart"}}</button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Player Area -->
+      <div class="player-area" [class.dimmed]="gameState === 'betting'">
+        <div class="cards">
+          @for (c of playerHand; track c.id; let idx = $index) {
+            <div class="card" [style.transform]="'translateX(' + (idx * -30) + 'px)'">
+              <img [src]="c.front_texture" alt="{{c.name}}">
+            </div>
+          }
+        </div>
+        <div class="hand-label">{{lang.player_cards || "Your Cards"}}
+          @if(playerHand.length > 0) {
+            <span class="hand-value">{{getHandValue(playerHand)}}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Bet Area (Visual Chips) -->
+      <div class="bet-area">
+        <div class="bet-info">
+          {{lang.total_bet || "Total Bet: "}} <span class="bet-amount">{{currentBet | number}}</span>
+        </div>
+        <div class="visual-chip-stack-container">
+          @for (chip of chips; track chip.id) {
+            @if (betInventory[chip.id] > 0) {
+              <div class="piles-container">
+                @for (pile of getChipPiles(betInventory[chip.id]); track $index) {
+                  @if (pile > 0) {
+                    <div class="visual-stack bet-stack" [style.height.px]="getStackHeight(pile)">
+                      @for (i of getArray(pile > 80 ? 80 : pile); track $index) {
+                        <img class="chip-img" [src]="chip.texture" alt="{{chip.name}}" [style.bottom]="($index * 3) + 'px'">
+                      }
+                      <div class="chip-label">{{pile}}</div>
+                    </div>
+                  }
+                }
+              </div>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-panel">
+        <div class="stats-row">
+          <div class="bet-info">
+            Total Value: <span class="bet-amount">{{playerChips | number}}</span>
+          </div>
+        </div>
+
+        @if (gameState === 'betting') {
+          <div class="chip-rack">
+            @for (chip of chips; track chip.id) {
+              <div class="rack-slot">
+                <div class="piles-container">
+                  @for (pile of getChipPiles(playerInventory[chip.id]); track $index) {
+                    <div class="visual-stack rack-stack" (click)="addBet(chip.id)" [class.disabled]="playerInventory[chip.id] === 0" [style.height.px]="getStackHeight(pile)">
+                      @for (i of getArray(pile > 80 ? 80 : pile); track $index) {
+                        <img class="chip-img" [src]="chip.texture" alt="{{chip.name}}" [style.bottom]="($index * 3) + 'px'">
+                      }
+                      @if (playerInventory[chip.id] > 0) {
+                        <div class="chip-label">{{pile}}</div>
+                      } @else {
+                        <div class="chip-empty">0</div>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="chip-val-text">{{chip.value}}</div>
+                <div class="exchange-buttons">
+                  @if (chip.id !== 'chips_black') {
+                    <button class="exchange-btn" (click)="exchangeUp(chip.id)" title="Upgrade" [class.disabled]="!canExchangeUp(chip.id)">\u2B05\uFE0F</button>
+                  }
+                  @if (chip.id !== 'chips_white' && playerInventory[chip.id] > 0) {
+                    <button class="exchange-btn" (click)="exchange(chip.id)" title="Break down">\u27A1\uFE0F</button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          <div class="bet-actions">
+            <button class="btn btn-red" (click)="clearBet()">{{lang.clear_bet || "Clear"}}</button>
+            <button class="btn btn-green" (click)="deal()">{{lang.deal || "Deal"}}</button>
+          </div>
+        } 
+        
+        @if (gameState === 'playing') {
+          <div class="play-actions">
+            <button class="btn btn-hit" (click)="hit()">{{lang.hit || "Hit"}}</button>
+            <button class="btn btn-stand" (click)="stand()">{{lang.stand || "Stand"}}</button>
+            @if (playerHand.length === 2 && canDouble()) {
+              <button class="btn btn-double" (click)="double()">{{lang.double || "Double"}}</button>
+            } @else if (playerHand.length === 2) {
+              <button class="btn btn-double disabled" title="Not enough chips to double">{{lang.double || "Double"}}</button>
+            }
+          </div>
+        }
+      </div>
+
+    } @else {
+      <div class="loading">Loading assets...</div>
+    }
+
+  </div>
+</div>
+`, styles: ['/* src/app/games/black_jack/black_jack.component.css */\n.black-jack-container {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  background: #111;\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.felt-table {\n  flex: 1;\n  background:\n    radial-gradient(\n      circle at center,\n      #0e632d,\n      #083b1a);\n  border: 4px solid #4a2e12;\n  border-radius: 12px;\n  margin: 10px;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  padding: 10px;\n  position: relative;\n  overflow: hidden;\n}\n.dealer-area,\n.player-area {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  transition: opacity 0.3s;\n}\n.dimmed {\n  opacity: 0.3;\n}\n.hand-label {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.2rem;\n  font-weight: 600;\n  margin: 10px 0;\n  color: #e0e0e0;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n  position: relative;\n  z-index: 50;\n}\n.hand-value {\n  background: rgba(0, 0, 0, 0.6);\n  padding: 2px 8px;\n  border-radius: 10px;\n  margin-left: 8px;\n  color: #ffd700;\n}\n.cards {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  height: 140px;\n  margin-left: 30px;\n}\n.card {\n  width: 90px;\n  height: 130px;\n  transition: transform 0.2s ease-out;\n  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));\n}\n.card img {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n}\n.center-message {\n  position: absolute;\n  top: 45%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  text-align: center;\n  z-index: 10;\n  pointer-events: none;\n}\n.result-text {\n  font-family: "Poppins", sans-serif;\n  font-size: 3rem;\n  font-weight: 900;\n  color: #ffd700;\n  text-transform: uppercase;\n  text-shadow:\n    3px 3px 0 #000,\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n@keyframes popIn {\n  0% {\n    transform: scale(0.5);\n    opacity: 0;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.bet-area {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 80px;\n}\n.visual-chip-stack-container {\n  display: flex;\n  gap: 15px;\n  min-height: 80px;\n  align-items: flex-end;\n  overflow-x: auto;\n  width: 100vw;\n  margin-left: calc(-50vw + 50%);\n  margin-right: calc(-50vw + 50%);\n  padding: 0 20px 10px 20px;\n}\n.visual-chip-stack-container::before,\n.visual-chip-stack-container::after {\n  content: "";\n  margin: auto;\n}\n.controls-panel {\n  background: rgba(0, 0, 0, 0.5);\n  border-radius: 12px;\n  padding: 10px 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.bet-info {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.1rem;\n  color: #ffd700;\n  font-weight: 600;\n  position: relative;\n  z-index: 50;\n}\n.chip-rack {\n  display: flex;\n  gap: 20px;\n  align-items: flex-end;\n  margin: 10px calc(-50vw + 50%);\n  width: 100vw;\n  overflow-x: auto;\n  padding: 0 20px 10px 20px;\n}\n.chip-rack::before,\n.chip-rack::after {\n  content: "";\n  margin: auto;\n}\n.rack-slot {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: flex-end;\n  gap: 5px;\n}\n.piles-container {\n  display: flex;\n  gap: 10px;\n}\n.visual-stack {\n  position: relative;\n  width: 50px;\n}\n.rack-stack {\n  cursor: pointer;\n  transition: transform 0.1s;\n}\n.rack-stack:hover:not(.disabled) {\n  transform: scale(1.1) translateY(-5px);\n}\n.rack-stack:active:not(.disabled) {\n  transform: scale(0.95);\n}\n.disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.chip-img {\n  position: absolute;\n  width: 100%;\n  height: 50px;\n  object-fit: contain;\n  left: 0;\n}\n.chip-label {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background: rgba(0, 0, 0, 0.8);\n  color: white;\n  border-radius: 50%;\n  width: 24px;\n  height: 24px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border: 1px solid #ffd700;\n  z-index: 10;\n  pointer-events: none;\n}\n.chip-empty {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  color: rgba(255, 255, 255, 0.5);\n  font-weight: bold;\n  font-size: 1.2rem;\n  pointer-events: none;\n}\n.chip-val-text {\n  font-size: 0.8rem;\n  color: #ccc;\n  font-family: "Poppins", sans-serif;\n}\n.exchange-buttons {\n  display: flex;\n  gap: 5px;\n  min-height: 24px;\n}\n.exchange-btn {\n  background: #333;\n  color: white;\n  border: 1px solid #666;\n  border-radius: 4px;\n  padding: 2px 5px;\n  cursor: pointer;\n  font-size: 0.8rem;\n}\n.exchange-btn:hover:not(.disabled) {\n  background: #555;\n}\n.exchange-btn.disabled {\n  opacity: 0.4;\n  cursor: not-allowed;\n  background: #222;\n}\n.bet-actions,\n.play-actions {\n  display: flex;\n  gap: 10px;\n}\n.btn {\n  padding: 8px 16px;\n  font-size: 1rem;\n  font-family: "Poppins", sans-serif;\n  font-weight: 700;\n  border: none;\n  border-radius: 8px;\n  cursor: pointer;\n  text-transform: uppercase;\n  transition: all 0.2s;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n}\n.btn.disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n  filter: grayscale(1);\n}\n.btn:hover:not(.disabled) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);\n}\n.btn:active:not(.disabled) {\n  transform: translateY(2px);\n  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);\n}\n.btn-red {\n  background:\n    linear-gradient(\n      180deg,\n      #ff4d4d,\n      #cc0000);\n  color: white;\n}\n.btn-green {\n  background:\n    linear-gradient(\n      180deg,\n      #4dff4d,\n      #00cc00);\n  color: white;\n}\n.btn-hit {\n  background:\n    linear-gradient(\n      180deg,\n      #4da6ff,\n      #0066cc);\n  color: white;\n}\n.btn-stand {\n  background:\n    linear-gradient(\n      180deg,\n      #ffd700,\n      #ccaa00);\n  color: black;\n}\n.btn-double {\n  background:\n    linear-gradient(\n      180deg,\n      #ff9933,\n      #cc6600);\n  color: white;\n}\n.loading {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  font-size: 1.5rem;\n  color: #fff;\n}\n.stats-row {\n  display: flex;\n  gap: 30px;\n  align-items: center;\n}\n.bankrupt-panel {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.85);\n  padding: 30px;\n  border-radius: 12px;\n  border: 2px solid #ff4d4d;\n  box-shadow: 0 0 20px rgba(255, 77, 77, 0.5);\n  pointer-events: auto;\n}\n.bankrupt-panel p {\n  font-size: 1.5rem;\n  font-family: "Poppins", sans-serif;\n  color: #ffb3b3;\n  margin-bottom: 20px;\n}\n.bankrupt-actions {\n  display: flex;\n  gap: 15px;\n}\n/*# sourceMappingURL=black_jack.component.css.map */\n'] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BlackJackComponent, { className: "BlackJackComponent", filePath: "src/app/games/black_jack/black_jack.component.ts", lineNumber: 34 });
+})();
+
+// src/app/pages/minigames/minigames.component.ts
+var _forTrack06 = ($index, $item) => $item.id;
 function MinigamesComponent_For_3_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 6);
@@ -88198,7 +90539,10 @@ var MinigamesComponent = class _MinigamesComponent {
     { id: "mob_control", key: "mob_control_title", defaultTitle: "Mob Control" },
     { id: "paper_io", key: "paper_io_title", defaultTitle: "Paper.io" },
     { id: "spiral_roll", key: "spiral_roll_title", defaultTitle: "Spiral Roll" },
-    { id: "stack_colors", key: "stack_colors_title", defaultTitle: "Stack Colors" }
+    { id: "stack_colors", key: "stack_colors_title", defaultTitle: "Stack Colors" },
+    { id: "rock_paper_poke", key: "rock_paper_poke_title", defaultTitle: "Rock-Paper-Poke" },
+    { id: "tic_tac_toe", key: "tic_tac_toe_title", defaultTitle: "Tic Tac Toe" },
+    { id: "black_jack", key: "black_jack_title", defaultTitle: "Black Jack" }
   ];
   ngOnInit() {
     this.tools.setTitle("minigames");
@@ -88218,7 +90562,7 @@ var MinigamesComponent = class _MinigamesComponent {
   static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MinigamesComponent, selectors: [["app-minigames"]], decls: 4, vars: 3, consts: [[1, "container"], [3, "class"], [3, "click"], [1, "menu-icon", "coin-glow", 3, "src", "alt"], [1, "card-content"], [1, "card-title"], [1, "card-sub"]], template: function MinigamesComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div");
-      \u0275\u0275repeaterCreate(2, MinigamesComponent_For_3_Template, 6, 7, "div", 1, _forTrack05);
+      \u0275\u0275repeaterCreate(2, MinigamesComponent_For_3_Template, 6, 7, "div", 1, _forTrack06);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -89147,6 +91491,9 @@ var routes = [
   { path: "minigames/paper_io", component: PaperIoComponent, pathMatch: "full" },
   { path: "minigames/spiral_roll", component: SpiralRollComponent, pathMatch: "full" },
   { path: "minigames/stack_colors", component: StackColorsComponent, pathMatch: "full" },
+  { path: "minigames/rock_paper_poke", component: RockPaperPokeComponent, pathMatch: "full" },
+  { path: "minigames/tic_tac_toe", component: TicTacToeComponent, pathMatch: "full" },
+  { path: "minigames/black_jack", component: BlackJackComponent, pathMatch: "full" },
   { path: "p404", component: P404Component, pathMatch: "full" },
   { path: "", redirectTo: "game", pathMatch: "full" },
   { path: "dev", component: GameComponent, canActivate: [devGuard] },
@@ -89869,6 +92216,8 @@ var AppComponent = class _AppComponent {
     window.onkeydown = this.onKeyDown.bind(this);
     document.addEventListener("touchstart", this.onTouchStart.bind(this), { passive: false });
     window.addEventListener("beforeunload", (event) => {
+      if (this.tools.isImportingSave)
+        return;
       if (navigator.userAgent.toLowerCase().includes("electron")) {
         return;
       }
