@@ -565,7 +565,8 @@
     "score": "Score",
     "multiplier": "Multiplier",
     "finalScore": "Final Score",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "surprise_roll": "Surprise!"
   },
   "tic_tac_toe": {
     "player": "Player",

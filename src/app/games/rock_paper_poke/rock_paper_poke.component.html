@@ -86,14 +86,25 @@
              *ngFor="let p of playerChoices; let i = index"
              (click)="selectPokemon(p, i)"
              [class.selected]="selectedPlayerPokemon === p"
-             [class.unselected]="selectedPlayerPokemon && selectedPlayerPokemon !== p">
-          <img [src]="p.isShiny ? p.shiny : p.skin" alt="player-pokemon">
-          <div class="poke-info">
-            <span class="poke-name" [class.is-shiny]="p.isShiny">{{ p.name }}</span>
-            <div class="types-row">
-              <span class="type-badge" *ngFor="let t of p.types" [attr.data-type]="t">{{ t }}</span>
+             [class.unselected]="selectedPlayerPokemon && selectedPlayerPokemon !== p"
+             [class.revealed]="!p.isSurprise || battleState !== 'SELECT'">
+          <div class="card-inner">
+            <div class="card-front">
+              <img [src]="eggSkin" alt="egg">
+              <div class="poke-info">
+                <span class="poke-name">{{ lang?.surprise_roll || "Surprise roll" }}</span>
+              </div>
             </div>
-            <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ p.dice_roll[0] }} - {{ p.dice_roll[1] }}</span>
+            <div class="card-back">
+              <img [src]="p.isShiny ? p.shiny : p.skin" alt="player-pokemon">
+              <div class="poke-info">
+                <span class="poke-name" [class.is-shiny]="p.isShiny">{{ p.name }}</span>
+                <div class="types-row">
+                  <span class="type-badge" *ngFor="let t of p.types" [attr.data-type]="t">{{ t }}</span>
+                </div>
+                <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ p.dice_roll[0] }} - {{ p.dice_roll[1] }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

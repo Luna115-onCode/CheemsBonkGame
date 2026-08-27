@@ -10,6 +10,7 @@ interface Pokemon {
   skin: string;
   shiny: string;
   isShiny?: boolean;
+  isSurprise?: boolean;
 }
 
 interface TypeChart {
@@ -138,6 +139,9 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
     this.opponentCurrentDisplayScore = 0;
     
     this.playerChoices = this.getRandomPokemon(3);
+    const surprise = this.getRandomPokemon(1)[0];
+    this.playerChoices.push({ ...surprise, isSurprise: true });
+    
     this.opponentChoices = this.getRandomPokemon(3);
     this.selectedOpponentPokemon = this.opponentChoices[Math.floor(Math.random() * this.opponentChoices.length)];
   }

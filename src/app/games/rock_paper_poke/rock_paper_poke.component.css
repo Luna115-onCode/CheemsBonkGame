@@ -132,7 +132,7 @@
   justify-content: center;
 }
 
-.opponent-card.revealed .card-inner {
+.choice-card.revealed .card-inner {
   transform: rotateY(180deg);
 }
 
