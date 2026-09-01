@@ -19,7 +19,7 @@
       <h3>{{ lang?.opponent || 'Opponent' }}</h3>
       <div class="choices-row">
         <div class="choice-card opponent-card" 
-             *ngFor="let o of opponentChoices; let i = index"
+             *ngFor="let o of opponentChoices; let i = index; trackBy: trackByFn"
              [class.selected]="selectedOpponentPokemon === o"
              [class.revealed]="battleState === 'RESULT' || (battleState !== 'SELECT' && selectedOpponentPokemon === o)">
           <div class="card-inner">
@@ -27,14 +27,16 @@
               <img [src]="eggSkin" alt="egg">
             </div>
             <div class="card-back">
-              <img [src]="o.isShiny ? o.shiny : o.skin" alt="opponent-pokemon">
-              <div class="poke-info">
-                <span class="poke-name" [class.is-shiny]="o.isShiny">{{ o.name }}</span>
-                <div class="types-row">
-                  <span class="type-badge" *ngFor="let t of o.types" [attr.data-type]="t">{{ t }}</span>
+              <ng-container *ngIf="battleState === 'RESULT' || (battleState !== 'SELECT' && selectedOpponentPokemon === o)">
+                <img [src]="o.isShiny ? o.shiny : o.skin" alt="opponent-pokemon">
+                <div class="poke-info">
+                  <span class="poke-name" [class.is-shiny]="o.isShiny">{{ o.name }}</span>
+                  <div class="types-row">
+                    <span class="type-badge" *ngFor="let t of o.types" [attr.data-type]="t">{{ t }}</span>
+                  </div>
+                  <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ o.dice_roll[0] }} - {{ o.dice_roll[1] }}</span>
                 </div>
-                <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ o.dice_roll[0] }} - {{ o.dice_roll[1] }}</span>
-              </div>
+              </ng-container>
             </div>
           </div>
         </div>
@@ -79,11 +81,17 @@
       <button class="play-again-btn" *ngIf="battleState === 'RESULT'" (click)="startNewGame()">{{ lang?.playAgain || 'Play Again' }}</button>
     </div>
 
+    <div class="center-action-area" *ngIf="battleState === 'SELECT' && selectedPlayerPokemon" style="display: flex; justify-content: center; align-items: center; min-height: 60px; animation: slideIn 0.3s ease-out;">
+      <button class="confirm-btn play-again-btn" (click)="confirmSelection()" style="margin: 0;">
+        {{ lang?.confirm || 'Confirm' }}
+      </button>
+    </div>
+
     <div class="player-section" [class.disabled]="battleState !== 'SELECT'">
       <h3>{{ lang?.choosePokemon || 'Choose your Pokemon' }}</h3>
       <div class="choices-row">
         <div class="choice-card player-card" 
-             *ngFor="let p of playerChoices; let i = index"
+             *ngFor="let p of playerChoices; let i = index; trackBy: trackByFn"
              (click)="selectPokemon(p, i)"
              [class.selected]="selectedPlayerPokemon === p"
              [class.unselected]="selectedPlayerPokemon && selectedPlayerPokemon !== p"
@@ -96,21 +104,20 @@
               </div>
             </div>
             <div class="card-back">
-              <img [src]="p.isShiny ? p.shiny : p.skin" alt="player-pokemon">
-              <div class="poke-info">
-                <span class="poke-name" [class.is-shiny]="p.isShiny">{{ p.name }}</span>
-                <div class="types-row">
-                  <span class="type-badge" *ngFor="let t of p.types" [attr.data-type]="t">{{ t }}</span>
+              <ng-container *ngIf="!p.isSurprise || battleState !== 'SELECT'">
+                <img [src]="p.isShiny ? p.shiny : p.skin" alt="player-pokemon">
+                <div class="poke-info">
+                  <span class="poke-name" [class.is-shiny]="p.isShiny">{{ p.name }}</span>
+                  <div class="types-row">
+                    <span class="type-badge" *ngFor="let t of p.types" [attr.data-type]="t">{{ t }}</span>
+                  </div>
+                  <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ p.dice_roll[0] }} - {{ p.dice_roll[1] }}</span>
                 </div>
-                <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ p.dice_roll[0] }} - {{ p.dice_roll[1] }}</span>
-              </div>
+              </ng-container>
             </div>
           </div>
         </div>
       </div>
-      <button class="confirm-btn play-again-btn" *ngIf="battleState === 'SELECT' && selectedPlayerPokemon" (click)="confirmSelection()">
-        {{ lang?.confirm || 'Confirm' }}
-      </button>
     </div>
     
   </div>

@@ -45,7 +45,7 @@ export class TicTacToeComponent implements OnInit, OnDestroy {
 
 
   startNewGame(): void {
-    this.board = Array(9).fill(0);
+    this.board.fill(0);
     this.gameStatus = 'playing';
     this.winningLine = [];
     
@@ -247,6 +247,10 @@ export class TicTacToeComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.startNewGame();
     }, 2500);
+  }
+
+  trackByFn(index: number): number {
+    return index;
   }
 
   ngOnDestroy(): void {

@@ -158,7 +158,7 @@ export class SpiralRollComponent implements OnInit, AfterViewInit, OnDestroy {
     spiralTex.wrapT = THREE.RepeatWrapping;
 
     const textureLoader = new THREE.TextureLoader();
-    this.coinTex = textureLoader.load('img/dogecoin-min.png');
+    this.coinTex = textureLoader.load('img/dogecoin.png');
 
     this.woodMat = new THREE.MeshLambertMaterial({ color: 0xe6b981 });
     this.spiralMat = new THREE.MeshLambertMaterial({ map: spiralTex });

@@ -1,5 +1,6 @@
 <div class="container fade-in page-content with-navbar">
-    <div class="card {{tools.themeColor}} redeem-card">
+    <div class="group {{tools.themeColor}}" style="width: 95%; max-width: 1100px; margin-top: 1rem;">
+        <div class="card {{tools.themeColor}} redeem-card">
         <h2 class="section-title">{{tools.redeem[tools.lang].title || 'Redeem Code'}}</h2>
         
         <div class="input-group">
@@ -25,5 +26,6 @@
                 <div class="empty-state">{{tools.redeem[tools.lang].empty_codes || "No redeemed codes yet."}}</div>
             }
         </div>
+    </div>
     </div>
 </div>

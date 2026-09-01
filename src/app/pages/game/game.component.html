@@ -33,11 +33,11 @@
                 <h2 class="modal-title">{{tools.game[tools.lang]?.idleStats || 'Idle Stats'}}</h2>
                 <div class="stat-row">
                     <span class="stat-label">{{tools.game[tools.lang]?.activeAppOpen || 'Active (App Open):'}}</span>
-                    <span class="stat-value">{{activeStats.value | number:'1.0-2'}} {{tools.game[tools.lang]?.[activeStats.unitKey]}}</span>
+                    <span class="stat-value">{{tools.formatBigNumber(activeStats.value)}} {{tools.game[tools.lang]?.[activeStats.unitKey]}}</span>
                 </div>
                 <div class="stat-row">
                     <span class="stat-label">{{tools.game[tools.lang]?.offlineBackground || 'Offline (Background):'}}</span>
-                    <span class="stat-value">{{offlineStats.value | number:'1.0-2'}} {{tools.game[tools.lang]?.[offlineStats.unitKey]}}</span>
+                    <span class="stat-value">{{tools.formatBigNumber(offlineStats.value)}} {{tools.game[tools.lang]?.[offlineStats.unitKey]}}</span>
                 </div>
                 <button class="close-btn {{tools.themeColor}}" (click)="toggleStatsModal($event)">{{tools.game[tools.lang]?.close || 'Close'}}</button>
             </div>

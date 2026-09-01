@@ -89,8 +89,8 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
   async loadData() {
     try {
       const [pokeRes, typeRes] = await Promise.all([
-        fetch('games/rock-paper-poke/data/pokemon.json'),
-        fetch('games/rock-paper-poke/data/type_chart.json')
+        this.tools.safeFetch('games/rock-paper-poke/data/pokemon.json'),
+        this.tools.safeFetch('games/rock-paper-poke/data/type_chart.json')
       ]);
       
       let pokeData = [];
@@ -99,14 +99,14 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
       if (pokeRes.ok) {
         pokeData = await pokeRes.json();
       } else {
-        const fallbackRes = await fetch('/games/rock-paper-poke/data/pokemon.json');
+        const fallbackRes = await this.tools.safeFetch('/games/rock-paper-poke/data/pokemon.json');
         pokeData = await fallbackRes.json();
       }
       
       if (typeRes.ok) {
         typeData = await typeRes.json();
       } else {
-        const fallbackRes = await fetch('/games/rock-paper-poke/data/type_chart.json');
+        const fallbackRes = await this.tools.safeFetch('/games/rock-paper-poke/data/type_chart.json');
         typeData = await fallbackRes.json();
       }
       
@@ -305,6 +305,10 @@ export class RockPaperPokeComponent implements OnInit, OnDestroy {
 
   getDynamicTagText(baseText: string, value: number): string {
     return baseText.replace(/x[0-9.]+/, 'x' + value);
+  }
+
+  trackByFn(index: number): number {
+    return index;
   }
 
   ngOnDestroy() {

@@ -3,10 +3,11 @@ import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToolsService } from './services/tools.service';
 import { NavbarComponent } from "./components/navbar/navbar.component";
+import { BackgroundComponent } from './components/background/background.component';
 
 @Component({
     selector: 'app-root',
-    imports: [RouterOutlet, CommonModule, NavbarComponent],
+    imports: [RouterOutlet, CommonModule, NavbarComponent, BackgroundComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.css'
 })

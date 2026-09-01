@@ -357,9 +357,8 @@
 }
 
 .volume-slider {
-    appearance: slider-vertical;
-    -webkit-appearance: slider-vertical;
-    writing-mode: bt-lr;
+    writing-mode: vertical-lr;
+    direction: rtl;
     width: 8px;
     height: 60px;
     border-radius: 4px;

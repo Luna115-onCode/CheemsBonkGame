@@ -1,5 +1,6 @@
 <div class="container">
-    <div class="tabs-header {{tools.themeColor}}">
+    <div class="group {{tools.themeColor}}" style="width: 95%; max-width: 1100px; margin-top: 1rem;">
+        <div class="tabs-header {{tools.themeColor}}">
         <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}"
                 [class.active]="activeTab === 'cheems'"
                 (click)="setTab('cheems')">
@@ -93,4 +94,5 @@
             }
         </div>
     }
+    </div>
 </div>

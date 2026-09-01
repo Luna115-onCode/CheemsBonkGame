@@ -330,9 +330,11 @@
    Shop Grid & Cards
    ======================================== */
 .shop-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 1.8rem;
+    width: 100%;
 }
 
 .shop-card {
@@ -348,6 +350,10 @@
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
     position: relative;
     overflow: hidden;
+    word-break: break-word;
+    flex: 1 1 240px;
+    max-width: 320px;
+    min-width: 240px;
 }
 
 .shop-card:hover {
@@ -441,6 +447,8 @@
 
 .shop-card-icon-wrapper {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1.2rem;
@@ -487,6 +495,7 @@
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: #fff;
+    word-wrap: break-word;
 }
 
 .item-desc {
@@ -497,6 +506,8 @@
 
 .shop-card-footer {
     display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
     align-items: center;
     justify-content: space-between;
     border-top: 1px solid rgba(255, 255, 255, 0.1);

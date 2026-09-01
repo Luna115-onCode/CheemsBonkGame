@@ -1,5 +1,6 @@
-<div class="shop-container {{tools.themeColor}}" id="shop-top">
-    <!-- Header -->
+<div class="container">
+    <div class="group {{tools.themeColor}} shop-container" id="shop-top" style="width: 95%; max-width: 1100px; margin-top: 1rem; border-radius: 20px;">
+        <!-- Header -->
     <header class="shop-header">
         <h1 class="shop-title">{{tools.shop[tools.lang]?.title || 'Shop'}}</h1>
         <p class="shop-subtitle">{{tools.shop[tools.lang]?.subtitle}}</p>
@@ -64,18 +65,18 @@
     <div class="shop-balance-bar">
         <div class="balance-item">
             <span class="balance-label">Points:</span>
-            <span class="balance-value points-val">{{tools.points | number}} Pts</span>
+            <span class="balance-value points-val">{{tools.formatBigNumber(tools.points)}} Pts</span>
         </div>
         <div class="balance-item">
             <span class="balance-label">DogeCoins:</span>
             <span class="balance-value doge-val">
                 <img src="img/dogecoin.png" class="mini-coin-icon" alt="DogeCoin">
-                {{tools.dogeCoins}}
+                {{tools.formatBigNumber(tools.dogeCoins)}}
             </span>
         </div>
         <div class="balance-item">
             <span class="balance-label">Minigame Pts:</span>
-            <span class="balance-value">🎮 {{tools.minigameCoins | number}}</span>
+            <span class="balance-value">🎮 {{tools.formatBigNumber(tools.minigameCoins)}}</span>
         </div>
     </div>
 
@@ -233,12 +234,13 @@
             }
         </div>
     }
-
-    <!-- Back to Top Button -->
-    <button class="back-to-top-btn {{tools.themeColor}}"
-            [class.visible]="showScrollTop"
-            (click)="scrollToTop()"
-            aria-label="Back to top">
-        ↑
-    </button>
+    </div>
 </div>
+
+<!-- Back to Top Button -->
+<button class="back-to-top-btn {{tools.themeColor}}"
+        [class.visible]="showScrollTop"
+        (click)="scrollToTop()"
+        aria-label="Back to top">
+    ↑
+</button>

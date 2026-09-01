@@ -23,12 +23,16 @@
         </div>
       </div>
       
-      <!-- Result / Bankrupt Message -->
-      <div class="center-message">
-        @if (gameState === 'game_over') {
+      <!-- Round Result -->
+      @if (gameState === 'game_over') {
+        <div class="center-message">
           <h1 class="result-text">{{resultMessage}}</h1>
-        }
-        @if (gameState === 'bankrupt') {
+        </div>
+      }
+
+      <!-- Bankrupt / Game Over -->
+      @if (gameState === 'bankrupt') {
+        <div class="bankrupt-overlay">
           <div class="bankrupt-panel">
             <h1 class="result-text">{{lang.game_over || "Game Over"}}</h1>
             <p>{{lang.bankrupt || "You lost all your chips!"}}</p>
@@ -36,8 +40,8 @@
               <button class="btn btn-green" (click)="restartGame()">{{lang.restart || "Restart"}}</button>
             </div>
           </div>
-        }
-      </div>
+        </div>
+      }
 
       <!-- Player Area -->
       <div class="player-area" [class.dimmed]="gameState === 'betting'">
@@ -108,10 +112,10 @@
                 </div>
                 <div class="chip-val-text">{{chip.value}}</div>
                 <div class="exchange-buttons">
-                  @if (chip.id !== 'chips_black') {
+                  @if (hasExchangeUpRule(chip.id)) {
                     <button class="exchange-btn" (click)="exchangeUp(chip.id)" title="Upgrade" [class.disabled]="!canExchangeUp(chip.id)">⬅️</button>
                   }
-                  @if (chip.id !== 'chips_white' && playerInventory[chip.id] > 0) {
+                  @if (canExchangeDown(chip.id) && playerInventory[chip.id] > 0) {
                     <button class="exchange-btn" (click)="exchange(chip.id)" title="Break down">➡️</button>
                   }
                 </div>
@@ -120,6 +124,7 @@
           </div>
           <div class="bet-actions">
             <button class="btn btn-red" (click)="clearBet()">{{lang.clear_bet || "Clear"}}</button>
+            <button class="btn btn-blue" style="background: #2196F3; color: white;" (click)="allIn()">{{lang.all_in || "All In"}}</button>
             <button class="btn btn-green" (click)="deal()">{{lang.deal || "Deal"}}</button>
           </div>
         } 

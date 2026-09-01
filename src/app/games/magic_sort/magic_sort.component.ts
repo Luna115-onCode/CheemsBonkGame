@@ -37,12 +37,12 @@ export class MagicSortComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.tools.setTitle("magic_sort" as any);
     this.tools.actPage = "magic_sort" as any;
+    this.startLevel(); // Set initial UI states
+    this.gameState = 'START';
   }
 
   ngAfterViewInit(): void {
     this.createStars();
-    this.startLevel(); // Set initial UI states
-    this.gameState = 'START';
   }
 
   ngOnDestroy(): void {

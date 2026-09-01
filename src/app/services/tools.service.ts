@@ -261,7 +261,7 @@ export class ToolsService {
 
   async loadLanguageFile(langCode: string): Promise<void> {
     try {
-      const res = await fetch(`lang/texts.${langCode}.lang`);
+      const res = await this.safeFetch(`lang/texts.${langCode}.lang`);
       if (res.ok) {
         const data = await res.json();
         if (data.pageName) this.pageName[langCode] = { ...this.pageName[langCode], ...data.pageName };
@@ -308,13 +308,59 @@ export class ToolsService {
     }
   }
 
+  async safeFetch(url: string, retries = 3): Promise<Response> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await fetch(url);
+      } catch (e) {
+        console.warn(`Fetch failed for ${url}, retrying... (${i + 1}/${retries})`, e);
+        if (i === retries - 1) throw e;
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
+    throw new Error('Unreachable');
+  }
+
+  formatBigNumber(value: number | string): string {
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(num) || num == null) return "0";
+    
+    const isNegative = num < 0;
+    const absNum = Math.abs(num);
+    
+    if (absNum < 1000) return String(isNegative ? Math.ceil(num) : Math.floor(num));
+
+    const suffixes = ["", "K", "M", "B", "T", "P", "E", "Z", "Y", "?"];
+    let suffixNum = 0;
+    let shortValue = absNum;
+
+    while (shortValue >= 1000 && suffixNum < suffixes.length - 1) {
+       shortValue /= 1000;
+       suffixNum++;
+    }
+
+    let str = shortValue.toFixed(1);
+    if (str === "1000.0") {
+        if (suffixNum < suffixes.length - 1) {
+            suffixNum++;
+            str = "1";
+        } else {
+            str = "1000";
+        }
+    } else if (str.endsWith('.0')) {
+        str = str.slice(0, -2);
+    }
+
+    return (isNegative ? "-" : "") + str + suffixes[suffixNum];
+  }
+
   async loadClosetPrices(): Promise<void> {
     try {
       const [cheemsRes, soundsRes, musicRes, closetRes] = await Promise.all([
-        fetch('data/cheems.json').catch(() => null),
-        fetch('data/sound_effects.json').catch(() => null),
-        fetch('data/music.json').catch(() => null),
-        fetch('data/closet.json').catch(() => null)
+        this.safeFetch('data/cheems.json').catch(() => null),
+        this.safeFetch('data/sound_effects.json').catch(() => null),
+        this.safeFetch('data/music.json').catch(() => null),
+        this.safeFetch('data/closet.json').catch(() => null)
       ]);
 
       const cheemsCatalog: Array<CheemsSkinItem> = cheemsRes && cheemsRes.ok ? await cheemsRes.json() : [];
@@ -467,7 +513,7 @@ export class ToolsService {
 
   async loadMinigamesConfig(): Promise<void> {
     try {
-      const res = await fetch("data/minigames.json");
+      const res = await this.safeFetch("data/minigames.json");
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) {
@@ -1106,7 +1152,7 @@ export class ToolsService {
 
   async loadShopItems(): Promise<void> {
     try {
-      const res = await fetch("data/shop.json");
+      const res = await this.safeFetch("data/shop.json");
       if (res.ok) {
         const rawItems = await res.json();
 

@@ -174,13 +174,13 @@ export class ShopComponent implements OnInit, OnDestroy {
 
     const parts: string[] = [];
     if (costObj.pts > 0) {
-      parts.push(`${costObj.pts.toLocaleString()} Pts`);
+      parts.push(`${this.tools.formatBigNumber(costObj.pts)} Pts`);
     }
     if (costObj.coins > 0) {
-      parts.push(`${costObj.coins.toLocaleString()} DGC`);
+      parts.push(`${this.tools.formatBigNumber(costObj.coins)} DGC`);
     }
     if (costObj.mg > 0) {
-      parts.push(`${costObj.mg.toLocaleString()} MG`);
+      parts.push(`${this.tools.formatBigNumber(costObj.mg)} MG`);
     }
     return parts.join(' + ');
   }

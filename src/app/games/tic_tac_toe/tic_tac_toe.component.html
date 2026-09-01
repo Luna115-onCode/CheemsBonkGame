@@ -26,7 +26,7 @@
   </div>
 
   <div class="board" [class.disabled]="gameStatus !== 'playing' || turn !== 1">
-    <div class="cell" *ngFor="let cell of board; let i = index" 
+    <div class="cell" *ngFor="let cell of board; let i = index; trackBy: trackByFn" 
          (click)="onCellClick(i)"
          [class.winning]="winningLine.includes(i)"
          [class.occupied]="cell !== 0">

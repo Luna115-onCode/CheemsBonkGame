@@ -1,5 +1,6 @@
 <div class="container">
-    @if (fullScreenImg) {
+    <div class="group {{tools.themeColor}}" style="width: 95%; max-width: 1100px; margin-top: 1rem;">
+        @if (fullScreenImg) {
         <div class="fullscreen-overlay" (click)="closeFullScreen()">
             <img [src]="fullScreenImg" class="fullscreen-img" alt="Fullscreen Image">
         </div>
@@ -130,4 +131,5 @@
             <p class="no-items">No media unlocked yet.</p>
         }
     }
+    </div>
 </div>

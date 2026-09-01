@@ -47,6 +47,7 @@ export class BlackJackComponent implements OnInit, OnDestroy {
 
   playerInventory: Record<string, number> = {};
   betInventory: Record<string, number> = {};
+  initialChipsValue: number = 0;
   
   get currentBet(): number {
     return this.getInventoryValue(this.betInventory);
@@ -88,17 +89,21 @@ export class BlackJackComponent implements OnInit, OnDestroy {
 
   restartGame() {
     this.playerInventory = {
-      'chips_black': 3, // 300
-      'chips_blue': 5,  // 100
-      'chips_green': 5, // 50
-      'chips_red': 8,   // 40
-      'chips_white': 10 // 10
+      'chips_gray': 10,
+      'chips_white': 4,
+      'chips_red': 3,
+      'chips_green': 2,
+      'chips_blue': 2,
+      'chips_black': 1,
+      'chips_yellow': 1,
+      'chips_pink': 0
     };
     this.betInventory = {};
     for (const c of this.chips) {
       if (!this.playerInventory[c.id]) this.playerInventory[c.id] = 0;
       this.betInventory[c.id] = 0;
     }
+    this.initialChipsValue = this.getInventoryValue(this.playerInventory);
     this.gameState = 'betting';
   }
 
@@ -132,48 +137,75 @@ export class BlackJackComponent implements OnInit, OnDestroy {
 
   exchange(chipId: string) {
     if (this.playerInventory[chipId] <= 0) return;
+    const chip = this.chips.find(c => c.id === chipId);
+    if (!chip) return;
     
-    // Define exchange rates
-    const rules: Record<string, { to: string, qty: number }> = {
-      'chips_black': { to: 'chips_blue', qty: 5 }, // 100 -> 5x20
-      'chips_blue': { to: 'chips_green', qty: 2 }, // 20 -> 2x10
-      'chips_green': { to: 'chips_red', qty: 2 },  // 10 -> 2x5
-      'chips_red': { to: 'chips_white', qty: 5 }   // 5 -> 5x1
-    };
-    
-    const rule = rules[chipId];
-    if (rule) {
-      this.playerInventory[chipId]--;
-      this.playerInventory[rule.to] += rule.qty;
-      this.tools.playSound('sfx_1');
+    this.playerInventory[chipId]--;
+    let remaining = chip.value;
+    for (const c of this.chips) {
+      if (c.value >= chip.value) continue;
+      const count = Math.floor(remaining / c.value);
+      if (count > 0) {
+        this.playerInventory[c.id] = (this.playerInventory[c.id] || 0) + count;
+        remaining %= c.value;
+      }
     }
+    this.tools.playSound('sfx_1');
+  }
+
+  getExchangeUpRule(chipId: string): { to: string, qtyNeeded: number, qtyGiven: number } | null {
+    const chip = this.chips.find(c => c.id === chipId);
+    if (!chip) return null;
+    
+    const largerChips = this.chips.filter(c => c.value > chip.value).sort((a, b) => a.value - b.value);
+    if (largerChips.length === 0) return null;
+
+    const nextChip = largerChips[0];
+    
+    const gcd = (a: number, b: number): number => b === 0 ? a : gcd(b, a % b);
+    const g = gcd(nextChip.value, chip.value);
+    const lcm = (nextChip.value * chip.value) / g;
+    
+    const qtyNeeded = lcm / chip.value;
+    const qtyGiven = lcm / nextChip.value;
+    
+    return { to: nextChip.id, qtyNeeded, qtyGiven };
+  }
+
+  hasExchangeUpRule(chipId: string): boolean {
+    return this.getExchangeUpRule(chipId) !== null;
+  }
+
+  canExchangeDown(chipId: string): boolean {
+    const chip = this.chips.find(c => c.id === chipId);
+    if (!chip) return false;
+    return this.chips.some(c => c.value < chip.value);
   }
 
   canExchangeUp(chipId: string): boolean {
-    const rules: Record<string, { to: string, qty: number }> = {
-      'chips_blue': { to: 'chips_black', qty: 5 },
-      'chips_green': { to: 'chips_blue', qty: 2 },
-      'chips_red': { to: 'chips_green', qty: 2 },
-      'chips_white': { to: 'chips_red', qty: 5 }
-    };
-    const rule = rules[chipId];
-    return !!rule && this.playerInventory[chipId] >= rule.qty;
+    const rule = this.getExchangeUpRule(chipId);
+    return !!rule && this.playerInventory[chipId] >= rule.qtyNeeded;
   }
 
   exchangeUp(chipId: string) {
-    const rules: Record<string, { to: string, qty: number }> = {
-      'chips_blue': { to: 'chips_black', qty: 5 },
-      'chips_green': { to: 'chips_blue', qty: 2 },
-      'chips_red': { to: 'chips_green', qty: 2 },
-      'chips_white': { to: 'chips_red', qty: 5 }
-    };
-    
-    const rule = rules[chipId];
-    if (rule && this.playerInventory[chipId] >= rule.qty) {
-      this.playerInventory[chipId] -= rule.qty;
-      this.playerInventory[rule.to]++;
+    const rule = this.getExchangeUpRule(chipId);
+    if (rule && this.playerInventory[chipId] >= rule.qtyNeeded) {
+      this.playerInventory[chipId] -= rule.qtyNeeded;
+      this.playerInventory[rule.to] = (this.playerInventory[rule.to] || 0) + rule.qtyGiven;
       this.tools.playSound('sfx_1');
     }
+  }
+
+  allIn() {
+    let played = false;
+    for (const chip of this.chips) {
+      if (this.playerInventory[chip.id] > 0) {
+        this.betInventory[chip.id] = (this.betInventory[chip.id] || 0) + this.playerInventory[chip.id];
+        this.playerInventory[chip.id] = 0;
+        played = true;
+      }
+    }
+    if (played) this.tools.playSound('sfx_1');
   }
 
   deal() {
@@ -372,23 +404,52 @@ export class BlackJackComponent implements OnInit, OnDestroy {
     this.gameState = 'game_over';
     
     const originalBet = this.currentBet;
+    let totalWin = 0;
     
     if (reason === 'blackjack') {
       this.resultMessage = this.lang.blackjack || "Blackjack!";
-      const win = Math.floor(originalBet * 2.5);
-      this.greedyAdd(this.playerInventory, win);
+      totalWin = Math.floor(originalBet * 2.5);
       this.tools.playSound('sfx_4'); // win
     } else if (reason === 'player_win' || reason === 'dealer_bust') {
       this.resultMessage = reason === 'dealer_bust' ? (this.lang.dealer_bust || "Dealer Busts!") : (this.lang.player_win || "Player Wins!");
-      this.greedyAdd(this.playerInventory, originalBet * 2);
+      totalWin = originalBet * 2;
       this.tools.playSound('sfx_4'); // win
     } else if (reason === 'push') {
       this.resultMessage = this.lang.push || "Push";
-      this.greedyAdd(this.playerInventory, originalBet);
+      totalWin = originalBet;
       this.tools.playSound('sfx_1'); // neutral
     } else {
       this.resultMessage = reason === 'bust' ? (this.lang.bust || "Bust!") : (this.lang.dealer_win || "Dealer Wins!");
+      totalWin = 0;
       this.tools.playSound('sfx_2'); // lose
+    }
+    
+    if (totalWin >= originalBet && originalBet > 0) {
+      // 1. Return the original bet chips exactly
+      for (const chip of this.chips) {
+        if (this.betInventory[chip.id] > 0) {
+          this.playerInventory[chip.id] += this.betInventory[chip.id];
+        }
+      }
+      
+      let remainingWin = totalWin - originalBet;
+      
+      // 2. Replicate the bet structure as many times as possible
+      while (remainingWin >= originalBet) {
+        for (const chip of this.chips) {
+          if (this.betInventory[chip.id] > 0) {
+            this.playerInventory[chip.id] += this.betInventory[chip.id];
+          }
+        }
+        remainingWin -= originalBet;
+      }
+      
+      // 3. Give remaining odd amount greedily
+      if (remainingWin > 0) {
+        this.greedyAdd(this.playerInventory, remainingWin);
+      }
+    } else if (totalWin > 0) {
+      this.greedyAdd(this.playerInventory, totalWin);
     }
     
     // Clear the bet area
@@ -406,19 +467,26 @@ export class BlackJackComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    let earnedPoints = this.playerChips - 500;
+    let earnedPoints = this.playerChips - this.initialChipsValue;
     if (earnedPoints > 0) {
       this.tools.leaveMinigame("blackjack", earnedPoints, 0);
     }
   }
   
   // UI Helpers
+  private _arrayCache = new Map<number, any[]>();
   getArray(n: number): any[] {
-    return Array(n).fill(0);
+    if (!this._arrayCache.has(n)) {
+      this._arrayCache.set(n, Array(n).fill(0));
+    }
+    return this._arrayCache.get(n)!;
   }
 
+  private _pilesCache = new Map<number, number[]>();
   getChipPiles(total: number): number[] {
     if (total <= 0) return [0];
+    if (this._pilesCache.has(total)) return this._pilesCache.get(total)!;
+    
     const piles: number[] = [];
     let remaining = total;
     while (remaining > 0 && piles.length < 2) {
@@ -428,6 +496,7 @@ export class BlackJackComponent implements OnInit, OnDestroy {
     if (remaining > 0) {
       piles.push(remaining); // 3rd pile has the rest
     }
+    this._pilesCache.set(total, piles);
     return piles;
   }
 
