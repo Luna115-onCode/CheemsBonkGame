@@ -1,5 +1,12 @@
 [
     {
+        "id": "chips_gray",
+        "color": "gray",
+        "value": 1,
+        "name": "Gray Chip",
+        "texture": "games/pokar-cards/assets/chips/gray.png"
+    },
+    {
         "id": "chips_white",
         "color": "white",
         "value": 5,
@@ -33,5 +40,19 @@
         "value": 100,
         "name": "Black Chip",
         "texture": "games/pokar-cards/assets/chips/black.png"
+    },
+    {
+        "id": "chips_yellow",
+        "color": "yellow",
+        "value": 200,
+        "name": "Yellow Chip",
+        "texture": "games/pokar-cards/assets/chips/yellow.png"
+    },
+    {
+        "id": "chips_pink",
+        "color": "pink",
+        "value": 500,
+        "name": "Pink Chip",
+        "texture": "games/pokar-cards/assets/chips/pink.png"
     }
 ]

@@ -41065,7 +41065,7 @@ var ToolsService = class _ToolsService {
   loadLanguageFile(langCode) {
     return __async(this, null, function* () {
       try {
-        const res = yield fetch(`lang/texts.${langCode}.lang`);
+        const res = yield this.safeFetch(`lang/texts.${langCode}.lang`);
         if (res.ok) {
           const data = yield res.json();
           if (data.pageName)
@@ -41136,14 +41136,57 @@ var ToolsService = class _ToolsService {
       }
     });
   }
+  safeFetch(url, retries = 3) {
+    return __async(this, null, function* () {
+      for (let i = 0; i < retries; i++) {
+        try {
+          return yield fetch(url);
+        } catch (e) {
+          console.warn(`Fetch failed for ${url}, retrying... (${i + 1}/${retries})`, e);
+          if (i === retries - 1)
+            throw e;
+          yield new Promise((r) => setTimeout(r, 500));
+        }
+      }
+      throw new Error("Unreachable");
+    });
+  }
+  formatBigNumber(value) {
+    const num = typeof value === "string" ? parseFloat(value) : value;
+    if (isNaN(num) || num == null)
+      return "0";
+    const isNegative = num < 0;
+    const absNum = Math.abs(num);
+    if (absNum < 1e3)
+      return String(isNegative ? Math.ceil(num) : Math.floor(num));
+    const suffixes = ["", "K", "M", "B", "T", "P", "E", "Z", "Y", "?"];
+    let suffixNum = 0;
+    let shortValue = absNum;
+    while (shortValue >= 1e3 && suffixNum < suffixes.length - 1) {
+      shortValue /= 1e3;
+      suffixNum++;
+    }
+    let str = shortValue.toFixed(1);
+    if (str === "1000.0") {
+      if (suffixNum < suffixes.length - 1) {
+        suffixNum++;
+        str = "1";
+      } else {
+        str = "1000";
+      }
+    } else if (str.endsWith(".0")) {
+      str = str.slice(0, -2);
+    }
+    return (isNegative ? "-" : "") + str + suffixes[suffixNum];
+  }
   loadClosetPrices() {
     return __async(this, null, function* () {
       try {
         const [cheemsRes, soundsRes, musicRes, closetRes] = yield Promise.all([
-          fetch("data/cheems.json").catch(() => null),
-          fetch("data/sound_effects.json").catch(() => null),
-          fetch("data/music.json").catch(() => null),
-          fetch("data/closet.json").catch(() => null)
+          this.safeFetch("data/cheems.json").catch(() => null),
+          this.safeFetch("data/sound_effects.json").catch(() => null),
+          this.safeFetch("data/music.json").catch(() => null),
+          this.safeFetch("data/closet.json").catch(() => null)
         ]);
         const cheemsCatalog = cheemsRes && cheemsRes.ok ? yield cheemsRes.json() : [];
         const soundsCatalog = soundsRes && soundsRes.ok ? yield soundsRes.json() : [];
@@ -41272,7 +41315,7 @@ var ToolsService = class _ToolsService {
   loadMinigamesConfig() {
     return __async(this, null, function* () {
       try {
-        const res = yield fetch("data/minigames.json");
+        const res = yield this.safeFetch("data/minigames.json");
         if (res.ok) {
           const data = yield res.json();
           if (Array.isArray(data)) {
@@ -41880,7 +41923,7 @@ var ToolsService = class _ToolsService {
   loadShopItems() {
     return __async(this, null, function* () {
       try {
-        const res = yield fetch("data/shop.json");
+        const res = yield this.safeFetch("data/shop.json");
         if (res.ok) {
           const rawItems = yield res.json();
           this.shopItems = rawItems.map((item) => __spreadProps(__spreadValues({}, item), {
@@ -42506,22 +42549,20 @@ function GameComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(7, "span", 12);
     \u0275\u0275text(8);
-    \u0275\u0275pipe(9, "number");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "div", 10)(11, "span", 11);
-    \u0275\u0275text(12);
+    \u0275\u0275elementStart(9, "div", 10)(10, "span", 11);
+    \u0275\u0275text(11);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "span", 12);
-    \u0275\u0275text(14);
-    \u0275\u0275pipe(15, "number");
+    \u0275\u0275elementStart(12, "span", 12);
+    \u0275\u0275text(13);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(16, "button", 13);
-    \u0275\u0275listener("click", function GameComponent_Conditional_10_Template_button_click_16_listener($event) {
+    \u0275\u0275elementStart(14, "button", 13);
+    \u0275\u0275listener("click", function GameComponent_Conditional_10_Template_button_click_14_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.toggleStatsModal($event));
     });
-    \u0275\u0275text(17);
+    \u0275\u0275text(15);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -42533,12 +42574,12 @@ function GameComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate((ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].activeAppOpen) || "Active (App Open):");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", \u0275\u0275pipeBind2(9, 14, ctx_r0.activeStats.value, "1.0-2"), " ", ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang][ctx_r0.activeStats.unitKey], "");
-    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate2("", ctx_r0.tools.formatBigNumber(ctx_r0.activeStats.value), " ", ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang][ctx_r0.activeStats.unitKey], "");
+    \u0275\u0275advance(3);
     \u0275\u0275textInterpolate((ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].offlineBackground) || "Offline (Background):");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("", \u0275\u0275pipeBind2(15, 17, ctx_r0.offlineStats.value, "1.0-2"), " ", ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang][ctx_r0.offlineStats.unitKey], "");
-    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2("", ctx_r0.tools.formatBigNumber(ctx_r0.offlineStats.value), " ", ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang][ctx_r0.offlineStats.unitKey], "");
+    \u0275\u0275advance();
     \u0275\u0275classMapInterpolate1("close-btn ", ctx_r0.tools.themeColor, "");
     \u0275\u0275advance();
     \u0275\u0275textInterpolate((ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].close) || "Close");
@@ -42671,7 +42712,7 @@ var GameComponent = class _GameComponent {
       });
       \u0275\u0275element(9, "img", 6);
       \u0275\u0275elementEnd();
-      \u0275\u0275template(10, GameComponent_Conditional_10_Template, 18, 20, "div", 7);
+      \u0275\u0275template(10, GameComponent_Conditional_10_Template, 16, 14, "div", 7);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
@@ -42690,7 +42731,7 @@ var GameComponent = class _GameComponent {
       \u0275\u0275advance(2);
       \u0275\u0275conditional(ctx.showStatsModal ? 10 : -1);
     }
-  }, dependencies: [CommonModule, DecimalPipe], styles: ["\n\n.game-container[_ngcontent-%COMP%] {\n  width: 100%;\n  min-height: calc(100vh - 150px);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  cursor: pointer;\n  user-select: none;\n  -webkit-user-select: none;\n  overflow: hidden;\n  padding: 2rem;\n}\n.img-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 70vw;\n  max-width: 420px;\n  height: 60vh;\n  max-height: 420px;\n  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);\n  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));\n}\n.img-wrapper.bonked[_ngcontent-%COMP%] {\n  transform: scale(0.92) rotate(-3deg);\n}\n.cheems-img[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  pointer-events: none;\n}\n.hint-text[_ngcontent-%COMP%] {\n  margin-top: 1.5rem;\n  font-weight: 900;\n  opacity: 0.85;\n  text-align: center;\n  letter-spacing: 0.5px;\n  animation: _ngcontent-%COMP%_pulseHint 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_pulseHint {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 0.85;\n  }\n  50% {\n    transform: scale(1.05);\n    opacity: 1;\n  }\n}\n.floating-plus[_ngcontent-%COMP%] {\n  position: fixed;\n  pointer-events: none;\n  font-weight: 900;\n  font-size: 2.2rem;\n  z-index: 1000;\n  transform: translate(-50%, -50%);\n  animation: _ngcontent-%COMP%_floatUp 0.8s ease-out forwards;\n  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);\n}\n.floating-plus.theme-dark[_ngcontent-%COMP%] {\n  color: #ffd166;\n}\n.floating-plus.theme-light[_ngcontent-%COMP%] {\n  color: #9c5c14;\n}\n.floating-plus.theme-contrast[_ngcontent-%COMP%] {\n  color: #00ffff;\n}\n@keyframes _ngcontent-%COMP%_floatUp {\n  0% {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(0.8);\n  }\n  50% {\n    transform: translate(-50%, -100px) scale(1.3);\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-50%, -150px) scale(1);\n  }\n}\n.stats-btn[_ngcontent-%COMP%] {\n  position: absolute;\n  bottom: 20px;\n  right: 20px;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  background: rgba(0, 0, 0, 0.4);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);\n  transition: transform 0.2s, background 0.2s;\n  z-index: 50;\n}\n.stats-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.1);\n  background: rgba(0, 0, 0, 0.6);\n}\n.stats-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  filter: invert(1);\n}\n.modal-backdrop[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.6);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  z-index: 9999;\n}\n.modal-content[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(40, 40, 40, 0.95),\n      rgba(20, 20, 20, 0.95));\n  border: 2px solid rgba(255, 255, 255, 0.1);\n  border-radius: 16px;\n  padding: 2rem;\n  width: 90%;\n  max-width: 400px;\n  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);\n  text-align: center;\n  color: white;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.modal-content.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.95),\n      rgba(240, 225, 200, 0.95));\n  border-color: rgba(0, 0, 0, 0.1);\n  color: #4a3b2c;\n}\n.modal-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  margin: 0;\n  font-size: 1.5rem;\n}\n.stat-row[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.2);\n  padding: 1rem;\n  border-radius: 8px;\n  font-weight: bold;\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .stat-row[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.5);\n}\n.stat-label[_ngcontent-%COMP%] {\n  opacity: 0.9;\n  font-size: 0.9rem;\n}\n.stat-value[_ngcontent-%COMP%] {\n  font-size: 1.2rem;\n  color: #ffd166;\n  text-shadow: 0 0 5px rgba(255, 209, 102, 0.3);\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .stat-value[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.close-btn[_ngcontent-%COMP%] {\n  margin-top: 0.5rem;\n  padding: 0.8rem;\n  border-radius: 8px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  background: rgba(255, 255, 255, 0.1);\n  color: inherit;\n  transition: background 0.2s;\n}\n.close-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 255, 255, 0.2);\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .close-btn[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.05);\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .close-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 0, 0, 0.1);\n}\n/*# sourceMappingURL=game.component.css.map */"] });
+  }, dependencies: [CommonModule], styles: ["\n\n.game-container[_ngcontent-%COMP%] {\n  width: 100%;\n  min-height: calc(100vh - 150px);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  position: relative;\n  cursor: pointer;\n  user-select: none;\n  -webkit-user-select: none;\n  overflow: hidden;\n  padding: 2rem;\n}\n.img-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 70vw;\n  max-width: 420px;\n  height: 60vh;\n  max-height: 420px;\n  transition: transform 0.08s cubic-bezier(0.34, 1.56, 0.64, 1);\n  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));\n}\n.img-wrapper.bonked[_ngcontent-%COMP%] {\n  transform: scale(0.92) rotate(-3deg);\n}\n.cheems-img[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  pointer-events: none;\n}\n.hint-text[_ngcontent-%COMP%] {\n  margin-top: 1.5rem;\n  font-weight: 900;\n  opacity: 0.85;\n  text-align: center;\n  letter-spacing: 0.5px;\n  animation: _ngcontent-%COMP%_pulseHint 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_pulseHint {\n  0%, 100% {\n    transform: scale(1);\n    opacity: 0.85;\n  }\n  50% {\n    transform: scale(1.05);\n    opacity: 1;\n  }\n}\n.floating-plus[_ngcontent-%COMP%] {\n  position: fixed;\n  pointer-events: none;\n  font-weight: 900;\n  font-size: 2.2rem;\n  z-index: 1000;\n  transform: translate(-50%, -50%);\n  animation: _ngcontent-%COMP%_floatUp 0.8s ease-out forwards;\n  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);\n}\n.floating-plus.theme-dark[_ngcontent-%COMP%] {\n  color: #ffd166;\n}\n.floating-plus.theme-light[_ngcontent-%COMP%] {\n  color: #9c5c14;\n}\n.floating-plus.theme-contrast[_ngcontent-%COMP%] {\n  color: #00ffff;\n}\n@keyframes _ngcontent-%COMP%_floatUp {\n  0% {\n    opacity: 1;\n    transform: translate(-50%, -50%) scale(0.8);\n  }\n  50% {\n    transform: translate(-50%, -100px) scale(1.3);\n  }\n  100% {\n    opacity: 0;\n    transform: translate(-50%, -150px) scale(1);\n  }\n}\n.stats-btn[_ngcontent-%COMP%] {\n  position: absolute;\n  bottom: 20px;\n  right: 20px;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  background: rgba(0, 0, 0, 0.4);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);\n  transition: transform 0.2s, background 0.2s;\n  z-index: 50;\n}\n.stats-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.1);\n  background: rgba(0, 0, 0, 0.6);\n}\n.stats-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  filter: invert(1);\n}\n.modal-backdrop[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.6);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  z-index: 9999;\n}\n.modal-content[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(40, 40, 40, 0.95),\n      rgba(20, 20, 20, 0.95));\n  border: 2px solid rgba(255, 255, 255, 0.1);\n  border-radius: 16px;\n  padding: 2rem;\n  width: 90%;\n  max-width: 400px;\n  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);\n  text-align: center;\n  color: white;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.modal-content.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      145deg,\n      rgba(255, 245, 230, 0.95),\n      rgba(240, 225, 200, 0.95));\n  border-color: rgba(0, 0, 0, 0.1);\n  color: #4a3b2c;\n}\n.modal-title[_ngcontent-%COMP%] {\n  font-weight: 900;\n  margin: 0;\n  font-size: 1.5rem;\n}\n.stat-row[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.2);\n  padding: 1rem;\n  border-radius: 8px;\n  font-weight: bold;\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .stat-row[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.5);\n}\n.stat-label[_ngcontent-%COMP%] {\n  opacity: 0.9;\n  font-size: 0.9rem;\n}\n.stat-value[_ngcontent-%COMP%] {\n  font-size: 1.2rem;\n  color: #ffd166;\n  text-shadow: 0 0 5px rgba(255, 209, 102, 0.3);\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .stat-value[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.close-btn[_ngcontent-%COMP%] {\n  margin-top: 0.5rem;\n  padding: 0.8rem;\n  border-radius: 8px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  background: rgba(255, 255, 255, 0.1);\n  color: inherit;\n  transition: background 0.2s;\n}\n.close-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 255, 255, 0.2);\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .close-btn[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.05);\n}\n.modal-content.theme-light[_ngcontent-%COMP%]   .close-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 0, 0, 0.1);\n}\n/*# sourceMappingURL=game.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GameComponent, [{
@@ -42730,11 +42771,11 @@ var GameComponent = class _GameComponent {
                 <h2 class="modal-title">{{tools.game[tools.lang]?.idleStats || 'Idle Stats'}}</h2>
                 <div class="stat-row">
                     <span class="stat-label">{{tools.game[tools.lang]?.activeAppOpen || 'Active (App Open):'}}</span>
-                    <span class="stat-value">{{activeStats.value | number:'1.0-2'}} {{tools.game[tools.lang]?.[activeStats.unitKey]}}</span>
+                    <span class="stat-value">{{tools.formatBigNumber(activeStats.value)}} {{tools.game[tools.lang]?.[activeStats.unitKey]}}</span>
                 </div>
                 <div class="stat-row">
                     <span class="stat-label">{{tools.game[tools.lang]?.offlineBackground || 'Offline (Background):'}}</span>
-                    <span class="stat-value">{{offlineStats.value | number:'1.0-2'}} {{tools.game[tools.lang]?.[offlineStats.unitKey]}}</span>
+                    <span class="stat-value">{{tools.formatBigNumber(offlineStats.value)}} {{tools.game[tools.lang]?.[offlineStats.unitKey]}}</span>
                 </div>
                 <button class="close-btn {{tools.themeColor}}" (click)="toggleStatsModal($event)">{{tools.game[tools.lang]?.close || 'Close'}}</button>
             </div>
@@ -49869,11 +49910,11 @@ var ReactiveFormsModule = class _ReactiveFormsModule {
 })();
 
 // src/app/pages/redeem/redeem.component.ts
-function RedeemComponent_Conditional_12_For_1_Template(rf, ctx) {
+function RedeemComponent_Conditional_13_For_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div");
-    \u0275\u0275element(1, "img", 8);
-    \u0275\u0275elementStart(2, "span", 9);
+    \u0275\u0275element(1, "img", 9);
+    \u0275\u0275elementStart(2, "span", 10);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
   }
@@ -49885,18 +49926,18 @@ function RedeemComponent_Conditional_12_For_1_Template(rf, ctx) {
     \u0275\u0275textInterpolate(code_r1);
   }
 }
-function RedeemComponent_Conditional_12_Template(rf, ctx) {
+function RedeemComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, RedeemComponent_Conditional_12_For_1_Template, 4, 4, "div", 7, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(0, RedeemComponent_Conditional_13_For_1_Template, 4, 4, "div", 8, \u0275\u0275repeaterTrackByIndex);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275repeater(ctx_r1.tools.redeemedCodes);
   }
 }
-function RedeemComponent_Conditional_13_Template(rf, ctx) {
+function RedeemComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6);
+    \u0275\u0275elementStart(0, "div", 7);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -49992,34 +50033,36 @@ var RedeemComponent = class _RedeemComponent {
   static \u0275fac = function RedeemComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _RedeemComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RedeemComponent, selectors: [["app-redeem"]], decls: 14, vars: 18, consts: [[1, "container", "fade-in", "page-content", "with-navbar"], [1, "section-title"], [1, "input-group"], ["type", "text", 3, "ngModelChange", "keyup.enter", "ngModel", "placeholder"], [3, "click"], [1, "history-list"], [1, "empty-state"], [3, "class"], ["src", "img/icons/check-svgrepo-com.svg", "alt", "check", 1, "icon"], [1, "code-text"]], template: function RedeemComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RedeemComponent, selectors: [["app-redeem"]], decls: 15, vars: 21, consts: [[1, "container", "fade-in", "page-content", "with-navbar"], [2, "width", "95%", "max-width", "1100px", "margin-top", "1rem"], [1, "section-title"], [1, "input-group"], ["type", "text", 3, "ngModelChange", "keyup.enter", "ngModel", "placeholder"], [3, "click"], [1, "history-list"], [1, "empty-state"], [3, "class"], ["src", "img/icons/check-svgrepo-com.svg", "alt", "check", 1, "icon"], [1, "code-text"]], template: function RedeemComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "h2", 1);
-      \u0275\u0275text(3);
+      \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div")(3, "h2", 2);
+      \u0275\u0275text(4);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(4, "div", 2)(5, "input", 3);
-      \u0275\u0275twoWayListener("ngModelChange", function RedeemComponent_Template_input_ngModelChange_5_listener($event) {
+      \u0275\u0275elementStart(5, "div", 3)(6, "input", 4);
+      \u0275\u0275twoWayListener("ngModelChange", function RedeemComponent_Template_input_ngModelChange_6_listener($event) {
         \u0275\u0275twoWayBindingSet(ctx.inputCode, $event) || (ctx.inputCode = $event);
         return $event;
       });
-      \u0275\u0275listener("keyup.enter", function RedeemComponent_Template_input_keyup_enter_5_listener() {
+      \u0275\u0275listener("keyup.enter", function RedeemComponent_Template_input_keyup_enter_6_listener() {
         return ctx.redeemCode();
       });
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(6, "button", 4);
-      \u0275\u0275listener("click", function RedeemComponent_Template_button_click_6_listener() {
+      \u0275\u0275elementStart(7, "button", 5);
+      \u0275\u0275listener("click", function RedeemComponent_Template_button_click_7_listener() {
         return ctx.redeemCode();
       });
-      \u0275\u0275text(7);
+      \u0275\u0275text(8);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275elementStart(8, "div")(9, "h3", 1);
-      \u0275\u0275text(10);
+      \u0275\u0275elementStart(9, "div")(10, "h3", 2);
+      \u0275\u0275text(11);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(11, "div", 5);
-      \u0275\u0275template(12, RedeemComponent_Conditional_12_Template, 2, 0)(13, RedeemComponent_Conditional_13_Template, 2, 1, "div", 6);
-      \u0275\u0275elementEnd()()();
+      \u0275\u0275elementStart(12, "div", 6);
+      \u0275\u0275template(13, RedeemComponent_Conditional_13_Template, 2, 0)(14, RedeemComponent_Conditional_14_Template, 2, 1, "div", 7);
+      \u0275\u0275elementEnd()()()();
     }
     if (rf & 2) {
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, "");
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("card ", ctx.tools.themeColor, " redeem-card");
       \u0275\u0275advance(2);
@@ -50037,7 +50080,7 @@ var RedeemComponent = class _RedeemComponent {
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.tools.redeem[ctx.tools.lang].history || "Redeem History");
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(ctx.tools.redeemedCodes.length > 0 ? 12 : 13);
+      \u0275\u0275conditional(ctx.tools.redeemedCodes.length > 0 ? 13 : 14);
     }
   }, dependencies: [FormsModule, DefaultValueAccessor, NgControlStatus, NgModel, CommonModule], styles: ["\n\n.page-content[_ngcontent-%COMP%] {\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  max-width: 600px;\n  margin: 0 auto;\n  box-sizing: border-box;\n}\n.card[_ngcontent-%COMP%] {\n  background-color: var(--card-bg, #2a2a2a);\n  border-radius: 15px;\n  padding: 25px;\n  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);\n  border: 1px solid var(--border-color, #444);\n}\n.card.theme-light[_ngcontent-%COMP%] {\n  background-color: #ffffff;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);\n  border: 1px solid #e0e0e0;\n}\n.section-title[_ngcontent-%COMP%] {\n  margin-top: 0;\n  margin-bottom: 20px;\n  font-size: 1.5rem;\n  color: var(--text-color, #ffffff);\n  text-align: center;\n}\n.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  color: #333333;\n}\n.input-group[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n}\n.input-text[_ngcontent-%COMP%] {\n  flex: 1;\n  padding: 12px 15px;\n  border-radius: 8px;\n  border: 1px solid var(--border-color, #555);\n  background-color: var(--input-bg, #333);\n  color: var(--text-color, #fff);\n  font-size: 1rem;\n  outline: none;\n  transition: all 0.3s;\n}\n.input-text[_ngcontent-%COMP%]:focus {\n  border-color: #ffd700;\n}\n.input-text.theme-light[_ngcontent-%COMP%] {\n  background-color: #f9f9f9;\n  border: 1px solid #ccc;\n  color: #333;\n}\n.btn-primary[_ngcontent-%COMP%] {\n  background-color: #ffd700;\n  color: #333;\n  border: none;\n  padding: 12px 25px;\n  border-radius: 8px;\n  font-weight: bold;\n  cursor: pointer;\n  transition: all 0.3s;\n  font-size: 1rem;\n}\n.btn-primary[_ngcontent-%COMP%]:hover {\n  background-color: #ffea00;\n  transform: scale(1.05);\n}\n.history-list[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  max-height: 300px;\n  overflow-y: auto;\n}\n.history-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 15px;\n  padding: 12px 15px;\n  background-color: var(--input-bg, #333);\n  border-radius: 8px;\n  border: 1px solid var(--border-color, #444);\n}\n.history-item.theme-light[_ngcontent-%COMP%] {\n  background-color: #f5f5f5;\n  border: 1px solid #ddd;\n}\n.icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  filter: invert(1);\n}\n.theme-light[_ngcontent-%COMP%]   .icon[_ngcontent-%COMP%] {\n  filter: none;\n}\n.code-text[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  color: var(--text-color, #fff);\n  font-family: monospace;\n  font-weight: bold;\n  letter-spacing: 1px;\n}\n.theme-light[_ngcontent-%COMP%]   .code-text[_ngcontent-%COMP%] {\n  color: #333;\n}\n.empty-state[_ngcontent-%COMP%] {\n  text-align: center;\n  color: var(--text-color, #888);\n  padding: 20px;\n  font-style: italic;\n}\n.theme-light[_ngcontent-%COMP%]   .empty-state[_ngcontent-%COMP%] {\n  color: #666;\n}\n.history-list[_ngcontent-%COMP%]::-webkit-scrollbar {\n  width: 8px;\n}\n.history-list[_ngcontent-%COMP%]::-webkit-scrollbar-track {\n  background: transparent;\n}\n.history-list[_ngcontent-%COMP%]::-webkit-scrollbar-thumb {\n  background: #666;\n  border-radius: 4px;\n}\n.theme-light[_ngcontent-%COMP%]   .history-list[_ngcontent-%COMP%]::-webkit-scrollbar-thumb {\n  background: #ccc;\n}\n/*# sourceMappingURL=redeem.component.css.map */"] });
 };
@@ -50045,7 +50088,8 @@ var RedeemComponent = class _RedeemComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RedeemComponent, [{
     type: Component,
     args: [{ selector: "app-redeem", imports: [FormsModule, CommonModule], template: `<div class="container fade-in page-content with-navbar">
-    <div class="card {{tools.themeColor}} redeem-card">
+    <div class="group {{tools.themeColor}}" style="width: 95%; max-width: 1100px; margin-top: 1rem;">
+        <div class="card {{tools.themeColor}} redeem-card">
         <h2 class="section-title">{{tools.redeem[tools.lang].title || 'Redeem Code'}}</h2>
         
         <div class="input-group">
@@ -50072,6 +50116,7 @@ var RedeemComponent = class _RedeemComponent {
             }
         </div>
     </div>
+    </div>
 </div>
 `, styles: ["/* src/app/pages/redeem/redeem.component.css */\n.page-content {\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  max-width: 600px;\n  margin: 0 auto;\n  box-sizing: border-box;\n}\n.card {\n  background-color: var(--card-bg, #2a2a2a);\n  border-radius: 15px;\n  padding: 25px;\n  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);\n  border: 1px solid var(--border-color, #444);\n}\n.card.theme-light {\n  background-color: #ffffff;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);\n  border: 1px solid #e0e0e0;\n}\n.section-title {\n  margin-top: 0;\n  margin-bottom: 20px;\n  font-size: 1.5rem;\n  color: var(--text-color, #ffffff);\n  text-align: center;\n}\n.theme-light .section-title {\n  color: #333333;\n}\n.input-group {\n  display: flex;\n  gap: 10px;\n}\n.input-text {\n  flex: 1;\n  padding: 12px 15px;\n  border-radius: 8px;\n  border: 1px solid var(--border-color, #555);\n  background-color: var(--input-bg, #333);\n  color: var(--text-color, #fff);\n  font-size: 1rem;\n  outline: none;\n  transition: all 0.3s;\n}\n.input-text:focus {\n  border-color: #ffd700;\n}\n.input-text.theme-light {\n  background-color: #f9f9f9;\n  border: 1px solid #ccc;\n  color: #333;\n}\n.btn-primary {\n  background-color: #ffd700;\n  color: #333;\n  border: none;\n  padding: 12px 25px;\n  border-radius: 8px;\n  font-weight: bold;\n  cursor: pointer;\n  transition: all 0.3s;\n  font-size: 1rem;\n}\n.btn-primary:hover {\n  background-color: #ffea00;\n  transform: scale(1.05);\n}\n.history-list {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  max-height: 300px;\n  overflow-y: auto;\n}\n.history-item {\n  display: flex;\n  align-items: center;\n  gap: 15px;\n  padding: 12px 15px;\n  background-color: var(--input-bg, #333);\n  border-radius: 8px;\n  border: 1px solid var(--border-color, #444);\n}\n.history-item.theme-light {\n  background-color: #f5f5f5;\n  border: 1px solid #ddd;\n}\n.icon {\n  width: 24px;\n  height: 24px;\n  filter: invert(1);\n}\n.theme-light .icon {\n  filter: none;\n}\n.code-text {\n  font-size: 1.1rem;\n  color: var(--text-color, #fff);\n  font-family: monospace;\n  font-weight: bold;\n  letter-spacing: 1px;\n}\n.theme-light .code-text {\n  color: #333;\n}\n.empty-state {\n  text-align: center;\n  color: var(--text-color, #888);\n  padding: 20px;\n  font-style: italic;\n}\n.theme-light .empty-state {\n  color: #666;\n}\n.history-list::-webkit-scrollbar {\n  width: 8px;\n}\n.history-list::-webkit-scrollbar-track {\n  background: transparent;\n}\n.history-list::-webkit-scrollbar-thumb {\n  background: #666;\n  border-radius: 4px;\n}\n.theme-light .history-list::-webkit-scrollbar-thumb {\n  background: #ccc;\n}\n/*# sourceMappingURL=redeem.component.css.map */\n"] }]
   }], null, null);
@@ -50081,9 +50126,9 @@ var RedeemComponent = class _RedeemComponent {
 })();
 
 // src/app/pages/closet/closet.component.ts
-function ClosetComponent_Conditional_8_For_2_Conditional_5_Template(rf, ctx) {
+function ClosetComponent_Conditional_9_For_2_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 7);
+    \u0275\u0275elementStart(0, "span", 8);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -50094,9 +50139,9 @@ function ClosetComponent_Conditional_8_For_2_Conditional_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.getCheemsDescription(skin_r2));
   }
 }
-function ClosetComponent_Conditional_8_For_2_Conditional_6_Template(rf, ctx) {
+function ClosetComponent_Conditional_9_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 8);
+    \u0275\u0275elementStart(0, "span", 9);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -50106,9 +50151,9 @@ function ClosetComponent_Conditional_8_For_2_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
   }
 }
-function ClosetComponent_Conditional_8_For_2_Conditional_7_Template(rf, ctx) {
+function ClosetComponent_Conditional_9_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 9);
+    \u0275\u0275elementStart(0, "span", 10);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -50118,20 +50163,20 @@ function ClosetComponent_Conditional_8_For_2_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
   }
 }
-function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
+function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("click", function ClosetComponent_Conditional_8_For_2_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 2);
+    \u0275\u0275listener("click", function ClosetComponent_Conditional_9_For_2_Template_div_click_0_listener() {
       const skin_r2 = \u0275\u0275restoreView(_r1).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectCheems(skin_r2));
     });
-    \u0275\u0275element(1, "img", 4);
-    \u0275\u0275elementStart(2, "div", 5)(3, "span", 6);
+    \u0275\u0275element(1, "img", 5);
+    \u0275\u0275elementStart(2, "div", 6)(3, "span", 7);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, ClosetComponent_Conditional_8_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_8_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_8_For_2_Conditional_7_Template, 2, 1, "span", 9);
+    \u0275\u0275template(5, ClosetComponent_Conditional_9_For_2_Conditional_5_Template, 2, 1, "span", 8)(6, ClosetComponent_Conditional_9_For_2_Conditional_6_Template, 2, 1, "span", 9)(7, ClosetComponent_Conditional_9_For_2_Conditional_7_Template, 2, 1, "span", 10);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -50149,10 +50194,10 @@ function ClosetComponent_Conditional_8_For_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r2.tools.selectedCheems === skin_r2.id ? 6 : 7);
   }
 }
-function ClosetComponent_Conditional_8_Template(rf, ctx) {
+function ClosetComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_8_For_2_Template, 8, 10, "div", 3, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_9_For_2_Template, 8, 10, "div", 4, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -50161,9 +50206,9 @@ function ClosetComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.unlockedCheemsSkins);
   }
 }
-function ClosetComponent_Conditional_9_For_2_Conditional_5_Template(rf, ctx) {
+function ClosetComponent_Conditional_10_For_2_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 7);
+    \u0275\u0275elementStart(0, "span", 8);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -50174,9 +50219,9 @@ function ClosetComponent_Conditional_9_For_2_Conditional_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.getSoundDescription(sound_r5));
   }
 }
-function ClosetComponent_Conditional_9_For_2_Conditional_6_Template(rf, ctx) {
+function ClosetComponent_Conditional_10_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 8);
+    \u0275\u0275elementStart(0, "span", 9);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -50186,9 +50231,9 @@ function ClosetComponent_Conditional_9_For_2_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
   }
 }
-function ClosetComponent_Conditional_9_For_2_Conditional_7_Template(rf, ctx) {
+function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 9);
+    \u0275\u0275elementStart(0, "span", 10);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -50198,20 +50243,20 @@ function ClosetComponent_Conditional_9_For_2_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
   }
 }
-function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
+function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("click", function ClosetComponent_Conditional_9_For_2_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 2);
+    \u0275\u0275listener("click", function ClosetComponent_Conditional_10_For_2_Template_div_click_0_listener() {
       const sound_r5 = \u0275\u0275restoreView(_r4).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectSound(sound_r5));
     });
-    \u0275\u0275element(1, "img", 10);
-    \u0275\u0275elementStart(2, "div", 5)(3, "span", 6);
+    \u0275\u0275element(1, "img", 11);
+    \u0275\u0275elementStart(2, "div", 6)(3, "span", 7);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, ClosetComponent_Conditional_9_For_2_Conditional_5_Template, 2, 1, "span", 7)(6, ClosetComponent_Conditional_9_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_9_For_2_Conditional_7_Template, 2, 1, "span", 9);
+    \u0275\u0275template(5, ClosetComponent_Conditional_10_For_2_Conditional_5_Template, 2, 1, "span", 8)(6, ClosetComponent_Conditional_10_For_2_Conditional_6_Template, 2, 1, "span", 9)(7, ClosetComponent_Conditional_10_For_2_Conditional_7_Template, 2, 1, "span", 10);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -50229,10 +50274,10 @@ function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r2.tools.selectedSound === sound_r5.id ? 6 : 7);
   }
 }
-function ClosetComponent_Conditional_9_Template(rf, ctx) {
+function ClosetComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_9_For_2_Template, 8, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_10_For_2_Template, 8, 9, "div", 4, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -50241,9 +50286,9 @@ function ClosetComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.unlockedSoundEffects);
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_1_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 11);
+    \u0275\u0275element(0, "img", 12);
   }
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
@@ -50251,9 +50296,9 @@ function ClosetComponent_Conditional_10_For_2_Conditional_1_Template(rf, ctx) {
     \u0275\u0275property("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_2_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 12);
+    \u0275\u0275element(0, "img", 13);
   }
   if (rf & 2) {
     const track_r7 = \u0275\u0275nextContext().$implicit;
@@ -50261,9 +50306,9 @@ function ClosetComponent_Conditional_10_For_2_Conditional_2_Template(rf, ctx) {
     \u0275\u0275property("src", track_r7.cover || "img/music/no_image.webp", \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_6_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 7);
+    \u0275\u0275elementStart(0, "span", 8);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -50274,9 +50319,9 @@ function ClosetComponent_Conditional_10_For_2_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.getMusicDescription(track_r7));
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 8);
+    \u0275\u0275elementStart(0, "span", 9);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -50286,9 +50331,9 @@ function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_8_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 9);
+    \u0275\u0275elementStart(0, "span", 10);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -50298,20 +50343,20 @@ function ClosetComponent_Conditional_10_For_2_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
   }
 }
-function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275listener("click", function ClosetComponent_Conditional_10_For_2_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 2);
+    \u0275\u0275listener("click", function ClosetComponent_Conditional_11_For_2_Template_div_click_0_listener() {
       const track_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectMusic(track_r7));
     });
-    \u0275\u0275template(1, ClosetComponent_Conditional_10_For_2_Conditional_1_Template, 1, 1, "img", 11)(2, ClosetComponent_Conditional_10_For_2_Conditional_2_Template, 1, 2, "img", 12);
-    \u0275\u0275elementStart(3, "div", 5)(4, "span", 6);
+    \u0275\u0275template(1, ClosetComponent_Conditional_11_For_2_Conditional_1_Template, 1, 1, "img", 12)(2, ClosetComponent_Conditional_11_For_2_Conditional_2_Template, 1, 2, "img", 13);
+    \u0275\u0275elementStart(3, "div", 6)(4, "span", 7);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(6, ClosetComponent_Conditional_10_For_2_Conditional_6_Template, 2, 1, "span", 7)(7, ClosetComponent_Conditional_10_For_2_Conditional_7_Template, 2, 1, "span", 8)(8, ClosetComponent_Conditional_10_For_2_Conditional_8_Template, 2, 1, "span", 9);
+    \u0275\u0275template(6, ClosetComponent_Conditional_11_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_11_For_2_Conditional_7_Template, 2, 1, "span", 9)(8, ClosetComponent_Conditional_11_For_2_Conditional_8_Template, 2, 1, "span", 10);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -50329,10 +50374,10 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r2.tools.selectedMusic === track_r7.id ? 7 : 8);
   }
 }
-function ClosetComponent_Conditional_10_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_10_For_2_Template, 9, 9, "div", 3, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_11_For_2_Template, 9, 9, "div", 4, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -50372,30 +50417,32 @@ var ClosetComponent = class _ClosetComponent {
   static \u0275fac = function ClosetComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ClosetComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 11, vars: 27, consts: [[1, "container"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "item-desc"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], ["src", "img/icons/sound-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.svg", 1, "item-icon", 3, "alt"], [1, "item-icon", 2, "border-radius", "8px", "object-fit", "cover", 3, "src", "alt"]], template: function ClosetComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 12, vars: 30, consts: [[1, "container"], [2, "width", "95%", "max-width", "1100px", "margin-top", "1rem"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "item-desc"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], ["src", "img/icons/sound-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.svg", 1, "item-icon", 3, "alt"], [1, "item-icon", 2, "border-radius", "8px", "object-fit", "cover", 3, "src", "alt"]], template: function ClosetComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "button", 1);
-      \u0275\u0275listener("click", function ClosetComponent_Template_button_click_2_listener() {
+      \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div")(3, "button", 2);
+      \u0275\u0275listener("click", function ClosetComponent_Template_button_click_3_listener() {
         return ctx.setTab("cheems");
       });
-      \u0275\u0275text(3);
+      \u0275\u0275text(4);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(4, "button", 1);
-      \u0275\u0275listener("click", function ClosetComponent_Template_button_click_4_listener() {
+      \u0275\u0275elementStart(5, "button", 2);
+      \u0275\u0275listener("click", function ClosetComponent_Template_button_click_5_listener() {
         return ctx.setTab("sounds");
       });
-      \u0275\u0275text(5);
+      \u0275\u0275text(6);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(6, "button", 1);
-      \u0275\u0275listener("click", function ClosetComponent_Template_button_click_6_listener() {
+      \u0275\u0275elementStart(7, "button", 2);
+      \u0275\u0275listener("click", function ClosetComponent_Template_button_click_7_listener() {
         return ctx.setTab("music");
       });
-      \u0275\u0275text(7);
+      \u0275\u0275text(8);
       \u0275\u0275elementEnd()();
-      \u0275\u0275template(8, ClosetComponent_Conditional_8_Template, 3, 0, "div", 2)(9, ClosetComponent_Conditional_9_Template, 3, 0, "div", 2)(10, ClosetComponent_Conditional_10_Template, 3, 0, "div", 2);
-      \u0275\u0275elementEnd();
+      \u0275\u0275template(9, ClosetComponent_Conditional_9_Template, 3, 0, "div", 3)(10, ClosetComponent_Conditional_10_Template, 3, 0, "div", 3)(11, ClosetComponent_Conditional_11_Template, 3, 0, "div", 3);
+      \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, "");
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("tabs-header ", ctx.tools.themeColor, "");
       \u0275\u0275advance();
@@ -50414,11 +50461,11 @@ var ClosetComponent = class _ClosetComponent {
       \u0275\u0275advance();
       \u0275\u0275textInterpolate1(" ", ctx.tools.closet[ctx.tools.lang].musicSection, " ");
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeTab === "cheems" ? 8 : -1);
+      \u0275\u0275conditional(ctx.activeTab === "cheems" ? 9 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeTab === "sounds" ? 9 : -1);
+      \u0275\u0275conditional(ctx.activeTab === "sounds" ? 10 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeTab === "music" ? 10 : -1);
+      \u0275\u0275conditional(ctx.activeTab === "music" ? 11 : -1);
     }
   }, styles: ["\n\n.tabs-header[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn[_ngcontent-%COMP%] {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active[_ngcontent-%COMP%] {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));\n  gap: 1.5rem;\n  width: 95%;\n  max-width: 1000px;\n  margin: 0 auto 3rem auto;\n}\n.shop-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem;\n  border-radius: 18px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-5px) scale(1.03);\n  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);\n}\n.shop-card.theme-light[_ngcontent-%COMP%] {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.shop-card.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.shop-card.theme-contrast[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.item-img[_ngcontent-%COMP%] {\n  width: 110px;\n  height: 110px;\n  object-fit: contain;\n  margin-bottom: 0.75rem;\n}\n.item-icon[_ngcontent-%COMP%] {\n  width: 60px;\n  height: 60px;\n  object-fit: contain;\n  margin: 1rem 0;\n}\n.item-info[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.5rem;\n  width: 100%;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1em;\n  text-align: center;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.85em;\n  text-align: center;\n  opacity: 0.8;\n}\n.status-badge[_ngcontent-%COMP%] {\n  padding: 0.3rem 0.85rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 900;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n}\n.active-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 209, 102, 0.3);\n  color: #ffd166;\n  border: 1px solid #ffd166;\n}\n.unlocked-badge[_ngcontent-%COMP%] {\n  background: rgba(100, 255, 100, 0.2);\n  color: #55ff55;\n  border: 1px solid #55ff55;\n}\n.cost-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 100, 100, 0.2);\n  color: #ff8888;\n  border: 1px solid #ff8888;\n}\n/*# sourceMappingURL=closet.component.css.map */"] });
 };
@@ -50426,7 +50473,8 @@ var ClosetComponent = class _ClosetComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ClosetComponent, [{
     type: Component,
     args: [{ selector: "app-closet", imports: [], template: `<div class="container">
-    <div class="tabs-header {{tools.themeColor}}">
+    <div class="group {{tools.themeColor}}" style="width: 95%; max-width: 1100px; margin-top: 1rem;">
+        <div class="tabs-header {{tools.themeColor}}">
         <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}"
                 [class.active]="activeTab === 'cheems'"
                 (click)="setTab('cheems')">
@@ -50520,6 +50568,7 @@ var ClosetComponent = class _ClosetComponent {
             }
         </div>
     }
+    </div>
 </div>
 `, styles: ["/* src/app/pages/closet/closet.component.css */\n.tabs-header {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));\n  gap: 1.5rem;\n  width: 95%;\n  max-width: 1000px;\n  margin: 0 auto 3rem auto;\n}\n.shop-card {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem;\n  border-radius: 18px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n}\n.shop-card:hover {\n  transform: translateY(-5px) scale(1.03);\n  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);\n}\n.shop-card.theme-light {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.shop-card.theme-contrast {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.shop-card.theme-contrast:hover {\n  border-color: #ffff00;\n}\n.item-img {\n  width: 110px;\n  height: 110px;\n  object-fit: contain;\n  margin-bottom: 0.75rem;\n}\n.item-icon {\n  width: 60px;\n  height: 60px;\n  object-fit: contain;\n  margin: 1rem 0;\n}\n.item-info {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.5rem;\n  width: 100%;\n}\n.item-name {\n  font-weight: 900;\n  font-size: 1em;\n  text-align: center;\n}\n.item-desc {\n  font-size: 0.85em;\n  text-align: center;\n  opacity: 0.8;\n}\n.status-badge {\n  padding: 0.3rem 0.85rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 900;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n}\n.active-badge {\n  background: rgba(255, 209, 102, 0.3);\n  color: #ffd166;\n  border: 1px solid #ffd166;\n}\n.unlocked-badge {\n  background: rgba(100, 255, 100, 0.2);\n  color: #55ff55;\n  border: 1px solid #55ff55;\n}\n.cost-badge {\n  background: rgba(255, 100, 100, 0.2);\n  color: #ff8888;\n  border: 1px solid #ff8888;\n}\n/*# sourceMappingURL=closet.component.css.map */\n"] }]
   }], null, null);
@@ -51046,11 +51095,11 @@ var P404Component = class _P404Component {
 // src/app/pages/shop/shop.component.ts
 var _c0 = (a0) => ({ $implicit: a0 });
 var _forTrack03 = ($index, $item) => $item.id;
-function ShopComponent_Conditional_7_Template(rf, ctx) {
+function ShopComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 22);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_7_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_8_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-dogecoin"));
@@ -51064,11 +51113,11 @@ function ShopComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].currencySection) || "Currency", " ");
   }
 }
-function ShopComponent_Conditional_8_Template(rf, ctx) {
+function ShopComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_8_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 24);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_9_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-upgrade"));
@@ -51082,11 +51131,11 @@ function ShopComponent_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].upgradesSection) || "Upgrades", " ");
   }
 }
-function ShopComponent_Conditional_9_Template(rf, ctx) {
+function ShopComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 24);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_9_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 25);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-booster"));
@@ -51100,11 +51149,11 @@ function ShopComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].boosterSection) || "Boosters", " ");
   }
 }
-function ShopComponent_Conditional_10_Template(rf, ctx) {
+function ShopComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 25);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 26);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_11_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-minigame"));
@@ -51118,11 +51167,11 @@ function ShopComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].minigamesSection) || "Minigames", " ");
   }
 }
-function ShopComponent_Conditional_11_Template(rf, ctx) {
+function ShopComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 26);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_11_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 27);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_12_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-cheems"));
@@ -51136,11 +51185,11 @@ function ShopComponent_Conditional_11_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].cheemsSection) || "Cheems Skins", " ");
   }
 }
-function ShopComponent_Conditional_12_Template(rf, ctx) {
+function ShopComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 27);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_12_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 28);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_13_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-sound"));
@@ -51154,11 +51203,11 @@ function ShopComponent_Conditional_12_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].sfxSection) || "Sound Effects", " ");
   }
 }
-function ShopComponent_Conditional_13_Template(rf, ctx) {
+function ShopComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 28);
-    \u0275\u0275listener("click", function ShopComponent_Conditional_13_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 29);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_14_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-music"));
@@ -51172,17 +51221,17 @@ function ShopComponent_Conditional_13_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].musicSection) || "Background Music", " ");
   }
 }
-function ShopComponent_Conditional_14_Template(rf, ctx) {
+function ShopComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 13)(1, "div", 29);
+    \u0275\u0275elementStart(0, "div", 14)(1, "div", 30);
     \u0275\u0275text(2, "\u26A1");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 30)(4, "span", 31);
+    \u0275\u0275elementStart(3, "div", 31)(4, "span", 32);
     \u0275\u0275text(5);
     \u0275\u0275elementStart(6, "strong");
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "span", 32);
+    \u0275\u0275elementStart(8, "span", 33);
     \u0275\u0275text(9);
     \u0275\u0275elementEnd()()();
   }
@@ -51196,9 +51245,9 @@ function ShopComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275textInterpolate2(" \u23F3 ", ctx_r2.tools.getBoosterFormattedTime(), " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remaining) || "remaining", " ");
   }
 }
-function ShopComponent_ng_template_34_Conditional_2_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 35);
+    \u0275\u0275element(0, "img", 36);
   }
   if (rf & 2) {
     const item_r10 = \u0275\u0275nextContext().$implicit;
@@ -51206,9 +51255,9 @@ function ShopComponent_ng_template_34_Conditional_2_Template(rf, ctx) {
     \u0275\u0275property("src", ctx_r2.getShopCardIcon(item_r10), \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getShopItemName(item_r10));
   }
 }
-function ShopComponent_ng_template_34_Conditional_3_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 36);
+    \u0275\u0275elementStart(0, "span", 37);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51218,9 +51267,9 @@ function ShopComponent_ng_template_34_Conditional_3_Template(rf, ctx) {
     \u0275\u0275textInterpolate(item_r10.icon);
   }
 }
-function ShopComponent_ng_template_34_Conditional_4_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 37);
+    \u0275\u0275elementStart(0, "span", 38);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51230,7 +51279,7 @@ function ShopComponent_ng_template_34_Conditional_4_Template(rf, ctx) {
     \u0275\u0275textInterpolate1("x", item_r10.multiplier || 1, "");
   }
 }
-function ShopComponent_ng_template_34_Conditional_5_Conditional_1_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_5_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
   }
@@ -51239,7 +51288,7 @@ function ShopComponent_ng_template_34_Conditional_5_Conditional_1_Template(rf, c
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].maxLevel) || "Max Level", " ");
   }
 }
-function ShopComponent_ng_template_34_Conditional_5_Conditional_2_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_5_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
   }
@@ -51249,10 +51298,10 @@ function ShopComponent_ng_template_34_Conditional_5_Conditional_2_Template(rf, c
     \u0275\u0275textInterpolate1(" Lvl ", ctx_r2.tools.purchasedUpgrades[item_r10.id] || 0, " ");
   }
 }
-function ShopComponent_ng_template_34_Conditional_5_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 38);
-    \u0275\u0275template(1, ShopComponent_ng_template_34_Conditional_5_Conditional_1_Template, 1, 1)(2, ShopComponent_ng_template_34_Conditional_5_Conditional_2_Template, 1, 1);
+    \u0275\u0275elementStart(0, "span", 39);
+    \u0275\u0275template(1, ShopComponent_ng_template_33_Conditional_5_Conditional_1_Template, 1, 1)(2, ShopComponent_ng_template_33_Conditional_5_Conditional_2_Template, 1, 1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51262,9 +51311,9 @@ function ShopComponent_ng_template_34_Conditional_5_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r2.isUpgradeMaxLevel(item_r10) ? 1 : 2);
   }
 }
-function ShopComponent_ng_template_34_Conditional_11_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 42);
+    \u0275\u0275elementStart(0, "div", 43);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51274,9 +51323,9 @@ function ShopComponent_ng_template_34_Conditional_11_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
   }
 }
-function ShopComponent_ng_template_34_Conditional_12_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 45);
+    \u0275\u0275elementStart(0, "div", 46);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51288,12 +51337,12 @@ function ShopComponent_ng_template_34_Conditional_12_Template(rf, ctx) {
     \u0275\u0275textInterpolate3(" ", ctx_r2.tools.getRemainingDailyLimit(item_r10), " / ", item_r10.dailyLimit, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remainingToday) || "left today", " ");
   }
 }
-function ShopComponent_ng_template_34_Conditional_14_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 46)(1, "span", 47);
+    \u0275\u0275elementStart(0, "div", 47)(1, "span", 48);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "button", 48);
+    \u0275\u0275elementStart(3, "button", 49);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
   }
@@ -51305,9 +51354,9 @@ function ShopComponent_ng_template_34_Conditional_14_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
   }
 }
-function ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_15_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 49);
+    \u0275\u0275elementStart(0, "span", 50);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51317,16 +51366,16 @@ function ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template(rf, 
     \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].todaysPrice) || "Today's Price:");
   }
 }
-function ShopComponent_ng_template_34_Conditional_15_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 46);
-    \u0275\u0275template(1, ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template, 2, 1, "span", 49);
-    \u0275\u0275elementStart(2, "span", 50);
+    \u0275\u0275elementStart(0, "div", 47);
+    \u0275\u0275template(1, ShopComponent_ng_template_33_Conditional_15_Conditional_1_Template, 2, 1, "span", 50);
+    \u0275\u0275elementStart(2, "span", 51);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "button", 51);
-    \u0275\u0275listener("click", function ShopComponent_ng_template_34_Conditional_15_Template_button_click_4_listener() {
+    \u0275\u0275elementStart(4, "button", 52);
+    \u0275\u0275listener("click", function ShopComponent_ng_template_33_Conditional_15_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r11);
       const item_r10 = \u0275\u0275nextContext().$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51350,21 +51399,21 @@ function ShopComponent_ng_template_34_Conditional_15_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].buyBtn) || "Buy", " ");
   }
 }
-function ShopComponent_ng_template_34_Template(rf, ctx) {
+function ShopComponent_ng_template_33_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 33)(1, "div", 34);
-    \u0275\u0275template(2, ShopComponent_ng_template_34_Conditional_2_Template, 1, 2, "img", 35)(3, ShopComponent_ng_template_34_Conditional_3_Template, 2, 1, "span", 36)(4, ShopComponent_ng_template_34_Conditional_4_Template, 2, 1, "span", 37)(5, ShopComponent_ng_template_34_Conditional_5_Template, 3, 1, "span", 38);
+    \u0275\u0275elementStart(0, "div", 34)(1, "div", 35);
+    \u0275\u0275template(2, ShopComponent_ng_template_33_Conditional_2_Template, 1, 2, "img", 36)(3, ShopComponent_ng_template_33_Conditional_3_Template, 2, 1, "span", 37)(4, ShopComponent_ng_template_33_Conditional_4_Template, 2, 1, "span", 38)(5, ShopComponent_ng_template_33_Conditional_5_Template, 3, 1, "span", 39);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 39)(7, "h3", 40);
+    \u0275\u0275elementStart(6, "div", 40)(7, "h3", 41);
     \u0275\u0275text(8);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "p", 41);
+    \u0275\u0275elementStart(9, "p", 42);
     \u0275\u0275text(10);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(11, ShopComponent_ng_template_34_Conditional_11_Template, 2, 1, "div", 42)(12, ShopComponent_ng_template_34_Conditional_12_Template, 2, 5, "div", 43);
+    \u0275\u0275template(11, ShopComponent_ng_template_33_Conditional_11_Template, 2, 1, "div", 43)(12, ShopComponent_ng_template_33_Conditional_12_Template, 2, 5, "div", 44);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "div", 44);
-    \u0275\u0275template(14, ShopComponent_ng_template_34_Conditional_14_Template, 5, 2)(15, ShopComponent_ng_template_34_Conditional_15_Template, 6, 6);
+    \u0275\u0275elementStart(13, "div", 45);
+    \u0275\u0275template(14, ShopComponent_ng_template_33_Conditional_14_Template, 5, 2)(15, ShopComponent_ng_template_33_Conditional_15_Template, 6, 6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -51387,29 +51436,29 @@ function ShopComponent_ng_template_34_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r10) ? 14 : 15);
   }
 }
-function ShopComponent_Conditional_36_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_35_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_36_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_35_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_36_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
+    \u0275\u0275template(0, ShopComponent_Conditional_35_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
   }
   if (rf & 2) {
     const item_r12 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(35);
+    const shopCard_r13 = \u0275\u0275reference(34);
     \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r12));
   }
 }
-function ShopComponent_Conditional_36_Template(rf, ctx) {
+function ShopComponent_Conditional_35_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 52)(1, "h2", 53);
+    \u0275\u0275elementStart(0, "div", 53)(1, "h2", 54);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 54);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 55);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_35_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51420,29 +51469,29 @@ function ShopComponent_Conditional_36_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.dogecoinItems);
   }
 }
-function ShopComponent_Conditional_37_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_36_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_37_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_36_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_37_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
+    \u0275\u0275template(0, ShopComponent_Conditional_36_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
   }
   if (rf & 2) {
     const item_r14 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(35);
+    const shopCard_r13 = \u0275\u0275reference(34);
     \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r14));
   }
 }
-function ShopComponent_Conditional_37_Template(rf, ctx) {
+function ShopComponent_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 56)(1, "h2", 57);
+    \u0275\u0275elementStart(0, "div", 57)(1, "h2", 58);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 54);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 55);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51453,29 +51502,29 @@ function ShopComponent_Conditional_37_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.upgradeItems);
   }
 }
-function ShopComponent_Conditional_38_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_37_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_38_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_37_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_38_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
+    \u0275\u0275template(0, ShopComponent_Conditional_37_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
   }
   if (rf & 2) {
     const item_r15 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(35);
+    const shopCard_r13 = \u0275\u0275reference(34);
     \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r15));
   }
 }
-function ShopComponent_Conditional_38_Template(rf, ctx) {
+function ShopComponent_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 58)(1, "h2", 59);
+    \u0275\u0275elementStart(0, "div", 59)(1, "h2", 60);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 54);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 55);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51486,29 +51535,29 @@ function ShopComponent_Conditional_38_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.boosterItems);
   }
 }
-function ShopComponent_Conditional_39_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_38_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_39_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_38_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_39_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
+    \u0275\u0275template(0, ShopComponent_Conditional_38_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
   }
   if (rf & 2) {
     const item_r16 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(35);
+    const shopCard_r13 = \u0275\u0275reference(34);
     \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r16));
   }
 }
-function ShopComponent_Conditional_39_Template(rf, ctx) {
+function ShopComponent_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 60)(1, "h2", 61);
+    \u0275\u0275elementStart(0, "div", 61)(1, "h2", 62);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 54);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 55);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51519,29 +51568,29 @@ function ShopComponent_Conditional_39_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.minigameItems);
   }
 }
-function ShopComponent_Conditional_40_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_39_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_40_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_39_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_40_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
+    \u0275\u0275template(0, ShopComponent_Conditional_39_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
   }
   if (rf & 2) {
     const item_r17 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(35);
+    const shopCard_r13 = \u0275\u0275reference(34);
     \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r17));
   }
 }
-function ShopComponent_Conditional_40_Template(rf, ctx) {
+function ShopComponent_Conditional_39_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 62)(1, "h2", 63);
+    \u0275\u0275elementStart(0, "div", 63)(1, "h2", 64);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 54);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 55);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51552,29 +51601,29 @@ function ShopComponent_Conditional_40_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.cheemsItems);
   }
 }
-function ShopComponent_Conditional_41_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_40_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_41_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_40_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_41_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
+    \u0275\u0275template(0, ShopComponent_Conditional_40_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
   }
   if (rf & 2) {
     const item_r18 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(35);
+    const shopCard_r13 = \u0275\u0275reference(34);
     \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r18));
   }
 }
-function ShopComponent_Conditional_41_Template(rf, ctx) {
+function ShopComponent_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 64)(1, "h2", 65);
+    \u0275\u0275elementStart(0, "div", 65)(1, "h2", 66);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 54);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_41_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 55);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51585,29 +51634,29 @@ function ShopComponent_Conditional_41_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.soundItems);
   }
 }
-function ShopComponent_Conditional_42_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_41_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_42_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_41_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_42_For_5_ng_container_0_Template, 1, 0, "ng-container", 55);
+    \u0275\u0275template(0, ShopComponent_Conditional_41_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
   }
   if (rf & 2) {
     const item_r19 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(35);
+    const shopCard_r13 = \u0275\u0275reference(34);
     \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r19));
   }
 }
-function ShopComponent_Conditional_42_Template(rf, ctx) {
+function ShopComponent_Conditional_41_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 66)(1, "h2", 67);
+    \u0275\u0275elementStart(0, "div", 67)(1, "h2", 68);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 54);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_42_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 55);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_41_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51761,13 +51810,13 @@ var ShopComponent = class _ShopComponent {
     }
     const parts = [];
     if (costObj.pts > 0) {
-      parts.push(`${costObj.pts.toLocaleString()} Pts`);
+      parts.push(`${this.tools.formatBigNumber(costObj.pts)} Pts`);
     }
     if (costObj.coins > 0) {
-      parts.push(`${costObj.coins.toLocaleString()} DGC`);
+      parts.push(`${this.tools.formatBigNumber(costObj.coins)} DGC`);
     }
     if (costObj.mg > 0) {
-      parts.push(`${costObj.mg.toLocaleString()} MG`);
+      parts.push(`${this.tools.formatBigNumber(costObj.mg)} MG`);
     }
     return parts.join(" + ");
   }
@@ -51829,102 +51878,103 @@ var ShopComponent = class _ShopComponent {
         return ctx.onWindowScroll();
       }, false, \u0275\u0275resolveWindow);
     }
-  }, decls: 45, vars: 32, consts: [["shopCard", ""], ["id", "shop-top"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-upgrade"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-minigames"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin.png", "alt", "DogeCoin", 1, "mini-coin-icon"], [1, "balance-value"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-upgrade", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-minigames", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "upgrade-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-upgrade", 1, "section-separator"], [1, "section-title", "upgrade-title"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-minigame", 1, "section-separator"], [1, "section-title", "minigames-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
+  }, decls: 44, vars: 28, consts: [["shopCard", ""], [1, "container"], ["id", "shop-top", 2, "width", "95%", "max-width", "1100px", "margin-top", "1rem", "border-radius", "20px"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-upgrade"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-minigames"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin.png", "alt", "DogeCoin", 1, "mini-coin-icon"], [1, "balance-value"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-upgrade", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-minigames", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "upgrade-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-upgrade", 1, "section-separator"], [1, "section-title", "upgrade-title"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-minigame", 1, "section-separator"], [1, "section-title", "minigames-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
-      \u0275\u0275elementStart(0, "div", 1)(1, "header", 2)(2, "h1", 3);
-      \u0275\u0275text(3);
+      \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "header", 3)(3, "h1", 4);
+      \u0275\u0275text(4);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(4, "p", 4);
-      \u0275\u0275text(5);
+      \u0275\u0275elementStart(5, "p", 5);
+      \u0275\u0275text(6);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(6, "div", 5);
-      \u0275\u0275template(7, ShopComponent_Conditional_7_Template, 2, 1, "button", 6)(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 8)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 9)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 10)(12, ShopComponent_Conditional_12_Template, 2, 1, "button", 11)(13, ShopComponent_Conditional_13_Template, 2, 1, "button", 12);
+      \u0275\u0275elementStart(7, "div", 6);
+      \u0275\u0275template(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 8)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 9)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 10)(12, ShopComponent_Conditional_12_Template, 2, 1, "button", 11)(13, ShopComponent_Conditional_13_Template, 2, 1, "button", 12)(14, ShopComponent_Conditional_14_Template, 2, 1, "button", 13);
       \u0275\u0275elementEnd();
-      \u0275\u0275template(14, ShopComponent_Conditional_14_Template, 10, 5, "div", 13);
-      \u0275\u0275elementStart(15, "div", 14)(16, "div", 15)(17, "span", 16);
-      \u0275\u0275text(18, "Points:");
+      \u0275\u0275template(15, ShopComponent_Conditional_15_Template, 10, 5, "div", 14);
+      \u0275\u0275elementStart(16, "div", 15)(17, "div", 16)(18, "span", 17);
+      \u0275\u0275text(19, "Points:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(19, "span", 17);
-      \u0275\u0275text(20);
-      \u0275\u0275pipe(21, "number");
+      \u0275\u0275elementStart(20, "span", 18);
+      \u0275\u0275text(21);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(22, "div", 15)(23, "span", 16);
+      \u0275\u0275elementStart(22, "div", 16)(23, "span", 17);
       \u0275\u0275text(24, "DogeCoins:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(25, "span", 18);
-      \u0275\u0275element(26, "img", 19);
+      \u0275\u0275elementStart(25, "span", 19);
+      \u0275\u0275element(26, "img", 20);
       \u0275\u0275text(27);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(28, "div", 15)(29, "span", 16);
+      \u0275\u0275elementStart(28, "div", 16)(29, "span", 17);
       \u0275\u0275text(30, "Minigame Pts:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(31, "span", 20);
+      \u0275\u0275elementStart(31, "span", 21);
       \u0275\u0275text(32);
-      \u0275\u0275pipe(33, "number");
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(34, ShopComponent_ng_template_34_Template, 16, 23, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(36, ShopComponent_Conditional_36_Template, 6, 1)(37, ShopComponent_Conditional_37_Template, 6, 1)(38, ShopComponent_Conditional_38_Template, 6, 1)(39, ShopComponent_Conditional_39_Template, 6, 1)(40, ShopComponent_Conditional_40_Template, 6, 1)(41, ShopComponent_Conditional_41_Template, 6, 1)(42, ShopComponent_Conditional_42_Template, 6, 1);
-      \u0275\u0275elementStart(43, "button", 21);
-      \u0275\u0275listener("click", function ShopComponent_Template_button_click_43_listener() {
+      \u0275\u0275template(33, ShopComponent_ng_template_33_Template, 16, 23, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(35, ShopComponent_Conditional_35_Template, 6, 1)(36, ShopComponent_Conditional_36_Template, 6, 1)(37, ShopComponent_Conditional_37_Template, 6, 1)(38, ShopComponent_Conditional_38_Template, 6, 1)(39, ShopComponent_Conditional_39_Template, 6, 1)(40, ShopComponent_Conditional_40_Template, 6, 1)(41, ShopComponent_Conditional_41_Template, 6, 1);
+      \u0275\u0275elementEnd()();
+      \u0275\u0275elementStart(42, "button", 22);
+      \u0275\u0275listener("click", function ShopComponent_Template_button_click_42_listener() {
         \u0275\u0275restoreView(_r1);
         return \u0275\u0275resetView(ctx.scrollToTop());
       });
-      \u0275\u0275text(44, " \u2191 ");
-      \u0275\u0275elementEnd()();
+      \u0275\u0275text(43, " \u2191\n");
+      \u0275\u0275elementEnd();
     }
     if (rf & 2) {
-      \u0275\u0275classMapInterpolate1("shop-container ", ctx.tools.themeColor, "");
+      \u0275\u0275advance();
+      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, " shop-container");
       \u0275\u0275advance(3);
       \u0275\u0275textInterpolate((ctx.tools.shop[ctx.tools.lang] == null ? null : ctx.tools.shop[ctx.tools.lang].title) || "Shop");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate(ctx.tools.shop[ctx.tools.lang] == null ? null : ctx.tools.shop[ctx.tools.lang].subtitle);
       \u0275\u0275advance(2);
-      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 7 : -1);
+      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 8 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 8 : -1);
+      \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 9 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 9 : -1);
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 10 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 10 : -1);
+      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 11 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 11 : -1);
+      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 12 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 12 : -1);
+      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 13 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 13 : -1);
+      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 14 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.tools.getBoosterRemainingSeconds() > 0 ? 14 : -1);
+      \u0275\u0275conditional(ctx.tools.getBoosterRemainingSeconds() > 0 ? 15 : -1);
       \u0275\u0275advance(6);
-      \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(21, 28, ctx.tools.points), " Pts");
-      \u0275\u0275advance(7);
-      \u0275\u0275textInterpolate1(" ", ctx.tools.dogeCoins, " ");
+      \u0275\u0275textInterpolate1("", ctx.tools.formatBigNumber(ctx.tools.points), " Pts");
+      \u0275\u0275advance(6);
+      \u0275\u0275textInterpolate1(" ", ctx.tools.formatBigNumber(ctx.tools.dogeCoins), " ");
       \u0275\u0275advance(5);
-      \u0275\u0275textInterpolate1("\u{1F3AE} ", \u0275\u0275pipeBind1(33, 30, ctx.tools.minigameCoins), "");
-      \u0275\u0275advance(4);
-      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 36 : -1);
+      \u0275\u0275textInterpolate1("\u{1F3AE} ", ctx.tools.formatBigNumber(ctx.tools.minigameCoins), "");
+      \u0275\u0275advance(3);
+      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 35 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 37 : -1);
+      \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 36 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 38 : -1);
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 37 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 39 : -1);
+      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 38 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 40 : -1);
+      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 39 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 41 : -1);
+      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 40 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 42 : -1);
+      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 41 : -1);
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("back-to-top-btn ", ctx.tools.themeColor, "");
       \u0275\u0275classProp("visible", ctx.showScrollTop);
     }
-  }, dependencies: [CommonModule, NgTemplateOutlet, DecimalPipe], styles: ['\n\n.shop-container[_ngcontent-%COMP%] {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn[_ngcontent-%COMP%] {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade[_ngcontent-%COMP%] {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin[_ngcontent-%COMP%] {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster[_ngcontent-%COMP%] {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems[_ngcontent-%COMP%] {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound[_ngcontent-%COMP%] {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music[_ngcontent-%COMP%] {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames[_ngcontent-%COMP%] {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator[_ngcontent-%COMP%]::before, \n.section-separator[_ngcontent-%COMP%]::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title[_ngcontent-%COMP%] {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title[_ngcontent-%COMP%] {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.minigames-title[_ngcontent-%COMP%] {\n  color: #ff8c00;\n  border-color: rgba(255, 140, 0, 0.4);\n  background: rgba(255, 140, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.minigames-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 140, 0, 0.5),\n      transparent);\n}\n.booster-title[_ngcontent-%COMP%] {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title[_ngcontent-%COMP%] {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title[_ngcontent-%COMP%] {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title[_ngcontent-%COMP%] {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: _ngcontent-%COMP%_boosterPulse 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon[_ngcontent-%COMP%] {\n  font-size: 2.2rem;\n}\n.booster-banner-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label[_ngcontent-%COMP%] {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value[_ngcontent-%COMP%] {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.doge-val[_ngcontent-%COMP%] {\n  color: #ff9900;\n}\n.mini-coin-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.minigames-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.08),\n      rgba(200, 100, 0, 0.05));\n  border-color: rgba(255, 140, 0, 0.25);\n}\n.shop-card.minigames-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 140, 0, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 140, 0, 0.12);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.upgrade-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge[_ngcontent-%COMP%] {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible[_ngcontent-%COMP%] {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%]:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title[_ngcontent-%COMP%] {\n    font-size: 2rem;\n  }\n  .booster-banner-content[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar[_ngcontent-%COMP%] {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title[_ngcontent-%COMP%] {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn[_ngcontent-%COMP%] {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light[_ngcontent-%COMP%] {\n  color: #2b1f14;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .upgrade-title[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .minigames-title[_ngcontent-%COMP%] {\n  color: #cc7000;\n  border-color: rgba(204, 112, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.minigames-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(204, 112, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.minigames-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 240, 220, 0.95),\n      rgba(255, 225, 200, 0.95));\n  border-color: #cc7000;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #059669;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background: none;\n  -webkit-background-clip: unset;\n  background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::before, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .minigames-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.minigames-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.minigames-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .multiplier-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */'] });
+  }, dependencies: [CommonModule, NgTemplateOutlet], styles: ['\n\n.shop-container[_ngcontent-%COMP%] {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle[_ngcontent-%COMP%] {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn[_ngcontent-%COMP%] {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade[_ngcontent-%COMP%] {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin[_ngcontent-%COMP%] {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster[_ngcontent-%COMP%] {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems[_ngcontent-%COMP%] {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound[_ngcontent-%COMP%] {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music[_ngcontent-%COMP%] {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames[_ngcontent-%COMP%] {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator[_ngcontent-%COMP%]::before, \n.section-separator[_ngcontent-%COMP%]::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title[_ngcontent-%COMP%] {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title[_ngcontent-%COMP%] {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title[_ngcontent-%COMP%] {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.minigames-title[_ngcontent-%COMP%] {\n  color: #ff8c00;\n  border-color: rgba(255, 140, 0, 0.4);\n  background: rgba(255, 140, 0, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.minigames-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 140, 0, 0.5),\n      transparent);\n}\n.booster-title[_ngcontent-%COMP%] {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title[_ngcontent-%COMP%] {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title[_ngcontent-%COMP%] {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title[_ngcontent-%COMP%] {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: _ngcontent-%COMP%_boosterPulse 2s infinite ease-in-out;\n}\n@keyframes _ngcontent-%COMP%_boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon[_ngcontent-%COMP%] {\n  font-size: 2.2rem;\n}\n.booster-banner-content[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label[_ngcontent-%COMP%] {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value[_ngcontent-%COMP%] {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.doge-val[_ngcontent-%COMP%] {\n  color: #ff9900;\n}\n.mini-coin-icon[_ngcontent-%COMP%] {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 1.8rem;\n  width: 100%;\n}\n.shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n  word-break: break-word;\n  flex: 1 1 240px;\n  max-width: 320px;\n  min-width: 240px;\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.minigames-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.08),\n      rgba(200, 100, 0, 0.05));\n  border-color: rgba(255, 140, 0, 0.25);\n}\n.shop-card.minigames-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 140, 0, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 140, 0, 0.12);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 0.5rem;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon[_ngcontent-%COMP%] {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji[_ngcontent-%COMP%] {\n  font-size: 3rem;\n}\n.upgrade-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info[_ngcontent-%COMP%] {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n  word-wrap: break-word;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 0.8rem;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label[_ngcontent-%COMP%] {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val[_ngcontent-%COMP%] {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn[_ngcontent-%COMP%]:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge[_ngcontent-%COMP%] {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn[_ngcontent-%COMP%] {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible[_ngcontent-%COMP%] {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light[_ngcontent-%COMP%]:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title[_ngcontent-%COMP%] {\n    font-size: 2rem;\n  }\n  .booster-banner-content[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar[_ngcontent-%COMP%] {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn[_ngcontent-%COMP%] {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title[_ngcontent-%COMP%] {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn[_ngcontent-%COMP%] {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light[_ngcontent-%COMP%] {\n  color: #2b1f14;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-upgrade[_ngcontent-%COMP%]:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .upgrade-title[_ngcontent-%COMP%] {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%] {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .minigames-title[_ngcontent-%COMP%] {\n  color: #cc7000;\n  border-color: rgba(204, 112, 0, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.minigames-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(204, 112, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%] {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%] {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%] {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::before, \n.shop-container.theme-light[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.minigames-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 240, 220, 0.95),\n      rgba(255, 225, 200, 0.95));\n  border-color: #cc7000;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #059669;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-title[_ngcontent-%COMP%] {\n  background: none;\n  -webkit-background-clip: unset;\n  background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-subtitle[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-nav-btn[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-dogecoin[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-booster[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-cheems[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-sound[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .nav-music[_ngcontent-%COMP%]:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::before, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-separator[_ngcontent-%COMP%]::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .section-title[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .dogecoin-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .minigames-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cheems-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .sound-title[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .music-title[_ngcontent-%COMP%] {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-balance-bar[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .balance-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .points-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .doge-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.minigames-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%], \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%] {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.coin-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.booster-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.minigames-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.cheems-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.sound-card[_ngcontent-%COMP%]:hover, \n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card.music-card[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-name[_ngcontent-%COMP%] {\n  color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .item-desc[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-label[_ngcontent-%COMP%] {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .shop-card-footer[_ngcontent-%COMP%] {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .multiplier-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .buy-btn[_ngcontent-%COMP%]:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .active-booster-banner[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .booster-banner-timer[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge[_ngcontent-%COMP%] {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .daily-limit-badge.limit-reached[_ngcontent-%COMP%] {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast[_ngcontent-%COMP%]   .cost-val.free-cost[_ngcontent-%COMP%] {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ShopComponent, [{
     type: Component,
-    args: [{ selector: "app-shop", standalone: true, imports: [CommonModule], template: `<div class="shop-container {{tools.themeColor}}" id="shop-top">
-    <!-- Header -->
+    args: [{ selector: "app-shop", standalone: true, imports: [CommonModule], template: `<div class="container">
+    <div class="group {{tools.themeColor}} shop-container" id="shop-top" style="width: 95%; max-width: 1100px; margin-top: 1rem; border-radius: 20px;">
+        <!-- Header -->
     <header class="shop-header">
         <h1 class="shop-title">{{tools.shop[tools.lang]?.title || 'Shop'}}</h1>
         <p class="shop-subtitle">{{tools.shop[tools.lang]?.subtitle}}</p>
@@ -51989,18 +52039,18 @@ var ShopComponent = class _ShopComponent {
     <div class="shop-balance-bar">
         <div class="balance-item">
             <span class="balance-label">Points:</span>
-            <span class="balance-value points-val">{{tools.points | number}} Pts</span>
+            <span class="balance-value points-val">{{tools.formatBigNumber(tools.points)}} Pts</span>
         </div>
         <div class="balance-item">
             <span class="balance-label">DogeCoins:</span>
             <span class="balance-value doge-val">
                 <img src="img/dogecoin.png" class="mini-coin-icon" alt="DogeCoin">
-                {{tools.dogeCoins}}
+                {{tools.formatBigNumber(tools.dogeCoins)}}
             </span>
         </div>
         <div class="balance-item">
             <span class="balance-label">Minigame Pts:</span>
-            <span class="balance-value">\u{1F3AE} {{tools.minigameCoins | number}}</span>
+            <span class="balance-value">\u{1F3AE} {{tools.formatBigNumber(tools.minigameCoins)}}</span>
         </div>
     </div>
 
@@ -52158,16 +52208,17 @@ var ShopComponent = class _ShopComponent {
             }
         </div>
     }
-
-    <!-- Back to Top Button -->
-    <button class="back-to-top-btn {{tools.themeColor}}"
-            [class.visible]="showScrollTop"
-            (click)="scrollToTop()"
-            aria-label="Back to top">
-        \u2191
-    </button>
+    </div>
 </div>
-`, styles: ['/* src/app/pages/shop/shop.component.css */\n.shop-container {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator::before,\n.section-separator::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator:has(.upgrade-title)::before,\n.section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator:has(.dogecoin-title)::before,\n.section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.minigames-title {\n  color: #ff8c00;\n  border-color: rgba(255, 140, 0, 0.4);\n  background: rgba(255, 140, 0, 0.08);\n}\n.section-separator:has(.minigames-title)::before,\n.section-separator:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 140, 0, 0.5),\n      transparent);\n}\n.booster-title {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator:has(.booster-title)::before,\n.section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator:has(.cheems-title)::before,\n.section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator:has(.sound-title)::before,\n.section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator:has(.music-title)::before,\n.section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: boosterPulse 2s infinite ease-in-out;\n}\n@keyframes boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon {\n  font-size: 2.2rem;\n}\n.booster-banner-content {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val {\n  color: #ffd700;\n}\n.doge-val {\n  color: #ff9900;\n}\n.mini-coin-icon {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));\n  gap: 1.8rem;\n}\n.shop-card {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n}\n.shop-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.minigames-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.08),\n      rgba(200, 100, 0, 0.05));\n  border-color: rgba(255, 140, 0, 0.25);\n}\n.shop-card.minigames-card:hover {\n  border-color: rgba(255, 140, 0, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 140, 0, 0.12);\n}\n.shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card .item-name {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card .item-name {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji {\n  font-size: 3rem;\n}\n.upgrade-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n}\n.item-desc {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title {\n    font-size: 2rem;\n  }\n  .booster-banner-content {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light {\n  color: #2b1f14;\n}\n.shop-container.theme-light .shop-title {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light .shop-subtitle {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light .shop-nav-bar {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light .shop-nav-btn {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .nav-upgrade {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .nav-upgrade:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light .nav-dogecoin {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .nav-dogecoin:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light .nav-booster {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .nav-booster:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light .nav-cheems {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .nav-cheems:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light .nav-sound {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .nav-sound:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light .nav-music {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .nav-music:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light .section-title {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light .upgrade-title {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.upgrade-title)::before,\n.shop-container.theme-light .section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light .dogecoin-title {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::before,\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .minigames-title {\n  color: #cc7000;\n  border-color: rgba(204, 112, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.minigames-title)::before,\n.shop-container.theme-light .section-separator:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(204, 112, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .booster-title {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.booster-title)::before,\n.shop-container.theme-light .section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light .cheems-title {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.cheems-title)::before,\n.shop-container.theme-light .section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light .sound-title {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.sound-title)::before,\n.shop-container.theme-light .section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light .music-title {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.music-title)::before,\n.shop-container.theme-light .section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light .shop-balance-bar {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .balance-label {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light .points-val {\n  color: #b35900;\n}\n.shop-container.theme-light .doge-val {\n  color: #d97706;\n}\n.shop-container.theme-light .shop-card {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light .shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light .shop-card.minigames-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 240, 220, 0.95),\n      rgba(255, 225, 200, 0.95));\n  border-color: #cc7000;\n}\n.shop-container.theme-light .shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light .shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light .shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light .item-name {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light .item-desc {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light .cost-label {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light .cost-val {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light .shop-card-footer {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .active-booster-banner {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .booster-banner-timer {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light .daily-limit-badge {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light .daily-limit-badge.limit-reached {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light .cost-val.free-cost {\n  color: #059669;\n}\n.shop-container.theme-light .buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light .buy-btn:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light .buy-btn:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .shop-title {\n  background: none;\n  -webkit-background-clip: unset;\n  background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast .shop-subtitle {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-nav-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast .shop-nav-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-nav-btn:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .nav-dogecoin,\n.shop-container.theme-contrast .nav-booster,\n.shop-container.theme-contrast .nav-cheems,\n.shop-container.theme-contrast .nav-sound,\n.shop-container.theme-contrast .nav-music {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .nav-dogecoin:hover,\n.shop-container.theme-contrast .nav-booster:hover,\n.shop-container.theme-contrast .nav-cheems:hover,\n.shop-container.theme-contrast .nav-sound:hover,\n.shop-container.theme-contrast .nav-music:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .section-separator::before,\n.shop-container.theme-contrast .section-separator::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast .section-title {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .dogecoin-title,\n.shop-container.theme-contrast .booster-title,\n.shop-container.theme-contrast .minigames-title,\n.shop-container.theme-contrast .cheems-title,\n.shop-container.theme-contrast .sound-title,\n.shop-container.theme-contrast .music-title {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast .shop-balance-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .balance-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .points-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .doge-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .shop-card {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-card:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .shop-card.coin-card,\n.shop-container.theme-contrast .shop-card.booster-card,\n.shop-container.theme-contrast .shop-card.minigames-card,\n.shop-container.theme-contrast .shop-card.cheems-card,\n.shop-container.theme-contrast .shop-card.sound-card,\n.shop-container.theme-contrast .shop-card.music-card {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast .shop-card.coin-card:hover,\n.shop-container.theme-contrast .shop-card.booster-card:hover,\n.shop-container.theme-contrast .shop-card.minigames-card:hover,\n.shop-container.theme-contrast .shop-card.cheems-card:hover,\n.shop-container.theme-contrast .shop-card.sound-card:hover,\n.shop-container.theme-contrast .shop-card.music-card:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .item-name {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .item-desc {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .cost-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .cost-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-card-footer {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast .multiplier-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .active-booster-banner {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast .booster-banner-timer {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge.limit-reached {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast .cost-val.free-cost {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */\n'] }]
+
+<!-- Back to Top Button -->
+<button class="back-to-top-btn {{tools.themeColor}}"
+        [class.visible]="showScrollTop"
+        (click)="scrollToTop()"
+        aria-label="Back to top">
+    \u2191
+</button>
+`, styles: ['/* src/app/pages/shop/shop.component.css */\n.shop-container {\n  max-width: 1100px;\n  margin: 0 auto;\n  padding: 2rem 1.5rem 6rem;\n  color: var(--text-color, #ffffff);\n  min-height: 85vh;\n}\n.shop-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.shop-title {\n  font-size: 2.5rem;\n  font-weight: 800;\n  margin-bottom: 0.5rem;\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: 0 2px 10px rgba(255, 215, 0, 0.2);\n}\n.shop-subtitle {\n  font-size: 1.1rem;\n  opacity: 0.85;\n  max-width: 600px;\n  margin: 0 auto;\n}\n.shop-nav-bar {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.6rem;\n  margin-bottom: 2rem;\n  padding: 0.75rem;\n  background: rgba(255, 255, 255, 0.04);\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.08);\n}\n.shop-nav-btn {\n  padding: 0.6rem 1.2rem;\n  border-radius: 50px;\n  font-weight: 700;\n  font-size: 0.85rem;\n  cursor: pointer;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.08);\n  color: rgba(255, 255, 255, 0.85);\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  letter-spacing: 0.3px;\n}\n.shop-nav-btn:hover {\n  transform: translateY(-2px) scale(1.05);\n}\n.shop-nav-btn:active {\n  transform: translateY(1px) scale(0.97);\n}\n.nav-upgrade {\n  border-color: rgba(255, 100, 100, 0.4);\n  color: #ff6464;\n}\n.nav-upgrade:hover {\n  background: rgba(255, 100, 100, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 100, 100, 0.3);\n}\n.nav-dogecoin {\n  border-color: rgba(255, 215, 0, 0.4);\n  color: #ffd700;\n}\n.nav-dogecoin:hover {\n  background: rgba(255, 215, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);\n}\n.nav-booster {\n  border-color: rgba(0, 200, 255, 0.4);\n  color: #00c8ff;\n}\n.nav-booster:hover {\n  background: rgba(0, 200, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);\n}\n.nav-cheems {\n  border-color: rgba(255, 120, 200, 0.4);\n  color: #ff78c8;\n}\n.nav-cheems:hover {\n  background: rgba(255, 120, 200, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 120, 200, 0.3);\n}\n.nav-sound {\n  border-color: rgba(0, 230, 130, 0.4);\n  color: #00e682;\n}\n.nav-sound:hover {\n  background: rgba(0, 230, 130, 0.2);\n  box-shadow: 0 4px 15px rgba(0, 230, 130, 0.3);\n}\n.nav-music {\n  border-color: rgba(180, 120, 255, 0.4);\n  color: #b478ff;\n}\n.nav-music:hover {\n  background: rgba(180, 120, 255, 0.2);\n  box-shadow: 0 4px 15px rgba(180, 120, 255, 0.3);\n}\n.nav-minigames {\n  border-color: rgba(255, 140, 0, 0.4);\n  color: #ff8c00;\n}\n.nav-minigames:hover {\n  background: rgba(255, 140, 0, 0.2);\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.section-separator {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  margin: 2.5rem 0 1.5rem;\n  padding: 0;\n}\n.section-separator::before,\n.section-separator::after {\n  content: "";\n  flex: 1;\n  height: 2px;\n  border-radius: 2px;\n}\n.section-title {\n  font-size: 1.4rem;\n  font-weight: 800;\n  letter-spacing: 0.5px;\n  text-transform: uppercase;\n  white-space: nowrap;\n  padding: 0.5rem 1.2rem;\n  border-radius: 50px;\n  border: 2px solid transparent;\n  background: rgba(255, 255, 255, 0.06);\n  -webkit-backdrop-filter: blur(6px);\n  backdrop-filter: blur(6px);\n}\n.upgrade-title {\n  color: #ff6464;\n  border-color: rgba(255, 100, 100, 0.4);\n  background: rgba(255, 100, 100, 0.08);\n}\n.section-separator:has(.upgrade-title)::before,\n.section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 100, 100, 0.5),\n      transparent);\n}\n.dogecoin-title {\n  color: #ffd700;\n  border-color: rgba(255, 215, 0, 0.4);\n  background: rgba(255, 215, 0, 0.08);\n}\n.section-separator:has(.dogecoin-title)::before,\n.section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 215, 0, 0.5),\n      transparent);\n}\n.minigames-title {\n  color: #ff8c00;\n  border-color: rgba(255, 140, 0, 0.4);\n  background: rgba(255, 140, 0, 0.08);\n}\n.section-separator:has(.minigames-title)::before,\n.section-separator:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 140, 0, 0.5),\n      transparent);\n}\n.booster-title {\n  color: #00c8ff;\n  border-color: rgba(0, 200, 255, 0.4);\n  background: rgba(0, 200, 255, 0.08);\n}\n.section-separator:has(.booster-title)::before,\n.section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 200, 255, 0.5),\n      transparent);\n}\n.cheems-title {\n  color: #ff78c8;\n  border-color: rgba(255, 120, 200, 0.4);\n  background: rgba(255, 120, 200, 0.08);\n}\n.section-separator:has(.cheems-title)::before,\n.section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(255, 120, 200, 0.5),\n      transparent);\n}\n.sound-title {\n  color: #00e682;\n  border-color: rgba(0, 230, 130, 0.4);\n  background: rgba(0, 230, 130, 0.08);\n}\n.section-separator:has(.sound-title)::before,\n.section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 230, 130, 0.5),\n      transparent);\n}\n.music-title {\n  color: #b478ff;\n  border-color: rgba(180, 120, 255, 0.4);\n  background: rgba(180, 120, 255, 0.08);\n}\n.section-separator:has(.music-title)::before,\n.section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(180, 120, 255, 0.5),\n      transparent);\n}\n.active-booster-banner {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.25),\n      rgba(255, 215, 0, 0.15));\n  border: 2px solid #ffd700;\n  border-radius: 16px;\n  padding: 1rem 1.5rem;\n  margin-bottom: 2rem;\n  box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);\n  animation: boosterPulse 2s infinite ease-in-out;\n}\n@keyframes boosterPulse {\n  0%, 100% {\n    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);\n  }\n  50% {\n    box-shadow: 0 0 35px rgba(255, 215, 0, 0.6);\n  }\n}\n.booster-banner-icon {\n  font-size: 2.2rem;\n}\n.booster-banner-content {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 1.5rem;\n  font-size: 1.1rem;\n}\n.booster-banner-timer {\n  background: rgba(0, 0, 0, 0.4);\n  padding: 0.4rem 0.8rem;\n  border-radius: 8px;\n  font-weight: 700;\n  color: #ffd700;\n  border: 1px solid rgba(255, 215, 0, 0.4);\n}\n.shop-balance-bar {\n  display: flex;\n  justify-content: center;\n  gap: 2.5rem;\n  margin-bottom: 2.5rem;\n  background: rgba(255, 255, 255, 0.05);\n  -webkit-backdrop-filter: blur(10px);\n  backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.12);\n  padding: 0.9rem 2rem;\n  border-radius: 50px;\n  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);\n}\n.balance-item {\n  display: flex;\n  align-items: center;\n  gap: 0.6rem;\n  font-size: 1.1rem;\n}\n.balance-label {\n  opacity: 0.7;\n  font-weight: 500;\n}\n.balance-value {\n  font-weight: 800;\n  font-size: 1.25rem;\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.points-val {\n  color: #ffd700;\n}\n.doge-val {\n  color: #ff9900;\n}\n.mini-coin-icon {\n  width: 24px;\n  height: 24px;\n  object-fit: contain;\n}\n.shop-grid {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 1.8rem;\n  width: 100%;\n}\n.shop-card {\n  background: rgba(255, 255, 255, 0.07);\n  -webkit-backdrop-filter: blur(12px);\n  backdrop-filter: blur(12px);\n  border: 1px solid rgba(255, 255, 255, 0.15);\n  border-radius: 20px;\n  padding: 1.5rem;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);\n  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);\n  position: relative;\n  overflow: hidden;\n  word-break: break-word;\n  flex: 1 1 240px;\n  max-width: 320px;\n  min-width: 240px;\n}\n.shop-card:hover {\n  transform: translateY(-6px);\n  box-shadow: 0 14px 40px 0 rgba(0, 0, 0, 0.4);\n  border-color: rgba(255, 215, 0, 0.4);\n}\n.shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.12),\n      rgba(255, 140, 0, 0.06));\n  border-color: rgba(255, 215, 0, 0.35);\n}\n.shop-card.coin-card:hover {\n  border-color: rgba(255, 215, 0, 0.6);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.15);\n}\n.shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 200, 255, 0.08),\n      rgba(120, 0, 255, 0.08));\n  border-color: rgba(0, 200, 255, 0.25);\n}\n.shop-card.booster-card:hover {\n  border-color: rgba(0, 200, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 200, 255, 0.12);\n}\n.shop-card.minigames-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 140, 0, 0.08),\n      rgba(200, 100, 0, 0.05));\n  border-color: rgba(255, 140, 0, 0.25);\n}\n.shop-card.minigames-card:hover {\n  border-color: rgba(255, 140, 0, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 140, 0, 0.12);\n}\n.shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 120, 200, 0.08),\n      rgba(255, 80, 160, 0.05));\n  border-color: rgba(255, 120, 200, 0.25);\n}\n.shop-card.cheems-card:hover {\n  border-color: rgba(255, 120, 200, 0.5);\n  box-shadow: 0 14px 40px rgba(255, 120, 200, 0.12);\n}\n.shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(0, 230, 130, 0.08),\n      rgba(0, 180, 100, 0.05));\n  border-color: rgba(0, 230, 130, 0.25);\n}\n.shop-card.sound-card:hover {\n  border-color: rgba(0, 230, 130, 0.5);\n  box-shadow: 0 14px 40px rgba(0, 230, 130, 0.12);\n}\n.shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(180, 120, 255, 0.08),\n      rgba(140, 80, 220, 0.05));\n  border-color: rgba(180, 120, 255, 0.25);\n}\n.shop-card.music-card:hover {\n  border-color: rgba(180, 120, 255, 0.5);\n  box-shadow: 0 14px 40px rgba(180, 120, 255, 0.12);\n}\n.shop-card.currency-dgc-to-mg-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 225, 230, 0.15),\n      rgba(160, 170, 185, 0.08));\n  border-color: rgba(200, 210, 225, 0.4);\n}\n.shop-card.currency-dgc-to-mg-card:hover {\n  border-color: rgba(230, 240, 255, 0.8);\n  box-shadow: 0 14px 40px rgba(200, 220, 240, 0.25);\n}\n.shop-card.currency-dgc-to-mg-card .item-name {\n  color: #e2e8f0;\n}\n.shop-card.currency-mg-to-dgc-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 215, 0, 0.18),\n      rgba(255, 140, 0, 0.1));\n  border-color: rgba(255, 215, 0, 0.5);\n}\n.shop-card.currency-mg-to-dgc-card:hover {\n  border-color: rgba(255, 215, 0, 0.85);\n  box-shadow: 0 14px 40px rgba(255, 215, 0, 0.3);\n}\n.shop-card.currency-mg-to-dgc-card .item-name {\n  color: #ffd700;\n}\n.shop-card-icon-wrapper {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 0.5rem;\n  align-items: center;\n  justify-content: space-between;\n  margin-bottom: 1.2rem;\n}\n.shop-card-icon {\n  width: 56px;\n  height: 56px;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));\n}\n.shop-card-emoji {\n  font-size: 3rem;\n}\n.upgrade-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #ff6464,\n      #d32f2f);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(211, 47, 47, 0.4);\n}\n.multiplier-badge {\n  background:\n    linear-gradient(\n      135deg,\n      #00c6ff,\n      #0072ff);\n  color: #fff;\n  font-weight: 800;\n  font-size: 1rem;\n  padding: 0.3rem 0.8rem;\n  border-radius: 50px;\n  box-shadow: 0 2px 10px rgba(0, 114, 255, 0.4);\n}\n.shop-card-info {\n  flex-grow: 1;\n  margin-bottom: 1.5rem;\n}\n.item-name {\n  font-size: 1.35rem;\n  font-weight: 700;\n  margin-bottom: 0.5rem;\n  color: #fff;\n  word-wrap: break-word;\n}\n.item-desc {\n  font-size: 0.95rem;\n  opacity: 0.8;\n  line-height: 1.45;\n}\n.shop-card-footer {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 0.8rem;\n  align-items: center;\n  justify-content: space-between;\n  border-top: 1px solid rgba(255, 255, 255, 0.1);\n  padding-top: 1.2rem;\n}\n.item-cost {\n  display: flex;\n  flex-direction: column;\n}\n.cost-label {\n  font-size: 0.75rem;\n  opacity: 0.6;\n  text-transform: uppercase;\n}\n.cost-val {\n  font-size: 1.3rem;\n  font-weight: 800;\n  color: #ffd700;\n}\n.buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  border: none;\n  padding: 0.65rem 1.6rem;\n  font-size: 1rem;\n  font-weight: 800;\n  border-radius: 12px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);\n}\n.buy-btn:hover:not(:disabled) {\n  transform: scale(1.05);\n  box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);\n  background:\n    linear-gradient(\n      135deg,\n      #ffe033,\n      #ff991a);\n}\n.buy-btn:active:not(:disabled) {\n  transform: scale(0.97);\n}\n.buy-btn:disabled {\n  background: rgba(255, 255, 255, 0.15);\n  color: rgba(255, 255, 255, 0.4);\n  cursor: not-allowed;\n  box-shadow: none;\n}\n.daily-limit-badge {\n  display: inline-block;\n  background: rgba(245, 158, 11, 0.2);\n  color: #fbbf24;\n  border: 1px solid rgba(245, 158, 11, 0.4);\n  border-radius: 20px;\n  padding: 0.25rem 0.65rem;\n  font-size: 0.75rem;\n  font-weight: 700;\n  margin-top: 0.5rem;\n}\n.daily-limit-badge.limit-reached {\n  background: rgba(239, 68, 68, 0.2);\n  color: #f87171;\n  border-color: rgba(239, 68, 68, 0.4);\n}\n.cost-val.free-cost {\n  color: #10b981;\n  font-weight: 900;\n}\n.back-to-top-btn {\n  position: fixed;\n  bottom: 2rem;\n  right: 2rem;\n  z-index: 1000;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  border: none;\n  font-size: 1.5rem;\n  font-weight: 900;\n  cursor: pointer;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);\n  opacity: 0;\n  pointer-events: none;\n  transform: translateY(20px) scale(0.8);\n  background:\n    linear-gradient(\n      135deg,\n      #ffd700,\n      #ff8c00);\n  color: #111;\n  box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);\n}\n.back-to-top-btn.visible {\n  opacity: 1;\n  pointer-events: auto;\n  transform: translateY(0) scale(1);\n}\n.back-to-top-btn:hover {\n  transform: translateY(-3px) scale(1.1);\n  box-shadow: 0 10px 35px rgba(255, 140, 0, 0.6);\n}\n.back-to-top-btn:active {\n  transform: translateY(0) scale(0.95);\n}\n.back-to-top-btn.theme-light {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n  box-shadow: 0 6px 25px rgba(180, 100, 0, 0.35);\n}\n.back-to-top-btn.theme-light:hover {\n  box-shadow: 0 10px 35px rgba(180, 100, 0, 0.55);\n}\n.back-to-top-btn.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.back-to-top-btn.theme-contrast:hover {\n  background: #ffff00;\n  color: #000000;\n}\n@media (max-width: 600px) {\n  .shop-balance-bar {\n    flex-direction: column;\n    align-items: center;\n    gap: 0.8rem;\n    border-radius: 20px;\n  }\n  .shop-title {\n    font-size: 2rem;\n  }\n  .booster-banner-content {\n    flex-direction: column;\n    gap: 0.5rem;\n    text-align: center;\n  }\n  .shop-nav-bar {\n    gap: 0.4rem;\n    padding: 0.5rem;\n  }\n  .shop-nav-btn {\n    padding: 0.5rem 0.9rem;\n    font-size: 0.78rem;\n  }\n  .section-title {\n    font-size: 1.1rem;\n    padding: 0.4rem 1rem;\n  }\n  .back-to-top-btn {\n    bottom: 1.2rem;\n    right: 1.2rem;\n    width: 44px;\n    height: 44px;\n    font-size: 1.3rem;\n  }\n}\n.shop-container.theme-light {\n  color: #2b1f14;\n}\n.shop-container.theme-light .shop-title {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  -webkit-background-clip: text;\n  background-clip: text;\n  -webkit-text-fill-color: transparent;\n  text-shadow: none;\n}\n.shop-container.theme-light .shop-subtitle {\n  color: #4a3525;\n  opacity: 0.95;\n  font-weight: 600;\n}\n.shop-container.theme-light .shop-nav-bar {\n  background: rgba(180, 120, 50, 0.08);\n  border-color: rgba(180, 120, 50, 0.2);\n}\n.shop-container.theme-light .shop-nav-btn {\n  background: rgba(255, 255, 255, 0.7);\n  color: #4a3525;\n  border-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .nav-upgrade {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .nav-upgrade:hover {\n  background: rgba(211, 47, 47, 0.12);\n  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);\n}\n.shop-container.theme-light .nav-dogecoin {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .nav-dogecoin:hover {\n  background: rgba(179, 89, 0, 0.12);\n  box-shadow: 0 4px 12px rgba(179, 89, 0, 0.2);\n}\n.shop-container.theme-light .nav-booster {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .nav-booster:hover {\n  background: rgba(0, 114, 204, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 114, 204, 0.2);\n}\n.shop-container.theme-light .nav-cheems {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .nav-cheems:hover {\n  background: rgba(194, 24, 91, 0.1);\n  box-shadow: 0 4px 12px rgba(194, 24, 91, 0.2);\n}\n.shop-container.theme-light .nav-sound {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .nav-sound:hover {\n  background: rgba(0, 135, 90, 0.1);\n  box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);\n}\n.shop-container.theme-light .nav-music {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .nav-music:hover {\n  background: rgba(106, 27, 154, 0.1);\n  box-shadow: 0 4px 12px rgba(106, 27, 154, 0.2);\n}\n.shop-container.theme-light .section-title {\n  background: rgba(255, 255, 255, 0.8);\n}\n.shop-container.theme-light .upgrade-title {\n  color: #d32f2f;\n  border-color: rgba(211, 47, 47, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.upgrade-title)::before,\n.shop-container.theme-light .section-separator:has(.upgrade-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(211, 47, 47, 0.4),\n      transparent);\n}\n.shop-container.theme-light .dogecoin-title {\n  color: #b35900;\n  border-color: rgba(179, 89, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::before,\n.shop-container.theme-light .section-separator:has(.dogecoin-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(179, 89, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .minigames-title {\n  color: #cc7000;\n  border-color: rgba(204, 112, 0, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.minigames-title)::before,\n.shop-container.theme-light .section-separator:has(.minigames-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(204, 112, 0, 0.4),\n      transparent);\n}\n.shop-container.theme-light .booster-title {\n  color: #0072cc;\n  border-color: rgba(0, 114, 204, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.booster-title)::before,\n.shop-container.theme-light .section-separator:has(.booster-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 114, 204, 0.4),\n      transparent);\n}\n.shop-container.theme-light .cheems-title {\n  color: #c2185b;\n  border-color: rgba(194, 24, 91, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.cheems-title)::before,\n.shop-container.theme-light .section-separator:has(.cheems-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(194, 24, 91, 0.4),\n      transparent);\n}\n.shop-container.theme-light .sound-title {\n  color: #00875a;\n  border-color: rgba(0, 135, 90, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.sound-title)::before,\n.shop-container.theme-light .section-separator:has(.sound-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(0, 135, 90, 0.4),\n      transparent);\n}\n.shop-container.theme-light .music-title {\n  color: #6a1b9a;\n  border-color: rgba(106, 27, 154, 0.4);\n}\n.shop-container.theme-light .section-separator:has(.music-title)::before,\n.shop-container.theme-light .section-separator:has(.music-title)::after {\n  background:\n    linear-gradient(\n      90deg,\n      transparent,\n      rgba(106, 27, 154, 0.4),\n      transparent);\n}\n.shop-container.theme-light .shop-balance-bar {\n  background: rgba(255, 255, 255, 0.85);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  box-shadow: 0 4px 20px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .balance-label {\n  color: #4a3525;\n  opacity: 0.9;\n}\n.shop-container.theme-light .points-val {\n  color: #b35900;\n}\n.shop-container.theme-light .doge-val {\n  color: #d97706;\n}\n.shop-container.theme-light .shop-card {\n  background: rgba(255, 255, 255, 0.9);\n  border: 2px solid rgba(180, 120, 50, 0.35);\n  color: #2b1f14;\n  box-shadow: 0 8px 24px rgba(100, 70, 30, 0.15);\n}\n.shop-container.theme-light .shop-card.coin-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 245, 210, 0.95),\n      rgba(255, 235, 180, 0.95));\n  border-color: #d97706;\n}\n.shop-container.theme-light .shop-card.booster-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(230, 248, 255, 0.95),\n      rgba(240, 235, 255, 0.95));\n  border-color: #0072ff;\n}\n.shop-container.theme-light .shop-card.minigames-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 240, 220, 0.95),\n      rgba(255, 225, 200, 0.95));\n  border-color: #cc7000;\n}\n.shop-container.theme-light .shop-card.cheems-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 230, 245, 0.95),\n      rgba(255, 215, 240, 0.95));\n  border-color: #c2185b;\n}\n.shop-container.theme-light .shop-card.sound-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(220, 255, 240, 0.95),\n      rgba(200, 245, 225, 0.95));\n  border-color: #00875a;\n}\n.shop-container.theme-light .shop-card.music-card {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(240, 225, 255, 0.95),\n      rgba(230, 210, 255, 0.95));\n  border-color: #6a1b9a;\n}\n.shop-container.theme-light .item-name {\n  color: #1a120b;\n  font-weight: 800;\n}\n.shop-container.theme-light .item-desc {\n  color: #3d2c1e;\n  opacity: 0.95;\n  font-weight: 500;\n}\n.shop-container.theme-light .cost-label {\n  color: #5c432d;\n  opacity: 0.85;\n  font-weight: 700;\n}\n.shop-container.theme-light .cost-val {\n  color: #b35900;\n  font-weight: 900;\n}\n.shop-container.theme-light .shop-card-footer {\n  border-top-color: rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .active-booster-banner {\n  background:\n    linear-gradient(\n      135deg,\n      rgba(255, 235, 180, 0.95),\n      rgba(255, 215, 130, 0.95));\n  border: 2px solid #b35900;\n  color: #1a120b;\n  box-shadow: 0 4px 20px rgba(180, 120, 50, 0.25);\n}\n.shop-container.theme-light .booster-banner-timer {\n  background: #fff;\n  color: #b35900;\n  border-color: #b35900;\n}\n.shop-container.theme-light .daily-limit-badge {\n  background: rgba(180, 120, 50, 0.15);\n  color: #8c4600;\n  border-color: rgba(180, 120, 50, 0.4);\n}\n.shop-container.theme-light .daily-limit-badge.limit-reached {\n  background: rgba(220, 38, 38, 0.15);\n  color: #b91c1c;\n  border-color: rgba(220, 38, 38, 0.4);\n}\n.shop-container.theme-light .cost-val.free-cost {\n  color: #059669;\n}\n.shop-container.theme-light .buy-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #b35900,\n      #d97706);\n  color: #fff;\n}\n.shop-container.theme-light .buy-btn:hover:not(:disabled) {\n  background:\n    linear-gradient(\n      135deg,\n      #cc6600,\n      #e08a0f);\n}\n.shop-container.theme-light .buy-btn:disabled {\n  background: rgba(180, 120, 50, 0.2);\n  color: rgba(100, 70, 30, 0.5);\n}\n.shop-container.theme-contrast {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .shop-title {\n  background: none;\n  -webkit-background-clip: unset;\n  background-clip: unset;\n  -webkit-text-fill-color: #ffff00;\n  text-shadow: none;\n}\n.shop-container.theme-contrast .shop-subtitle {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-nav-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  border-radius: 12px;\n}\n.shop-container.theme-contrast .shop-nav-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  border-radius: 50px;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-nav-btn:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .nav-dogecoin,\n.shop-container.theme-contrast .nav-booster,\n.shop-container.theme-contrast .nav-cheems,\n.shop-container.theme-contrast .nav-sound,\n.shop-container.theme-contrast .nav-music {\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .nav-dogecoin:hover,\n.shop-container.theme-contrast .nav-booster:hover,\n.shop-container.theme-contrast .nav-cheems:hover,\n.shop-container.theme-contrast .nav-sound:hover,\n.shop-container.theme-contrast .nav-music:hover {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .section-separator::before,\n.shop-container.theme-contrast .section-separator::after {\n  background: #ffffff !important;\n  height: 2px;\n}\n.shop-container.theme-contrast .section-title {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .dogecoin-title,\n.shop-container.theme-contrast .booster-title,\n.shop-container.theme-contrast .minigames-title,\n.shop-container.theme-contrast .cheems-title,\n.shop-container.theme-contrast .sound-title,\n.shop-container.theme-contrast .music-title {\n  color: #ffff00;\n  border-color: #ffff00;\n  background: #000000;\n}\n.shop-container.theme-contrast .shop-balance-bar {\n  background: #000000;\n  border: 2px solid #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .balance-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .points-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .doge-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .shop-card {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n  box-shadow: none;\n  -webkit-backdrop-filter: none;\n  backdrop-filter: none;\n}\n.shop-container.theme-contrast .shop-card:hover {\n  border-color: #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .shop-card.coin-card,\n.shop-container.theme-contrast .shop-card.booster-card,\n.shop-container.theme-contrast .shop-card.minigames-card,\n.shop-container.theme-contrast .shop-card.cheems-card,\n.shop-container.theme-contrast .shop-card.sound-card,\n.shop-container.theme-contrast .shop-card.music-card {\n  background: #000000;\n  border-color: #ffffff;\n}\n.shop-container.theme-contrast .shop-card.coin-card:hover,\n.shop-container.theme-contrast .shop-card.booster-card:hover,\n.shop-container.theme-contrast .shop-card.minigames-card:hover,\n.shop-container.theme-contrast .shop-card.cheems-card:hover,\n.shop-container.theme-contrast .shop-card.sound-card:hover,\n.shop-container.theme-contrast .shop-card.music-card:hover {\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .item-name {\n  color: #ffffff;\n}\n.shop-container.theme-contrast .item-desc {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .cost-val {\n  color: #ffff00;\n}\n.shop-container.theme-contrast .cost-label {\n  color: #ffffff;\n  opacity: 1;\n}\n.shop-container.theme-contrast .shop-card-footer {\n  border-top-color: #ffffff;\n}\n.shop-container.theme-contrast .multiplier-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:hover:not(:disabled) {\n  background: #ffff00;\n  color: #000000;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .buy-btn:disabled {\n  background: #000000;\n  color: #666666;\n  border-color: #666666;\n  box-shadow: none;\n}\n.shop-container.theme-contrast .active-booster-banner {\n  background: #000000;\n  border: 2px solid #ffff00;\n  color: #ffffff;\n  box-shadow: none;\n  animation: none;\n}\n.shop-container.theme-contrast .booster-banner-timer {\n  background: #000000;\n  color: #ffff00;\n  border-color: #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge {\n  background: #000000;\n  color: #ffff00;\n  border: 2px solid #ffff00;\n}\n.shop-container.theme-contrast .daily-limit-badge.limit-reached {\n  color: #ff4444;\n  border-color: #ff4444;\n}\n.shop-container.theme-contrast .cost-val.free-cost {\n  color: #00ff00;\n}\n/*# sourceMappingURL=shop.component.css.map */\n'] }]
   }], null, { onWindowScroll: [{
     type: HostListener,
     args: ["window:scroll"]
@@ -53170,7 +53221,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
       \u0275\u0275advance(2);
       \u0275\u0275conditional(ctx.showLevelUpModal ? 49 : -1);
     }
-  }, styles: ['\n\n[_ngcontent-%COMP%]:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper[_ngcontent-%COMP%] {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1[_ngcontent-%COMP%] {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title[_ngcontent-%COMP%] {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container[_ngcontent-%COMP%] {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n}\n.ui-header[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins[_ngcontent-%COMP%] {\n  color: #FFD700;\n}\n.lvl[_ngcontent-%COMP%] {\n  color: #00FFFF;\n}\n.buy-controls[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton[_ngcontent-%COMP%] {\n  background: var(--accent);\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  background: #45a049;\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\nbutton[_ngcontent-%COMP%]:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background: #2196F3;\n}\n.buy-btn[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.trash-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over[_ngcontent-%COMP%] {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight[_ngcontent-%COMP%] {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(5, 80px);\n  grid-template-rows: repeat(2, 80px);\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 430px;\n  max-width: 100%;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers[_ngcontent-%COMP%] {\n  display: flex;\n  width: 430px;\n  max-width: 100%;\n  justify-content: space-around;\n  color: #888;\n  font-size: 0.85em;\n  margin-bottom: 2px;\n}\n.grid-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected[_ngcontent-%COMP%] {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over[_ngcontent-%COMP%] {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool[_ngcontent-%COMP%] {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool[_ngcontent-%COMP%]:active {\n  cursor: grabbing;\n}\n#dig-canvas[_ngcontent-%COMP%] {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 420px;\n  height: auto;\n  min-height: 480px;\n  max-width: 100%;\n  display: block;\n}\n.overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\n.overlay[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.lvl-up-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal[_ngcontent-%COMP%] {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn[_ngcontent-%COMP%] {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn[_ngcontent-%COMP%] {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn[_ngcontent-%COMP%]:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn[_ngcontent-%COMP%] {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn[_ngcontent-%COMP%]:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */'] });
+  }, styles: ['\n\n[_ngcontent-%COMP%]:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper[_ngcontent-%COMP%] {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1[_ngcontent-%COMP%] {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title[_ngcontent-%COMP%] {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container[_ngcontent-%COMP%] {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n  background-color: #222020ec;\n}\n.ui-header[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins[_ngcontent-%COMP%] {\n  color: #FFD700;\n}\n.lvl[_ngcontent-%COMP%] {\n  color: #00FFFF;\n}\n.buy-controls[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton[_ngcontent-%COMP%] {\n  background: var(--accent);\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  background: #45a049;\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\nbutton[_ngcontent-%COMP%]:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background: #2196F3;\n}\n.buy-btn[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.trash-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over[_ngcontent-%COMP%] {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight[_ngcontent-%COMP%] {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(5, 80px);\n  grid-template-rows: repeat(2, 80px);\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 430px;\n  max-width: 100%;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers[_ngcontent-%COMP%] {\n  display: flex;\n  width: 430px;\n  max-width: 100%;\n  justify-content: space-around;\n  color: #888;\n  font-size: 0.85em;\n  margin-bottom: 2px;\n}\n.grid-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected[_ngcontent-%COMP%] {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over[_ngcontent-%COMP%] {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool[_ngcontent-%COMP%] {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool[_ngcontent-%COMP%]:active {\n  cursor: grabbing;\n}\n#dig-canvas[_ngcontent-%COMP%] {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 420px;\n  height: auto;\n  min-height: 480px;\n  max-width: 100%;\n  display: block;\n}\n.overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\n.overlay[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.lvl-up-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal[_ngcontent-%COMP%] {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn[_ngcontent-%COMP%] {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn[_ngcontent-%COMP%] {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn[_ngcontent-%COMP%]:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn[_ngcontent-%COMP%] {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn[_ngcontent-%COMP%]:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BlockBreakerComponent, [{
@@ -53269,7 +53320,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
         }
     </div>
 </div>
-`, styles: ['/* src/app/games/block_breaker/block_breaker.component.css */\n:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1 {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n}\n.ui-header {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins {\n  color: #FFD700;\n}\n.lvl {\n  color: #00FFFF;\n}\n.buy-controls {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton {\n  background: var(--accent);\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton:hover {\n  background: #45a049;\n}\nbutton:active {\n  transform: scale(0.95);\n}\nbutton:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn {\n  background: #2196F3;\n}\n.buy-btn:hover {\n  background: #1976D2;\n}\n.trash-slot {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid {\n  display: grid;\n  grid-template-columns: repeat(5, 80px);\n  grid-template-rows: repeat(2, 80px);\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 430px;\n  max-width: 100%;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers {\n  display: flex;\n  width: 430px;\n  max-width: 100%;\n  justify-content: space-around;\n  color: #888;\n  font-size: 0.85em;\n  margin-bottom: 2px;\n}\n.grid-slot {\n  width: 80px;\n  height: 80px;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool:active {\n  cursor: grabbing;\n}\n#dig-canvas {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 420px;\n  height: auto;\n  min-height: 480px;\n  max-width: 100%;\n  display: block;\n}\n.overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden {\n  display: none !important;\n}\n.overlay h2 {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay p {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success h2 {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger h2 {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay button {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay button:hover {\n  background: #1976D2;\n}\n.lvl-up-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal h3 {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal p {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */\n'] }]
+`, styles: ['/* src/app/games/block_breaker/block_breaker.component.css */\n:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1 {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n  background-color: #222020ec;\n}\n.ui-header {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins {\n  color: #FFD700;\n}\n.lvl {\n  color: #00FFFF;\n}\n.buy-controls {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton {\n  background: var(--accent);\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton:hover {\n  background: #45a049;\n}\nbutton:active {\n  transform: scale(0.95);\n}\nbutton:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn {\n  background: #2196F3;\n}\n.buy-btn:hover {\n  background: #1976D2;\n}\n.trash-slot {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid {\n  display: grid;\n  grid-template-columns: repeat(5, 80px);\n  grid-template-rows: repeat(2, 80px);\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 430px;\n  max-width: 100%;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers {\n  display: flex;\n  width: 430px;\n  max-width: 100%;\n  justify-content: space-around;\n  color: #888;\n  font-size: 0.85em;\n  margin-bottom: 2px;\n}\n.grid-slot {\n  width: 80px;\n  height: 80px;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool:active {\n  cursor: grabbing;\n}\n#dig-canvas {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 420px;\n  height: auto;\n  min-height: 480px;\n  max-width: 100%;\n  display: block;\n}\n.overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden {\n  display: none !important;\n}\n.overlay h2 {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay p {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success h2 {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger h2 {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay button {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay button:hover {\n  background: #1976D2;\n}\n.lvl-up-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal h3 {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal p {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */\n'] }]
   }], null, null);
 })();
 (() => {
@@ -83433,7 +83484,7 @@ var DogeRescueComponent = class _DogeRescueComponent {
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.gameState === "LOSE" ? 19 : -1);
     }
-  }, dependencies: [CommonModule], styles: ["\n\n.doge-rescue-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: #333;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n  overflow: hidden;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100%;\n  max-width: 600px;\n  aspect-ratio: 3 / 4;\n  background:\n    linear-gradient(\n      180deg,\n      #e0f7fa 0%,\n      #b2ebf2 100%);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);\n  overflow: hidden;\n}\ncanvas[_ngcontent-%COMP%] {\n  display: block;\n  width: 100%;\n  height: 100%;\n  cursor: crosshair;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #333;\n}\n.timer-box[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  color: #d32f2f;\n  font-weight: 800;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 2.5em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-align: center;\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #eee;\n  margin-bottom: 25px;\n  text-align: center;\n  max-width: 80%;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 12px 35px;\n  font-size: 1.3em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #FF9800,\n      #F57C00);\n  border: none;\n  border-radius: 40px;\n  cursor: pointer;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=doge_rescue.component.css.map */"] });
+  }, dependencies: [CommonModule], styles: ["\n\n.doge-rescue-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n  overflow: hidden;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100%;\n  max-width: 600px;\n  aspect-ratio: 3 / 4;\n  background:\n    linear-gradient(\n      180deg,\n      #e0f7fa 0%,\n      #b2ebf2 100%);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);\n  overflow: hidden;\n}\ncanvas[_ngcontent-%COMP%] {\n  display: block;\n  width: 100%;\n  height: 100%;\n  cursor: crosshair;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #333;\n}\n.timer-box[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  color: #d32f2f;\n  font-weight: 800;\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 2.5em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-align: center;\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #eee;\n  margin-bottom: 25px;\n  text-align: center;\n  max-width: 80%;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 12px 35px;\n  font-size: 1.3em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #FF9800,\n      #F57C00);\n  border: none;\n  border-radius: 40px;\n  cursor: pointer;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=doge_rescue.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DogeRescueComponent, [{
@@ -83477,7 +83528,7 @@ var DogeRescueComponent = class _DogeRescueComponent {
     }
   </div>
 </div>
-`, styles: ["/* src/app/games/doge_rescue/doge_rescue.component.css */\n.doge-rescue-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background-color: #333;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n  overflow: hidden;\n}\n#game-container {\n  position: relative;\n  width: 100%;\n  max-width: 600px;\n  aspect-ratio: 3 / 4;\n  background:\n    linear-gradient(\n      180deg,\n      #e0f7fa 0%,\n      #b2ebf2 100%);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);\n  overflow: hidden;\n}\ncanvas {\n  display: block;\n  width: 100%;\n  height: 100%;\n  cursor: crosshair;\n}\n.ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #333;\n}\n.timer-box {\n  font-size: 1.5em;\n  color: #d32f2f;\n  font-weight: 800;\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 2.5em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-align: center;\n}\n.screen p {\n  font-size: 1.2em;\n  color: #eee;\n  margin-bottom: 25px;\n  text-align: center;\n  max-width: 80%;\n}\n.btn {\n  padding: 12px 35px;\n  font-size: 1.3em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #FF9800,\n      #F57C00);\n  border: none;\n  border-radius: 40px;\n  cursor: pointer;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=doge_rescue.component.css.map */\n"] }]
+`, styles: ["/* src/app/games/doge_rescue/doge_rescue.component.css */\n.doge-rescue-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  -webkit-user-select: none;\n  user-select: none;\n  touch-action: none;\n  overflow: hidden;\n}\n#game-container {\n  position: relative;\n  width: 100%;\n  max-width: 600px;\n  aspect-ratio: 3 / 4;\n  background:\n    linear-gradient(\n      180deg,\n      #e0f7fa 0%,\n      #b2ebf2 100%);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);\n  overflow: hidden;\n}\ncanvas {\n  display: block;\n  width: 100%;\n  height: 100%;\n  cursor: crosshair;\n}\n.ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  padding: 15px 25px;\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #333;\n}\n.timer-box {\n  font-size: 1.5em;\n  color: #d32f2f;\n  font-weight: 800;\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 2.5em;\n  color: #fff;\n  margin-bottom: 15px;\n  text-align: center;\n}\n.screen p {\n  font-size: 1.2em;\n  color: #eee;\n  margin-bottom: 25px;\n  text-align: center;\n  max-width: 80%;\n}\n.btn {\n  padding: 12px 35px;\n  font-size: 1.3em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #FF9800,\n      #F57C00);\n  border: none;\n  border-radius: 40px;\n  cursor: pointer;\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=doge_rescue.component.css.map */\n"] }]
   }], null, { gameContainer: [{
     type: ViewChild,
     args: ["gameContainer"]
@@ -84979,11 +85030,11 @@ var MagicSortComponent = class _MagicSortComponent {
   ngOnInit() {
     this.tools.setTitle("magic_sort");
     this.tools.actPage = "magic_sort";
+    this.startLevel();
+    this.gameState = "START";
   }
   ngAfterViewInit() {
     this.createStars();
-    this.startLevel();
-    this.gameState = "START";
   }
   ngOnDestroy() {
     this.stars.forEach((star) => {
@@ -85618,7 +85669,7 @@ var MobControlComponent = class _MobControlComponent {
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.gameState === "LOSE" ? 17 : -1);
     }
-  }, dependencies: [CommonModule], styles: ['\n\n.mob-control-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  background-color: #2b2b2b;\n  color: #ffffff;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  -webkit-user-select: none;\n  user-select: none;\n  overflow: hidden;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100%;\n  max-width: 500px;\n  aspect-ratio: 2 / 3;\n  background: #444;\n  border-radius: 12px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n  overflow: hidden;\n}\ncanvas[_ngcontent-%COMP%] {\n  display: block;\n  width: 100%;\n  height: 100%;\n  background-color: #1e1e1e;\n  cursor: ew-resize;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  padding: 15px 20px;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      180deg,\n      rgba(0, 0, 0, 0.6) 0%,\n      transparent 100%);\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 2.8em;\n  color: #4CAF50;\n  margin-bottom: 15px;\n  text-align: center;\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n  max-width: 80%;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 12px 35px;\n  font-size: 1.3em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #4CAF50,\n      #2E7D32);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=mob_control.component.css.map */'] });
+  }, dependencies: [CommonModule], styles: ['\n\n.mob-control-wrapper[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  color: #ffffff;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  -webkit-user-select: none;\n  user-select: none;\n  overflow: hidden;\n  touch-action: none;\n}\n#game-container[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100%;\n  max-width: 500px;\n  aspect-ratio: 2 / 3;\n  background: #444;\n  border-radius: 12px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n  overflow: hidden;\n}\ncanvas[_ngcontent-%COMP%] {\n  display: block;\n  width: 100%;\n  height: 100%;\n  background-color: #1e1e1e;\n  cursor: ew-resize;\n}\n.ui-layer[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  padding: 15px 20px;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      180deg,\n      rgba(0, 0, 0, 0.6) 0%,\n      transparent 100%);\n}\n.screen[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 2.8em;\n  color: #4CAF50;\n  margin-bottom: 15px;\n  text-align: center;\n}\n.screen[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n  max-width: 80%;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 12px 35px;\n  font-size: 1.3em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #4CAF50,\n      #2E7D32);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=mob_control.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MobControlComponent, [{
@@ -85659,7 +85710,7 @@ var MobControlComponent = class _MobControlComponent {
     }
   </div>
 </div>
-`, styles: ['/* src/app/games/mob_control/mob_control.component.css */\n.mob-control-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  background-color: #2b2b2b;\n  color: #ffffff;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  -webkit-user-select: none;\n  user-select: none;\n  overflow: hidden;\n  touch-action: none;\n}\n#game-container {\n  position: relative;\n  width: 100%;\n  max-width: 500px;\n  aspect-ratio: 2 / 3;\n  background: #444;\n  border-radius: 12px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n  overflow: hidden;\n}\ncanvas {\n  display: block;\n  width: 100%;\n  height: 100%;\n  background-color: #1e1e1e;\n  cursor: ew-resize;\n}\n.ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  display: flex;\n  justify-content: space-between;\n  padding: 15px 20px;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      180deg,\n      rgba(0, 0, 0, 0.6) 0%,\n      transparent 100%);\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 2.8em;\n  color: #4CAF50;\n  margin-bottom: 15px;\n  text-align: center;\n}\n.screen p {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n  max-width: 80%;\n}\n.btn {\n  padding: 12px 35px;\n  font-size: 1.3em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #4CAF50,\n      #2E7D32);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=mob_control.component.css.map */\n'] }]
+`, styles: ['/* src/app/games/mob_control/mob_control.component.css */\n.mob-control-wrapper {\n  position: relative;\n  width: 100vw;\n  height: 100vh;\n  color: #ffffff;\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  -webkit-user-select: none;\n  user-select: none;\n  overflow: hidden;\n  touch-action: none;\n}\n#game-container {\n  position: relative;\n  width: 100%;\n  max-width: 500px;\n  aspect-ratio: 2 / 3;\n  background: #444;\n  border-radius: 12px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n  overflow: hidden;\n}\ncanvas {\n  display: block;\n  width: 100%;\n  height: 100%;\n  background-color: #1e1e1e;\n  cursor: ew-resize;\n}\n.ui-layer {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  pointer-events: none;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  z-index: 10;\n}\n.hud {\n  display: flex;\n  justify-content: space-between;\n  padding: 15px 20px;\n  font-size: 1.5em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      180deg,\n      rgba(0, 0, 0, 0.6) 0%,\n      transparent 100%);\n}\n.screen {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  pointer-events: auto;\n  z-index: 20;\n}\n.screen h1 {\n  font-size: 2.8em;\n  color: #4CAF50;\n  margin-bottom: 15px;\n  text-align: center;\n}\n.screen p {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 25px;\n  text-align: center;\n  max-width: 80%;\n}\n.btn {\n  padding: 12px 35px;\n  font-size: 1.3em;\n  font-weight: bold;\n  color: #fff;\n  background:\n    linear-gradient(\n      135deg,\n      #4CAF50,\n      #2E7D32);\n  border: none;\n  border-radius: 50px;\n  cursor: pointer;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);\n  transition: transform 0.1s;\n}\n.btn:hover {\n  transform: scale(1.05);\n}\n.btn:active {\n  transform: scale(0.95);\n}\n/*# sourceMappingURL=mob_control.component.css.map */\n'] }]
   }], null, { gameContainer: [{
     type: ViewChild,
     args: ["gameContainer"]
@@ -86915,7 +86966,7 @@ var SpiralRollComponent = class _SpiralRollComponent {
     spiralTex.wrapS = RepeatWrapping;
     spiralTex.wrapT = RepeatWrapping;
     const textureLoader = new TextureLoader();
-    this.coinTex = textureLoader.load("img/dogecoin-min.png");
+    this.coinTex = textureLoader.load("img/dogecoin.png");
     this.woodMat = new MeshLambertMaterial({ color: 15120769 });
     this.spiralMat = new MeshLambertMaterial({ map: spiralTex });
     this.metalMat = new MeshLambertMaterial({ color: 12436423 });
@@ -88253,9 +88304,9 @@ function RockPaperPokeComponent_div_11_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
-function RockPaperPokeComponent_div_12_div_5_span_10_Template(rf, ctx) {
+function RockPaperPokeComponent_div_12_div_5_ng_container_5_span_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 33);
+    \u0275\u0275elementStart(0, "span", 34);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -88266,31 +88317,25 @@ function RockPaperPokeComponent_div_12_div_5_span_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate(t_r1);
   }
 }
-function RockPaperPokeComponent_div_12_div_5_Template(rf, ctx) {
+function RockPaperPokeComponent_div_12_div_5_ng_container_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 21)(1, "div", 22)(2, "div", 23);
-    \u0275\u0275element(3, "img", 24);
+    \u0275\u0275elementContainerStart(0);
+    \u0275\u0275element(1, "img", 27);
+    \u0275\u0275elementStart(2, "div", 28)(3, "span", 29);
+    \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 25);
-    \u0275\u0275element(5, "img", 26);
-    \u0275\u0275elementStart(6, "div", 27)(7, "span", 28);
-    \u0275\u0275text(8);
+    \u0275\u0275elementStart(5, "div", 30);
+    \u0275\u0275template(6, RockPaperPokeComponent_div_12_div_5_ng_container_5_span_6_Template, 2, 2, "span", 31);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "div", 29);
-    \u0275\u0275template(10, RockPaperPokeComponent_div_12_div_5_span_10_Template, 2, 2, "span", 30);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "span", 31);
-    \u0275\u0275element(12, "i", 32);
-    \u0275\u0275text(13);
-    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275elementStart(7, "span", 32);
+    \u0275\u0275element(8, "i", 33);
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementContainerEnd();
   }
   if (rf & 2) {
-    const o_r2 = ctx.$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275classProp("selected", ctx_r2.selectedOpponentPokemon === o_r2)("revealed", ctx_r2.battleState === "RESULT" || ctx_r2.battleState !== "SELECT" && ctx_r2.selectedOpponentPokemon === o_r2);
-    \u0275\u0275advance(3);
-    \u0275\u0275property("src", ctx_r2.eggSkin, \u0275\u0275sanitizeUrl);
-    \u0275\u0275advance(2);
+    const o_r2 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
     \u0275\u0275property("src", o_r2.isShiny ? o_r2.shiny : o_r2.skin, \u0275\u0275sanitizeUrl);
     \u0275\u0275advance(2);
     \u0275\u0275classProp("is-shiny", o_r2.isShiny);
@@ -88300,6 +88345,25 @@ function RockPaperPokeComponent_div_12_div_5_Template(rf, ctx) {
     \u0275\u0275property("ngForOf", o_r2.types);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate2(" ", o_r2.dice_roll[0], " - ", o_r2.dice_roll[1], "");
+  }
+}
+function RockPaperPokeComponent_div_12_div_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 21)(1, "div", 22)(2, "div", 23);
+    \u0275\u0275element(3, "img", 24);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 25);
+    \u0275\u0275template(5, RockPaperPokeComponent_div_12_div_5_ng_container_5_Template, 10, 7, "ng-container", 26);
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const o_r2 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("selected", ctx_r2.selectedOpponentPokemon === o_r2)("revealed", ctx_r2.battleState === "RESULT" || ctx_r2.battleState !== "SELECT" && ctx_r2.selectedOpponentPokemon === o_r2);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("src", ctx_r2.eggSkin, \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngIf", ctx_r2.battleState === "RESULT" || ctx_r2.battleState !== "SELECT" && ctx_r2.selectedOpponentPokemon === o_r2);
   }
 }
 function RockPaperPokeComponent_div_12_div_6_div_1_h1_1_Template(rf, ctx) {
@@ -88340,8 +88404,8 @@ function RockPaperPokeComponent_div_12_div_6_div_1_h1_3_Template(rf, ctx) {
 }
 function RockPaperPokeComponent_div_12_div_6_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 43);
-    \u0275\u0275template(1, RockPaperPokeComponent_div_12_div_6_div_1_h1_1_Template, 2, 1, "h1", 44)(2, RockPaperPokeComponent_div_12_div_6_div_1_h1_2_Template, 2, 1, "h1", 44)(3, RockPaperPokeComponent_div_12_div_6_div_1_h1_3_Template, 2, 1, "h1", 44);
+    \u0275\u0275elementStart(0, "div", 44);
+    \u0275\u0275template(1, RockPaperPokeComponent_div_12_div_6_div_1_h1_1_Template, 2, 1, "h1", 26)(2, RockPaperPokeComponent_div_12_div_6_div_1_h1_2_Template, 2, 1, "h1", 26)(3, RockPaperPokeComponent_div_12_div_6_div_1_h1_3_Template, 2, 1, "h1", 26);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -88521,22 +88585,22 @@ function RockPaperPokeComponent_div_12_div_6_button_15_Template(rf, ctx) {
 }
 function RockPaperPokeComponent_div_12_div_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 34);
-    \u0275\u0275template(1, RockPaperPokeComponent_div_12_div_6_div_1_Template, 4, 4, "div", 35);
-    \u0275\u0275elementStart(2, "div", 36)(3, "div", 37)(4, "h4");
+    \u0275\u0275elementStart(0, "div", 35);
+    \u0275\u0275template(1, RockPaperPokeComponent_div_12_div_6_div_1_Template, 4, 4, "div", 36);
+    \u0275\u0275elementStart(2, "div", 37)(3, "div", 38)(4, "h4");
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(6, RockPaperPokeComponent_div_12_div_6_div_6_Template, 2, 1, "div", 38)(7, RockPaperPokeComponent_div_12_div_6_div_7_Template, 5, 4, "div", 39);
+    \u0275\u0275template(6, RockPaperPokeComponent_div_12_div_6_div_6_Template, 2, 1, "div", 39)(7, RockPaperPokeComponent_div_12_div_6_div_7_Template, 5, 4, "div", 40);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "div", 40);
+    \u0275\u0275elementStart(8, "div", 41);
     \u0275\u0275text(9, "VS");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "div", 41)(11, "h4");
+    \u0275\u0275elementStart(10, "div", 42)(11, "h4");
     \u0275\u0275text(12);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(13, RockPaperPokeComponent_div_12_div_6_div_13_Template, 2, 1, "div", 38)(14, RockPaperPokeComponent_div_12_div_6_div_14_Template, 5, 4, "div", 39);
+    \u0275\u0275template(13, RockPaperPokeComponent_div_12_div_6_div_13_Template, 2, 1, "div", 39)(14, RockPaperPokeComponent_div_12_div_6_div_14_Template, 5, 4, "div", 40);
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(15, RockPaperPokeComponent_div_12_div_6_button_15_Template, 2, 1, "button", 42);
+    \u0275\u0275template(15, RockPaperPokeComponent_div_12_div_6_button_15_Template, 2, 1, "button", 43);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -88563,84 +88627,97 @@ function RockPaperPokeComponent_div_12_div_6_Template(rf, ctx) {
     \u0275\u0275property("ngIf", ctx_r2.battleState === "RESULT");
   }
 }
-function RockPaperPokeComponent_div_12_div_11_span_13_Template(rf, ctx) {
+function RockPaperPokeComponent_div_12_div_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 33);
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 56)(1, "button", 57);
+    \u0275\u0275listener("click", function RockPaperPokeComponent_div_12_div_7_Template_button_click_1_listener() {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.confirmSelection());
+    });
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.lang == null ? null : ctx_r2.lang.confirm) || "Confirm", " ");
+  }
+}
+function RockPaperPokeComponent_div_12_div_12_ng_container_8_span_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 34);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const t_r9 = ctx.$implicit;
-    \u0275\u0275attribute("data-type", t_r9);
+    const t_r10 = ctx.$implicit;
+    \u0275\u0275attribute("data-type", t_r10);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(t_r9);
+    \u0275\u0275textInterpolate(t_r10);
   }
 }
-function RockPaperPokeComponent_div_12_div_11_Template(rf, ctx) {
+function RockPaperPokeComponent_div_12_div_12_ng_container_8_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 56);
-    \u0275\u0275listener("click", function RockPaperPokeComponent_div_12_div_11_Template_div_click_0_listener() {
-      const ctx_r5 = \u0275\u0275restoreView(_r5);
-      const p_r7 = ctx_r5.$implicit;
-      const i_r8 = ctx_r5.index;
+    \u0275\u0275elementContainerStart(0);
+    \u0275\u0275element(1, "img", 59);
+    \u0275\u0275elementStart(2, "div", 28)(3, "span", 29);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 30);
+    \u0275\u0275template(6, RockPaperPokeComponent_div_12_div_12_ng_container_8_span_6_Template, 2, 2, "span", 31);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "span", 32);
+    \u0275\u0275element(8, "i", 33);
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementContainerEnd();
+  }
+  if (rf & 2) {
+    const p_r8 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275property("src", p_r8.isShiny ? p_r8.shiny : p_r8.skin, \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("is-shiny", p_r8.isShiny);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(p_r8.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngForOf", p_r8.types);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate2(" ", p_r8.dice_roll[0], " - ", p_r8.dice_roll[1], "");
+  }
+}
+function RockPaperPokeComponent_div_12_div_12_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 58);
+    \u0275\u0275listener("click", function RockPaperPokeComponent_div_12_div_12_Template_div_click_0_listener() {
+      const ctx_r6 = \u0275\u0275restoreView(_r6);
+      const p_r8 = ctx_r6.$implicit;
+      const i_r9 = ctx_r6.index;
       const ctx_r2 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r2.selectPokemon(p_r7, i_r8));
+      return \u0275\u0275resetView(ctx_r2.selectPokemon(p_r8, i_r9));
     });
     \u0275\u0275elementStart(1, "div", 22)(2, "div", 23);
     \u0275\u0275element(3, "img", 24);
-    \u0275\u0275elementStart(4, "div", 27)(5, "span", 28);
+    \u0275\u0275elementStart(4, "div", 28)(5, "span", 29);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(7, "div", 25);
-    \u0275\u0275element(8, "img", 57);
-    \u0275\u0275elementStart(9, "div", 27)(10, "span", 28);
-    \u0275\u0275text(11);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "div", 29);
-    \u0275\u0275template(13, RockPaperPokeComponent_div_12_div_11_span_13_Template, 2, 2, "span", 30);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "span", 31);
-    \u0275\u0275element(15, "i", 32);
-    \u0275\u0275text(16);
-    \u0275\u0275elementEnd()()()()();
+    \u0275\u0275template(8, RockPaperPokeComponent_div_12_div_12_ng_container_8_Template, 10, 7, "ng-container", 26);
+    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const p_r7 = ctx.$implicit;
+    const p_r8 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275classProp("selected", ctx_r2.selectedPlayerPokemon === p_r7)("unselected", ctx_r2.selectedPlayerPokemon && ctx_r2.selectedPlayerPokemon !== p_r7)("revealed", !p_r7.isSurprise || ctx_r2.battleState !== "SELECT");
+    \u0275\u0275classProp("selected", ctx_r2.selectedPlayerPokemon === p_r8)("unselected", ctx_r2.selectedPlayerPokemon && ctx_r2.selectedPlayerPokemon !== p_r8)("revealed", !p_r8.isSurprise || ctx_r2.battleState !== "SELECT");
     \u0275\u0275advance(3);
     \u0275\u0275property("src", ctx_r2.eggSkin, \u0275\u0275sanitizeUrl);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.surprise_roll) || "Surprise roll");
     \u0275\u0275advance(2);
-    \u0275\u0275property("src", p_r7.isShiny ? p_r7.shiny : p_r7.skin, \u0275\u0275sanitizeUrl);
-    \u0275\u0275advance(2);
-    \u0275\u0275classProp("is-shiny", p_r7.isShiny);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(p_r7.name);
-    \u0275\u0275advance(2);
-    \u0275\u0275property("ngForOf", p_r7.types);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate2(" ", p_r7.dice_roll[0], " - ", p_r7.dice_roll[1], "");
-  }
-}
-function RockPaperPokeComponent_div_12_button_12_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 58);
-    \u0275\u0275listener("click", function RockPaperPokeComponent_div_12_button_12_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r10);
-      const ctx_r2 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r2.confirmSelection());
-    });
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", (ctx_r2.lang == null ? null : ctx_r2.lang.confirm) || "Confirm", " ");
+    \u0275\u0275property("ngIf", !p_r8.isSurprise || ctx_r2.battleState !== "SELECT");
   }
 }
 function RockPaperPokeComponent_div_12_Template(rf, ctx) {
@@ -88649,34 +88726,32 @@ function RockPaperPokeComponent_div_12_Template(rf, ctx) {
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 15);
-    \u0275\u0275template(5, RockPaperPokeComponent_div_12_div_5_Template, 14, 12, "div", 16);
+    \u0275\u0275template(5, RockPaperPokeComponent_div_12_div_5_Template, 6, 6, "div", 16);
     \u0275\u0275elementEnd()();
-    \u0275\u0275template(6, RockPaperPokeComponent_div_12_div_6_Template, 16, 12, "div", 17);
-    \u0275\u0275elementStart(7, "div", 18)(8, "h3");
-    \u0275\u0275text(9);
+    \u0275\u0275template(6, RockPaperPokeComponent_div_12_div_6_Template, 16, 12, "div", 17)(7, RockPaperPokeComponent_div_12_div_7_Template, 3, 1, "div", 18);
+    \u0275\u0275elementStart(8, "div", 19)(9, "h3");
+    \u0275\u0275text(10);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "div", 15);
-    \u0275\u0275template(11, RockPaperPokeComponent_div_12_div_11_Template, 17, 15, "div", 19);
-    \u0275\u0275elementEnd();
-    \u0275\u0275template(12, RockPaperPokeComponent_div_12_button_12_Template, 2, 1, "button", 20);
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(11, "div", 15);
+    \u0275\u0275template(12, RockPaperPokeComponent_div_12_div_12_Template, 9, 9, "div", 20);
+    \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.opponent) || "Opponent");
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngForOf", ctx_r2.opponentChoices);
+    \u0275\u0275property("ngForOf", ctx_r2.opponentChoices)("ngForTrackBy", ctx_r2.trackByFn);
     \u0275\u0275advance();
     \u0275\u0275property("ngIf", ctx_r2.battleState !== "SELECT" && ctx_r2.battleState !== "REVEAL");
+    \u0275\u0275advance();
+    \u0275\u0275property("ngIf", ctx_r2.battleState === "SELECT" && ctx_r2.selectedPlayerPokemon);
     \u0275\u0275advance();
     \u0275\u0275classProp("disabled", ctx_r2.battleState !== "SELECT");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate((ctx_r2.lang == null ? null : ctx_r2.lang.choosePokemon) || "Choose your Pokemon");
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngForOf", ctx_r2.playerChoices);
-    \u0275\u0275advance();
-    \u0275\u0275property("ngIf", ctx_r2.battleState === "SELECT" && ctx_r2.selectedPlayerPokemon);
+    \u0275\u0275property("ngForOf", ctx_r2.playerChoices)("ngForTrackBy", ctx_r2.trackByFn);
   }
 }
 var RockPaperPokeComponent = class _RockPaperPokeComponent {
@@ -88725,21 +88800,21 @@ var RockPaperPokeComponent = class _RockPaperPokeComponent {
     return __async(this, null, function* () {
       try {
         const [pokeRes, typeRes] = yield Promise.all([
-          fetch("games/rock-paper-poke/data/pokemon.json"),
-          fetch("games/rock-paper-poke/data/type_chart.json")
+          this.tools.safeFetch("games/rock-paper-poke/data/pokemon.json"),
+          this.tools.safeFetch("games/rock-paper-poke/data/type_chart.json")
         ]);
         let pokeData = [];
         let typeData = {};
         if (pokeRes.ok) {
           pokeData = yield pokeRes.json();
         } else {
-          const fallbackRes = yield fetch("/games/rock-paper-poke/data/pokemon.json");
+          const fallbackRes = yield this.tools.safeFetch("/games/rock-paper-poke/data/pokemon.json");
           pokeData = yield fallbackRes.json();
         }
         if (typeRes.ok) {
           typeData = yield typeRes.json();
         } else {
-          const fallbackRes = yield fetch("/games/rock-paper-poke/data/type_chart.json");
+          const fallbackRes = yield this.tools.safeFetch("/games/rock-paper-poke/data/type_chart.json");
           typeData = yield fallbackRes.json();
         }
         this.pokemonList = pokeData.filter((p) => p.id !== 0);
@@ -88917,13 +88992,16 @@ var RockPaperPokeComponent = class _RockPaperPokeComponent {
   getDynamicTagText(baseText, value) {
     return baseText.replace(/x[0-9.]+/, "x" + value);
   }
+  trackByFn(index) {
+    return index;
+  }
   ngOnDestroy() {
     this.tools.leaveMinigame("rock_paper_poke", this.points, this.level);
   }
   static \u0275fac = function RockPaperPokeComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _RockPaperPokeComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RockPaperPokeComponent, selectors: [["app-rock-paper-poke"]], decls: 13, vars: 6, consts: [[1, "rock-paper-poke-container"], [1, "top-bar"], [1, "back-btn", 3, "click"], [1, "fa-solid", "fa-arrow-left"], [1, "game-stats"], [1, "stat-badge", "level"], [1, "fa-solid", "fa-star"], [1, "stat-badge", "points"], [1, "fa-solid", "fa-coins"], ["class", "loading", 4, "ngIf"], ["class", "game-board", 4, "ngIf"], [1, "loading"], [1, "spinner"], [1, "game-board"], [1, "opponent-section"], [1, "choices-row"], ["class", "choice-card opponent-card", 3, "selected", "revealed", 4, "ngFor", "ngForOf"], ["class", "battle-arena", 4, "ngIf"], [1, "player-section"], ["class", "choice-card player-card", 3, "selected", "unselected", "revealed", "click", 4, "ngFor", "ngForOf"], ["class", "confirm-btn play-again-btn", 3, "click", 4, "ngIf"], [1, "choice-card", "opponent-card"], [1, "card-inner"], [1, "card-front"], ["alt", "egg", 3, "src"], [1, "card-back"], ["alt", "opponent-pokemon", 3, "src"], [1, "poke-info"], [1, "poke-name"], [1, "types-row"], ["class", "type-badge", 4, "ngFor", "ngForOf"], [1, "poke-roll-range"], [1, "fa-solid", "fa-dice"], [1, "type-badge"], [1, "battle-arena"], ["class", "result-banner", 3, "ngClass", 4, "ngIf"], [1, "battle-stats"], [1, "stat-box", "player-stat"], ["class", "roll", 4, "ngIf"], ["class", "multipliers", 4, "ngIf"], [1, "vs"], [1, "stat-box", "opponent-stat"], ["class", "play-again-btn", 3, "click", 4, "ngIf"], [1, "result-banner", 3, "ngClass"], [4, "ngIf"], [1, "roll"], [1, "multipliers"], ["class", "tag shiny", 4, "ngIf"], ["class", "tag super-effective", 4, "ngIf"], ["class", "tag not-effective", 4, "ngIf"], ["class", "tag immune", 4, "ngIf"], [1, "tag", "shiny"], [1, "tag", "super-effective"], [1, "tag", "not-effective"], [1, "tag", "immune"], [1, "play-again-btn", 3, "click"], [1, "choice-card", "player-card", 3, "click"], ["alt", "player-pokemon", 3, "src"], [1, "confirm-btn", "play-again-btn", 3, "click"]], template: function RockPaperPokeComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RockPaperPokeComponent, selectors: [["app-rock-paper-poke"]], decls: 13, vars: 6, consts: [[1, "rock-paper-poke-container"], [1, "top-bar"], [1, "back-btn", 3, "click"], [1, "fa-solid", "fa-arrow-left"], [1, "game-stats"], [1, "stat-badge", "level"], [1, "fa-solid", "fa-star"], [1, "stat-badge", "points"], [1, "fa-solid", "fa-coins"], ["class", "loading", 4, "ngIf"], ["class", "game-board", 4, "ngIf"], [1, "loading"], [1, "spinner"], [1, "game-board"], [1, "opponent-section"], [1, "choices-row"], ["class", "choice-card opponent-card", 3, "selected", "revealed", 4, "ngFor", "ngForOf", "ngForTrackBy"], ["class", "battle-arena", 4, "ngIf"], ["class", "center-action-area", "style", "display: flex; justify-content: center; align-items: center; min-height: 60px; animation: slideIn 0.3s ease-out;", 4, "ngIf"], [1, "player-section"], ["class", "choice-card player-card", 3, "selected", "unselected", "revealed", "click", 4, "ngFor", "ngForOf", "ngForTrackBy"], [1, "choice-card", "opponent-card"], [1, "card-inner"], [1, "card-front"], ["alt", "egg", 3, "src"], [1, "card-back"], [4, "ngIf"], ["alt", "opponent-pokemon", 3, "src"], [1, "poke-info"], [1, "poke-name"], [1, "types-row"], ["class", "type-badge", 4, "ngFor", "ngForOf"], [1, "poke-roll-range"], [1, "fa-solid", "fa-dice"], [1, "type-badge"], [1, "battle-arena"], ["class", "result-banner", 3, "ngClass", 4, "ngIf"], [1, "battle-stats"], [1, "stat-box", "player-stat"], ["class", "roll", 4, "ngIf"], ["class", "multipliers", 4, "ngIf"], [1, "vs"], [1, "stat-box", "opponent-stat"], ["class", "play-again-btn", 3, "click", 4, "ngIf"], [1, "result-banner", 3, "ngClass"], [1, "roll"], [1, "multipliers"], ["class", "tag shiny", 4, "ngIf"], ["class", "tag super-effective", 4, "ngIf"], ["class", "tag not-effective", 4, "ngIf"], ["class", "tag immune", 4, "ngIf"], [1, "tag", "shiny"], [1, "tag", "super-effective"], [1, "tag", "not-effective"], [1, "tag", "immune"], [1, "play-again-btn", 3, "click"], [1, "center-action-area", 2, "display", "flex", "justify-content", "center", "align-items", "center", "min-height", "60px", "animation", "slideIn 0.3s ease-out"], [1, "confirm-btn", "play-again-btn", 2, "margin", "0", 3, "click"], [1, "choice-card", "player-card", 3, "click"], ["alt", "player-pokemon", 3, "src"]], template: function RockPaperPokeComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "button", 2);
       \u0275\u0275listener("click", function RockPaperPokeComponent_Template_button_click_2_listener() {
@@ -88939,7 +89017,7 @@ var RockPaperPokeComponent = class _RockPaperPokeComponent {
       \u0275\u0275element(9, "i", 8);
       \u0275\u0275text(10);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(11, RockPaperPokeComponent_div_11_Template, 2, 0, "div", 9)(12, RockPaperPokeComponent_div_12_Template, 13, 8, "div", 10);
+      \u0275\u0275template(11, RockPaperPokeComponent_div_11_Template, 2, 0, "div", 9)(12, RockPaperPokeComponent_div_12_Template, 13, 10, "div", 10);
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
@@ -88952,7 +89030,7 @@ var RockPaperPokeComponent = class _RockPaperPokeComponent {
       \u0275\u0275advance();
       \u0275\u0275property("ngIf", !ctx.isLoading);
     }
-  }, dependencies: [CommonModule, NgClass, NgForOf, NgIf], styles: ['\n\n.rock-paper-poke-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  background:\n    linear-gradient(\n      135deg,\n      #1e3c72 0%,\n      #2a5298 100%);\n  color: white;\n  font-family:\n    "Fredoka One",\n    cursive,\n    sans-serif;\n  overflow-y: auto;\n}\n.top-bar[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 15px 20px;\n  background: rgba(0, 0, 0, 0.3);\n}\n.back-btn[_ngcontent-%COMP%] {\n  background: none;\n  border: none;\n  color: white;\n  font-size: 24px;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.back-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.1);\n}\n.game-stats[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n}\n.stat-badge[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.5);\n  padding: 8px 15px;\n  border-radius: 20px;\n  font-size: 16px;\n  font-weight: bold;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.stat-badge.level[_ngcontent-%COMP%]   i[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.stat-badge.points[_ngcontent-%COMP%]   i[_ngcontent-%COMP%] {\n  color: #ff9800;\n}\n.loading[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex: 1;\n}\n.spinner[_ngcontent-%COMP%] {\n  width: 50px;\n  height: 50px;\n  border: 5px solid rgba(255, 255, 255, 0.3);\n  border-radius: 50%;\n  border-top-color: white;\n  animation: _ngcontent-%COMP%_spin 1s ease-in-out infinite;\n}\n@keyframes _ngcontent-%COMP%_spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.game-board[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  padding: 20px;\n  gap: 20px;\n  max-width: 800px;\n  margin: 0 auto;\n  width: 100%;\n}\n.opponent-section[_ngcontent-%COMP%], \n.player-section[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n}\n.opponent-section[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%], \n.player-section[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 20px;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n}\n.choices-row[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 15px;\n  width: 100%;\n}\n.choice-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.1);\n  border: 2px solid rgba(255, 255, 255, 0.2);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 120px;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  transition: all 0.3s ease;\n  perspective: 1000px;\n}\n.choice-card[_ngcontent-%COMP%]   .card-inner[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  text-align: center;\n  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);\n  transform-style: preserve-3d;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n}\n.choice-card.revealed[_ngcontent-%COMP%]   .card-inner[_ngcontent-%COMP%] {\n  transform: rotateY(180deg);\n}\n.card-front[_ngcontent-%COMP%], \n.card-back[_ngcontent-%COMP%] {\n  width: 100%;\n  backface-visibility: hidden;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.card-front[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  justify-content: center;\n}\n.card-back[_ngcontent-%COMP%] {\n  transform: rotateY(180deg);\n}\n.player-card[_ngcontent-%COMP%] {\n  cursor: pointer;\n}\n.player-section[_ngcontent-%COMP%]:not(.disabled)   .player-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-5px);\n  border-color: #ffd700;\n  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);\n}\n.choice-card[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  object-fit: contain;\n  margin-bottom: 10px;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));\n}\n.card-front[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  margin-bottom: 0;\n}\n.poke-info[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 100%;\n  text-align: center;\n}\n.poke-name[_ngcontent-%COMP%] {\n  font-size: 14px;\n  font-weight: bold;\n  margin-bottom: 5px;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  width: 100%;\n}\n.poke-name.is-shiny[_ngcontent-%COMP%] {\n  color: #ffd700;\n  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);\n}\n.poke-roll-range[_ngcontent-%COMP%] {\n  font-size: 12px;\n  background: rgba(0, 0, 0, 0.5);\n  padding: 3px 8px;\n  border-radius: 10px;\n  margin-top: 5px;\n}\n.types-row[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 3px;\n  margin-bottom: 5px;\n}\n.type-badge[_ngcontent-%COMP%] {\n  font-size: 10px;\n  padding: 2px 5px;\n  border-radius: 4px;\n  background: #555;\n  text-transform: uppercase;\n}\n.player-section.disabled[_ngcontent-%COMP%]   .player-card[_ngcontent-%COMP%] {\n  cursor: default;\n  opacity: 0.8;\n}\n.player-card.selected[_ngcontent-%COMP%] {\n  border-color: #4CAF50;\n  background: rgba(76, 175, 80, 0.2);\n  transform: scale(1.05);\n}\n.player-card.unselected[_ngcontent-%COMP%] {\n  opacity: 0.5;\n  filter: grayscale(1);\n}\n.opponent-card.selected[_ngcontent-%COMP%] {\n  border-color: #f44336;\n  background: rgba(244, 67, 54, 0.2);\n}\n.battle-arena[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  border-radius: 16px;\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 20px;\n  animation: _ngcontent-%COMP%_slideIn 0.5s ease-out;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);\n}\n@keyframes _ngcontent-%COMP%_slideIn {\n  from {\n    opacity: 0;\n    transform: scale(0.9);\n  }\n  to {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n.result-banner[_ngcontent-%COMP%] {\n  padding: 10px 40px;\n  border-radius: 30px;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n}\n.result-banner[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 28px;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.result-banner.win[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #4CAF50,\n      #8BC34A);\n  box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);\n}\n.result-banner.lose[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #f44336,\n      #e91e63);\n  box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);\n}\n.result-banner.draw[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #9e9e9e,\n      #607d8b);\n  box-shadow: 0 0 20px rgba(158, 158, 158, 0.6);\n}\n.battle-stats[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: stretch;\n  justify-content: space-between;\n  width: 100%;\n  max-width: 500px;\n}\n.stat-box[_ngcontent-%COMP%] {\n  flex: 1;\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n}\n.stat-box.winner[_ngcontent-%COMP%] {\n  background: rgba(255, 215, 0, 0.15);\n  border: 1px solid rgba(255, 215, 0, 0.5);\n}\n.stat-box[_ngcontent-%COMP%]   h4[_ngcontent-%COMP%] {\n  margin: 0 0 10px 0;\n  font-size: 18px;\n  color: #ddd;\n}\n.roll[_ngcontent-%COMP%] {\n  font-size: 36px;\n  font-weight: bold;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n  margin-bottom: 10px;\n}\n.multipliers[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  margin-bottom: 15px;\n  min-height: 40px;\n}\n.tag[_ngcontent-%COMP%] {\n  font-size: 11px;\n  padding: 4px 8px;\n  border-radius: 4px;\n  font-weight: bold;\n}\n.tag.shiny[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      45deg,\n      #ffd700,\n      #ff8c00);\n  color: black;\n  box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);\n}\n.tag.super-effective[_ngcontent-%COMP%] {\n  background: #4CAF50;\n}\n.tag.not-effective[_ngcontent-%COMP%] {\n  background: #f44336;\n}\n.tag.immune[_ngcontent-%COMP%] {\n  background: #9e9e9e;\n}\n.final-score[_ngcontent-%COMP%] {\n  margin-top: auto;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 8px 15px;\n  border-radius: 20px;\n  display: flex;\n  gap: 10px;\n  align-items: center;\n}\n.final-score[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  font-size: 12px;\n  color: #bbb;\n}\n.final-score[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  font-size: 20px;\n  color: #ffd700;\n}\n.vs[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 0 15px;\n  color: #ff9800;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n}\n.play-again-btn[_ngcontent-%COMP%] {\n  background: #2196F3;\n  color: white;\n  border: none;\n  padding: 12px 30px;\n  border-radius: 25px;\n  font-size: 18px;\n  font-family: inherit;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n  transition: all 0.2s;\n  margin-top: 10px;\n}\n.play-again-btn[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n  transform: translateY(-2px);\n  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);\n}\n.play-again-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n}\n.type-badge[data-type=normal][_ngcontent-%COMP%] {\n  background-color: #A8A77A;\n}\n.type-badge[data-type=fire][_ngcontent-%COMP%] {\n  background-color: #EE8130;\n}\n.type-badge[data-type=water][_ngcontent-%COMP%] {\n  background-color: #6390F0;\n}\n.type-badge[data-type=electric][_ngcontent-%COMP%] {\n  background-color: #F7D02C;\n  color: black;\n}\n.type-badge[data-type=grass][_ngcontent-%COMP%] {\n  background-color: #7AC74C;\n  color: black;\n}\n.type-badge[data-type=ice][_ngcontent-%COMP%] {\n  background-color: #96D9D6;\n  color: black;\n}\n.type-badge[data-type=fighting][_ngcontent-%COMP%] {\n  background-color: #C22E28;\n}\n.type-badge[data-type=poison][_ngcontent-%COMP%] {\n  background-color: #A33EA1;\n}\n.type-badge[data-type=ground][_ngcontent-%COMP%] {\n  background-color: #E2BF65;\n  color: black;\n}\n.type-badge[data-type=flying][_ngcontent-%COMP%] {\n  background-color: #A98FF3;\n}\n.type-badge[data-type=psychic][_ngcontent-%COMP%] {\n  background-color: #F95587;\n}\n.type-badge[data-type=bug][_ngcontent-%COMP%] {\n  background-color: #A6B91A;\n  color: black;\n}\n.type-badge[data-type=rock][_ngcontent-%COMP%] {\n  background-color: #B6A136;\n}\n.type-badge[data-type=ghost][_ngcontent-%COMP%] {\n  background-color: #735797;\n}\n.type-badge[data-type=dragon][_ngcontent-%COMP%] {\n  background-color: #6F35FC;\n}\n.type-badge[data-type=dark][_ngcontent-%COMP%] {\n  background-color: #705848;\n}\n.type-badge[data-type=steel][_ngcontent-%COMP%] {\n  background-color: #B7B7CE;\n  color: black;\n}\n.type-badge[data-type=fairy][_ngcontent-%COMP%] {\n  background-color: #D685AD;\n  color: black;\n}\n/*# sourceMappingURL=rock_paper_poke.component.css.map */'] });
+  }, dependencies: [CommonModule, NgClass, NgForOf, NgIf], styles: ['\n\n.rock-paper-poke-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: calc(100vh - 20px);\n  background:\n    radial-gradient(\n      circle at center,\n      #2a5298,\n      #1e3c72);\n  border: 4px solid #102140;\n  border-radius: 12px;\n  margin: 10px auto;\n  max-width: 800px;\n  width: calc(100% - 20px);\n  position: relative;\n  color: white;\n  font-family:\n    "Fredoka One",\n    cursive,\n    sans-serif;\n  overflow-y: auto;\n  overflow-x: hidden;\n}\n.top-bar[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 15px 20px;\n  background: rgba(0, 0, 0, 0.3);\n}\n.back-btn[_ngcontent-%COMP%] {\n  background: none;\n  border: none;\n  color: white;\n  font-size: 24px;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.back-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.1);\n}\n.game-stats[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n}\n.stat-badge[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.5);\n  padding: 8px 15px;\n  border-radius: 20px;\n  font-size: 16px;\n  font-weight: bold;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.stat-badge.level[_ngcontent-%COMP%]   i[_ngcontent-%COMP%] {\n  color: #ffd700;\n}\n.stat-badge.points[_ngcontent-%COMP%]   i[_ngcontent-%COMP%] {\n  color: #ff9800;\n}\n.loading[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex: 1;\n}\n.spinner[_ngcontent-%COMP%] {\n  width: 50px;\n  height: 50px;\n  border: 5px solid rgba(255, 255, 255, 0.3);\n  border-radius: 50%;\n  border-top-color: white;\n  animation: _ngcontent-%COMP%_spin 1s ease-in-out infinite;\n}\n@keyframes _ngcontent-%COMP%_spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.game-board[_ngcontent-%COMP%] {\n  flex: 1;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  padding: 10px;\n  gap: 10px;\n}\n.opponent-section[_ngcontent-%COMP%], \n.player-section[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n}\n.opponent-section[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%], \n.player-section[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 20px;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n}\n.choices-row[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 15px;\n  width: 100%;\n}\n.choice-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.1);\n  border: 2px solid rgba(255, 255, 255, 0.2);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 120px;\n  min-height: 190px;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  transition: all 0.3s ease;\n  perspective: 1000px;\n}\n.choice-card[_ngcontent-%COMP%]   .card-inner[_ngcontent-%COMP%] {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  text-align: center;\n  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);\n  transform-style: preserve-3d;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n}\n.choice-card.revealed[_ngcontent-%COMP%]   .card-inner[_ngcontent-%COMP%] {\n  transform: rotateY(180deg);\n}\n.card-front[_ngcontent-%COMP%], \n.card-back[_ngcontent-%COMP%] {\n  width: 100%;\n  backface-visibility: hidden;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.card-front[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  justify-content: center;\n}\n.card-back[_ngcontent-%COMP%] {\n  transform: rotateY(180deg);\n}\n.player-card[_ngcontent-%COMP%] {\n  cursor: pointer;\n}\n.player-section[_ngcontent-%COMP%]:not(.disabled)   .player-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-5px);\n  border-color: #ffd700;\n  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);\n}\n.choice-card[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  object-fit: contain;\n  margin-bottom: 10px;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));\n}\n.card-front[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  margin-bottom: 0;\n}\n.poke-info[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 100%;\n  text-align: center;\n}\n.poke-name[_ngcontent-%COMP%] {\n  font-size: 14px;\n  font-weight: bold;\n  margin-bottom: 5px;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  width: 100%;\n}\n.poke-name.is-shiny[_ngcontent-%COMP%] {\n  color: #ffd700;\n  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);\n}\n.poke-roll-range[_ngcontent-%COMP%] {\n  font-size: 12px;\n  background: rgba(0, 0, 0, 0.5);\n  padding: 3px 8px;\n  border-radius: 10px;\n  margin-top: 5px;\n}\n.types-row[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 3px;\n  margin-bottom: 5px;\n}\n.type-badge[_ngcontent-%COMP%] {\n  font-size: 10px;\n  padding: 2px 5px;\n  border-radius: 4px;\n  background: #555;\n  text-transform: uppercase;\n}\n.player-section.disabled[_ngcontent-%COMP%]   .player-card[_ngcontent-%COMP%] {\n  cursor: default;\n  opacity: 0.8;\n}\n.player-card.selected[_ngcontent-%COMP%] {\n  border-color: #4CAF50;\n  background: rgba(76, 175, 80, 0.2);\n  transform: scale(1.05);\n}\n.player-card.unselected[_ngcontent-%COMP%] {\n  opacity: 0.5;\n  filter: grayscale(1);\n}\n.opponent-card.selected[_ngcontent-%COMP%] {\n  border-color: #f44336;\n  background: rgba(244, 67, 54, 0.2);\n}\n.battle-arena[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  border-radius: 16px;\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 20px;\n  animation: _ngcontent-%COMP%_slideIn 0.5s ease-out;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);\n}\n@keyframes _ngcontent-%COMP%_slideIn {\n  from {\n    opacity: 0;\n    transform: scale(0.9);\n  }\n  to {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n.result-banner[_ngcontent-%COMP%] {\n  padding: 10px 40px;\n  border-radius: 30px;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n}\n.result-banner[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  margin: 0;\n  font-size: 28px;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.result-banner.win[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #4CAF50,\n      #8BC34A);\n  box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);\n}\n.result-banner.lose[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #f44336,\n      #e91e63);\n  box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);\n}\n.result-banner.draw[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      90deg,\n      #9e9e9e,\n      #607d8b);\n  box-shadow: 0 0 20px rgba(158, 158, 158, 0.6);\n}\n.battle-stats[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: stretch;\n  justify-content: space-between;\n  width: 100%;\n  max-width: 500px;\n}\n.stat-box[_ngcontent-%COMP%] {\n  flex: 1;\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n}\n.stat-box.winner[_ngcontent-%COMP%] {\n  background: rgba(255, 215, 0, 0.15);\n  border: 1px solid rgba(255, 215, 0, 0.5);\n}\n.stat-box[_ngcontent-%COMP%]   h4[_ngcontent-%COMP%] {\n  margin: 0 0 10px 0;\n  font-size: 18px;\n  color: #ddd;\n}\n.roll[_ngcontent-%COMP%] {\n  font-size: 36px;\n  font-weight: bold;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n  margin-bottom: 10px;\n}\n.multipliers[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  margin-bottom: 15px;\n  min-height: 40px;\n}\n.tag[_ngcontent-%COMP%] {\n  font-size: 11px;\n  padding: 4px 8px;\n  border-radius: 4px;\n  font-weight: bold;\n}\n.tag.shiny[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      45deg,\n      #ffd700,\n      #ff8c00);\n  color: black;\n  box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);\n}\n.tag.super-effective[_ngcontent-%COMP%] {\n  background: #4CAF50;\n}\n.tag.not-effective[_ngcontent-%COMP%] {\n  background: #f44336;\n}\n.tag.immune[_ngcontent-%COMP%] {\n  background: #9e9e9e;\n}\n.final-score[_ngcontent-%COMP%] {\n  margin-top: auto;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 8px 15px;\n  border-radius: 20px;\n  display: flex;\n  gap: 10px;\n  align-items: center;\n}\n.final-score[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  font-size: 12px;\n  color: #bbb;\n}\n.final-score[_ngcontent-%COMP%]   strong[_ngcontent-%COMP%] {\n  font-size: 20px;\n  color: #ffd700;\n}\n.vs[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 0 15px;\n  color: #ff9800;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n}\n.play-again-btn[_ngcontent-%COMP%] {\n  background: #2196F3;\n  color: white;\n  border: none;\n  padding: 12px 30px;\n  border-radius: 25px;\n  font-size: 18px;\n  font-family: inherit;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n  transition: all 0.2s;\n  margin-top: 10px;\n}\n.play-again-btn[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n  transform: translateY(-2px);\n  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);\n}\n.play-again-btn[_ngcontent-%COMP%]:active {\n  transform: translateY(1px);\n}\n.type-badge[data-type=normal][_ngcontent-%COMP%] {\n  background-color: #A8A77A;\n}\n.type-badge[data-type=fire][_ngcontent-%COMP%] {\n  background-color: #EE8130;\n}\n.type-badge[data-type=water][_ngcontent-%COMP%] {\n  background-color: #6390F0;\n}\n.type-badge[data-type=electric][_ngcontent-%COMP%] {\n  background-color: #F7D02C;\n  color: black;\n}\n.type-badge[data-type=grass][_ngcontent-%COMP%] {\n  background-color: #7AC74C;\n  color: black;\n}\n.type-badge[data-type=ice][_ngcontent-%COMP%] {\n  background-color: #96D9D6;\n  color: black;\n}\n.type-badge[data-type=fighting][_ngcontent-%COMP%] {\n  background-color: #C22E28;\n}\n.type-badge[data-type=poison][_ngcontent-%COMP%] {\n  background-color: #A33EA1;\n}\n.type-badge[data-type=ground][_ngcontent-%COMP%] {\n  background-color: #E2BF65;\n  color: black;\n}\n.type-badge[data-type=flying][_ngcontent-%COMP%] {\n  background-color: #A98FF3;\n}\n.type-badge[data-type=psychic][_ngcontent-%COMP%] {\n  background-color: #F95587;\n}\n.type-badge[data-type=bug][_ngcontent-%COMP%] {\n  background-color: #A6B91A;\n  color: black;\n}\n.type-badge[data-type=rock][_ngcontent-%COMP%] {\n  background-color: #B6A136;\n}\n.type-badge[data-type=ghost][_ngcontent-%COMP%] {\n  background-color: #735797;\n}\n.type-badge[data-type=dragon][_ngcontent-%COMP%] {\n  background-color: #6F35FC;\n}\n.type-badge[data-type=dark][_ngcontent-%COMP%] {\n  background-color: #705848;\n}\n.type-badge[data-type=steel][_ngcontent-%COMP%] {\n  background-color: #B7B7CE;\n  color: black;\n}\n.type-badge[data-type=fairy][_ngcontent-%COMP%] {\n  background-color: #D685AD;\n  color: black;\n}\n@media (max-width: 600px) {\n  .game-board[_ngcontent-%COMP%] {\n    padding: 10px;\n  }\n  .top-bar[_ngcontent-%COMP%] {\n    padding: 10px;\n  }\n  .choices-row[_ngcontent-%COMP%] {\n    flex-wrap: wrap;\n    gap: 8px;\n  }\n  .choice-card[_ngcontent-%COMP%] {\n    width: 85px;\n    padding: 8px;\n    min-height: 145px;\n  }\n  .choice-card[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n    width: 55px;\n    height: 55px;\n  }\n  .poke-name[_ngcontent-%COMP%] {\n    font-size: 11px;\n  }\n  .poke-roll-range[_ngcontent-%COMP%] {\n    font-size: 10px;\n    padding: 2px 6px;\n  }\n  .battle-stats[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 5px;\n    align-items: center;\n  }\n  .stat-box[_ngcontent-%COMP%] {\n    width: 100%;\n  }\n  .vs[_ngcontent-%COMP%] {\n    padding: 5px 0;\n  }\n  .result-banner[_ngcontent-%COMP%] {\n    padding: 10px 20px;\n  }\n  .result-banner[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n    font-size: 20px;\n  }\n  .roll[_ngcontent-%COMP%] {\n    font-size: 24px;\n  }\n  .play-again-btn[_ngcontent-%COMP%] {\n    padding: 10px 20px;\n    font-size: 16px;\n  }\n}\n/*# sourceMappingURL=rock_paper_poke.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RockPaperPokeComponent, [{
@@ -88978,7 +89056,7 @@ var RockPaperPokeComponent = class _RockPaperPokeComponent {
       <h3>{{ lang?.opponent || 'Opponent' }}</h3>
       <div class="choices-row">
         <div class="choice-card opponent-card" 
-             *ngFor="let o of opponentChoices; let i = index"
+             *ngFor="let o of opponentChoices; let i = index; trackBy: trackByFn"
              [class.selected]="selectedOpponentPokemon === o"
              [class.revealed]="battleState === 'RESULT' || (battleState !== 'SELECT' && selectedOpponentPokemon === o)">
           <div class="card-inner">
@@ -88986,14 +89064,16 @@ var RockPaperPokeComponent = class _RockPaperPokeComponent {
               <img [src]="eggSkin" alt="egg">
             </div>
             <div class="card-back">
-              <img [src]="o.isShiny ? o.shiny : o.skin" alt="opponent-pokemon">
-              <div class="poke-info">
-                <span class="poke-name" [class.is-shiny]="o.isShiny">{{ o.name }}</span>
-                <div class="types-row">
-                  <span class="type-badge" *ngFor="let t of o.types" [attr.data-type]="t">{{ t }}</span>
+              <ng-container *ngIf="battleState === 'RESULT' || (battleState !== 'SELECT' && selectedOpponentPokemon === o)">
+                <img [src]="o.isShiny ? o.shiny : o.skin" alt="opponent-pokemon">
+                <div class="poke-info">
+                  <span class="poke-name" [class.is-shiny]="o.isShiny">{{ o.name }}</span>
+                  <div class="types-row">
+                    <span class="type-badge" *ngFor="let t of o.types" [attr.data-type]="t">{{ t }}</span>
+                  </div>
+                  <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ o.dice_roll[0] }} - {{ o.dice_roll[1] }}</span>
                 </div>
-                <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ o.dice_roll[0] }} - {{ o.dice_roll[1] }}</span>
-              </div>
+              </ng-container>
             </div>
           </div>
         </div>
@@ -89038,11 +89118,17 @@ var RockPaperPokeComponent = class _RockPaperPokeComponent {
       <button class="play-again-btn" *ngIf="battleState === 'RESULT'" (click)="startNewGame()">{{ lang?.playAgain || 'Play Again' }}</button>
     </div>
 
+    <div class="center-action-area" *ngIf="battleState === 'SELECT' && selectedPlayerPokemon" style="display: flex; justify-content: center; align-items: center; min-height: 60px; animation: slideIn 0.3s ease-out;">
+      <button class="confirm-btn play-again-btn" (click)="confirmSelection()" style="margin: 0;">
+        {{ lang?.confirm || 'Confirm' }}
+      </button>
+    </div>
+
     <div class="player-section" [class.disabled]="battleState !== 'SELECT'">
       <h3>{{ lang?.choosePokemon || 'Choose your Pokemon' }}</h3>
       <div class="choices-row">
         <div class="choice-card player-card" 
-             *ngFor="let p of playerChoices; let i = index"
+             *ngFor="let p of playerChoices; let i = index; trackBy: trackByFn"
              (click)="selectPokemon(p, i)"
              [class.selected]="selectedPlayerPokemon === p"
              [class.unselected]="selectedPlayerPokemon && selectedPlayerPokemon !== p"
@@ -89055,26 +89141,25 @@ var RockPaperPokeComponent = class _RockPaperPokeComponent {
               </div>
             </div>
             <div class="card-back">
-              <img [src]="p.isShiny ? p.shiny : p.skin" alt="player-pokemon">
-              <div class="poke-info">
-                <span class="poke-name" [class.is-shiny]="p.isShiny">{{ p.name }}</span>
-                <div class="types-row">
-                  <span class="type-badge" *ngFor="let t of p.types" [attr.data-type]="t">{{ t }}</span>
+              <ng-container *ngIf="!p.isSurprise || battleState !== 'SELECT'">
+                <img [src]="p.isShiny ? p.shiny : p.skin" alt="player-pokemon">
+                <div class="poke-info">
+                  <span class="poke-name" [class.is-shiny]="p.isShiny">{{ p.name }}</span>
+                  <div class="types-row">
+                    <span class="type-badge" *ngFor="let t of p.types" [attr.data-type]="t">{{ t }}</span>
+                  </div>
+                  <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ p.dice_roll[0] }} - {{ p.dice_roll[1] }}</span>
                 </div>
-                <span class="poke-roll-range"><i class="fa-solid fa-dice"></i> {{ p.dice_roll[0] }} - {{ p.dice_roll[1] }}</span>
-              </div>
+              </ng-container>
             </div>
           </div>
         </div>
       </div>
-      <button class="confirm-btn play-again-btn" *ngIf="battleState === 'SELECT' && selectedPlayerPokemon" (click)="confirmSelection()">
-        {{ lang?.confirm || 'Confirm' }}
-      </button>
     </div>
     
   </div>
 </div>
-`, styles: ['/* src/app/games/rock_paper_poke/rock_paper_poke.component.css */\n.rock-paper-poke-container {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  background:\n    linear-gradient(\n      135deg,\n      #1e3c72 0%,\n      #2a5298 100%);\n  color: white;\n  font-family:\n    "Fredoka One",\n    cursive,\n    sans-serif;\n  overflow-y: auto;\n}\n.top-bar {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 15px 20px;\n  background: rgba(0, 0, 0, 0.3);\n}\n.back-btn {\n  background: none;\n  border: none;\n  color: white;\n  font-size: 24px;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.back-btn:hover {\n  transform: scale(1.1);\n}\n.game-stats {\n  display: flex;\n  gap: 15px;\n}\n.stat-badge {\n  background: rgba(0, 0, 0, 0.5);\n  padding: 8px 15px;\n  border-radius: 20px;\n  font-size: 16px;\n  font-weight: bold;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.stat-badge.level i {\n  color: #ffd700;\n}\n.stat-badge.points i {\n  color: #ff9800;\n}\n.loading {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex: 1;\n}\n.spinner {\n  width: 50px;\n  height: 50px;\n  border: 5px solid rgba(255, 255, 255, 0.3);\n  border-radius: 50%;\n  border-top-color: white;\n  animation: spin 1s ease-in-out infinite;\n}\n@keyframes spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.game-board {\n  display: flex;\n  flex-direction: column;\n  flex: 1;\n  padding: 20px;\n  gap: 20px;\n  max-width: 800px;\n  margin: 0 auto;\n  width: 100%;\n}\n.opponent-section,\n.player-section {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n}\n.opponent-section h3,\n.player-section h3 {\n  margin: 0;\n  font-size: 20px;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n}\n.choices-row {\n  display: flex;\n  justify-content: center;\n  gap: 15px;\n  width: 100%;\n}\n.choice-card {\n  background: rgba(255, 255, 255, 0.1);\n  border: 2px solid rgba(255, 255, 255, 0.2);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 120px;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  transition: all 0.3s ease;\n  perspective: 1000px;\n}\n.choice-card .card-inner {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  text-align: center;\n  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);\n  transform-style: preserve-3d;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n}\n.choice-card.revealed .card-inner {\n  transform: rotateY(180deg);\n}\n.card-front,\n.card-back {\n  width: 100%;\n  backface-visibility: hidden;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.card-front {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  justify-content: center;\n}\n.card-back {\n  transform: rotateY(180deg);\n}\n.player-card {\n  cursor: pointer;\n}\n.player-section:not(.disabled) .player-card:hover {\n  transform: translateY(-5px);\n  border-color: #ffd700;\n  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);\n}\n.choice-card img {\n  width: 80px;\n  height: 80px;\n  object-fit: contain;\n  margin-bottom: 10px;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));\n}\n.card-front img {\n  margin-bottom: 0;\n}\n.poke-info {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 100%;\n  text-align: center;\n}\n.poke-name {\n  font-size: 14px;\n  font-weight: bold;\n  margin-bottom: 5px;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  width: 100%;\n}\n.poke-name.is-shiny {\n  color: #ffd700;\n  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);\n}\n.poke-roll-range {\n  font-size: 12px;\n  background: rgba(0, 0, 0, 0.5);\n  padding: 3px 8px;\n  border-radius: 10px;\n  margin-top: 5px;\n}\n.types-row {\n  display: flex;\n  gap: 3px;\n  margin-bottom: 5px;\n}\n.type-badge {\n  font-size: 10px;\n  padding: 2px 5px;\n  border-radius: 4px;\n  background: #555;\n  text-transform: uppercase;\n}\n.player-section.disabled .player-card {\n  cursor: default;\n  opacity: 0.8;\n}\n.player-card.selected {\n  border-color: #4CAF50;\n  background: rgba(76, 175, 80, 0.2);\n  transform: scale(1.05);\n}\n.player-card.unselected {\n  opacity: 0.5;\n  filter: grayscale(1);\n}\n.opponent-card.selected {\n  border-color: #f44336;\n  background: rgba(244, 67, 54, 0.2);\n}\n.battle-arena {\n  background: rgba(0, 0, 0, 0.4);\n  border-radius: 16px;\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 20px;\n  animation: slideIn 0.5s ease-out;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);\n}\n@keyframes slideIn {\n  from {\n    opacity: 0;\n    transform: scale(0.9);\n  }\n  to {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n.result-banner {\n  padding: 10px 40px;\n  border-radius: 30px;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n}\n.result-banner h1 {\n  margin: 0;\n  font-size: 28px;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.result-banner.win {\n  background:\n    linear-gradient(\n      90deg,\n      #4CAF50,\n      #8BC34A);\n  box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);\n}\n.result-banner.lose {\n  background:\n    linear-gradient(\n      90deg,\n      #f44336,\n      #e91e63);\n  box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);\n}\n.result-banner.draw {\n  background:\n    linear-gradient(\n      90deg,\n      #9e9e9e,\n      #607d8b);\n  box-shadow: 0 0 20px rgba(158, 158, 158, 0.6);\n}\n.battle-stats {\n  display: flex;\n  align-items: stretch;\n  justify-content: space-between;\n  width: 100%;\n  max-width: 500px;\n}\n.stat-box {\n  flex: 1;\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n}\n.stat-box.winner {\n  background: rgba(255, 215, 0, 0.15);\n  border: 1px solid rgba(255, 215, 0, 0.5);\n}\n.stat-box h4 {\n  margin: 0 0 10px 0;\n  font-size: 18px;\n  color: #ddd;\n}\n.roll {\n  font-size: 36px;\n  font-weight: bold;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n  margin-bottom: 10px;\n}\n.multipliers {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  margin-bottom: 15px;\n  min-height: 40px;\n}\n.tag {\n  font-size: 11px;\n  padding: 4px 8px;\n  border-radius: 4px;\n  font-weight: bold;\n}\n.tag.shiny {\n  background:\n    linear-gradient(\n      45deg,\n      #ffd700,\n      #ff8c00);\n  color: black;\n  box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);\n}\n.tag.super-effective {\n  background: #4CAF50;\n}\n.tag.not-effective {\n  background: #f44336;\n}\n.tag.immune {\n  background: #9e9e9e;\n}\n.final-score {\n  margin-top: auto;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 8px 15px;\n  border-radius: 20px;\n  display: flex;\n  gap: 10px;\n  align-items: center;\n}\n.final-score span {\n  font-size: 12px;\n  color: #bbb;\n}\n.final-score strong {\n  font-size: 20px;\n  color: #ffd700;\n}\n.vs {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 0 15px;\n  color: #ff9800;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n}\n.play-again-btn {\n  background: #2196F3;\n  color: white;\n  border: none;\n  padding: 12px 30px;\n  border-radius: 25px;\n  font-size: 18px;\n  font-family: inherit;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n  transition: all 0.2s;\n  margin-top: 10px;\n}\n.play-again-btn:hover {\n  background: #1976D2;\n  transform: translateY(-2px);\n  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);\n}\n.play-again-btn:active {\n  transform: translateY(1px);\n}\n.type-badge[data-type=normal] {\n  background-color: #A8A77A;\n}\n.type-badge[data-type=fire] {\n  background-color: #EE8130;\n}\n.type-badge[data-type=water] {\n  background-color: #6390F0;\n}\n.type-badge[data-type=electric] {\n  background-color: #F7D02C;\n  color: black;\n}\n.type-badge[data-type=grass] {\n  background-color: #7AC74C;\n  color: black;\n}\n.type-badge[data-type=ice] {\n  background-color: #96D9D6;\n  color: black;\n}\n.type-badge[data-type=fighting] {\n  background-color: #C22E28;\n}\n.type-badge[data-type=poison] {\n  background-color: #A33EA1;\n}\n.type-badge[data-type=ground] {\n  background-color: #E2BF65;\n  color: black;\n}\n.type-badge[data-type=flying] {\n  background-color: #A98FF3;\n}\n.type-badge[data-type=psychic] {\n  background-color: #F95587;\n}\n.type-badge[data-type=bug] {\n  background-color: #A6B91A;\n  color: black;\n}\n.type-badge[data-type=rock] {\n  background-color: #B6A136;\n}\n.type-badge[data-type=ghost] {\n  background-color: #735797;\n}\n.type-badge[data-type=dragon] {\n  background-color: #6F35FC;\n}\n.type-badge[data-type=dark] {\n  background-color: #705848;\n}\n.type-badge[data-type=steel] {\n  background-color: #B7B7CE;\n  color: black;\n}\n.type-badge[data-type=fairy] {\n  background-color: #D685AD;\n  color: black;\n}\n/*# sourceMappingURL=rock_paper_poke.component.css.map */\n'] }]
+`, styles: ['/* src/app/games/rock_paper_poke/rock_paper_poke.component.css */\n.rock-paper-poke-container {\n  display: flex;\n  flex-direction: column;\n  height: calc(100vh - 20px);\n  background:\n    radial-gradient(\n      circle at center,\n      #2a5298,\n      #1e3c72);\n  border: 4px solid #102140;\n  border-radius: 12px;\n  margin: 10px auto;\n  max-width: 800px;\n  width: calc(100% - 20px);\n  position: relative;\n  color: white;\n  font-family:\n    "Fredoka One",\n    cursive,\n    sans-serif;\n  overflow-y: auto;\n  overflow-x: hidden;\n}\n.top-bar {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 15px 20px;\n  background: rgba(0, 0, 0, 0.3);\n}\n.back-btn {\n  background: none;\n  border: none;\n  color: white;\n  font-size: 24px;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.back-btn:hover {\n  transform: scale(1.1);\n}\n.game-stats {\n  display: flex;\n  gap: 15px;\n}\n.stat-badge {\n  background: rgba(0, 0, 0, 0.5);\n  padding: 8px 15px;\n  border-radius: 20px;\n  font-size: 16px;\n  font-weight: bold;\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n.stat-badge.level i {\n  color: #ffd700;\n}\n.stat-badge.points i {\n  color: #ff9800;\n}\n.loading {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex: 1;\n}\n.spinner {\n  width: 50px;\n  height: 50px;\n  border: 5px solid rgba(255, 255, 255, 0.3);\n  border-radius: 50%;\n  border-top-color: white;\n  animation: spin 1s ease-in-out infinite;\n}\n@keyframes spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n.game-board {\n  flex: 1;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  padding: 10px;\n  gap: 10px;\n}\n.opponent-section,\n.player-section {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n}\n.opponent-section h3,\n.player-section h3 {\n  margin: 0;\n  font-size: 20px;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n}\n.choices-row {\n  display: flex;\n  justify-content: center;\n  gap: 15px;\n  width: 100%;\n}\n.choice-card {\n  background: rgba(255, 255, 255, 0.1);\n  border: 2px solid rgba(255, 255, 255, 0.2);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 120px;\n  min-height: 190px;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n  transition: all 0.3s ease;\n  perspective: 1000px;\n}\n.choice-card .card-inner {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  text-align: center;\n  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);\n  transform-style: preserve-3d;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n}\n.choice-card.revealed .card-inner {\n  transform: rotateY(180deg);\n}\n.card-front,\n.card-back {\n  width: 100%;\n  backface-visibility: hidden;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n}\n.card-front {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  justify-content: center;\n}\n.card-back {\n  transform: rotateY(180deg);\n}\n.player-card {\n  cursor: pointer;\n}\n.player-section:not(.disabled) .player-card:hover {\n  transform: translateY(-5px);\n  border-color: #ffd700;\n  box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);\n}\n.choice-card img {\n  width: 80px;\n  height: 80px;\n  object-fit: contain;\n  margin-bottom: 10px;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));\n}\n.card-front img {\n  margin-bottom: 0;\n}\n.poke-info {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  width: 100%;\n  text-align: center;\n}\n.poke-name {\n  font-size: 14px;\n  font-weight: bold;\n  margin-bottom: 5px;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  width: 100%;\n}\n.poke-name.is-shiny {\n  color: #ffd700;\n  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);\n}\n.poke-roll-range {\n  font-size: 12px;\n  background: rgba(0, 0, 0, 0.5);\n  padding: 3px 8px;\n  border-radius: 10px;\n  margin-top: 5px;\n}\n.types-row {\n  display: flex;\n  gap: 3px;\n  margin-bottom: 5px;\n}\n.type-badge {\n  font-size: 10px;\n  padding: 2px 5px;\n  border-radius: 4px;\n  background: #555;\n  text-transform: uppercase;\n}\n.player-section.disabled .player-card {\n  cursor: default;\n  opacity: 0.8;\n}\n.player-card.selected {\n  border-color: #4CAF50;\n  background: rgba(76, 175, 80, 0.2);\n  transform: scale(1.05);\n}\n.player-card.unselected {\n  opacity: 0.5;\n  filter: grayscale(1);\n}\n.opponent-card.selected {\n  border-color: #f44336;\n  background: rgba(244, 67, 54, 0.2);\n}\n.battle-arena {\n  background: rgba(0, 0, 0, 0.4);\n  border-radius: 16px;\n  padding: 20px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 20px;\n  animation: slideIn 0.5s ease-out;\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);\n}\n@keyframes slideIn {\n  from {\n    opacity: 0;\n    transform: scale(0.9);\n  }\n  to {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n.result-banner {\n  padding: 10px 40px;\n  border-radius: 30px;\n  text-transform: uppercase;\n  letter-spacing: 2px;\n}\n.result-banner h1 {\n  margin: 0;\n  font-size: 28px;\n  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);\n}\n.result-banner.win {\n  background:\n    linear-gradient(\n      90deg,\n      #4CAF50,\n      #8BC34A);\n  box-shadow: 0 0 20px rgba(76, 175, 80, 0.6);\n}\n.result-banner.lose {\n  background:\n    linear-gradient(\n      90deg,\n      #f44336,\n      #e91e63);\n  box-shadow: 0 0 20px rgba(244, 67, 54, 0.6);\n}\n.result-banner.draw {\n  background:\n    linear-gradient(\n      90deg,\n      #9e9e9e,\n      #607d8b);\n  box-shadow: 0 0 20px rgba(158, 158, 158, 0.6);\n}\n.battle-stats {\n  display: flex;\n  align-items: stretch;\n  justify-content: space-between;\n  width: 100%;\n  max-width: 500px;\n}\n.stat-box {\n  flex: 1;\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  padding: 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  text-align: center;\n}\n.stat-box.winner {\n  background: rgba(255, 215, 0, 0.15);\n  border: 1px solid rgba(255, 215, 0, 0.5);\n}\n.stat-box h4 {\n  margin: 0 0 10px 0;\n  font-size: 18px;\n  color: #ddd;\n}\n.roll {\n  font-size: 36px;\n  font-weight: bold;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n  margin-bottom: 10px;\n}\n.multipliers {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n  margin-bottom: 15px;\n  min-height: 40px;\n}\n.tag {\n  font-size: 11px;\n  padding: 4px 8px;\n  border-radius: 4px;\n  font-weight: bold;\n}\n.tag.shiny {\n  background:\n    linear-gradient(\n      45deg,\n      #ffd700,\n      #ff8c00);\n  color: black;\n  box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);\n}\n.tag.super-effective {\n  background: #4CAF50;\n}\n.tag.not-effective {\n  background: #f44336;\n}\n.tag.immune {\n  background: #9e9e9e;\n}\n.final-score {\n  margin-top: auto;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 8px 15px;\n  border-radius: 20px;\n  display: flex;\n  gap: 10px;\n  align-items: center;\n}\n.final-score span {\n  font-size: 12px;\n  color: #bbb;\n}\n.final-score strong {\n  font-size: 20px;\n  color: #ffd700;\n}\n.vs {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-size: 24px;\n  font-weight: bold;\n  padding: 0 15px;\n  color: #ff9800;\n  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);\n}\n.play-again-btn {\n  background: #2196F3;\n  color: white;\n  border: none;\n  padding: 12px 30px;\n  border-radius: 25px;\n  font-size: 18px;\n  font-family: inherit;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n  transition: all 0.2s;\n  margin-top: 10px;\n}\n.play-again-btn:hover {\n  background: #1976D2;\n  transform: translateY(-2px);\n  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.4);\n}\n.play-again-btn:active {\n  transform: translateY(1px);\n}\n.type-badge[data-type=normal] {\n  background-color: #A8A77A;\n}\n.type-badge[data-type=fire] {\n  background-color: #EE8130;\n}\n.type-badge[data-type=water] {\n  background-color: #6390F0;\n}\n.type-badge[data-type=electric] {\n  background-color: #F7D02C;\n  color: black;\n}\n.type-badge[data-type=grass] {\n  background-color: #7AC74C;\n  color: black;\n}\n.type-badge[data-type=ice] {\n  background-color: #96D9D6;\n  color: black;\n}\n.type-badge[data-type=fighting] {\n  background-color: #C22E28;\n}\n.type-badge[data-type=poison] {\n  background-color: #A33EA1;\n}\n.type-badge[data-type=ground] {\n  background-color: #E2BF65;\n  color: black;\n}\n.type-badge[data-type=flying] {\n  background-color: #A98FF3;\n}\n.type-badge[data-type=psychic] {\n  background-color: #F95587;\n}\n.type-badge[data-type=bug] {\n  background-color: #A6B91A;\n  color: black;\n}\n.type-badge[data-type=rock] {\n  background-color: #B6A136;\n}\n.type-badge[data-type=ghost] {\n  background-color: #735797;\n}\n.type-badge[data-type=dragon] {\n  background-color: #6F35FC;\n}\n.type-badge[data-type=dark] {\n  background-color: #705848;\n}\n.type-badge[data-type=steel] {\n  background-color: #B7B7CE;\n  color: black;\n}\n.type-badge[data-type=fairy] {\n  background-color: #D685AD;\n  color: black;\n}\n@media (max-width: 600px) {\n  .game-board {\n    padding: 10px;\n  }\n  .top-bar {\n    padding: 10px;\n  }\n  .choices-row {\n    flex-wrap: wrap;\n    gap: 8px;\n  }\n  .choice-card {\n    width: 85px;\n    padding: 8px;\n    min-height: 145px;\n  }\n  .choice-card img {\n    width: 55px;\n    height: 55px;\n  }\n  .poke-name {\n    font-size: 11px;\n  }\n  .poke-roll-range {\n    font-size: 10px;\n    padding: 2px 6px;\n  }\n  .battle-stats {\n    flex-direction: column;\n    gap: 5px;\n    align-items: center;\n  }\n  .stat-box {\n    width: 100%;\n  }\n  .vs {\n    padding: 5px 0;\n  }\n  .result-banner {\n    padding: 10px 20px;\n  }\n  .result-banner h1 {\n    font-size: 20px;\n  }\n  .roll {\n    font-size: 24px;\n  }\n  .play-again-btn {\n    padding: 10px 20px;\n    font-size: 16px;\n  }\n}\n/*# sourceMappingURL=rock_paper_poke.component.css.map */\n'] }]
   }], null, null);
 })();
 (() => {
@@ -89189,7 +89274,7 @@ var TicTacToeComponent = class _TicTacToeComponent {
     this.startNewGame();
   }
   startNewGame() {
-    this.board = Array(9).fill(0);
+    this.board.fill(0);
     this.gameStatus = "playing";
     this.winningLine = [];
     const diffs = ["Easy", "Normal", "Hard"];
@@ -89383,6 +89468,9 @@ var TicTacToeComponent = class _TicTacToeComponent {
       this.startNewGame();
     }, 2500);
   }
+  trackByFn(index) {
+    return index;
+  }
   ngOnDestroy() {
     if (this.leaveTimeout)
       clearTimeout(this.leaveTimeout);
@@ -89395,7 +89483,7 @@ var TicTacToeComponent = class _TicTacToeComponent {
   static \u0275fac = function TicTacToeComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _TicTacToeComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TicTacToeComponent, selectors: [["app-tic-tac-toe"]], decls: 22, vars: 13, consts: [[1, "game-container"], [1, "header"], [1, "score-card", "player-score"], [1, "score-label"], [1, "score-value"], [1, "status-panel"], [1, "difficulty-badge", 3, "ngClass"], [1, "turn-indicator"], [4, "ngIf"], ["class", "win-text", 4, "ngIf"], ["class", "lose-text", 4, "ngIf"], ["class", "draw-text", 4, "ngIf"], [1, "score-card", "ai-score"], [1, "board"], ["class", "cell", 3, "winning", "occupied", "click", 4, "ngFor", "ngForOf"], [1, "win-text"], [1, "lose-text"], [1, "draw-text"], [1, "cell", 3, "click"], ["class", "cell-content", 4, "ngIf"], [1, "cell-content"], ["alt", "piece", 1, "piece", 3, "src"]], template: function TicTacToeComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TicTacToeComponent, selectors: [["app-tic-tac-toe"]], decls: 22, vars: 14, consts: [[1, "game-container"], [1, "header"], [1, "score-card", "player-score"], [1, "score-label"], [1, "score-value"], [1, "status-panel"], [1, "difficulty-badge", 3, "ngClass"], [1, "turn-indicator"], [4, "ngIf"], ["class", "win-text", 4, "ngIf"], ["class", "lose-text", 4, "ngIf"], ["class", "draw-text", 4, "ngIf"], [1, "score-card", "ai-score"], [1, "board"], ["class", "cell", 3, "winning", "occupied", "click", 4, "ngFor", "ngForOf", "ngForTrackBy"], [1, "win-text"], [1, "lose-text"], [1, "draw-text"], [1, "cell", 3, "click"], ["class", "cell-content", 4, "ngIf"], [1, "cell-content"], ["alt", "piece", 1, "piece", 3, "src"]], template: function TicTacToeComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2)(3, "div", 3);
       \u0275\u0275text(4);
@@ -89443,9 +89531,9 @@ var TicTacToeComponent = class _TicTacToeComponent {
       \u0275\u0275advance();
       \u0275\u0275classProp("disabled", ctx.gameStatus !== "playing" || ctx.turn !== 1);
       \u0275\u0275advance();
-      \u0275\u0275property("ngForOf", ctx.board);
+      \u0275\u0275property("ngForOf", ctx.board)("ngForTrackBy", ctx.trackByFn);
     }
-  }, dependencies: [CommonModule, NgClass, NgForOf, NgIf], styles: ['\n\n.game-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 100vh;\n  width: 100%;\n  padding: 20px;\n  background: var(--bg-color, #1a1a1a);\n  color: var(--text-color, #fff);\n  font-family: "Inter", sans-serif;\n}\n.header[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  width: 100%;\n  max-width: 400px;\n  margin-bottom: 30px;\n}\n.score-card[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.1);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  padding: 15px 25px;\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  text-align: center;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n}\n.player-score[_ngcontent-%COMP%] {\n  border-bottom: 4px solid #4CAF50;\n}\n.ai-score[_ngcontent-%COMP%] {\n  border-bottom: 4px solid #F44336;\n}\n.score-label[_ngcontent-%COMP%] {\n  font-size: 0.9rem;\n  opacity: 0.8;\n  margin-bottom: 5px;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value[_ngcontent-%COMP%] {\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.status-panel[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.difficulty-badge[_ngcontent-%COMP%] {\n  padding: 4px 12px;\n  border-radius: 20px;\n  font-size: 0.8rem;\n  font-weight: bold;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.difficulty-badge.easy[_ngcontent-%COMP%] {\n  background: rgba(76, 175, 80, 0.2);\n  color: #4CAF50;\n  border: 1px solid #4CAF50;\n}\n.difficulty-badge.normal[_ngcontent-%COMP%] {\n  background: rgba(33, 150, 243, 0.2);\n  color: #2196F3;\n  border: 1px solid #2196F3;\n}\n.difficulty-badge.hard[_ngcontent-%COMP%] {\n  background: rgba(244, 67, 54, 0.2);\n  color: #F44336;\n  border: 1px solid #F44336;\n}\n.turn-indicator[_ngcontent-%COMP%] {\n  font-size: 1.2rem;\n  font-weight: 600;\n  text-align: center;\n  min-width: 120px;\n}\n.win-text[_ngcontent-%COMP%] {\n  color: #4CAF50;\n  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);\n}\n.lose-text[_ngcontent-%COMP%] {\n  color: #F44336;\n  text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);\n}\n.draw-text[_ngcontent-%COMP%] {\n  color: #FFC107;\n  text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);\n}\n.board[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 12px;\n  background: rgba(255, 255, 255, 0.05);\n  padding: 15px;\n  border-radius: 20px;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);\n  max-width: 400px;\n  width: 100%;\n  aspect-ratio: 1;\n}\n.board.disabled[_ngcontent-%COMP%] {\n  pointer-events: none;\n}\n.cell[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  border: 2px solid transparent;\n}\n.cell[_ngcontent-%COMP%]:not(.occupied):not(.disabled):hover {\n  background: rgba(255, 255, 255, 0.2);\n  transform: translateY(-2px);\n}\n.cell.occupied[_ngcontent-%COMP%] {\n  cursor: default;\n}\n.cell.winning[_ngcontent-%COMP%] {\n  background: rgba(76, 175, 80, 0.2);\n  border-color: #4CAF50;\n  animation: _ngcontent-%COMP%_pulse 1.5s infinite;\n}\n.cell-content[_ngcontent-%COMP%] {\n  width: 70%;\n  height: 70%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  animation: _ngcontent-%COMP%_popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n.piece[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));\n}\n.footer[_ngcontent-%COMP%] {\n  margin-top: 40px;\n}\n.leave-btn[_ngcontent-%COMP%] {\n  padding: 12px 30px;\n  font-size: 1.1rem;\n  font-weight: bold;\n  border-radius: 25px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  background:\n    linear-gradient(\n      135deg,\n      #FF5722 0%,\n      #FF9800 100%);\n  color: white;\n  border: none;\n  box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);\n}\n.leave-btn[_ngcontent-%COMP%]:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);\n}\n@keyframes _ngcontent-%COMP%_popIn {\n  0% {\n    transform: scale(0);\n    opacity: 0;\n  }\n  80% {\n    transform: scale(1.1);\n    opacity: 1;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n@keyframes _ngcontent-%COMP%_pulse {\n  0% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);\n  }\n  70% {\n    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);\n  }\n  100% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);\n  }\n}\n@media (max-width: 400px) {\n  .header[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 15px;\n  }\n  .score-card[_ngcontent-%COMP%] {\n    width: 100%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    padding: 10px 20px;\n  }\n  .score-label[_ngcontent-%COMP%] {\n    margin: 0;\n  }\n}\n/*# sourceMappingURL=tic_tac_toe.component.css.map */'] });
+  }, dependencies: [CommonModule, NgClass, NgForOf, NgIf], styles: ['\n\n.game-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 100vh;\n  width: 100%;\n  padding: 20px;\n  color: var(--text-color, #fff);\n  font-family: "Inter", sans-serif;\n}\n.header[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  width: 100%;\n  max-width: 400px;\n  margin-bottom: 30px;\n}\n.score-card[_ngcontent-%COMP%] {\n  background: rgb(58, 58, 58);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  padding: 15px 25px;\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  text-align: center;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n}\n.player-score[_ngcontent-%COMP%] {\n  border-bottom: 4px solid #4CAF50;\n}\n.ai-score[_ngcontent-%COMP%] {\n  border-bottom: 4px solid #F44336;\n}\n.score-label[_ngcontent-%COMP%] {\n  font-size: 0.9rem;\n  opacity: 0.8;\n  margin-bottom: 5px;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value[_ngcontent-%COMP%] {\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.status-panel[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.difficulty-badge[_ngcontent-%COMP%] {\n  padding: 4px 12px;\n  border-radius: 20px;\n  font-size: 0.8rem;\n  font-weight: bold;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.difficulty-badge.easy[_ngcontent-%COMP%] {\n  background: rgba(76, 175, 80, 1);\n  color: rgb(10, 83, 60);\n  border: 1px solid #4CAF50;\n}\n.difficulty-badge.normal[_ngcontent-%COMP%] {\n  background: rgba(33, 150, 243, 1);\n  color: rgb(13, 96, 142);\n  border: 1px solid #2196F3;\n}\n.difficulty-badge.hard[_ngcontent-%COMP%] {\n  background: rgba(244, 67, 54, 1);\n  color: rgb(158, 50, 37);\n  border: 1px solid #F44336;\n}\n.turn-indicator[_ngcontent-%COMP%] {\n  font-size: 1.2rem;\n  font-weight: 600;\n  text-align: center;\n  min-width: 120px;\n  background: rgb(58, 58, 58, 0.7);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  padding: 7px 15px;\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n}\n.win-text[_ngcontent-%COMP%] {\n  color: #4CAF50;\n  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);\n}\n.lose-text[_ngcontent-%COMP%] {\n  color: #F44336;\n  text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);\n}\n.draw-text[_ngcontent-%COMP%] {\n  color: #FFC107;\n  text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);\n}\n.board[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 12px;\n  background: rgba(70, 70, 70, 0.747);\n  padding: 15px;\n  border-radius: 20px;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);\n  max-width: 400px;\n  width: 100%;\n  aspect-ratio: 1;\n}\n.board.disabled[_ngcontent-%COMP%] {\n  pointer-events: none;\n}\n.cell[_ngcontent-%COMP%] {\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  border: 2px solid transparent;\n}\n.cell[_ngcontent-%COMP%]:not(.occupied):not(.disabled):hover {\n  background: rgba(255, 255, 255, 0.2);\n  transform: translateY(-2px);\n}\n.cell.occupied[_ngcontent-%COMP%] {\n  cursor: default;\n}\n.cell.winning[_ngcontent-%COMP%] {\n  background: rgba(76, 175, 80, 0.2);\n  border-color: #4CAF50;\n  animation: _ngcontent-%COMP%_pulse 1.5s infinite;\n}\n.cell-content[_ngcontent-%COMP%] {\n  width: 70%;\n  height: 70%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  animation: _ngcontent-%COMP%_popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n.piece[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));\n}\n@keyframes _ngcontent-%COMP%_popIn {\n  0% {\n    transform: scale(0);\n    opacity: 0;\n  }\n  80% {\n    transform: scale(1.1);\n    opacity: 1;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n@keyframes _ngcontent-%COMP%_pulse {\n  0% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);\n  }\n  70% {\n    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);\n  }\n  100% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);\n  }\n}\n@media (max-width: 400px) {\n  .header[_ngcontent-%COMP%] {\n    flex-direction: column;\n    gap: 15px;\n  }\n  .score-card[_ngcontent-%COMP%] {\n    width: 100%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    padding: 10px 20px;\n  }\n  .score-label[_ngcontent-%COMP%] {\n    margin: 0;\n  }\n}\n/*# sourceMappingURL=tic_tac_toe.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TicTacToeComponent, [{
@@ -89478,7 +89566,7 @@ var TicTacToeComponent = class _TicTacToeComponent {
   </div>
 
   <div class="board" [class.disabled]="gameStatus !== 'playing' || turn !== 1">
-    <div class="cell" *ngFor="let cell of board; let i = index" 
+    <div class="cell" *ngFor="let cell of board; let i = index; trackBy: trackByFn" 
          (click)="onCellClick(i)"
          [class.winning]="winningLine.includes(i)"
          [class.occupied]="cell !== 0">
@@ -89488,7 +89576,7 @@ var TicTacToeComponent = class _TicTacToeComponent {
     </div>
   </div>
 </div>
-`, styles: ['/* src/app/games/tic_tac_toe/tic_tac_toe.component.css */\n.game-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 100vh;\n  width: 100%;\n  padding: 20px;\n  background: var(--bg-color, #1a1a1a);\n  color: var(--text-color, #fff);\n  font-family: "Inter", sans-serif;\n}\n.header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  width: 100%;\n  max-width: 400px;\n  margin-bottom: 30px;\n}\n.score-card {\n  background: rgba(255, 255, 255, 0.1);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  padding: 15px 25px;\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  text-align: center;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n}\n.player-score {\n  border-bottom: 4px solid #4CAF50;\n}\n.ai-score {\n  border-bottom: 4px solid #F44336;\n}\n.score-label {\n  font-size: 0.9rem;\n  opacity: 0.8;\n  margin-bottom: 5px;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value {\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.status-panel {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.difficulty-badge {\n  padding: 4px 12px;\n  border-radius: 20px;\n  font-size: 0.8rem;\n  font-weight: bold;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.difficulty-badge.easy {\n  background: rgba(76, 175, 80, 0.2);\n  color: #4CAF50;\n  border: 1px solid #4CAF50;\n}\n.difficulty-badge.normal {\n  background: rgba(33, 150, 243, 0.2);\n  color: #2196F3;\n  border: 1px solid #2196F3;\n}\n.difficulty-badge.hard {\n  background: rgba(244, 67, 54, 0.2);\n  color: #F44336;\n  border: 1px solid #F44336;\n}\n.turn-indicator {\n  font-size: 1.2rem;\n  font-weight: 600;\n  text-align: center;\n  min-width: 120px;\n}\n.win-text {\n  color: #4CAF50;\n  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);\n}\n.lose-text {\n  color: #F44336;\n  text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);\n}\n.draw-text {\n  color: #FFC107;\n  text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);\n}\n.board {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 12px;\n  background: rgba(255, 255, 255, 0.05);\n  padding: 15px;\n  border-radius: 20px;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);\n  max-width: 400px;\n  width: 100%;\n  aspect-ratio: 1;\n}\n.board.disabled {\n  pointer-events: none;\n}\n.cell {\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  border: 2px solid transparent;\n}\n.cell:not(.occupied):not(.disabled):hover {\n  background: rgba(255, 255, 255, 0.2);\n  transform: translateY(-2px);\n}\n.cell.occupied {\n  cursor: default;\n}\n.cell.winning {\n  background: rgba(76, 175, 80, 0.2);\n  border-color: #4CAF50;\n  animation: pulse 1.5s infinite;\n}\n.cell-content {\n  width: 70%;\n  height: 70%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n.piece {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));\n}\n.footer {\n  margin-top: 40px;\n}\n.leave-btn {\n  padding: 12px 30px;\n  font-size: 1.1rem;\n  font-weight: bold;\n  border-radius: 25px;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  background:\n    linear-gradient(\n      135deg,\n      #FF5722 0%,\n      #FF9800 100%);\n  color: white;\n  border: none;\n  box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);\n}\n.leave-btn:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);\n}\n@keyframes popIn {\n  0% {\n    transform: scale(0);\n    opacity: 0;\n  }\n  80% {\n    transform: scale(1.1);\n    opacity: 1;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n@keyframes pulse {\n  0% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);\n  }\n  70% {\n    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);\n  }\n  100% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);\n  }\n}\n@media (max-width: 400px) {\n  .header {\n    flex-direction: column;\n    gap: 15px;\n  }\n  .score-card {\n    width: 100%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    padding: 10px 20px;\n  }\n  .score-label {\n    margin: 0;\n  }\n}\n/*# sourceMappingURL=tic_tac_toe.component.css.map */\n'] }]
+`, styles: ['/* src/app/games/tic_tac_toe/tic_tac_toe.component.css */\n.game-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 100vh;\n  width: 100%;\n  padding: 20px;\n  color: var(--text-color, #fff);\n  font-family: "Inter", sans-serif;\n}\n.header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n  width: 100%;\n  max-width: 400px;\n  margin-bottom: 30px;\n}\n.score-card {\n  background: rgb(58, 58, 58);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  padding: 15px 25px;\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  text-align: center;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n}\n.player-score {\n  border-bottom: 4px solid #4CAF50;\n}\n.ai-score {\n  border-bottom: 4px solid #F44336;\n}\n.score-label {\n  font-size: 0.9rem;\n  opacity: 0.8;\n  margin-bottom: 5px;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value {\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.status-panel {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.difficulty-badge {\n  padding: 4px 12px;\n  border-radius: 20px;\n  font-size: 0.8rem;\n  font-weight: bold;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.difficulty-badge.easy {\n  background: rgba(76, 175, 80, 1);\n  color: rgb(10, 83, 60);\n  border: 1px solid #4CAF50;\n}\n.difficulty-badge.normal {\n  background: rgba(33, 150, 243, 1);\n  color: rgb(13, 96, 142);\n  border: 1px solid #2196F3;\n}\n.difficulty-badge.hard {\n  background: rgba(244, 67, 54, 1);\n  color: rgb(158, 50, 37);\n  border: 1px solid #F44336;\n}\n.turn-indicator {\n  font-size: 1.2rem;\n  font-weight: 600;\n  text-align: center;\n  min-width: 120px;\n  background: rgb(58, 58, 58, 0.7);\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  padding: 7px 15px;\n  border-radius: 16px;\n  border: 1px solid rgba(255, 255, 255, 0.2);\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);\n}\n.win-text {\n  color: #4CAF50;\n  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);\n}\n.lose-text {\n  color: #F44336;\n  text-shadow: 0 0 10px rgba(244, 67, 54, 0.5);\n}\n.draw-text {\n  color: #FFC107;\n  text-shadow: 0 0 10px rgba(255, 193, 7, 0.5);\n}\n.board {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 12px;\n  background: rgba(70, 70, 70, 0.747);\n  padding: 15px;\n  border-radius: 20px;\n  backdrop-filter: blur(10px);\n  -webkit-backdrop-filter: blur(10px);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);\n  max-width: 400px;\n  width: 100%;\n  aspect-ratio: 1;\n}\n.board.disabled {\n  pointer-events: none;\n}\n.cell {\n  background: rgba(255, 255, 255, 0.1);\n  border-radius: 12px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  cursor: pointer;\n  transition: all 0.2s ease;\n  border: 2px solid transparent;\n}\n.cell:not(.occupied):not(.disabled):hover {\n  background: rgba(255, 255, 255, 0.2);\n  transform: translateY(-2px);\n}\n.cell.occupied {\n  cursor: default;\n}\n.cell.winning {\n  background: rgba(76, 175, 80, 0.2);\n  border-color: #4CAF50;\n  animation: pulse 1.5s infinite;\n}\n.cell-content {\n  width: 70%;\n  height: 70%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n.piece {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));\n}\n@keyframes popIn {\n  0% {\n    transform: scale(0);\n    opacity: 0;\n  }\n  80% {\n    transform: scale(1.1);\n    opacity: 1;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n@keyframes pulse {\n  0% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);\n  }\n  70% {\n    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);\n  }\n  100% {\n    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);\n  }\n}\n@media (max-width: 400px) {\n  .header {\n    flex-direction: column;\n    gap: 15px;\n  }\n  .score-card {\n    width: 100%;\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    padding: 10px 20px;\n  }\n  .score-label {\n    margin: 0;\n  }\n}\n/*# sourceMappingURL=tic_tac_toe.component.css.map */\n'] }]
   }], null, null);
 })();
 (() => {
@@ -89511,7 +89599,7 @@ function BlackJackComponent_Conditional_2_Conditional_3_Template(rf, ctx) {
 }
 function BlackJackComponent_Conditional_2_For_6_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 19);
+    \u0275\u0275element(0, "img", 18);
   }
   if (rf & 2) {
     const c_r2 = \u0275\u0275nextContext().$implicit;
@@ -89520,7 +89608,7 @@ function BlackJackComponent_Conditional_2_For_6_Conditional_1_Template(rf, ctx) 
 }
 function BlackJackComponent_Conditional_2_For_6_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 20);
+    \u0275\u0275element(0, "img", 19);
   }
   if (rf & 2) {
     const c_r2 = \u0275\u0275nextContext().$implicit;
@@ -89530,8 +89618,8 @@ function BlackJackComponent_Conditional_2_For_6_Conditional_2_Template(rf, ctx) 
 }
 function BlackJackComponent_Conditional_2_For_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 18);
-    \u0275\u0275template(1, BlackJackComponent_Conditional_2_For_6_Conditional_1_Template, 1, 1, "img", 19)(2, BlackJackComponent_Conditional_2_For_6_Conditional_2_Template, 1, 2, "img", 20);
+    \u0275\u0275elementStart(0, "div", 17);
+    \u0275\u0275template(1, BlackJackComponent_Conditional_2_For_6_Conditional_1_Template, 1, 1, "img", 18)(2, BlackJackComponent_Conditional_2_For_6_Conditional_2_Template, 1, 2, "img", 19);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -89542,39 +89630,39 @@ function BlackJackComponent_Conditional_2_For_6_Template(rf, ctx) {
     \u0275\u0275conditional(\u0275$index_17_r3 === 0 && ctx_r0.gameState === "playing" ? 1 : 2);
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_8_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "h1", 8);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r0.resultMessage);
-  }
-}
-function BlackJackComponent_Conditional_2_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 9)(1, "h1", 8);
+    \u0275\u0275elementStart(0, "div", 7)(1, "h1", 20);
     \u0275\u0275text(2);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p");
-    \u0275\u0275text(4);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 21)(6, "button", 22);
-    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_9_Template_button_click_6_listener() {
-      \u0275\u0275restoreView(_r4);
-      const ctx_r0 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r0.restartGame());
-    });
-    \u0275\u0275text(7);
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.resultMessage);
+  }
+}
+function BlackJackComponent_Conditional_2_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 8)(1, "div", 21)(2, "h1", 20);
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p");
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 22)(7, "button", 23);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_8_Template_button_click_7_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.restartGame());
+    });
+    \u0275\u0275text(8);
+    \u0275\u0275elementEnd()()()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r0.lang.game_over || "Game Over");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r0.lang.bankrupt || "You lost all your chips!");
@@ -89582,22 +89670,22 @@ function BlackJackComponent_Conditional_2_Conditional_9_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r0.lang.restart || "Restart");
   }
 }
-function BlackJackComponent_Conditional_2_For_13_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_For_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 18);
-    \u0275\u0275element(1, "img", 20);
+    \u0275\u0275elementStart(0, "div", 17);
+    \u0275\u0275element(1, "img", 19);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const c_r5 = ctx.$implicit;
-    const \u0275$index_50_r6 = ctx.$index;
-    \u0275\u0275styleProp("transform", "translateX(" + \u0275$index_50_r6 * -30 + "px)");
+    const \u0275$index_52_r6 = ctx.$index;
+    \u0275\u0275styleProp("transform", "translateX(" + \u0275$index_52_r6 * -30 + "px)");
     \u0275\u0275advance();
     \u0275\u0275propertyInterpolate("alt", c_r5.name);
     \u0275\u0275property("src", c_r5.front_texture, \u0275\u0275sanitizeUrl);
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_16_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 4);
     \u0275\u0275text(1);
@@ -89609,9 +89697,9 @@ function BlackJackComponent_Conditional_2_Conditional_16_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r0.getHandValue(ctx_r0.playerHand));
   }
 }
-function BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional_0_For_2_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_For_24_Conditional_0_For_2_Conditional_0_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 28);
+    \u0275\u0275element(0, "img", 29);
   }
   if (rf & 2) {
     const $index_r7 = ctx.$index;
@@ -89621,11 +89709,11 @@ function BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional
     \u0275\u0275property("src", chip_r8.texture, \u0275\u0275sanitizeUrl);
   }
 }
-function BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional_0_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_For_24_Conditional_0_For_2_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 25);
-    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional_0_For_2_Template, 1, 4, "img", 26, \u0275\u0275repeaterTrackByIndex);
-    \u0275\u0275elementStart(3, "div", 27);
+    \u0275\u0275elementStart(0, "div", 26);
+    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_For_24_Conditional_0_For_2_Conditional_0_For_2_Template, 1, 4, "img", 27, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(3, "div", 28);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()();
   }
@@ -89639,19 +89727,19 @@ function BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional
     \u0275\u0275textInterpolate(pile_r9);
   }
 }
-function BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_For_24_Conditional_0_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Conditional_0_Template, 5, 3, "div", 24);
+    \u0275\u0275template(0, BlackJackComponent_Conditional_2_For_24_Conditional_0_For_2_Conditional_0_Template, 5, 3, "div", 25);
   }
   if (rf & 2) {
     const pile_r9 = ctx.$implicit;
     \u0275\u0275conditional(pile_r9 > 0 ? 0 : -1);
   }
 }
-function BlackJackComponent_Conditional_2_For_25_Conditional_0_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_For_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 23);
-    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_For_25_Conditional_0_For_2_Template, 1, 1, null, null, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_For_24_Conditional_0_For_2_Template, 1, 1, null, null, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -89661,9 +89749,9 @@ function BlackJackComponent_Conditional_2_For_25_Conditional_0_Template(rf, ctx)
     \u0275\u0275repeater(ctx_r0.getChipPiles(ctx_r0.betInventory[chip_r8.id]));
   }
 }
-function BlackJackComponent_Conditional_2_For_25_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_For_24_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, BlackJackComponent_Conditional_2_For_25_Conditional_0_Template, 3, 0, "div", 23);
+    \u0275\u0275template(0, BlackJackComponent_Conditional_2_For_24_Conditional_0_Template, 3, 0, "div", 24);
   }
   if (rf & 2) {
     const chip_r8 = ctx.$implicit;
@@ -89671,9 +89759,9 @@ function BlackJackComponent_Conditional_2_For_25_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r0.betInventory[chip_r8.id] > 0 ? 0 : -1);
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_For_2_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_32_For_2_For_3_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 28);
+    \u0275\u0275element(0, "img", 29);
   }
   if (rf & 2) {
     const $index_r13 = ctx.$index;
@@ -89683,9 +89771,9 @@ function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_For_2_Templ
     \u0275\u0275property("src", chip_r12.texture, \u0275\u0275sanitizeUrl);
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Conditional_3_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_32_For_2_For_3_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 27);
+    \u0275\u0275elementStart(0, "div", 28);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -89695,25 +89783,25 @@ function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Conditional
     \u0275\u0275textInterpolate(pile_r14);
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Conditional_4_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_32_For_2_For_3_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 39);
+    \u0275\u0275elementStart(0, "div", 41);
     \u0275\u0275text(1, "0");
     \u0275\u0275elementEnd();
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_32_For_2_For_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 38);
-    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 40);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_32_For_2_For_3_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r11);
       const chip_r12 = \u0275\u0275nextContext().$implicit;
       const ctx_r0 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r0.addBet(chip_r12.id));
     });
-    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_For_2_Template, 1, 4, "img", 26, \u0275\u0275repeaterTrackByIndex);
-    \u0275\u0275template(3, BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Conditional_3_Template, 2, 1, "div", 27)(4, BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Conditional_4_Template, 2, 0, "div", 39);
+    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_Conditional_32_For_2_For_3_For_2_Template, 1, 4, "img", 27, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275template(3, BlackJackComponent_Conditional_2_Conditional_32_For_2_For_3_Conditional_3_Template, 2, 1, "div", 28)(4, BlackJackComponent_Conditional_2_Conditional_32_For_2_For_3_Conditional_4_Template, 2, 0, "div", 41);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -89728,11 +89816,11 @@ function BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Template(rf
     \u0275\u0275conditional(ctx_r0.playerInventory[chip_r12.id] > 0 ? 3 : 4);
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_7_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_32_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r15 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 40);
-    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_7_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 42);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_32_For_2_Conditional_7_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r15);
       const chip_r12 = \u0275\u0275nextContext().$implicit;
       const ctx_r0 = \u0275\u0275nextContext(3);
@@ -89747,11 +89835,11 @@ function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_7_Tem
     \u0275\u0275classProp("disabled", !ctx_r0.canExchangeUp(chip_r12.id));
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_8_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_32_For_2_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r16 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 41);
-    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_8_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 43);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_32_For_2_Conditional_8_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r16);
       const chip_r12 = \u0275\u0275nextContext().$implicit;
       const ctx_r0 = \u0275\u0275nextContext(3);
@@ -89761,16 +89849,16 @@ function BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_8_Tem
     \u0275\u0275elementEnd();
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_33_For_2_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_32_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 30)(1, "div", 23);
-    \u0275\u0275repeaterCreate(2, BlackJackComponent_Conditional_2_Conditional_33_For_2_For_3_Template, 5, 5, "div", 33, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementStart(0, "div", 31)(1, "div", 24);
+    \u0275\u0275repeaterCreate(2, BlackJackComponent_Conditional_2_Conditional_32_For_2_For_3_Template, 5, 5, "div", 35, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 34);
+    \u0275\u0275elementStart(4, "div", 36);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 35);
-    \u0275\u0275template(7, BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_7_Template, 2, 2, "button", 36)(8, BlackJackComponent_Conditional_2_Conditional_33_For_2_Conditional_8_Template, 2, 0, "button", 37);
+    \u0275\u0275elementStart(6, "div", 37);
+    \u0275\u0275template(7, BlackJackComponent_Conditional_2_Conditional_32_For_2_Conditional_7_Template, 2, 2, "button", 38)(8, BlackJackComponent_Conditional_2_Conditional_32_For_2_Conditional_8_Template, 2, 0, "button", 39);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -89781,32 +89869,40 @@ function BlackJackComponent_Conditional_2_Conditional_33_For_2_Template(rf, ctx)
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(chip_r12.value);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(chip_r12.id !== "chips_black" ? 7 : -1);
+    \u0275\u0275conditional(ctx_r0.hasExchangeUpRule(chip_r12.id) ? 7 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(chip_r12.id !== "chips_white" && ctx_r0.playerInventory[chip_r12.id] > 0 ? 8 : -1);
+    \u0275\u0275conditional(ctx_r0.canExchangeDown(chip_r12.id) && ctx_r0.playerInventory[chip_r12.id] > 0 ? 8 : -1);
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_33_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_32_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 29);
-    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_Conditional_33_For_2_Template, 9, 3, "div", 30, _forTrack05);
+    \u0275\u0275elementStart(0, "div", 30);
+    \u0275\u0275repeaterCreate(1, BlackJackComponent_Conditional_2_Conditional_32_For_2_Template, 9, 3, "div", 31, _forTrack05);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 31)(4, "button", 32);
-    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_Template_button_click_4_listener() {
+    \u0275\u0275elementStart(3, "div", 32)(4, "button", 33);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_32_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.clearBet());
     });
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "button", 22);
-    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_Template_button_click_6_listener() {
+    \u0275\u0275elementStart(6, "button", 34);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_32_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r0 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r0.allIn());
+    });
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "button", 23);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_32_Template_button_click_8_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.deal());
     });
-    \u0275\u0275text(7);
+    \u0275\u0275text(9);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -89816,14 +89912,16 @@ function BlackJackComponent_Conditional_2_Conditional_33_Template(rf, ctx) {
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate(ctx_r0.lang.clear_bet || "Clear");
     \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.lang.all_in || "All In");
+    \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(ctx_r0.lang.deal || "Deal");
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_34_Conditional_5_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_33_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r18 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 46);
-    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_34_Conditional_5_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 48);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_Conditional_5_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r18);
       const ctx_r0 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r0.double());
@@ -89837,9 +89935,9 @@ function BlackJackComponent_Conditional_2_Conditional_34_Conditional_5_Template(
     \u0275\u0275textInterpolate(ctx_r0.lang.double || "Double");
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_34_Conditional_6_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_33_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 45);
+    \u0275\u0275elementStart(0, "button", 47);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -89849,26 +89947,26 @@ function BlackJackComponent_Conditional_2_Conditional_34_Conditional_6_Template(
     \u0275\u0275textInterpolate(ctx_r0.lang.double || "Double");
   }
 }
-function BlackJackComponent_Conditional_2_Conditional_34_Template(rf, ctx) {
+function BlackJackComponent_Conditional_2_Conditional_33_Template(rf, ctx) {
   if (rf & 1) {
     const _r17 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 17)(1, "button", 42);
-    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_34_Template_button_click_1_listener() {
+    \u0275\u0275elementStart(0, "div", 16)(1, "button", 44);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r17);
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.hit());
     });
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "button", 43);
-    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_34_Template_button_click_3_listener() {
+    \u0275\u0275elementStart(3, "button", 45);
+    \u0275\u0275listener("click", function BlackJackComponent_Conditional_2_Conditional_33_Template_button_click_3_listener() {
       \u0275\u0275restoreView(_r17);
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.stand());
     });
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, BlackJackComponent_Conditional_2_Conditional_34_Conditional_5_Template, 2, 1, "button", 44)(6, BlackJackComponent_Conditional_2_Conditional_34_Conditional_6_Template, 2, 1, "button", 45);
+    \u0275\u0275template(5, BlackJackComponent_Conditional_2_Conditional_33_Conditional_5_Template, 2, 1, "button", 46)(6, BlackJackComponent_Conditional_2_Conditional_33_Conditional_6_Template, 2, 1, "button", 47);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -89890,32 +89988,30 @@ function BlackJackComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275elementStart(4, "div", 5);
     \u0275\u0275repeaterCreate(5, BlackJackComponent_Conditional_2_For_6_Template, 3, 3, "div", 6, _forTrack05);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 7);
-    \u0275\u0275template(8, BlackJackComponent_Conditional_2_Conditional_8_Template, 2, 1, "h1", 8)(9, BlackJackComponent_Conditional_2_Conditional_9_Template, 8, 3, "div", 9);
+    \u0275\u0275template(7, BlackJackComponent_Conditional_2_Conditional_7_Template, 3, 1, "div", 7)(8, BlackJackComponent_Conditional_2_Conditional_8_Template, 9, 3, "div", 8);
+    \u0275\u0275elementStart(9, "div", 9)(10, "div", 5);
+    \u0275\u0275repeaterCreate(11, BlackJackComponent_Conditional_2_For_12_Template, 2, 4, "div", 6, _forTrack05);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "div", 10)(11, "div", 5);
-    \u0275\u0275repeaterCreate(12, BlackJackComponent_Conditional_2_For_13_Template, 2, 4, "div", 6, _forTrack05);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "div", 3);
-    \u0275\u0275text(15);
-    \u0275\u0275template(16, BlackJackComponent_Conditional_2_Conditional_16_Template, 2, 1, "span", 4);
+    \u0275\u0275elementStart(13, "div", 3);
+    \u0275\u0275text(14);
+    \u0275\u0275template(15, BlackJackComponent_Conditional_2_Conditional_15_Template, 2, 1, "span", 4);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(17, "div", 11)(18, "div", 12);
-    \u0275\u0275text(19);
-    \u0275\u0275elementStart(20, "span", 13);
-    \u0275\u0275text(21);
-    \u0275\u0275pipe(22, "number");
+    \u0275\u0275elementStart(16, "div", 10)(17, "div", 11);
+    \u0275\u0275text(18);
+    \u0275\u0275elementStart(19, "span", 12);
+    \u0275\u0275text(20);
+    \u0275\u0275pipe(21, "number");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(23, "div", 14);
-    \u0275\u0275repeaterCreate(24, BlackJackComponent_Conditional_2_For_25_Template, 1, 1, null, null, _forTrack05);
+    \u0275\u0275elementStart(22, "div", 13);
+    \u0275\u0275repeaterCreate(23, BlackJackComponent_Conditional_2_For_24_Template, 1, 1, null, null, _forTrack05);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(26, "div", 15)(27, "div", 16)(28, "div", 12);
-    \u0275\u0275text(29, " Total Value: ");
-    \u0275\u0275elementStart(30, "span", 13);
-    \u0275\u0275text(31);
-    \u0275\u0275pipe(32, "number");
+    \u0275\u0275elementStart(25, "div", 14)(26, "div", 15)(27, "div", 11);
+    \u0275\u0275text(28, " Total Value: ");
+    \u0275\u0275elementStart(29, "span", 12);
+    \u0275\u0275text(30);
+    \u0275\u0275pipe(31, "number");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275template(33, BlackJackComponent_Conditional_2_Conditional_33_Template, 8, 2)(34, BlackJackComponent_Conditional_2_Conditional_34_Template, 7, 3, "div", 17);
+    \u0275\u0275template(32, BlackJackComponent_Conditional_2_Conditional_32_Template, 10, 3)(33, BlackJackComponent_Conditional_2_Conditional_33_Template, 7, 3, "div", 16);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -89927,10 +90023,10 @@ function BlackJackComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r0.gameState === "dealer_turn" || ctx_r0.gameState === "game_over" ? 3 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r0.dealerHand);
-    \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r0.gameState === "game_over" ? 8 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.gameState === "game_over" ? 7 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.gameState === "bankrupt" ? 9 : -1);
+    \u0275\u0275conditional(ctx_r0.gameState === "bankrupt" ? 8 : -1);
     \u0275\u0275advance();
     \u0275\u0275classProp("dimmed", ctx_r0.gameState === "betting");
     \u0275\u0275advance(2);
@@ -89938,19 +90034,19 @@ function BlackJackComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1("", ctx_r0.lang.player_cards || "Your Cards", " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.playerHand.length > 0 ? 16 : -1);
+    \u0275\u0275conditional(ctx_r0.playerHand.length > 0 ? 15 : -1);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx_r0.lang.total_bet || "Total Bet: ", " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(22, 15, ctx_r0.currentBet));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(21, 15, ctx_r0.currentBet));
     \u0275\u0275advance(3);
     \u0275\u0275repeater(ctx_r0.chips);
     \u0275\u0275advance(7);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(32, 17, ctx_r0.playerChips));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(31, 17, ctx_r0.playerChips));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r0.gameState === "betting" ? 33 : -1);
+    \u0275\u0275conditional(ctx_r0.gameState === "betting" ? 32 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.gameState === "playing" ? 34 : -1);
+    \u0275\u0275conditional(ctx_r0.gameState === "playing" ? 33 : -1);
   }
 }
 function BlackJackComponent_Conditional_3_Template(rf, ctx) {
@@ -89972,6 +90068,7 @@ var BlackJackComponent = class _BlackJackComponent {
   resultMessage = "";
   playerInventory = {};
   betInventory = {};
+  initialChipsValue = 0;
   get currentBet() {
     return this.getInventoryValue(this.betInventory);
   }
@@ -90008,16 +90105,14 @@ var BlackJackComponent = class _BlackJackComponent {
   }
   restartGame() {
     this.playerInventory = {
-      "chips_black": 3,
-      // 300
-      "chips_blue": 5,
-      // 100
-      "chips_green": 5,
-      // 50
-      "chips_red": 8,
-      // 40
-      "chips_white": 10
-      // 10
+      "chips_gray": 10,
+      "chips_white": 4,
+      "chips_red": 3,
+      "chips_green": 2,
+      "chips_blue": 2,
+      "chips_black": 1,
+      "chips_yellow": 1,
+      "chips_pink": 0
     };
     this.betInventory = {};
     for (const c of this.chips) {
@@ -90025,6 +90120,7 @@ var BlackJackComponent = class _BlackJackComponent {
         this.playerInventory[c.id] = 0;
       this.betInventory[c.id] = 0;
     }
+    this.initialChipsValue = this.getInventoryValue(this.playerInventory);
     this.gameState = "betting";
   }
   getInventoryValue(inv) {
@@ -90056,46 +90152,69 @@ var BlackJackComponent = class _BlackJackComponent {
   exchange(chipId) {
     if (this.playerInventory[chipId] <= 0)
       return;
-    const rules = {
-      "chips_black": { to: "chips_blue", qty: 5 },
-      // 100 -> 5x20
-      "chips_blue": { to: "chips_green", qty: 2 },
-      // 20 -> 2x10
-      "chips_green": { to: "chips_red", qty: 2 },
-      // 10 -> 2x5
-      "chips_red": { to: "chips_white", qty: 5 }
-      // 5 -> 5x1
-    };
-    const rule = rules[chipId];
-    if (rule) {
-      this.playerInventory[chipId]--;
-      this.playerInventory[rule.to] += rule.qty;
-      this.tools.playSound("sfx_1");
+    const chip = this.chips.find((c) => c.id === chipId);
+    if (!chip)
+      return;
+    this.playerInventory[chipId]--;
+    let remaining = chip.value;
+    for (const c of this.chips) {
+      if (c.value >= chip.value)
+        continue;
+      const count = Math.floor(remaining / c.value);
+      if (count > 0) {
+        this.playerInventory[c.id] = (this.playerInventory[c.id] || 0) + count;
+        remaining %= c.value;
+      }
     }
+    this.tools.playSound("sfx_1");
+  }
+  getExchangeUpRule(chipId) {
+    const chip = this.chips.find((c) => c.id === chipId);
+    if (!chip)
+      return null;
+    const largerChips = this.chips.filter((c) => c.value > chip.value).sort((a, b) => a.value - b.value);
+    if (largerChips.length === 0)
+      return null;
+    const nextChip = largerChips[0];
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    const g = gcd(nextChip.value, chip.value);
+    const lcm = nextChip.value * chip.value / g;
+    const qtyNeeded = lcm / chip.value;
+    const qtyGiven = lcm / nextChip.value;
+    return { to: nextChip.id, qtyNeeded, qtyGiven };
+  }
+  hasExchangeUpRule(chipId) {
+    return this.getExchangeUpRule(chipId) !== null;
+  }
+  canExchangeDown(chipId) {
+    const chip = this.chips.find((c) => c.id === chipId);
+    if (!chip)
+      return false;
+    return this.chips.some((c) => c.value < chip.value);
   }
   canExchangeUp(chipId) {
-    const rules = {
-      "chips_blue": { to: "chips_black", qty: 5 },
-      "chips_green": { to: "chips_blue", qty: 2 },
-      "chips_red": { to: "chips_green", qty: 2 },
-      "chips_white": { to: "chips_red", qty: 5 }
-    };
-    const rule = rules[chipId];
-    return !!rule && this.playerInventory[chipId] >= rule.qty;
+    const rule = this.getExchangeUpRule(chipId);
+    return !!rule && this.playerInventory[chipId] >= rule.qtyNeeded;
   }
   exchangeUp(chipId) {
-    const rules = {
-      "chips_blue": { to: "chips_black", qty: 5 },
-      "chips_green": { to: "chips_blue", qty: 2 },
-      "chips_red": { to: "chips_green", qty: 2 },
-      "chips_white": { to: "chips_red", qty: 5 }
-    };
-    const rule = rules[chipId];
-    if (rule && this.playerInventory[chipId] >= rule.qty) {
-      this.playerInventory[chipId] -= rule.qty;
-      this.playerInventory[rule.to]++;
+    const rule = this.getExchangeUpRule(chipId);
+    if (rule && this.playerInventory[chipId] >= rule.qtyNeeded) {
+      this.playerInventory[chipId] -= rule.qtyNeeded;
+      this.playerInventory[rule.to] = (this.playerInventory[rule.to] || 0) + rule.qtyGiven;
       this.tools.playSound("sfx_1");
     }
+  }
+  allIn() {
+    let played = false;
+    for (const chip of this.chips) {
+      if (this.playerInventory[chip.id] > 0) {
+        this.betInventory[chip.id] = (this.betInventory[chip.id] || 0) + this.playerInventory[chip.id];
+        this.playerInventory[chip.id] = 0;
+        played = true;
+      }
+    }
+    if (played)
+      this.tools.playSound("sfx_1");
   }
   deal() {
     if (this.currentBet === 0) {
@@ -90256,22 +90375,44 @@ var BlackJackComponent = class _BlackJackComponent {
   endGame(reason) {
     this.gameState = "game_over";
     const originalBet = this.currentBet;
+    let totalWin = 0;
     if (reason === "blackjack") {
       this.resultMessage = this.lang.blackjack || "Blackjack!";
-      const win = Math.floor(originalBet * 2.5);
-      this.greedyAdd(this.playerInventory, win);
+      totalWin = Math.floor(originalBet * 2.5);
       this.tools.playSound("sfx_4");
     } else if (reason === "player_win" || reason === "dealer_bust") {
       this.resultMessage = reason === "dealer_bust" ? this.lang.dealer_bust || "Dealer Busts!" : this.lang.player_win || "Player Wins!";
-      this.greedyAdd(this.playerInventory, originalBet * 2);
+      totalWin = originalBet * 2;
       this.tools.playSound("sfx_4");
     } else if (reason === "push") {
       this.resultMessage = this.lang.push || "Push";
-      this.greedyAdd(this.playerInventory, originalBet);
+      totalWin = originalBet;
       this.tools.playSound("sfx_1");
     } else {
       this.resultMessage = reason === "bust" ? this.lang.bust || "Bust!" : this.lang.dealer_win || "Dealer Wins!";
+      totalWin = 0;
       this.tools.playSound("sfx_2");
+    }
+    if (totalWin >= originalBet && originalBet > 0) {
+      for (const chip of this.chips) {
+        if (this.betInventory[chip.id] > 0) {
+          this.playerInventory[chip.id] += this.betInventory[chip.id];
+        }
+      }
+      let remainingWin = totalWin - originalBet;
+      while (remainingWin >= originalBet) {
+        for (const chip of this.chips) {
+          if (this.betInventory[chip.id] > 0) {
+            this.playerInventory[chip.id] += this.betInventory[chip.id];
+          }
+        }
+        remainingWin -= originalBet;
+      }
+      if (remainingWin > 0) {
+        this.greedyAdd(this.playerInventory, remainingWin);
+      }
+    } else if (totalWin > 0) {
+      this.greedyAdd(this.playerInventory, totalWin);
     }
     for (const chip of this.chips) {
       this.betInventory[chip.id] = 0;
@@ -90285,18 +90426,25 @@ var BlackJackComponent = class _BlackJackComponent {
     }, 3e3);
   }
   ngOnDestroy() {
-    let earnedPoints = this.playerChips - 500;
+    let earnedPoints = this.playerChips - this.initialChipsValue;
     if (earnedPoints > 0) {
       this.tools.leaveMinigame("blackjack", earnedPoints, 0);
     }
   }
   // UI Helpers
+  _arrayCache = /* @__PURE__ */ new Map();
   getArray(n) {
-    return Array(n).fill(0);
+    if (!this._arrayCache.has(n)) {
+      this._arrayCache.set(n, Array(n).fill(0));
+    }
+    return this._arrayCache.get(n);
   }
+  _pilesCache = /* @__PURE__ */ new Map();
   getChipPiles(total) {
     if (total <= 0)
       return [0];
+    if (this._pilesCache.has(total))
+      return this._pilesCache.get(total);
     const piles = [];
     let remaining = total;
     while (remaining > 0 && piles.length < 2) {
@@ -90306,6 +90454,7 @@ var BlackJackComponent = class _BlackJackComponent {
     if (remaining > 0) {
       piles.push(remaining);
     }
+    this._pilesCache.set(total, piles);
     return piles;
   }
   getStackHeight(pile) {
@@ -90317,10 +90466,10 @@ var BlackJackComponent = class _BlackJackComponent {
   static \u0275fac = function BlackJackComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _BlackJackComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlackJackComponent, selectors: [["app-black-jack"]], decls: 4, vars: 4, consts: [[1, "felt-table"], [1, "loading"], [1, "dealer-area"], [1, "hand-label"], [1, "hand-value"], [1, "cards"], [1, "card", 3, "transform"], [1, "center-message"], [1, "result-text"], [1, "bankrupt-panel"], [1, "player-area"], [1, "bet-area"], [1, "bet-info"], [1, "bet-amount"], [1, "visual-chip-stack-container"], [1, "controls-panel"], [1, "stats-row"], [1, "play-actions"], [1, "card"], ["alt", "Hidden Card", 3, "src"], [3, "src", "alt"], [1, "bankrupt-actions"], [1, "btn", "btn-green", 3, "click"], [1, "piles-container"], [1, "visual-stack", "bet-stack", 3, "height"], [1, "visual-stack", "bet-stack"], [1, "chip-img", 3, "src", "alt", "bottom"], [1, "chip-label"], [1, "chip-img", 3, "src", "alt"], [1, "chip-rack"], [1, "rack-slot"], [1, "bet-actions"], [1, "btn", "btn-red", 3, "click"], [1, "visual-stack", "rack-stack", 3, "disabled", "height"], [1, "chip-val-text"], [1, "exchange-buttons"], ["title", "Upgrade", 1, "exchange-btn", 3, "disabled"], ["title", "Break down", 1, "exchange-btn"], [1, "visual-stack", "rack-stack", 3, "click"], [1, "chip-empty"], ["title", "Upgrade", 1, "exchange-btn", 3, "click"], ["title", "Break down", 1, "exchange-btn", 3, "click"], [1, "btn", "btn-hit", 3, "click"], [1, "btn", "btn-stand", 3, "click"], [1, "btn", "btn-double"], ["title", "Not enough chips to double", 1, "btn", "btn-double", "disabled"], [1, "btn", "btn-double", 3, "click"]], template: function BlackJackComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BlackJackComponent, selectors: [["app-black-jack"]], decls: 4, vars: 4, consts: [[1, "felt-table"], [1, "loading"], [1, "dealer-area"], [1, "hand-label"], [1, "hand-value"], [1, "cards"], [1, "card", 3, "transform"], [1, "center-message"], [1, "bankrupt-overlay"], [1, "player-area"], [1, "bet-area"], [1, "bet-info"], [1, "bet-amount"], [1, "visual-chip-stack-container"], [1, "controls-panel"], [1, "stats-row"], [1, "play-actions"], [1, "card"], ["alt", "Hidden Card", 3, "src"], [3, "src", "alt"], [1, "result-text"], [1, "bankrupt-panel"], [1, "bankrupt-actions"], [1, "btn", "btn-green", 3, "click"], [1, "piles-container"], [1, "visual-stack", "bet-stack", 3, "height"], [1, "visual-stack", "bet-stack"], [1, "chip-img", 3, "src", "alt", "bottom"], [1, "chip-label"], [1, "chip-img", 3, "src", "alt"], [1, "chip-rack"], [1, "rack-slot"], [1, "bet-actions"], [1, "btn", "btn-red", 3, "click"], [1, "btn", "btn-blue", 2, "background", "#2196F3", "color", "white", 3, "click"], [1, "visual-stack", "rack-stack", 3, "disabled", "height"], [1, "chip-val-text"], [1, "exchange-buttons"], ["title", "Upgrade", 1, "exchange-btn", 3, "disabled"], ["title", "Break down", 1, "exchange-btn"], [1, "visual-stack", "rack-stack", 3, "click"], [1, "chip-empty"], ["title", "Upgrade", 1, "exchange-btn", 3, "click"], ["title", "Break down", 1, "exchange-btn", 3, "click"], [1, "btn", "btn-hit", 3, "click"], [1, "btn", "btn-stand", 3, "click"], [1, "btn", "btn-double"], ["title", "Not enough chips to double", 1, "btn", "btn-double", "disabled"], [1, "btn", "btn-double", 3, "click"]], template: function BlackJackComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div")(1, "div", 0);
-      \u0275\u0275template(2, BlackJackComponent_Conditional_2_Template, 35, 19)(3, BlackJackComponent_Conditional_3_Template, 2, 0, "div", 1);
+      \u0275\u0275template(2, BlackJackComponent_Conditional_2_Template, 34, 19)(3, BlackJackComponent_Conditional_3_Template, 2, 0, "div", 1);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -90328,7 +90477,7 @@ var BlackJackComponent = class _BlackJackComponent {
       \u0275\u0275advance(2);
       \u0275\u0275conditional(ctx.gameState !== "loading" ? 2 : 3);
     }
-  }, dependencies: [CommonModule, DecimalPipe], styles: ['\n\n.black-jack-container[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  background: #111;\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.felt-table[_ngcontent-%COMP%] {\n  flex: 1;\n  background:\n    radial-gradient(\n      circle at center,\n      #0e632d,\n      #083b1a);\n  border: 4px solid #4a2e12;\n  border-radius: 12px;\n  margin: 10px;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  padding: 10px;\n  position: relative;\n  overflow: hidden;\n}\n.dealer-area[_ngcontent-%COMP%], \n.player-area[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  transition: opacity 0.3s;\n}\n.dimmed[_ngcontent-%COMP%] {\n  opacity: 0.3;\n}\n.hand-label[_ngcontent-%COMP%] {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.2rem;\n  font-weight: 600;\n  margin: 10px 0;\n  color: #e0e0e0;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n  position: relative;\n  z-index: 50;\n}\n.hand-value[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.6);\n  padding: 2px 8px;\n  border-radius: 10px;\n  margin-left: 8px;\n  color: #ffd700;\n}\n.cards[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  height: 140px;\n  margin-left: 30px;\n}\n.card[_ngcontent-%COMP%] {\n  width: 90px;\n  height: 130px;\n  transition: transform 0.2s ease-out;\n  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));\n}\n.card[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n}\n.center-message[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 45%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  text-align: center;\n  z-index: 10;\n  pointer-events: none;\n}\n.result-text[_ngcontent-%COMP%] {\n  font-family: "Poppins", sans-serif;\n  font-size: 3rem;\n  font-weight: 900;\n  color: #ffd700;\n  text-transform: uppercase;\n  text-shadow:\n    3px 3px 0 #000,\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  animation: _ngcontent-%COMP%_popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n@keyframes _ngcontent-%COMP%_popIn {\n  0% {\n    transform: scale(0.5);\n    opacity: 0;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.bet-area[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 80px;\n}\n.visual-chip-stack-container[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n  min-height: 80px;\n  align-items: flex-end;\n  overflow-x: auto;\n  width: 100vw;\n  margin-left: calc(-50vw + 50%);\n  margin-right: calc(-50vw + 50%);\n  padding: 0 20px 10px 20px;\n}\n.visual-chip-stack-container[_ngcontent-%COMP%]::before, \n.visual-chip-stack-container[_ngcontent-%COMP%]::after {\n  content: "";\n  margin: auto;\n}\n.controls-panel[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.5);\n  border-radius: 12px;\n  padding: 10px 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.bet-info[_ngcontent-%COMP%] {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.1rem;\n  color: #ffd700;\n  font-weight: 600;\n  position: relative;\n  z-index: 50;\n}\n.chip-rack[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 20px;\n  align-items: flex-end;\n  margin: 10px calc(-50vw + 50%);\n  width: 100vw;\n  overflow-x: auto;\n  padding: 0 20px 10px 20px;\n}\n.chip-rack[_ngcontent-%COMP%]::before, \n.chip-rack[_ngcontent-%COMP%]::after {\n  content: "";\n  margin: auto;\n}\n.rack-slot[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: flex-end;\n  gap: 5px;\n}\n.piles-container[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n}\n.visual-stack[_ngcontent-%COMP%] {\n  position: relative;\n  width: 50px;\n}\n.rack-stack[_ngcontent-%COMP%] {\n  cursor: pointer;\n  transition: transform 0.1s;\n}\n.rack-stack[_ngcontent-%COMP%]:hover:not(.disabled) {\n  transform: scale(1.1) translateY(-5px);\n}\n.rack-stack[_ngcontent-%COMP%]:active:not(.disabled) {\n  transform: scale(0.95);\n}\n.disabled[_ngcontent-%COMP%] {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.chip-img[_ngcontent-%COMP%] {\n  position: absolute;\n  width: 100%;\n  height: 50px;\n  object-fit: contain;\n  left: 0;\n}\n.chip-label[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background: rgba(0, 0, 0, 0.8);\n  color: white;\n  border-radius: 50%;\n  width: 24px;\n  height: 24px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border: 1px solid #ffd700;\n  z-index: 10;\n  pointer-events: none;\n}\n.chip-empty[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  color: rgba(255, 255, 255, 0.5);\n  font-weight: bold;\n  font-size: 1.2rem;\n  pointer-events: none;\n}\n.chip-val-text[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  color: #ccc;\n  font-family: "Poppins", sans-serif;\n}\n.exchange-buttons[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 5px;\n  min-height: 24px;\n}\n.exchange-btn[_ngcontent-%COMP%] {\n  background: #333;\n  color: white;\n  border: 1px solid #666;\n  border-radius: 4px;\n  padding: 2px 5px;\n  cursor: pointer;\n  font-size: 0.8rem;\n}\n.exchange-btn[_ngcontent-%COMP%]:hover:not(.disabled) {\n  background: #555;\n}\n.exchange-btn.disabled[_ngcontent-%COMP%] {\n  opacity: 0.4;\n  cursor: not-allowed;\n  background: #222;\n}\n.bet-actions[_ngcontent-%COMP%], \n.play-actions[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 8px 16px;\n  font-size: 1rem;\n  font-family: "Poppins", sans-serif;\n  font-weight: 700;\n  border: none;\n  border-radius: 8px;\n  cursor: pointer;\n  text-transform: uppercase;\n  transition: all 0.2s;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n}\n.btn.disabled[_ngcontent-%COMP%] {\n  opacity: 0.5;\n  cursor: not-allowed;\n  filter: grayscale(1);\n}\n.btn[_ngcontent-%COMP%]:hover:not(.disabled) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);\n}\n.btn[_ngcontent-%COMP%]:active:not(.disabled) {\n  transform: translateY(2px);\n  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);\n}\n.btn-red[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #ff4d4d,\n      #cc0000);\n  color: white;\n}\n.btn-green[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #4dff4d,\n      #00cc00);\n  color: white;\n}\n.btn-hit[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #4da6ff,\n      #0066cc);\n  color: white;\n}\n.btn-stand[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #ffd700,\n      #ccaa00);\n  color: black;\n}\n.btn-double[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #ff9933,\n      #cc6600);\n  color: white;\n}\n.loading[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  font-size: 1.5rem;\n  color: #fff;\n}\n.stats-row[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 30px;\n  align-items: center;\n}\n.bankrupt-panel[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.85);\n  padding: 30px;\n  border-radius: 12px;\n  border: 2px solid #ff4d4d;\n  box-shadow: 0 0 20px rgba(255, 77, 77, 0.5);\n  pointer-events: auto;\n}\n.bankrupt-panel[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-family: "Poppins", sans-serif;\n  color: #ffb3b3;\n  margin-bottom: 20px;\n}\n.bankrupt-actions[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n}\n/*# sourceMappingURL=black_jack.component.css.map */'] });
+  }, dependencies: [CommonModule, DecimalPipe], styles: ['\n\n.black-jack-container[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.felt-table[_ngcontent-%COMP%] {\n  flex: 1;\n  background:\n    radial-gradient(\n      circle at center,\n      #0e632d,\n      #083b1a);\n  border: 4px solid #4a2e12;\n  border-radius: 12px;\n  margin: 10px;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  padding: 10px;\n  position: relative;\n  overflow: hidden;\n}\n.dealer-area[_ngcontent-%COMP%], \n.player-area[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  transition: opacity 0.3s;\n}\n.dimmed[_ngcontent-%COMP%] {\n  opacity: 0.3;\n}\n.hand-label[_ngcontent-%COMP%] {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.2rem;\n  font-weight: 600;\n  margin: 10px 0;\n  color: #e0e0e0;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n  position: relative;\n  z-index: 50;\n}\n.hand-value[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.6);\n  padding: 2px 8px;\n  border-radius: 10px;\n  margin-left: 8px;\n  color: #ffd700;\n}\n.cards[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  height: 140px;\n  margin-left: 30px;\n}\n.card[_ngcontent-%COMP%] {\n  width: 90px;\n  height: 130px;\n  transition: transform 0.2s ease-out;\n  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));\n}\n.card[_ngcontent-%COMP%]   img[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n}\n.center-message[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 45%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  text-align: center;\n  z-index: 100;\n  pointer-events: none;\n}\n.bankrupt-overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(3px);\n  backdrop-filter: blur(3px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  z-index: 100;\n  pointer-events: auto;\n  text-align: center;\n}\n.result-text[_ngcontent-%COMP%] {\n  font-family: "Poppins", sans-serif;\n  font-size: 3rem;\n  font-weight: 900;\n  color: #ffd700;\n  text-transform: uppercase;\n  text-shadow:\n    3px 3px 0 #000,\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  animation: _ngcontent-%COMP%_popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n@keyframes _ngcontent-%COMP%_popIn {\n  0% {\n    transform: scale(0.5);\n    opacity: 0;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.bet-area[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 80px;\n}\n.visual-chip-stack-container[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n  min-height: 80px;\n  align-items: flex-end;\n  overflow-x: auto;\n  width: 100vw;\n  margin-left: calc(-50vw + 50%);\n  margin-right: calc(-50vw + 50%);\n  padding: 0 20px 10px 20px;\n}\n.visual-chip-stack-container[_ngcontent-%COMP%]::before, \n.visual-chip-stack-container[_ngcontent-%COMP%]::after {\n  content: "";\n  margin: auto;\n}\n.controls-panel[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.5);\n  border-radius: 12px;\n  padding: 10px 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.bet-info[_ngcontent-%COMP%] {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.1rem;\n  color: #ffd700;\n  font-weight: 600;\n  position: relative;\n  z-index: 50;\n}\n.chip-rack[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 20px;\n  align-items: flex-end;\n  margin: 10px calc(-50vw + 50%);\n  width: 100vw;\n  overflow-x: auto;\n  padding: 0 20px 10px 20px;\n}\n.chip-rack[_ngcontent-%COMP%]::before, \n.chip-rack[_ngcontent-%COMP%]::after {\n  content: "";\n  margin: auto;\n}\n.rack-slot[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: flex-end;\n  gap: 5px;\n}\n.piles-container[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n}\n.visual-stack[_ngcontent-%COMP%] {\n  position: relative;\n  width: 50px;\n}\n.rack-stack[_ngcontent-%COMP%] {\n  cursor: pointer;\n  transition: transform 0.1s;\n}\n.rack-stack[_ngcontent-%COMP%]:hover:not(.disabled) {\n  transform: scale(1.1) translateY(-5px);\n}\n.rack-stack[_ngcontent-%COMP%]:active:not(.disabled) {\n  transform: scale(0.95);\n}\n.disabled[_ngcontent-%COMP%] {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.chip-img[_ngcontent-%COMP%] {\n  position: absolute;\n  width: 100%;\n  height: 50px;\n  object-fit: contain;\n  left: 0;\n}\n.chip-label[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background: rgba(0, 0, 0, 0.8);\n  color: white;\n  border-radius: 50%;\n  width: 24px;\n  height: 24px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border: 1px solid #ffd700;\n  z-index: 10;\n  pointer-events: none;\n}\n.chip-empty[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  color: rgba(255, 255, 255, 0.5);\n  font-weight: bold;\n  font-size: 1.2rem;\n  pointer-events: none;\n}\n.chip-val-text[_ngcontent-%COMP%] {\n  font-size: 0.8rem;\n  color: #ccc;\n  font-family: "Poppins", sans-serif;\n}\n.exchange-buttons[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 5px;\n  min-height: 24px;\n}\n.exchange-btn[_ngcontent-%COMP%] {\n  background: #333;\n  color: white;\n  border: 1px solid #666;\n  border-radius: 4px;\n  padding: 2px 5px;\n  cursor: pointer;\n  font-size: 0.8rem;\n}\n.exchange-btn[_ngcontent-%COMP%]:hover:not(.disabled) {\n  background: #555;\n}\n.exchange-btn.disabled[_ngcontent-%COMP%] {\n  opacity: 0.4;\n  cursor: not-allowed;\n  background: #222;\n}\n.bet-actions[_ngcontent-%COMP%], \n.play-actions[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 10px;\n}\n.btn[_ngcontent-%COMP%] {\n  padding: 8px 16px;\n  font-size: 1rem;\n  font-family: "Poppins", sans-serif;\n  font-weight: 700;\n  border: none;\n  border-radius: 8px;\n  cursor: pointer;\n  text-transform: uppercase;\n  transition: all 0.2s;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n}\n.btn.disabled[_ngcontent-%COMP%] {\n  opacity: 0.5;\n  cursor: not-allowed;\n  filter: grayscale(1);\n}\n.btn[_ngcontent-%COMP%]:hover:not(.disabled) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);\n}\n.btn[_ngcontent-%COMP%]:active:not(.disabled) {\n  transform: translateY(2px);\n  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);\n}\n.btn-red[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #ff4d4d,\n      #cc0000);\n  color: white;\n}\n.btn-green[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #4dff4d,\n      #00cc00);\n  color: white;\n}\n.btn-hit[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #4da6ff,\n      #0066cc);\n  color: white;\n}\n.btn-stand[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #ffd700,\n      #ccaa00);\n  color: black;\n}\n.btn-double[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      180deg,\n      #ff9933,\n      #cc6600);\n  color: white;\n}\n.loading[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  font-size: 1.5rem;\n  color: #fff;\n}\n.stats-row[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 30px;\n  align-items: center;\n}\n.bankrupt-panel[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.85);\n  padding: 30px;\n  border-radius: 12px;\n  border: 2px solid #ff4d4d;\n  box-shadow: 0 0 20px rgba(255, 77, 77, 0.5);\n  pointer-events: auto;\n}\n.bankrupt-panel[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-family: "Poppins", sans-serif;\n  color: #ffb3b3;\n  margin-bottom: 20px;\n}\n.bankrupt-actions[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 15px;\n}\n/*# sourceMappingURL=black_jack.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BlackJackComponent, [{
@@ -90358,12 +90507,16 @@ var BlackJackComponent = class _BlackJackComponent {
         </div>
       </div>
       
-      <!-- Result / Bankrupt Message -->
-      <div class="center-message">
-        @if (gameState === 'game_over') {
+      <!-- Round Result -->
+      @if (gameState === 'game_over') {
+        <div class="center-message">
           <h1 class="result-text">{{resultMessage}}</h1>
-        }
-        @if (gameState === 'bankrupt') {
+        </div>
+      }
+
+      <!-- Bankrupt / Game Over -->
+      @if (gameState === 'bankrupt') {
+        <div class="bankrupt-overlay">
           <div class="bankrupt-panel">
             <h1 class="result-text">{{lang.game_over || "Game Over"}}</h1>
             <p>{{lang.bankrupt || "You lost all your chips!"}}</p>
@@ -90371,8 +90524,8 @@ var BlackJackComponent = class _BlackJackComponent {
               <button class="btn btn-green" (click)="restartGame()">{{lang.restart || "Restart"}}</button>
             </div>
           </div>
-        }
-      </div>
+        </div>
+      }
 
       <!-- Player Area -->
       <div class="player-area" [class.dimmed]="gameState === 'betting'">
@@ -90443,10 +90596,10 @@ var BlackJackComponent = class _BlackJackComponent {
                 </div>
                 <div class="chip-val-text">{{chip.value}}</div>
                 <div class="exchange-buttons">
-                  @if (chip.id !== 'chips_black') {
+                  @if (hasExchangeUpRule(chip.id)) {
                     <button class="exchange-btn" (click)="exchangeUp(chip.id)" title="Upgrade" [class.disabled]="!canExchangeUp(chip.id)">\u2B05\uFE0F</button>
                   }
-                  @if (chip.id !== 'chips_white' && playerInventory[chip.id] > 0) {
+                  @if (canExchangeDown(chip.id) && playerInventory[chip.id] > 0) {
                     <button class="exchange-btn" (click)="exchange(chip.id)" title="Break down">\u27A1\uFE0F</button>
                   }
                 </div>
@@ -90455,6 +90608,7 @@ var BlackJackComponent = class _BlackJackComponent {
           </div>
           <div class="bet-actions">
             <button class="btn btn-red" (click)="clearBet()">{{lang.clear_bet || "Clear"}}</button>
+            <button class="btn btn-blue" style="background: #2196F3; color: white;" (click)="allIn()">{{lang.all_in || "All In"}}</button>
             <button class="btn btn-green" (click)="deal()">{{lang.deal || "Deal"}}</button>
           </div>
         } 
@@ -90478,7 +90632,7 @@ var BlackJackComponent = class _BlackJackComponent {
 
   </div>
 </div>
-`, styles: ['/* src/app/games/black_jack/black_jack.component.css */\n.black-jack-container {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  background: #111;\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.felt-table {\n  flex: 1;\n  background:\n    radial-gradient(\n      circle at center,\n      #0e632d,\n      #083b1a);\n  border: 4px solid #4a2e12;\n  border-radius: 12px;\n  margin: 10px;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  padding: 10px;\n  position: relative;\n  overflow: hidden;\n}\n.dealer-area,\n.player-area {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  transition: opacity 0.3s;\n}\n.dimmed {\n  opacity: 0.3;\n}\n.hand-label {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.2rem;\n  font-weight: 600;\n  margin: 10px 0;\n  color: #e0e0e0;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n  position: relative;\n  z-index: 50;\n}\n.hand-value {\n  background: rgba(0, 0, 0, 0.6);\n  padding: 2px 8px;\n  border-radius: 10px;\n  margin-left: 8px;\n  color: #ffd700;\n}\n.cards {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  height: 140px;\n  margin-left: 30px;\n}\n.card {\n  width: 90px;\n  height: 130px;\n  transition: transform 0.2s ease-out;\n  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));\n}\n.card img {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n}\n.center-message {\n  position: absolute;\n  top: 45%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  text-align: center;\n  z-index: 10;\n  pointer-events: none;\n}\n.result-text {\n  font-family: "Poppins", sans-serif;\n  font-size: 3rem;\n  font-weight: 900;\n  color: #ffd700;\n  text-transform: uppercase;\n  text-shadow:\n    3px 3px 0 #000,\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n@keyframes popIn {\n  0% {\n    transform: scale(0.5);\n    opacity: 0;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.bet-area {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 80px;\n}\n.visual-chip-stack-container {\n  display: flex;\n  gap: 15px;\n  min-height: 80px;\n  align-items: flex-end;\n  overflow-x: auto;\n  width: 100vw;\n  margin-left: calc(-50vw + 50%);\n  margin-right: calc(-50vw + 50%);\n  padding: 0 20px 10px 20px;\n}\n.visual-chip-stack-container::before,\n.visual-chip-stack-container::after {\n  content: "";\n  margin: auto;\n}\n.controls-panel {\n  background: rgba(0, 0, 0, 0.5);\n  border-radius: 12px;\n  padding: 10px 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.bet-info {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.1rem;\n  color: #ffd700;\n  font-weight: 600;\n  position: relative;\n  z-index: 50;\n}\n.chip-rack {\n  display: flex;\n  gap: 20px;\n  align-items: flex-end;\n  margin: 10px calc(-50vw + 50%);\n  width: 100vw;\n  overflow-x: auto;\n  padding: 0 20px 10px 20px;\n}\n.chip-rack::before,\n.chip-rack::after {\n  content: "";\n  margin: auto;\n}\n.rack-slot {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: flex-end;\n  gap: 5px;\n}\n.piles-container {\n  display: flex;\n  gap: 10px;\n}\n.visual-stack {\n  position: relative;\n  width: 50px;\n}\n.rack-stack {\n  cursor: pointer;\n  transition: transform 0.1s;\n}\n.rack-stack:hover:not(.disabled) {\n  transform: scale(1.1) translateY(-5px);\n}\n.rack-stack:active:not(.disabled) {\n  transform: scale(0.95);\n}\n.disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.chip-img {\n  position: absolute;\n  width: 100%;\n  height: 50px;\n  object-fit: contain;\n  left: 0;\n}\n.chip-label {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background: rgba(0, 0, 0, 0.8);\n  color: white;\n  border-radius: 50%;\n  width: 24px;\n  height: 24px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border: 1px solid #ffd700;\n  z-index: 10;\n  pointer-events: none;\n}\n.chip-empty {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  color: rgba(255, 255, 255, 0.5);\n  font-weight: bold;\n  font-size: 1.2rem;\n  pointer-events: none;\n}\n.chip-val-text {\n  font-size: 0.8rem;\n  color: #ccc;\n  font-family: "Poppins", sans-serif;\n}\n.exchange-buttons {\n  display: flex;\n  gap: 5px;\n  min-height: 24px;\n}\n.exchange-btn {\n  background: #333;\n  color: white;\n  border: 1px solid #666;\n  border-radius: 4px;\n  padding: 2px 5px;\n  cursor: pointer;\n  font-size: 0.8rem;\n}\n.exchange-btn:hover:not(.disabled) {\n  background: #555;\n}\n.exchange-btn.disabled {\n  opacity: 0.4;\n  cursor: not-allowed;\n  background: #222;\n}\n.bet-actions,\n.play-actions {\n  display: flex;\n  gap: 10px;\n}\n.btn {\n  padding: 8px 16px;\n  font-size: 1rem;\n  font-family: "Poppins", sans-serif;\n  font-weight: 700;\n  border: none;\n  border-radius: 8px;\n  cursor: pointer;\n  text-transform: uppercase;\n  transition: all 0.2s;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n}\n.btn.disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n  filter: grayscale(1);\n}\n.btn:hover:not(.disabled) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);\n}\n.btn:active:not(.disabled) {\n  transform: translateY(2px);\n  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);\n}\n.btn-red {\n  background:\n    linear-gradient(\n      180deg,\n      #ff4d4d,\n      #cc0000);\n  color: white;\n}\n.btn-green {\n  background:\n    linear-gradient(\n      180deg,\n      #4dff4d,\n      #00cc00);\n  color: white;\n}\n.btn-hit {\n  background:\n    linear-gradient(\n      180deg,\n      #4da6ff,\n      #0066cc);\n  color: white;\n}\n.btn-stand {\n  background:\n    linear-gradient(\n      180deg,\n      #ffd700,\n      #ccaa00);\n  color: black;\n}\n.btn-double {\n  background:\n    linear-gradient(\n      180deg,\n      #ff9933,\n      #cc6600);\n  color: white;\n}\n.loading {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  font-size: 1.5rem;\n  color: #fff;\n}\n.stats-row {\n  display: flex;\n  gap: 30px;\n  align-items: center;\n}\n.bankrupt-panel {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.85);\n  padding: 30px;\n  border-radius: 12px;\n  border: 2px solid #ff4d4d;\n  box-shadow: 0 0 20px rgba(255, 77, 77, 0.5);\n  pointer-events: auto;\n}\n.bankrupt-panel p {\n  font-size: 1.5rem;\n  font-family: "Poppins", sans-serif;\n  color: #ffb3b3;\n  margin-bottom: 20px;\n}\n.bankrupt-actions {\n  display: flex;\n  gap: 15px;\n}\n/*# sourceMappingURL=black_jack.component.css.map */\n'] }]
+`, styles: ['/* src/app/games/black_jack/black_jack.component.css */\n.black-jack-container {\n  width: 100%;\n  height: 100%;\n  display: flex;\n  flex-direction: column;\n  color: white;\n  -webkit-user-select: none;\n  user-select: none;\n}\n.felt-table {\n  flex: 1;\n  background:\n    radial-gradient(\n      circle at center,\n      #0e632d,\n      #083b1a);\n  border: 4px solid #4a2e12;\n  border-radius: 12px;\n  margin: 10px;\n  display: flex;\n  flex-direction: column;\n  justify-content: space-between;\n  padding: 10px;\n  position: relative;\n  overflow: hidden;\n}\n.dealer-area,\n.player-area {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  transition: opacity 0.3s;\n}\n.dimmed {\n  opacity: 0.3;\n}\n.hand-label {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.2rem;\n  font-weight: 600;\n  margin: 10px 0;\n  color: #e0e0e0;\n  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);\n  position: relative;\n  z-index: 50;\n}\n.hand-value {\n  background: rgba(0, 0, 0, 0.6);\n  padding: 2px 8px;\n  border-radius: 10px;\n  margin-left: 8px;\n  color: #ffd700;\n}\n.cards {\n  display: flex;\n  flex-direction: row;\n  justify-content: center;\n  height: 140px;\n  margin-left: 30px;\n}\n.card {\n  width: 90px;\n  height: 130px;\n  transition: transform 0.2s ease-out;\n  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.4));\n}\n.card img {\n  width: 100%;\n  height: 100%;\n  object-fit: contain;\n}\n.center-message {\n  position: absolute;\n  top: 45%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  text-align: center;\n  z-index: 100;\n  pointer-events: none;\n}\n.bankrupt-overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n  background: rgba(0, 0, 0, 0.75);\n  -webkit-backdrop-filter: blur(3px);\n  backdrop-filter: blur(3px);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  z-index: 100;\n  pointer-events: auto;\n  text-align: center;\n}\n.result-text {\n  font-family: "Poppins", sans-serif;\n  font-size: 3rem;\n  font-weight: 900;\n  color: #ffd700;\n  text-transform: uppercase;\n  text-shadow:\n    3px 3px 0 #000,\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n}\n@keyframes popIn {\n  0% {\n    transform: scale(0.5);\n    opacity: 0;\n  }\n  100% {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.bet-area {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  min-height: 80px;\n}\n.visual-chip-stack-container {\n  display: flex;\n  gap: 15px;\n  min-height: 80px;\n  align-items: flex-end;\n  overflow-x: auto;\n  width: 100vw;\n  margin-left: calc(-50vw + 50%);\n  margin-right: calc(-50vw + 50%);\n  padding: 0 20px 10px 20px;\n}\n.visual-chip-stack-container::before,\n.visual-chip-stack-container::after {\n  content: "";\n  margin: auto;\n}\n.controls-panel {\n  background: rgba(0, 0, 0, 0.5);\n  border-radius: 12px;\n  padding: 10px 15px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 10px;\n}\n.bet-info {\n  font-family: "Poppins", sans-serif;\n  font-size: 1.1rem;\n  color: #ffd700;\n  font-weight: 600;\n  position: relative;\n  z-index: 50;\n}\n.chip-rack {\n  display: flex;\n  gap: 20px;\n  align-items: flex-end;\n  margin: 10px calc(-50vw + 50%);\n  width: 100vw;\n  overflow-x: auto;\n  padding: 0 20px 10px 20px;\n}\n.chip-rack::before,\n.chip-rack::after {\n  content: "";\n  margin: auto;\n}\n.rack-slot {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: flex-end;\n  gap: 5px;\n}\n.piles-container {\n  display: flex;\n  gap: 10px;\n}\n.visual-stack {\n  position: relative;\n  width: 50px;\n}\n.rack-stack {\n  cursor: pointer;\n  transition: transform 0.1s;\n}\n.rack-stack:hover:not(.disabled) {\n  transform: scale(1.1) translateY(-5px);\n}\n.rack-stack:active:not(.disabled) {\n  transform: scale(0.95);\n}\n.disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n.chip-img {\n  position: absolute;\n  width: 100%;\n  height: 50px;\n  object-fit: contain;\n  left: 0;\n}\n.chip-label {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background: rgba(0, 0, 0, 0.8);\n  color: white;\n  border-radius: 50%;\n  width: 24px;\n  height: 24px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  font-weight: bold;\n  font-size: 0.8rem;\n  border: 1px solid #ffd700;\n  z-index: 10;\n  pointer-events: none;\n}\n.chip-empty {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  color: rgba(255, 255, 255, 0.5);\n  font-weight: bold;\n  font-size: 1.2rem;\n  pointer-events: none;\n}\n.chip-val-text {\n  font-size: 0.8rem;\n  color: #ccc;\n  font-family: "Poppins", sans-serif;\n}\n.exchange-buttons {\n  display: flex;\n  gap: 5px;\n  min-height: 24px;\n}\n.exchange-btn {\n  background: #333;\n  color: white;\n  border: 1px solid #666;\n  border-radius: 4px;\n  padding: 2px 5px;\n  cursor: pointer;\n  font-size: 0.8rem;\n}\n.exchange-btn:hover:not(.disabled) {\n  background: #555;\n}\n.exchange-btn.disabled {\n  opacity: 0.4;\n  cursor: not-allowed;\n  background: #222;\n}\n.bet-actions,\n.play-actions {\n  display: flex;\n  gap: 10px;\n}\n.btn {\n  padding: 8px 16px;\n  font-size: 1rem;\n  font-family: "Poppins", sans-serif;\n  font-weight: 700;\n  border: none;\n  border-radius: 8px;\n  cursor: pointer;\n  text-transform: uppercase;\n  transition: all 0.2s;\n  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);\n}\n.btn.disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n  filter: grayscale(1);\n}\n.btn:hover:not(.disabled) {\n  transform: translateY(-2px);\n  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);\n}\n.btn:active:not(.disabled) {\n  transform: translateY(2px);\n  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.3);\n}\n.btn-red {\n  background:\n    linear-gradient(\n      180deg,\n      #ff4d4d,\n      #cc0000);\n  color: white;\n}\n.btn-green {\n  background:\n    linear-gradient(\n      180deg,\n      #4dff4d,\n      #00cc00);\n  color: white;\n}\n.btn-hit {\n  background:\n    linear-gradient(\n      180deg,\n      #4da6ff,\n      #0066cc);\n  color: white;\n}\n.btn-stand {\n  background:\n    linear-gradient(\n      180deg,\n      #ffd700,\n      #ccaa00);\n  color: black;\n}\n.btn-double {\n  background:\n    linear-gradient(\n      180deg,\n      #ff9933,\n      #cc6600);\n  color: white;\n}\n.loading {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  font-size: 1.5rem;\n  color: #fff;\n}\n.stats-row {\n  display: flex;\n  gap: 30px;\n  align-items: center;\n}\n.bankrupt-panel {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  background: rgba(0, 0, 0, 0.85);\n  padding: 30px;\n  border-radius: 12px;\n  border: 2px solid #ff4d4d;\n  box-shadow: 0 0 20px rgba(255, 77, 77, 0.5);\n  pointer-events: auto;\n}\n.bankrupt-panel p {\n  font-size: 1.5rem;\n  font-family: "Poppins", sans-serif;\n  color: #ffb3b3;\n  margin-bottom: 20px;\n}\n.bankrupt-actions {\n  display: flex;\n  gap: 15px;\n}\n/*# sourceMappingURL=black_jack.component.css.map */\n'] }]
   }], null, null);
 })();
 (() => {
@@ -90650,25 +90804,25 @@ var StatsComponent = class _StatsComponent {
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].highScore) || "Highest Combo");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.tools.highScore);
+      \u0275\u0275textInterpolate(ctx.tools.formatBigNumber(ctx.tools.highScore));
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].totalTouches) || "Total Touches");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.tools.totalScore);
+      \u0275\u0275textInterpolate(ctx.tools.formatBigNumber(ctx.tools.totalScore));
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].lifetimeDogeCoins) || "Lifetime DogeCoins");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.tools.totalDogeCoinsEarned);
+      \u0275\u0275textInterpolate(ctx.tools.formatBigNumber(ctx.tools.totalDogeCoinsEarned));
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("stat-card ", ctx.tools.themeColor, "");
       \u0275\u0275advance(2);
       \u0275\u0275textInterpolate((ctx.tools.stats[ctx.tools.lang] == null ? null : ctx.tools.stats[ctx.tools.lang].lifetimeMinigameCoins) || "Lifetime MG Coins");
       \u0275\u0275advance(2);
-      \u0275\u0275textInterpolate(ctx.tools.totalMinigameCoinsEarned);
+      \u0275\u0275textInterpolate(ctx.tools.formatBigNumber(ctx.tools.totalMinigameCoinsEarned));
     }
   }, styles: ["\n\n.stats-box[_ngcontent-%COMP%] {\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);\n  margin: 20px auto;\n  max-width: 600px;\n}\n.stats-title[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 20px;\n  font-size: 1.8rem;\n  font-weight: bold;\n}\n.stats-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n  gap: 15px;\n}\n.stat-card[_ngcontent-%COMP%] {\n  padding: 15px;\n  border-radius: 8px;\n  text-align: center;\n  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);\n}\n.theme-dark[_ngcontent-%COMP%]   .stat-card[_ngcontent-%COMP%] {\n  background-color: rgba(255, 255, 255, 0.05);\n}\n.theme-light[_ngcontent-%COMP%]   .stat-card[_ngcontent-%COMP%] {\n  background-color: rgba(0, 0, 0, 0.05);\n}\n.theme-contrast[_ngcontent-%COMP%]   .stat-card[_ngcontent-%COMP%] {\n  background-color: transparent;\n  border: 1px solid #fff;\n}\n.stat-label[_ngcontent-%COMP%] {\n  font-size: 1rem;\n  opacity: 0.8;\n  margin-bottom: 8px;\n}\n.stat-value[_ngcontent-%COMP%] {\n  font-size: 1.5rem;\n  font-weight: bold;\n}\n.text-gold[_ngcontent-%COMP%] {\n  color: #f1c40f;\n}\n.text-orange[_ngcontent-%COMP%] {\n  color: #e67e22;\n}\n.text-blue[_ngcontent-%COMP%] {\n  color: #3498db;\n}\n/*# sourceMappingURL=stats.component.css.map */"] });
 };
@@ -90683,25 +90837,25 @@ var StatsComponent = class _StatsComponent {
             <!-- Highest Combo -->
             <div class="stat-card {{tools.themeColor}}">
                 <div class="stat-label">{{tools.stats[tools.lang]?.highScore || 'Highest Combo'}}</div>
-                <div class="stat-value">{{tools.highScore}}</div>
+                <div class="stat-value">{{tools.formatBigNumber(tools.highScore)}}</div>
             </div>
 
             <!-- Total Touches -->
             <div class="stat-card {{tools.themeColor}}">
                 <div class="stat-label">{{tools.stats[tools.lang]?.totalTouches || 'Total Touches'}}</div>
-                <div class="stat-value text-gold">{{tools.totalScore}}</div>
+                <div class="stat-value text-gold">{{tools.formatBigNumber(tools.totalScore)}}</div>
             </div>
 
             <!-- Lifetime DogeCoins -->
             <div class="stat-card {{tools.themeColor}}">
                 <div class="stat-label">{{tools.stats[tools.lang]?.lifetimeDogeCoins || 'Lifetime DogeCoins'}}</div>
-                <div class="stat-value text-orange">{{tools.totalDogeCoinsEarned}}</div>
+                <div class="stat-value text-orange">{{tools.formatBigNumber(tools.totalDogeCoinsEarned)}}</div>
             </div>
 
             <!-- Lifetime Minigame Coins -->
             <div class="stat-card {{tools.themeColor}}">
                 <div class="stat-label">{{tools.stats[tools.lang]?.lifetimeMinigameCoins || 'Lifetime MG Coins'}}</div>
-                <div class="stat-value text-blue">{{tools.totalMinigameCoinsEarned}}</div>
+                <div class="stat-value text-blue">{{tools.formatBigNumber(tools.totalMinigameCoinsEarned)}}</div>
             </div>
         </div>
     </div>
@@ -90715,16 +90869,16 @@ var StatsComponent = class _StatsComponent {
 
 // src/app/pages/gallery/gallery.component.ts
 var _c010 = ["audioPlayer"];
-function GalleryComponent_Conditional_1_Template(rf, ctx) {
+function GalleryComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_1_Template_div_click_0_listener() {
+    \u0275\u0275elementStart(0, "div", 6);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_2_Template_div_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.closeFullScreen());
     });
-    \u0275\u0275element(1, "img", 6);
+    \u0275\u0275element(1, "img", 7);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -90733,48 +90887,48 @@ function GalleryComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275property("src", ctx_r1.fullScreenImg, \u0275\u0275sanitizeUrl);
   }
 }
-function GalleryComponent_Conditional_12_Conditional_0_Template(rf, ctx) {
+function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div")(1, "div", 9)(2, "h2");
+    \u0275\u0275elementStart(0, "div")(1, "div", 10)(2, "h2");
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "p", 10);
+    \u0275\u0275elementStart(4, "p", 11);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 11)(7, "div", 12)(8, "span", 13);
+    \u0275\u0275elementStart(6, "div", 12)(7, "div", 13)(8, "span", 14);
     \u0275\u0275text(9);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "img", 14);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_12_Conditional_0_Template_img_click_10_listener() {
+    \u0275\u0275elementStart(10, "img", 15);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_img_click_10_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.openFullScreen(ctx_r1.tools.getCheemsImg(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex].id)));
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(11, "div", 12)(12, "span", 13);
+    \u0275\u0275elementStart(11, "div", 13)(12, "span", 14);
     \u0275\u0275text(13);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(14, "img", 15);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_12_Conditional_0_Template_img_click_14_listener() {
+    \u0275\u0275elementStart(14, "img", 16);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_img_click_14_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.openFullScreen(ctx_r1.tools.getCheemsHitImg(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex].id)));
     });
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(15, "div", 16)(16, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_12_Conditional_0_Template_button_click_16_listener() {
+    \u0275\u0275elementStart(15, "div", 17)(16, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_16_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.prevItem());
     });
     \u0275\u0275text(17, "\u25C0");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "span", 17);
+    \u0275\u0275elementStart(18, "span", 18);
     \u0275\u0275text(19);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_12_Conditional_0_Template_button_click_20_listener() {
+    \u0275\u0275elementStart(20, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_20_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.nextItem());
@@ -90805,26 +90959,26 @@ function GalleryComponent_Conditional_12_Conditional_0_Template(rf, ctx) {
     \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
   }
 }
-function GalleryComponent_Conditional_12_Conditional_1_Template(rf, ctx) {
+function GalleryComponent_Conditional_13_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 8);
+    \u0275\u0275elementStart(0, "p", 9);
     \u0275\u0275text(1, "No skins unlocked yet.");
     \u0275\u0275elementEnd();
   }
 }
-function GalleryComponent_Conditional_12_Template(rf, ctx) {
+function GalleryComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, GalleryComponent_Conditional_12_Conditional_0_Template, 22, 17, "div", 7)(1, GalleryComponent_Conditional_12_Conditional_1_Template, 2, 0, "p", 8);
+    \u0275\u0275template(0, GalleryComponent_Conditional_13_Conditional_0_Template, 22, 17, "div", 8)(1, GalleryComponent_Conditional_13_Conditional_1_Template, 2, 0, "p", 9);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275conditional(ctx_r1.unlockedCheemsSkins.length > 0 ? 0 : 1);
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Conditional_7_Template(rf, ctx) {
+function GalleryComponent_Conditional_14_Conditional_0_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19);
-    \u0275\u0275element(1, "img", 25);
+    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275element(1, "img", 26);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -90833,14 +90987,14 @@ function GalleryComponent_Conditional_13_Conditional_0_Conditional_7_Template(rf
     \u0275\u0275property("src", ctx_r1.currentAudioCover, \u0275\u0275sanitizeUrl);
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Conditional_10_Template(rf, ctx) {
+function GalleryComponent_Conditional_14_Conditional_0_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 21)(1, "span");
+    \u0275\u0275elementStart(0, "div", 22)(1, "span");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "input", 26);
-    \u0275\u0275listener("input", function GalleryComponent_Conditional_13_Conditional_0_Conditional_10_Template_input_input_3_listener($event) {
+    \u0275\u0275elementStart(3, "input", 27);
+    \u0275\u0275listener("input", function GalleryComponent_Conditional_14_Conditional_0_Conditional_10_Template_input_input_3_listener($event) {
       \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.onSeek($event));
@@ -90860,11 +91014,11 @@ function GalleryComponent_Conditional_13_Conditional_0_Conditional_10_Template(r
     \u0275\u0275textInterpolate(ctx_r1.formatTime(ctx_r1.duration));
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Conditional_14_Template(rf, ctx) {
+function GalleryComponent_Conditional_14_Conditional_0_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Conditional_14_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Conditional_14_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.skip(-10));
@@ -90877,11 +91031,11 @@ function GalleryComponent_Conditional_13_Conditional_0_Conditional_14_Template(r
     \u0275\u0275classMapInterpolate1("control-btn secondary-btn ", ctx_r1.tools.themeColor, "");
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Conditional_17_Template(rf, ctx) {
+function GalleryComponent_Conditional_14_Conditional_0_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Conditional_17_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Conditional_17_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.skip(10));
@@ -90894,14 +91048,14 @@ function GalleryComponent_Conditional_13_Conditional_0_Conditional_17_Template(r
     \u0275\u0275classMapInterpolate1("control-btn secondary-btn ", ctx_r1.tools.themeColor, "");
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Conditional_20_Template(rf, ctx) {
+function GalleryComponent_Conditional_14_Conditional_0_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 23)(1, "span", 27);
+    \u0275\u0275elementStart(0, "div", 24)(1, "span", 28);
     \u0275\u0275text(2, "\u{1F50A}");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "input", 28);
-    \u0275\u0275listener("input", function GalleryComponent_Conditional_13_Conditional_0_Conditional_20_Template_input_input_3_listener($event) {
+    \u0275\u0275elementStart(3, "input", 29);
+    \u0275\u0275listener("input", function GalleryComponent_Conditional_14_Conditional_0_Conditional_20_Template_input_input_3_listener($event) {
       \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.onVolumeChange($event));
@@ -90914,70 +91068,70 @@ function GalleryComponent_Conditional_13_Conditional_0_Conditional_20_Template(r
     \u0275\u0275property("value", ctx_r1.currentVolume);
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
+function GalleryComponent_Conditional_14_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div")(1, "div", 9)(2, "h2");
+    \u0275\u0275elementStart(0, "div")(1, "div", 10)(2, "h2");
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "p", 10);
+    \u0275\u0275elementStart(4, "p", 11);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 18);
-    \u0275\u0275template(7, GalleryComponent_Conditional_13_Conditional_0_Conditional_7_Template, 2, 1, "div", 19);
-    \u0275\u0275elementStart(8, "audio", 20, 0);
-    \u0275\u0275listener("timeupdate", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_timeupdate_8_listener($event) {
+    \u0275\u0275elementStart(6, "div", 19);
+    \u0275\u0275template(7, GalleryComponent_Conditional_14_Conditional_0_Conditional_7_Template, 2, 1, "div", 20);
+    \u0275\u0275elementStart(8, "audio", 21, 0);
+    \u0275\u0275listener("timeupdate", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_timeupdate_8_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onTimeUpdate($event));
-    })("loadedmetadata", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_loadedmetadata_8_listener($event) {
+    })("loadedmetadata", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_loadedmetadata_8_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onLoadedMetadata($event));
-    })("play", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_play_8_listener() {
+    })("play", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_play_8_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onAudioPlay());
-    })("pause", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_pause_8_listener() {
+    })("pause", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_pause_8_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onAudioPause());
-    })("ended", function GalleryComponent_Conditional_13_Conditional_0_Template_audio_ended_8_listener() {
+    })("ended", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_ended_8_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onAudioEnded());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275template(10, GalleryComponent_Conditional_13_Conditional_0_Conditional_10_Template, 6, 4, "div", 21);
-    \u0275\u0275elementStart(11, "div", 22)(12, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_12_listener() {
+    \u0275\u0275template(10, GalleryComponent_Conditional_14_Conditional_0_Conditional_10_Template, 6, 4, "div", 22);
+    \u0275\u0275elementStart(11, "div", 23)(12, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Template_button_click_12_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.prevItem());
     });
     \u0275\u0275text(13, "\u25C0");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(14, GalleryComponent_Conditional_13_Conditional_0_Conditional_14_Template, 2, 3, "button", 7);
-    \u0275\u0275elementStart(15, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_15_listener() {
+    \u0275\u0275template(14, GalleryComponent_Conditional_14_Conditional_0_Conditional_14_Template, 2, 3, "button", 8);
+    \u0275\u0275elementStart(15, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Template_button_click_15_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.togglePlay());
     });
     \u0275\u0275text(16);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(17, GalleryComponent_Conditional_13_Conditional_0_Conditional_17_Template, 2, 3, "button", 7);
-    \u0275\u0275elementStart(18, "button", 4);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_18_listener() {
+    \u0275\u0275template(17, GalleryComponent_Conditional_14_Conditional_0_Conditional_17_Template, 2, 3, "button", 8);
+    \u0275\u0275elementStart(18, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Template_button_click_18_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.nextItem());
     });
     \u0275\u0275text(19, "\u25B6");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(20, GalleryComponent_Conditional_13_Conditional_0_Conditional_20_Template, 4, 1, "div", 23);
+    \u0275\u0275template(20, GalleryComponent_Conditional_14_Conditional_0_Conditional_20_Template, 4, 1, "div", 24);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "div", 24)(22, "span", 17);
+    \u0275\u0275elementStart(21, "div", 25)(22, "span", 18);
     \u0275\u0275text(23);
     \u0275\u0275elementEnd()()()();
   }
@@ -91012,16 +91166,16 @@ function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
     \u0275\u0275textInterpolate2(" ", ctx_r1.currentIndex + 1, " / ", ctx_r1.activeSection === "sfx" ? ctx_r1.unlockedSoundEffects.length : ctx_r1.unlockedMusicTracks.length, " ");
   }
 }
-function GalleryComponent_Conditional_13_Conditional_1_Template(rf, ctx) {
+function GalleryComponent_Conditional_14_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "p", 8);
+    \u0275\u0275elementStart(0, "p", 9);
     \u0275\u0275text(1, "No media unlocked yet.");
     \u0275\u0275elementEnd();
   }
 }
-function GalleryComponent_Conditional_13_Template(rf, ctx) {
+function GalleryComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, GalleryComponent_Conditional_13_Conditional_0_Template, 24, 23, "div", 7)(1, GalleryComponent_Conditional_13_Conditional_1_Template, 2, 0, "p", 8);
+    \u0275\u0275template(0, GalleryComponent_Conditional_14_Conditional_0_Template, 24, 23, "div", 8)(1, GalleryComponent_Conditional_14_Conditional_1_Template, 2, 0, "p", 9);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -91230,37 +91384,39 @@ var GalleryComponent = class _GalleryComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.audioPlayer = _t.first);
     }
-  }, decls: 14, vars: 31, consts: [["audioPlayer", ""], [1, "container"], [1, "fullscreen-overlay"], [1, "header"], [3, "click"], [1, "fullscreen-overlay", 3, "click"], ["alt", "Fullscreen Image", 1, "fullscreen-img", 3, "src"], [3, "class"], [1, "no-items"], [1, "viewer-header"], [1, "desc"], [1, "skins-display"], [1, "skin-box"], [1, "skin-label"], ["alt", "Normal Skin", 1, "viewer-img", "clickable", 3, "click", "src"], ["alt", "Hit Skin", 1, "viewer-img", "clickable", 3, "click", "src"], [1, "viewer-controls"], [1, "counter"], [1, "audio-player"], [1, "cover-container", 2, "text-align", "center", "margin-bottom", "20px"], [3, "timeupdate", "loadedmetadata", "play", "pause", "ended", "src"], [1, "time-slider-container"], [1, "audio-controls"], [1, "volume-slider-container"], [1, "counter-display"], ["alt", "Music Cover", 2, "width", "160px", "height", "160px", "object-fit", "cover", "border-radius", "12px", "box-shadow", "0 4px 12px rgba(0,0,0,0.3)", 3, "src"], ["type", "range", "min", "0", 1, "time-slider", 3, "input", "max", "value"], [1, "vol-icon"], ["type", "range", "min", "0", "max", "1", "step", "0.01", 1, "volume-slider", 3, "input", "value"]], template: function GalleryComponent_Template(rf, ctx) {
+  }, decls: 15, vars: 34, consts: [["audioPlayer", ""], [1, "container"], [2, "width", "95%", "max-width", "1100px", "margin-top", "1rem"], [1, "fullscreen-overlay"], [1, "header"], [3, "click"], [1, "fullscreen-overlay", 3, "click"], ["alt", "Fullscreen Image", 1, "fullscreen-img", 3, "src"], [3, "class"], [1, "no-items"], [1, "viewer-header"], [1, "desc"], [1, "skins-display"], [1, "skin-box"], [1, "skin-label"], ["alt", "Normal Skin", 1, "viewer-img", "clickable", 3, "click", "src"], ["alt", "Hit Skin", 1, "viewer-img", "clickable", 3, "click", "src"], [1, "viewer-controls"], [1, "counter"], [1, "audio-player"], [1, "cover-container", 2, "text-align", "center", "margin-bottom", "20px"], [3, "timeupdate", "loadedmetadata", "play", "pause", "ended", "src"], [1, "time-slider-container"], [1, "audio-controls"], [1, "volume-slider-container"], [1, "counter-display"], ["alt", "Music Cover", 2, "width", "160px", "height", "160px", "object-fit", "cover", "border-radius", "12px", "box-shadow", "0 4px 12px rgba(0,0,0,0.3)", 3, "src"], ["type", "range", "min", "0", 1, "time-slider", 3, "input", "max", "value"], [1, "vol-icon"], ["type", "range", "min", "0", "max", "1", "step", "0.01", 1, "volume-slider", 3, "input", "value"]], template: function GalleryComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275elementStart(0, "div", 1);
-      \u0275\u0275template(1, GalleryComponent_Conditional_1_Template, 2, 1, "div", 2);
-      \u0275\u0275elementStart(2, "div", 3)(3, "h1");
-      \u0275\u0275text(4);
+      \u0275\u0275elementStart(0, "div", 1)(1, "div", 2);
+      \u0275\u0275template(2, GalleryComponent_Conditional_2_Template, 2, 1, "div", 3);
+      \u0275\u0275elementStart(3, "div", 4)(4, "h1");
+      \u0275\u0275text(5);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(5, "div")(6, "button", 4);
-      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_6_listener() {
+      \u0275\u0275elementStart(6, "div")(7, "button", 5);
+      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_7_listener() {
         return ctx.openSection("skins");
       });
-      \u0275\u0275text(7);
+      \u0275\u0275text(8);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(8, "button", 4);
-      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_8_listener() {
+      \u0275\u0275elementStart(9, "button", 5);
+      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_9_listener() {
         return ctx.openSection("sfx");
       });
-      \u0275\u0275text(9);
+      \u0275\u0275text(10);
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(10, "button", 4);
-      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_10_listener() {
+      \u0275\u0275elementStart(11, "button", 5);
+      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_11_listener() {
         return ctx.openSection("music");
       });
-      \u0275\u0275text(11);
+      \u0275\u0275text(12);
       \u0275\u0275elementEnd()();
-      \u0275\u0275template(12, GalleryComponent_Conditional_12_Template, 2, 1)(13, GalleryComponent_Conditional_13_Template, 2, 1);
-      \u0275\u0275elementEnd();
+      \u0275\u0275template(13, GalleryComponent_Conditional_13_Template, 2, 1)(14, GalleryComponent_Conditional_14_Template, 2, 1);
+      \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.fullScreenImg ? 1 : -1);
+      \u0275\u0275classMapInterpolate1("group ", ctx.tools.themeColor, "");
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.fullScreenImg ? 2 : -1);
       \u0275\u0275advance(2);
       \u0275\u0275classMap(ctx.tools.fontSize);
       \u0275\u0275advance();
@@ -91283,17 +91439,18 @@ var GalleryComponent = class _GalleryComponent {
       \u0275\u0275advance();
       \u0275\u0275textInterpolate1(" ", (ctx.tools.gallery[ctx.tools.lang] == null ? null : ctx.tools.gallery[ctx.tools.lang].musicSection) || "Music", " ");
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeSection === "skins" ? 12 : -1);
+      \u0275\u0275conditional(ctx.activeSection === "skins" ? 13 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeSection === "sfx" || ctx.activeSection === "music" ? 13 : -1);
+      \u0275\u0275conditional(ctx.activeSection === "sfx" || ctx.activeSection === "music" ? 14 : -1);
     }
-  }, dependencies: [CommonModule], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  padding-top: 10vh;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  position: relative;\n  padding-bottom: 5rem;\n}\n.header[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 900;\n  margin: 0;\n  text-transform: uppercase;\n  text-shadow: 2px 2px 0 #000;\n}\n.tabs-header[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn[_ngcontent-%COMP%] {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active[_ngcontent-%COMP%] {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.viewer-container[_ngcontent-%COMP%] {\n  width: 95%;\n  max-width: 800px;\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  border-radius: 18px;\n  padding: 2rem;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n  margin: 0 auto;\n}\n.viewer-container.theme-light[_ngcontent-%COMP%] {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.viewer-container.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.viewer-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 1.8rem;\n  margin: 0 0 0.5rem 0;\n  color: #ffd166;\n}\n.theme-light[_ngcontent-%COMP%]   .viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #9c5c14;\n}\n.theme-contrast[_ngcontent-%COMP%]   .viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.viewer-header[_ngcontent-%COMP%]   .desc[_ngcontent-%COMP%] {\n  opacity: 0.8;\n  font-size: 0.95rem;\n  margin: 0;\n}\n.skins-display[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2rem;\n  width: 100%;\n  margin-bottom: 2rem;\n}\n.skin-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 1.5rem;\n  border-radius: 16px;\n  flex: 1;\n  max-width: 300px;\n  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);\n}\n.theme-light[_ngcontent-%COMP%]   .skin-box[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.05);\n}\n.skin-label[_ngcontent-%COMP%] {\n  font-weight: 900;\n  text-transform: uppercase;\n  font-size: 1rem;\n  opacity: 0.9;\n  letter-spacing: 1px;\n}\n.viewer-img[_ngcontent-%COMP%] {\n  width: 150px;\n  height: 150px;\n  object-fit: contain;\n}\n.viewer-controls[_ngcontent-%COMP%], \n.audio-controls[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  margin-top: 1rem;\n  width: 100%;\n}\n.control-btn[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  color: white;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  font-size: 1.2rem;\n  cursor: pointer;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.control-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 209, 102, 0.2);\n  border-color: #ffd166;\n  transform: scale(1.1);\n}\n.control-btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.9);\n}\n.secondary-btn[_ngcontent-%COMP%] {\n  width: 65px;\n  height: 45px;\n  border-radius: 20px;\n  font-size: 0.95rem;\n  font-weight: bold;\n}\n.play-btn[_ngcontent-%COMP%] {\n  width: 90px;\n  height: 60px;\n  border-radius: 30px;\n  font-size: 1.1rem;\n  font-weight: 900;\n  background: #ffd166;\n  color: #1a1612;\n  border-color: #ffd166;\n}\n.play-btn[_ngcontent-%COMP%]:hover {\n  background: #ffb703;\n  color: #1a1612;\n  transform: scale(1.08);\n}\n.theme-light[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%] {\n  background: rgba(156, 92, 20, 0.1);\n  border-color: rgba(156, 92, 20, 0.3);\n  color: #9c5c14;\n}\n.theme-light[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(156, 92, 20, 0.2);\n  border-color: #9c5c14;\n}\n.theme-light[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: white;\n}\n.theme-light[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%]:hover {\n  background: #7a460c;\n  color: white;\n}\n.theme-contrast[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%] {\n  background: #000;\n  border-color: #fff;\n  color: #fff;\n}\n.theme-contrast[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%]:hover {\n  border-color: #ff0;\n  color: #ff0;\n}\n.theme-contrast[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%] {\n  background: #ff0;\n  color: #000;\n  border-color: #ff0;\n}\n.counter-display[_ngcontent-%COMP%] {\n  margin-top: 1.5rem;\n  text-align: center;\n}\n.counter[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.2rem;\n  opacity: 0.8;\n}\n.audio-player[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.time-slider-container[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  width: 100%;\n  font-family: monospace;\n  font-size: 1.1rem;\n  font-weight: bold;\n}\n.time-slider[_ngcontent-%COMP%] {\n  flex: 1;\n  cursor: pointer;\n  height: 8px;\n  border-radius: 4px;\n  appearance: none;\n  -webkit-appearance: none;\n  background: rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n.theme-light[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.1);\n}\n.time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  -webkit-appearance: none;\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: #ffd166;\n  cursor: pointer;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n}\n.theme-light[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  background: #9c5c14;\n}\n.theme-contrast[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  background: #ff0;\n  border: 2px solid #000;\n}\n.no-items[_ngcontent-%COMP%] {\n  opacity: 0.6;\n  margin-top: 2rem;\n  font-style: italic;\n  font-size: 1.2rem;\n}\n.fullscreen-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.9);\n  -webkit-backdrop-filter: blur(8px);\n  backdrop-filter: blur(8px);\n  z-index: 9999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  cursor: zoom-out;\n}\n.fullscreen-img[_ngcontent-%COMP%] {\n  max-width: 90vw;\n  max-height: 90vh;\n  object-fit: contain;\n  animation: _ngcontent-%COMP%_zoomIn 0.2s ease-out;\n}\n@keyframes _ngcontent-%COMP%_zoomIn {\n  from {\n    transform: scale(0.8);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.clickable[_ngcontent-%COMP%] {\n  cursor: zoom-in;\n  transition: transform 0.2s;\n}\n.clickable[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.volume-slider-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  height: 80px;\n  margin-left: 1rem;\n}\n.volume-slider[_ngcontent-%COMP%] {\n  appearance: slider-vertical;\n  -webkit-appearance: slider-vertical;\n  writing-mode: bt-lr;\n  width: 8px;\n  height: 60px;\n  border-radius: 4px;\n  background: rgba(0, 0, 0, 0.5);\n  cursor: pointer;\n}\n.theme-light[_ngcontent-%COMP%]   .volume-slider[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.1);\n}\n@media (max-width: 600px) {\n  .skins-display[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n  }\n  .viewer-img[_ngcontent-%COMP%] {\n    width: 120px;\n    height: 120px;\n  }\n  .audio-controls[_ngcontent-%COMP%] {\n    gap: 0.5rem;\n    flex-wrap: wrap;\n  }\n  .control-btn[_ngcontent-%COMP%] {\n    width: 45px;\n    height: 45px;\n  }\n  .secondary-btn[_ngcontent-%COMP%] {\n    width: 60px;\n    height: 40px;\n    font-size: 0.85rem;\n  }\n  .play-btn[_ngcontent-%COMP%] {\n    width: 80px;\n    height: 50px;\n  }\n  .volume-slider-container[_ngcontent-%COMP%] {\n    flex-direction: row;\n    height: auto;\n    margin-left: 0;\n    margin-top: 1rem;\n    width: 100%;\n  }\n  .volume-slider[_ngcontent-%COMP%] {\n    appearance: none;\n    -webkit-appearance: none;\n    writing-mode: horizontal-tb;\n    width: 100px;\n    height: 8px;\n  }\n  .volume-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    width: 15px;\n    height: 15px;\n    border-radius: 50%;\n    background: #ffd166;\n    cursor: pointer;\n  }\n  .theme-light[_ngcontent-%COMP%]   .volume-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n    background: #9c5c14;\n  }\n}\n/*# sourceMappingURL=gallery.component.css.map */"] });
+  }, dependencies: [CommonModule], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  padding-top: 10vh;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  position: relative;\n  padding-bottom: 5rem;\n}\n.header[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 900;\n  margin: 0;\n  text-transform: uppercase;\n  text-shadow: 2px 2px 0 #000;\n}\n.tabs-header[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn[_ngcontent-%COMP%] {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active[_ngcontent-%COMP%] {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.viewer-container[_ngcontent-%COMP%] {\n  width: 95%;\n  max-width: 800px;\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  border-radius: 18px;\n  padding: 2rem;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n  margin: 0 auto;\n}\n.viewer-container.theme-light[_ngcontent-%COMP%] {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.viewer-container.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.viewer-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 1.8rem;\n  margin: 0 0 0.5rem 0;\n  color: #ffd166;\n}\n.theme-light[_ngcontent-%COMP%]   .viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #9c5c14;\n}\n.theme-contrast[_ngcontent-%COMP%]   .viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.viewer-header[_ngcontent-%COMP%]   .desc[_ngcontent-%COMP%] {\n  opacity: 0.8;\n  font-size: 0.95rem;\n  margin: 0;\n}\n.skins-display[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2rem;\n  width: 100%;\n  margin-bottom: 2rem;\n}\n.skin-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 1.5rem;\n  border-radius: 16px;\n  flex: 1;\n  max-width: 300px;\n  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);\n}\n.theme-light[_ngcontent-%COMP%]   .skin-box[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.05);\n}\n.skin-label[_ngcontent-%COMP%] {\n  font-weight: 900;\n  text-transform: uppercase;\n  font-size: 1rem;\n  opacity: 0.9;\n  letter-spacing: 1px;\n}\n.viewer-img[_ngcontent-%COMP%] {\n  width: 150px;\n  height: 150px;\n  object-fit: contain;\n}\n.viewer-controls[_ngcontent-%COMP%], \n.audio-controls[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  margin-top: 1rem;\n  width: 100%;\n}\n.control-btn[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  color: white;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  font-size: 1.2rem;\n  cursor: pointer;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.control-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 209, 102, 0.2);\n  border-color: #ffd166;\n  transform: scale(1.1);\n}\n.control-btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.9);\n}\n.secondary-btn[_ngcontent-%COMP%] {\n  width: 65px;\n  height: 45px;\n  border-radius: 20px;\n  font-size: 0.95rem;\n  font-weight: bold;\n}\n.play-btn[_ngcontent-%COMP%] {\n  width: 90px;\n  height: 60px;\n  border-radius: 30px;\n  font-size: 1.1rem;\n  font-weight: 900;\n  background: #ffd166;\n  color: #1a1612;\n  border-color: #ffd166;\n}\n.play-btn[_ngcontent-%COMP%]:hover {\n  background: #ffb703;\n  color: #1a1612;\n  transform: scale(1.08);\n}\n.theme-light[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%] {\n  background: rgba(156, 92, 20, 0.1);\n  border-color: rgba(156, 92, 20, 0.3);\n  color: #9c5c14;\n}\n.theme-light[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(156, 92, 20, 0.2);\n  border-color: #9c5c14;\n}\n.theme-light[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: white;\n}\n.theme-light[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%]:hover {\n  background: #7a460c;\n  color: white;\n}\n.theme-contrast[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%] {\n  background: #000;\n  border-color: #fff;\n  color: #fff;\n}\n.theme-contrast[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%]:hover {\n  border-color: #ff0;\n  color: #ff0;\n}\n.theme-contrast[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%] {\n  background: #ff0;\n  color: #000;\n  border-color: #ff0;\n}\n.counter-display[_ngcontent-%COMP%] {\n  margin-top: 1.5rem;\n  text-align: center;\n}\n.counter[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.2rem;\n  opacity: 0.8;\n}\n.audio-player[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.time-slider-container[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  width: 100%;\n  font-family: monospace;\n  font-size: 1.1rem;\n  font-weight: bold;\n}\n.time-slider[_ngcontent-%COMP%] {\n  flex: 1;\n  cursor: pointer;\n  height: 8px;\n  border-radius: 4px;\n  appearance: none;\n  -webkit-appearance: none;\n  background: rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n.theme-light[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.1);\n}\n.time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  -webkit-appearance: none;\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: #ffd166;\n  cursor: pointer;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n}\n.theme-light[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  background: #9c5c14;\n}\n.theme-contrast[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  background: #ff0;\n  border: 2px solid #000;\n}\n.no-items[_ngcontent-%COMP%] {\n  opacity: 0.6;\n  margin-top: 2rem;\n  font-style: italic;\n  font-size: 1.2rem;\n}\n.fullscreen-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.9);\n  -webkit-backdrop-filter: blur(8px);\n  backdrop-filter: blur(8px);\n  z-index: 9999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  cursor: zoom-out;\n}\n.fullscreen-img[_ngcontent-%COMP%] {\n  max-width: 90vw;\n  max-height: 90vh;\n  object-fit: contain;\n  animation: _ngcontent-%COMP%_zoomIn 0.2s ease-out;\n}\n@keyframes _ngcontent-%COMP%_zoomIn {\n  from {\n    transform: scale(0.8);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.clickable[_ngcontent-%COMP%] {\n  cursor: zoom-in;\n  transition: transform 0.2s;\n}\n.clickable[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.volume-slider-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  height: 80px;\n  margin-left: 1rem;\n}\n.volume-slider[_ngcontent-%COMP%] {\n  writing-mode: vertical-lr;\n  direction: rtl;\n  width: 8px;\n  height: 60px;\n  border-radius: 4px;\n  background: rgba(0, 0, 0, 0.5);\n  cursor: pointer;\n}\n.theme-light[_ngcontent-%COMP%]   .volume-slider[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.1);\n}\n@media (max-width: 600px) {\n  .skins-display[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n  }\n  .viewer-img[_ngcontent-%COMP%] {\n    width: 120px;\n    height: 120px;\n  }\n  .audio-controls[_ngcontent-%COMP%] {\n    gap: 0.5rem;\n    flex-wrap: wrap;\n  }\n  .control-btn[_ngcontent-%COMP%] {\n    width: 45px;\n    height: 45px;\n  }\n  .secondary-btn[_ngcontent-%COMP%] {\n    width: 60px;\n    height: 40px;\n    font-size: 0.85rem;\n  }\n  .play-btn[_ngcontent-%COMP%] {\n    width: 80px;\n    height: 50px;\n  }\n  .volume-slider-container[_ngcontent-%COMP%] {\n    flex-direction: row;\n    height: auto;\n    margin-left: 0;\n    margin-top: 1rem;\n    width: 100%;\n  }\n  .volume-slider[_ngcontent-%COMP%] {\n    appearance: none;\n    -webkit-appearance: none;\n    writing-mode: horizontal-tb;\n    width: 100px;\n    height: 8px;\n  }\n  .volume-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    width: 15px;\n    height: 15px;\n    border-radius: 50%;\n    background: #ffd166;\n    cursor: pointer;\n  }\n  .theme-light[_ngcontent-%COMP%]   .volume-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n    background: #9c5c14;\n  }\n}\n/*# sourceMappingURL=gallery.component.css.map */"] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(GalleryComponent, [{
     type: Component,
     args: [{ selector: "app-gallery", standalone: true, imports: [CommonModule], template: `<div class="container">
-    @if (fullScreenImg) {
+    <div class="group {{tools.themeColor}}" style="width: 95%; max-width: 1100px; margin-top: 1rem;">
+        @if (fullScreenImg) {
         <div class="fullscreen-overlay" (click)="closeFullScreen()">
             <img [src]="fullScreenImg" class="fullscreen-img" alt="Fullscreen Image">
         </div>
@@ -91424,8 +91581,9 @@ var GalleryComponent = class _GalleryComponent {
             <p class="no-items">No media unlocked yet.</p>
         }
     }
+    </div>
 </div>
-`, styles: ["/* src/app/pages/gallery/gallery.component.css */\n.container {\n  padding-top: 10vh;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  position: relative;\n  padding-bottom: 5rem;\n}\n.header h1 {\n  font-size: 2.5rem;\n  font-weight: 900;\n  margin: 0;\n  text-transform: uppercase;\n  text-shadow: 2px 2px 0 #000;\n}\n.tabs-header {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.viewer-container {\n  width: 95%;\n  max-width: 800px;\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  border-radius: 18px;\n  padding: 2rem;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n  margin: 0 auto;\n}\n.viewer-container.theme-light {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.viewer-container.theme-contrast {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.viewer-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.viewer-header h2 {\n  font-size: 1.8rem;\n  margin: 0 0 0.5rem 0;\n  color: #ffd166;\n}\n.theme-light .viewer-header h2 {\n  color: #9c5c14;\n}\n.theme-contrast .viewer-header h2 {\n  color: #ffff00;\n}\n.viewer-header .desc {\n  opacity: 0.8;\n  font-size: 0.95rem;\n  margin: 0;\n}\n.skins-display {\n  display: flex;\n  justify-content: center;\n  gap: 2rem;\n  width: 100%;\n  margin-bottom: 2rem;\n}\n.skin-box {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 1.5rem;\n  border-radius: 16px;\n  flex: 1;\n  max-width: 300px;\n  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);\n}\n.theme-light .skin-box {\n  background: rgba(0, 0, 0, 0.05);\n}\n.skin-label {\n  font-weight: 900;\n  text-transform: uppercase;\n  font-size: 1rem;\n  opacity: 0.9;\n  letter-spacing: 1px;\n}\n.viewer-img {\n  width: 150px;\n  height: 150px;\n  object-fit: contain;\n}\n.viewer-controls,\n.audio-controls {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  margin-top: 1rem;\n  width: 100%;\n}\n.control-btn {\n  background: rgba(0, 0, 0, 0.4);\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  color: white;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  font-size: 1.2rem;\n  cursor: pointer;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.control-btn:hover {\n  background: rgba(255, 209, 102, 0.2);\n  border-color: #ffd166;\n  transform: scale(1.1);\n}\n.control-btn:active {\n  transform: scale(0.9);\n}\n.secondary-btn {\n  width: 65px;\n  height: 45px;\n  border-radius: 20px;\n  font-size: 0.95rem;\n  font-weight: bold;\n}\n.play-btn {\n  width: 90px;\n  height: 60px;\n  border-radius: 30px;\n  font-size: 1.1rem;\n  font-weight: 900;\n  background: #ffd166;\n  color: #1a1612;\n  border-color: #ffd166;\n}\n.play-btn:hover {\n  background: #ffb703;\n  color: #1a1612;\n  transform: scale(1.08);\n}\n.theme-light .control-btn {\n  background: rgba(156, 92, 20, 0.1);\n  border-color: rgba(156, 92, 20, 0.3);\n  color: #9c5c14;\n}\n.theme-light .control-btn:hover {\n  background: rgba(156, 92, 20, 0.2);\n  border-color: #9c5c14;\n}\n.theme-light .play-btn {\n  background: #9c5c14;\n  color: white;\n}\n.theme-light .play-btn:hover {\n  background: #7a460c;\n  color: white;\n}\n.theme-contrast .control-btn {\n  background: #000;\n  border-color: #fff;\n  color: #fff;\n}\n.theme-contrast .control-btn:hover {\n  border-color: #ff0;\n  color: #ff0;\n}\n.theme-contrast .play-btn {\n  background: #ff0;\n  color: #000;\n  border-color: #ff0;\n}\n.counter-display {\n  margin-top: 1.5rem;\n  text-align: center;\n}\n.counter {\n  font-weight: 900;\n  font-size: 1.2rem;\n  opacity: 0.8;\n}\n.audio-player {\n  width: 100%;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.time-slider-container {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  width: 100%;\n  font-family: monospace;\n  font-size: 1.1rem;\n  font-weight: bold;\n}\n.time-slider {\n  flex: 1;\n  cursor: pointer;\n  height: 8px;\n  border-radius: 4px;\n  appearance: none;\n  -webkit-appearance: none;\n  background: rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n.theme-light .time-slider {\n  background: rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.1);\n}\n.time-slider::-webkit-slider-thumb {\n  -webkit-appearance: none;\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: #ffd166;\n  cursor: pointer;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n}\n.theme-light .time-slider::-webkit-slider-thumb {\n  background: #9c5c14;\n}\n.theme-contrast .time-slider::-webkit-slider-thumb {\n  background: #ff0;\n  border: 2px solid #000;\n}\n.no-items {\n  opacity: 0.6;\n  margin-top: 2rem;\n  font-style: italic;\n  font-size: 1.2rem;\n}\n.fullscreen-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.9);\n  -webkit-backdrop-filter: blur(8px);\n  backdrop-filter: blur(8px);\n  z-index: 9999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  cursor: zoom-out;\n}\n.fullscreen-img {\n  max-width: 90vw;\n  max-height: 90vh;\n  object-fit: contain;\n  animation: zoomIn 0.2s ease-out;\n}\n@keyframes zoomIn {\n  from {\n    transform: scale(0.8);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.clickable {\n  cursor: zoom-in;\n  transition: transform 0.2s;\n}\n.clickable:hover {\n  transform: scale(1.05);\n}\n.volume-slider-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  height: 80px;\n  margin-left: 1rem;\n}\n.volume-slider {\n  appearance: slider-vertical;\n  -webkit-appearance: slider-vertical;\n  writing-mode: bt-lr;\n  width: 8px;\n  height: 60px;\n  border-radius: 4px;\n  background: rgba(0, 0, 0, 0.5);\n  cursor: pointer;\n}\n.theme-light .volume-slider {\n  background: rgba(0, 0, 0, 0.1);\n}\n@media (max-width: 600px) {\n  .skins-display {\n    flex-direction: column;\n    align-items: center;\n  }\n  .viewer-img {\n    width: 120px;\n    height: 120px;\n  }\n  .audio-controls {\n    gap: 0.5rem;\n    flex-wrap: wrap;\n  }\n  .control-btn {\n    width: 45px;\n    height: 45px;\n  }\n  .secondary-btn {\n    width: 60px;\n    height: 40px;\n    font-size: 0.85rem;\n  }\n  .play-btn {\n    width: 80px;\n    height: 50px;\n  }\n  .volume-slider-container {\n    flex-direction: row;\n    height: auto;\n    margin-left: 0;\n    margin-top: 1rem;\n    width: 100%;\n  }\n  .volume-slider {\n    appearance: none;\n    -webkit-appearance: none;\n    writing-mode: horizontal-tb;\n    width: 100px;\n    height: 8px;\n  }\n  .volume-slider::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    width: 15px;\n    height: 15px;\n    border-radius: 50%;\n    background: #ffd166;\n    cursor: pointer;\n  }\n  .theme-light .volume-slider::-webkit-slider-thumb {\n    background: #9c5c14;\n  }\n}\n/*# sourceMappingURL=gallery.component.css.map */\n"] }]
+`, styles: ["/* src/app/pages/gallery/gallery.component.css */\n.container {\n  padding-top: 10vh;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  position: relative;\n  padding-bottom: 5rem;\n}\n.header h1 {\n  font-size: 2.5rem;\n  font-weight: 900;\n  margin: 0;\n  text-transform: uppercase;\n  text-shadow: 2px 2px 0 #000;\n}\n.tabs-header {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.viewer-container {\n  width: 95%;\n  max-width: 800px;\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  border-radius: 18px;\n  padding: 2rem;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n  margin: 0 auto;\n}\n.viewer-container.theme-light {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.viewer-container.theme-contrast {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.viewer-header {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.viewer-header h2 {\n  font-size: 1.8rem;\n  margin: 0 0 0.5rem 0;\n  color: #ffd166;\n}\n.theme-light .viewer-header h2 {\n  color: #9c5c14;\n}\n.theme-contrast .viewer-header h2 {\n  color: #ffff00;\n}\n.viewer-header .desc {\n  opacity: 0.8;\n  font-size: 0.95rem;\n  margin: 0;\n}\n.skins-display {\n  display: flex;\n  justify-content: center;\n  gap: 2rem;\n  width: 100%;\n  margin-bottom: 2rem;\n}\n.skin-box {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 1.5rem;\n  border-radius: 16px;\n  flex: 1;\n  max-width: 300px;\n  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);\n}\n.theme-light .skin-box {\n  background: rgba(0, 0, 0, 0.05);\n}\n.skin-label {\n  font-weight: 900;\n  text-transform: uppercase;\n  font-size: 1rem;\n  opacity: 0.9;\n  letter-spacing: 1px;\n}\n.viewer-img {\n  width: 150px;\n  height: 150px;\n  object-fit: contain;\n}\n.viewer-controls,\n.audio-controls {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  margin-top: 1rem;\n  width: 100%;\n}\n.control-btn {\n  background: rgba(0, 0, 0, 0.4);\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  color: white;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  font-size: 1.2rem;\n  cursor: pointer;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.control-btn:hover {\n  background: rgba(255, 209, 102, 0.2);\n  border-color: #ffd166;\n  transform: scale(1.1);\n}\n.control-btn:active {\n  transform: scale(0.9);\n}\n.secondary-btn {\n  width: 65px;\n  height: 45px;\n  border-radius: 20px;\n  font-size: 0.95rem;\n  font-weight: bold;\n}\n.play-btn {\n  width: 90px;\n  height: 60px;\n  border-radius: 30px;\n  font-size: 1.1rem;\n  font-weight: 900;\n  background: #ffd166;\n  color: #1a1612;\n  border-color: #ffd166;\n}\n.play-btn:hover {\n  background: #ffb703;\n  color: #1a1612;\n  transform: scale(1.08);\n}\n.theme-light .control-btn {\n  background: rgba(156, 92, 20, 0.1);\n  border-color: rgba(156, 92, 20, 0.3);\n  color: #9c5c14;\n}\n.theme-light .control-btn:hover {\n  background: rgba(156, 92, 20, 0.2);\n  border-color: #9c5c14;\n}\n.theme-light .play-btn {\n  background: #9c5c14;\n  color: white;\n}\n.theme-light .play-btn:hover {\n  background: #7a460c;\n  color: white;\n}\n.theme-contrast .control-btn {\n  background: #000;\n  border-color: #fff;\n  color: #fff;\n}\n.theme-contrast .control-btn:hover {\n  border-color: #ff0;\n  color: #ff0;\n}\n.theme-contrast .play-btn {\n  background: #ff0;\n  color: #000;\n  border-color: #ff0;\n}\n.counter-display {\n  margin-top: 1.5rem;\n  text-align: center;\n}\n.counter {\n  font-weight: 900;\n  font-size: 1.2rem;\n  opacity: 0.8;\n}\n.audio-player {\n  width: 100%;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.time-slider-container {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  width: 100%;\n  font-family: monospace;\n  font-size: 1.1rem;\n  font-weight: bold;\n}\n.time-slider {\n  flex: 1;\n  cursor: pointer;\n  height: 8px;\n  border-radius: 4px;\n  appearance: none;\n  -webkit-appearance: none;\n  background: rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n.theme-light .time-slider {\n  background: rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.1);\n}\n.time-slider::-webkit-slider-thumb {\n  -webkit-appearance: none;\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: #ffd166;\n  cursor: pointer;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n}\n.theme-light .time-slider::-webkit-slider-thumb {\n  background: #9c5c14;\n}\n.theme-contrast .time-slider::-webkit-slider-thumb {\n  background: #ff0;\n  border: 2px solid #000;\n}\n.no-items {\n  opacity: 0.6;\n  margin-top: 2rem;\n  font-style: italic;\n  font-size: 1.2rem;\n}\n.fullscreen-overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.9);\n  -webkit-backdrop-filter: blur(8px);\n  backdrop-filter: blur(8px);\n  z-index: 9999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  cursor: zoom-out;\n}\n.fullscreen-img {\n  max-width: 90vw;\n  max-height: 90vh;\n  object-fit: contain;\n  animation: zoomIn 0.2s ease-out;\n}\n@keyframes zoomIn {\n  from {\n    transform: scale(0.8);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.clickable {\n  cursor: zoom-in;\n  transition: transform 0.2s;\n}\n.clickable:hover {\n  transform: scale(1.05);\n}\n.volume-slider-container {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  height: 80px;\n  margin-left: 1rem;\n}\n.volume-slider {\n  writing-mode: vertical-lr;\n  direction: rtl;\n  width: 8px;\n  height: 60px;\n  border-radius: 4px;\n  background: rgba(0, 0, 0, 0.5);\n  cursor: pointer;\n}\n.theme-light .volume-slider {\n  background: rgba(0, 0, 0, 0.1);\n}\n@media (max-width: 600px) {\n  .skins-display {\n    flex-direction: column;\n    align-items: center;\n  }\n  .viewer-img {\n    width: 120px;\n    height: 120px;\n  }\n  .audio-controls {\n    gap: 0.5rem;\n    flex-wrap: wrap;\n  }\n  .control-btn {\n    width: 45px;\n    height: 45px;\n  }\n  .secondary-btn {\n    width: 60px;\n    height: 40px;\n    font-size: 0.85rem;\n  }\n  .play-btn {\n    width: 80px;\n    height: 50px;\n  }\n  .volume-slider-container {\n    flex-direction: row;\n    height: auto;\n    margin-left: 0;\n    margin-top: 1rem;\n    width: 100%;\n  }\n  .volume-slider {\n    appearance: none;\n    -webkit-appearance: none;\n    writing-mode: horizontal-tb;\n    width: 100px;\n    height: 8px;\n  }\n  .volume-slider::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    width: 15px;\n    height: 15px;\n    border-radius: 50%;\n    background: #ffd166;\n    cursor: pointer;\n  }\n  .theme-light .volume-slider::-webkit-slider-thumb {\n    background: #9c5c14;\n  }\n}\n/*# sourceMappingURL=gallery.component.css.map */\n"] }]
   }], () => [{ type: ToolsService }], { audioPlayer: [{
     type: ViewChild,
     args: ["audioPlayer"]
@@ -92108,11 +92266,11 @@ var NavbarComponent = class _NavbarComponent {
       \u0275\u0275advance(4);
       \u0275\u0275classMapInterpolate2("color-text ", ctx.tools.themeColor, " ", ctx.tools.fontSize, " badge-number");
       \u0275\u0275advance();
-      \u0275\u0275textInterpolate(ctx.tools.dogeCoins);
+      \u0275\u0275textInterpolate(ctx.tools.formatBigNumber(ctx.tools.dogeCoins));
       \u0275\u0275advance(3);
       \u0275\u0275classMapInterpolate2("color-text ", ctx.tools.themeColor, " ", ctx.tools.fontSize, " badge-number");
       \u0275\u0275advance();
-      \u0275\u0275textInterpolate(ctx.tools.points);
+      \u0275\u0275textInterpolate(ctx.tools.formatBigNumber(ctx.tools.points));
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate2("preventive text color-text ", ctx.tools.themeColor, " ", ctx.tools.fontSize, " title-text");
       \u0275\u0275advance();
@@ -92134,7 +92292,7 @@ var NavbarComponent = class _NavbarComponent {
                  class="icon logo-coin"
                  title="DogeCoins"
                  alt="DogeCoins">
-            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.dogeCoins}}</span>
+            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.formatBigNumber(tools.dogeCoins)}}</span>
         </span>
 
         <span class="text count-badge">
@@ -92142,7 +92300,7 @@ var NavbarComponent = class _NavbarComponent {
                  class="icon logo-coin pts-icon"
                  title="Puntos"
                  alt="Puntos">
-            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.points}}</span>
+            <span class="color-text {{tools.themeColor}} {{tools.fontSize}} badge-number">{{tools.formatBigNumber(tools.points)}}</span>
         </span>
     </div>
 
@@ -92183,8 +92341,66 @@ var NavbarComponent = class _NavbarComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(NavbarComponent, { className: "NavbarComponent", filePath: "src/app/components/navbar/navbar.component.ts", lineNumber: 10 });
 })();
 
+// src/app/components/background/background.component.ts
+function BackgroundComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 1);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("ngClass", ctx_r0.tools.themeColor);
+  }
+}
+function BackgroundComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 3);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("background-image", "url(" + ctx_r0.bgImageUrl + ")");
+  }
+}
+var BackgroundComponent = class _BackgroundComponent {
+  tools = inject(ToolsService);
+  bgType = "image";
+  bgImageUrl = "img/background/test-bg.jpg";
+  static \u0275fac = function BackgroundComponent_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BackgroundComponent)();
+  };
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BackgroundComponent, selectors: [["app-background"]], decls: 3, vars: 2, consts: [[1, "app-global-background"], [1, "bg-color", 3, "ngClass"], [1, "bg-image", 3, "background-image"], [1, "bg-image"]], template: function BackgroundComponent_Template(rf, ctx) {
+    if (rf & 1) {
+      \u0275\u0275elementStart(0, "div", 0);
+      \u0275\u0275template(1, BackgroundComponent_Conditional_1_Template, 1, 1, "div", 1)(2, BackgroundComponent_Conditional_2_Template, 1, 2, "div", 2);
+      \u0275\u0275elementEnd();
+    }
+    if (rf & 2) {
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.bgType === "color" ? 1 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.bgType === "image" ? 2 : -1);
+    }
+  }, dependencies: [CommonModule, NgClass], styles: ["\n\n.app-global-background[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  z-index: -100;\n  pointer-events: none;\n}\n.bg-color[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  transition: background-color 0.3s ease;\n}\n.bg-color.theme-light[_ngcontent-%COMP%] {\n  background-color: #f5f5f5;\n}\n.bg-color.theme-dark[_ngcontent-%COMP%] {\n  background-color: #121212;\n}\n.bg-color.theme-contrast[_ngcontent-%COMP%] {\n  background-color: #000000;\n}\n.bg-image[_ngcontent-%COMP%] {\n  width: 100%;\n  height: 100%;\n  background-size: 100% auto;\n  background-repeat: repeat-y;\n  background-position: top center;\n}\n/*# sourceMappingURL=background.component.css.map */"] });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BackgroundComponent, [{
+    type: Component,
+    args: [{ selector: "app-background", standalone: true, imports: [CommonModule], template: `<div class="app-global-background">
+  @if (bgType === 'color') {
+    <div class="bg-color" [ngClass]="tools.themeColor"></div>
+  }
+  @if (bgType === 'image') {
+    <div class="bg-image" [style.background-image]="'url(' + bgImageUrl + ')'"></div>
+  }
+</div>
+`, styles: ["/* src/app/components/background/background.component.css */\n.app-global-background {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  z-index: -100;\n  pointer-events: none;\n}\n.bg-color {\n  width: 100%;\n  height: 100%;\n  transition: background-color 0.3s ease;\n}\n.bg-color.theme-light {\n  background-color: #f5f5f5;\n}\n.bg-color.theme-dark {\n  background-color: #121212;\n}\n.bg-color.theme-contrast {\n  background-color: #000000;\n}\n.bg-image {\n  width: 100%;\n  height: 100%;\n  background-size: 100% auto;\n  background-repeat: repeat-y;\n  background-position: top center;\n}\n/*# sourceMappingURL=background.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BackgroundComponent, { className: "BackgroundComponent", filePath: "src/app/components/background/background.component.ts", lineNumber: 12 });
+})();
+
 // src/app/app.component.ts
-function AppComponent_Conditional_2_Template(rf, ctx) {
+function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div");
     \u0275\u0275text(1);
@@ -92292,28 +92508,28 @@ var AppComponent = class _AppComponent {
         return ctx.onAppInstalled($event);
       }, false, \u0275\u0275resolveWindow);
     }
-  }, decls: 3, vars: 1, consts: [[3, "class"]], template: function AppComponent_Template(rf, ctx) {
+  }, decls: 4, vars: 1, consts: [[3, "class"]], template: function AppComponent_Template(rf, ctx) {
     if (rf & 1) {
-      \u0275\u0275element(0, "app-navbar")(1, "router-outlet");
-      \u0275\u0275template(2, AppComponent_Conditional_2_Template, 2, 5, "div", 0);
+      \u0275\u0275element(0, "app-background")(1, "app-navbar")(2, "router-outlet");
+      \u0275\u0275template(3, AppComponent_Conditional_3_Template, 2, 5, "div", 0);
     }
     if (rf & 2) {
-      \u0275\u0275advance(2);
-      \u0275\u0275conditional(ctx.tools.toastMessage ? 2 : -1);
+      \u0275\u0275advance(3);
+      \u0275\u0275conditional(ctx.tools.toastMessage ? 3 : -1);
     }
-  }, dependencies: [RouterOutlet, CommonModule, NavbarComponent], encapsulation: 2 });
+  }, dependencies: [RouterOutlet, CommonModule, NavbarComponent, BackgroundComponent], encapsulation: 2 });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AppComponent, [{
     type: Component,
-    args: [{ selector: "app-root", imports: [RouterOutlet, CommonModule, NavbarComponent], template: '<app-navbar/>\n<router-outlet />\n@if (tools.toastMessage) {\n    <div class="toast-popup {{tools.themeColor}} {{tools.fontSize}}">\n        {{tools.toastMessage}}\n    </div>\n}' }]
+    args: [{ selector: "app-root", imports: [RouterOutlet, CommonModule, NavbarComponent, BackgroundComponent], template: '<app-background />\n<app-navbar/>\n<router-outlet />\n@if (tools.toastMessage) {\n    <div class="toast-popup {{tools.themeColor}} {{tools.fontSize}}">\n        {{tools.toastMessage}}\n    </div>\n}' }]
   }], () => [{ type: PlatformLocation }], { onAppInstalled: [{
     type: HostListener,
     args: ["window:appinstalled", ["$event"]]
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src/app/app.component.ts", lineNumber: 13 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "src/app/app.component.ts", lineNumber: 14 });
 })();
 
 // src/main.ts
