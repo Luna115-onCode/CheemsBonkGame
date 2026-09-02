@@ -42592,6 +42592,8 @@ var GameComponent = class _GameComponent {
   nextScoreId = 0;
   clickTimeout = null;
   showStatsModal = false;
+  activeStats = { value: 0, unitKey: "ptsPerHr" };
+  offlineStats = { value: 0, unitKey: "ptsPerHr" };
   onKeyUpBound = this.onKeyUp.bind(this);
   ngOnInit() {
     this.tools.setTitle("game");
@@ -42660,11 +42662,10 @@ var GameComponent = class _GameComponent {
     }
     return { value: ptsPerHour, unitKey: "ptsPerHr" };
   }
-  get activeStats() {
-    return this.getFormattedPoints(this.pointsPerHour);
-  }
-  get offlineStats() {
-    return this.getFormattedPoints(this.offlinePointsPerHour);
+  updateStats() {
+    const pph = 3600 / Math.max(1, this.tools.idleTime) * this.tools.idlePoints;
+    this.activeStats = this.getFormattedPoints(pph);
+    this.offlineStats = this.getFormattedPoints(pph / 4);
   }
   formatDuration(seconds) {
     if (seconds < 60)
@@ -42685,6 +42686,9 @@ var GameComponent = class _GameComponent {
       event.stopPropagation();
     }
     this.showStatsModal = !this.showStatsModal;
+    if (this.showStatsModal) {
+      this.updateStats();
+    }
   }
   static \u0275fac = function GameComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _GameComponent)();
@@ -51240,9 +51244,9 @@ function ShopComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].activeBooster) || "Active Booster:", " ");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2("x", ctx_r2.tools.getActiveMultiplier(), " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].pointsPerClick) || "Points per Click", "");
+    \u0275\u0275textInterpolate2("x", ctx_r2.activeMultiplier, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].pointsPerClick) || "Points per Click", "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate2(" \u23F3 ", ctx_r2.tools.getBoosterFormattedTime(), " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remaining) || "remaining", " ");
+    \u0275\u0275textInterpolate2(" \u23F3 ", ctx_r2.boosterFormattedTime, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remaining) || "remaining", " ");
   }
 }
 function ShopComponent_ng_template_33_Conditional_2_Template(rf, ctx) {
@@ -51672,6 +51676,16 @@ var ShopComponent = class _ShopComponent {
   dailyPrice = 100;
   showScrollTop = false;
   timerInterval = null;
+  boosterRemainingSeconds = 0;
+  activeMultiplier = 1;
+  boosterFormattedTime = "00:00";
+  updateBoosterStats() {
+    this.boosterRemainingSeconds = this.tools.getBoosterRemainingSeconds();
+    if (this.boosterRemainingSeconds > 0) {
+      this.activeMultiplier = this.tools.getActiveMultiplier();
+      this.boosterFormattedTime = this.tools.getBoosterFormattedTime();
+    }
+  }
   ngOnInit() {
     this.tools.setTitle("shop");
     this.tools.actPage = "shop";
@@ -51679,7 +51693,9 @@ var ShopComponent = class _ShopComponent {
     if (this.tools.shopItems.length === 0) {
       this.tools.loadShopItems();
     }
+    this.updateBoosterStats();
     this.timerInterval = setInterval(() => {
+      this.updateBoosterStats();
     }, 1e3);
   }
   ngOnDestroy() {
@@ -51942,7 +51958,7 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.musicItems.length > 0 ? 14 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.tools.getBoosterRemainingSeconds() > 0 ? 15 : -1);
+      \u0275\u0275conditional(ctx.boosterRemainingSeconds > 0 ? 15 : -1);
       \u0275\u0275advance(6);
       \u0275\u0275textInterpolate1("", ctx.tools.formatBigNumber(ctx.tools.points), " Pts");
       \u0275\u0275advance(6);
@@ -52020,16 +52036,16 @@ var ShopComponent = class _ShopComponent {
     </div>
 
     <!-- Active Booster Banner -->
-    @if (tools.getBoosterRemainingSeconds() > 0) {
+    @if (boosterRemainingSeconds > 0) {
         <div class="active-booster-banner">
             <div class="booster-banner-icon">\u26A1</div>
             <div class="booster-banner-content">
                 <span class="booster-banner-title">
                     {{tools.shop[tools.lang]?.activeBooster || 'Active Booster:'}}
-                    <strong>x{{tools.getActiveMultiplier()}} {{tools.shop[tools.lang]?.pointsPerClick || 'Points per Click'}}</strong>
+                    <strong>x{{activeMultiplier}} {{tools.shop[tools.lang]?.pointsPerClick || 'Points per Click'}}</strong>
                 </span>
                 <span class="booster-banner-timer">
-                    \u23F3 {{tools.getBoosterFormattedTime()}} {{tools.shop[tools.lang]?.remaining || 'remaining'}}
+                    \u23F3 {{boosterFormattedTime}} {{tools.shop[tools.lang]?.remaining || 'remaining'}}
                 </span>
             </div>
         </div>
@@ -52430,14 +52446,25 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
   overlayTitleText = this.tools.block_breaker[this.tools.lang]?.title || "Title";
   overlayDescText = "Description goes here";
   overlayBtnText = "Continue";
-  actionBtnText = this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
+  get actionBtnText() {
+    if (this.gameState === "DIG") {
+      return this.tools.block_breaker[this.tools.lang]?.digging || "DIGGING...";
+    }
+    return this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
+  }
   showLevelUpModal = false;
+  actionDisabled = true;
+  draggedIndex = null;
+  updateActionDisabled() {
+    this.actionDisabled = this.gameState !== "MERGE" || !this.grid.some((t) => t !== null);
+  }
   canvas;
   ctx;
   animationFrameId = null;
   ngOnInit() {
     this.tools.setTitle("block_breaker");
     this.tools.actPage = "block_breaker";
+    this.overlayTitleText = this.tools.block_breaker[this.tools.lang]?.title || "Title";
     this.loadLevel();
     this.loadGrid();
     this.loadCosts();
@@ -52487,6 +52514,8 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     this.initGame();
   }
   ngOnDestroy() {
+    this.gameState = "MERGE";
+    this.updateActionDisabled();
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
@@ -52644,16 +52673,13 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     return this.coins < cost || !this.grid.includes(null) || this.gameState !== "MERGE";
   }
   getToolBuyLabel(toolKey) {
-    const langObj = this.tools.minigames[this.tools.lang];
+    const langObj = this.tools.block_breaker[this.tools.lang];
     if (toolKey === "shovel" && langObj?.buyShovel)
       return langObj.buyShovel;
     if (toolKey === "pickaxe" && langObj?.buyPickaxe)
       return langObj.buyPickaxe;
     const buyWord = langObj?.buy || "Buy";
     return `${buyWord} ${toolKey.charAt(0).toUpperCase() + toolKey.slice(1)}`;
-  }
-  isActionDisabled() {
-    return this.gameState !== "MERGE" || !this.grid.some((t) => t !== null);
   }
   getToolImage(item) {
     const toolData = this.toolTypes[item.type][item.level - 1];
@@ -52674,6 +52700,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
         this.tools.playSound("sfx_1");
         this.saveGrid();
         this.saveCosts();
+        this.updateActionDisabled();
       } else {
         this.tools.showToast("Grid is full!");
         this.tools.playSound("sfx_8");
@@ -52720,6 +52747,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     }
     this.selectedSlotIndex = null;
     this.saveGrid();
+    this.updateActionDisabled();
   }
   getToolPrice(item) {
     const toolData = this.toolTypes[item.type]?.[item.level - 1];
@@ -52736,7 +52764,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     if (item) {
       const price = this.getToolPrice(item);
       this.grid[index] = null;
-      this.coins += price;
+      this.updateActionDisabled();
       this.tools.playSound("sfx_4");
       this.tools.showToast(`Sold ${item.type} Lv${item.level} for +${price} \u{1F3AE}`);
       this.saveGrid();
@@ -52752,24 +52780,23 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     this.isDragOver[index] = false;
   }
   onDragStart(e, index) {
+    this.draggedIndex = index;
     if (e.dataTransfer) {
       e.dataTransfer.setData("text/plain", String(index));
     }
   }
   onDragEnd(e, index) {
     this.isDragOver[index] = false;
+    this.draggedIndex = null;
   }
   onDrop(e, index) {
     e.preventDefault();
     this.isDragOver[index] = false;
-    if (this.gameState !== "MERGE")
+    if (this.gameState !== "MERGE" || this.draggedIndex === null)
       return;
-    const fromIndexStr = e.dataTransfer?.getData("text/plain");
-    if (!fromIndexStr)
-      return;
-    const fromIndex = parseInt(fromIndexStr, 10);
+    const fromIndex = this.draggedIndex;
     const toIndex = index;
-    if (fromIndex === toIndex || isNaN(fromIndex) || fromIndex < 0 || fromIndex >= this.grid.length)
+    if (fromIndex === toIndex || fromIndex < 0 || fromIndex >= this.grid.length)
       return;
     const fromObj = this.grid[fromIndex];
     const toObj = this.grid[toIndex];
@@ -52788,6 +52815,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     }
     this.tools.playSound("sfx_1");
     this.saveGrid();
+    this.updateActionDisabled();
   }
   allowDrop(e) {
     e.preventDefault();
@@ -52828,7 +52856,6 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
       return;
     this.gameState = "DIG";
     this.bedrockHit = false;
-    this.actionBtnText = this.tools.block_breaker[this.tools.lang]?.digging || "DIGGING...";
     this.activeTools = [];
     for (let i = 0; i < this.grid.length; i++) {
       if (this.grid[i] !== null) {
@@ -53025,7 +53052,6 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
     this.buildLevel();
     this.drawCanvasStatic();
     this.gameState = "MERGE";
-    this.actionBtnText = this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
   }
   drawCanvasStatic() {
     if (!this.ctx || !this.canvas)
@@ -53215,13 +53241,13 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
       \u0275\u0275advance(2);
       \u0275\u0275repeater(ctx.grid);
       \u0275\u0275advance(2);
-      \u0275\u0275property("disabled", ctx.isActionDisabled());
+      \u0275\u0275property("disabled", ctx.actionDisabled);
       \u0275\u0275advance();
       \u0275\u0275textInterpolate1(" ", ctx.actionBtnText, " ");
       \u0275\u0275advance(2);
       \u0275\u0275conditional(ctx.showLevelUpModal ? 49 : -1);
     }
-  }, styles: ['\n\n[_ngcontent-%COMP%]:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper[_ngcontent-%COMP%] {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1[_ngcontent-%COMP%] {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title[_ngcontent-%COMP%] {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container[_ngcontent-%COMP%] {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n  background-color: #222020ec;\n}\n.ui-header[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins[_ngcontent-%COMP%] {\n  color: #FFD700;\n}\n.lvl[_ngcontent-%COMP%] {\n  color: #00FFFF;\n}\n.buy-controls[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton[_ngcontent-%COMP%] {\n  background: var(--accent);\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  background: #45a049;\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\nbutton[_ngcontent-%COMP%]:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background: #2196F3;\n}\n.buy-btn[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.trash-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over[_ngcontent-%COMP%] {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight[_ngcontent-%COMP%] {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(5, 80px);\n  grid-template-rows: repeat(2, 80px);\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 430px;\n  max-width: 100%;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers[_ngcontent-%COMP%] {\n  display: flex;\n  width: 430px;\n  max-width: 100%;\n  justify-content: space-around;\n  color: #888;\n  font-size: 0.85em;\n  margin-bottom: 2px;\n}\n.grid-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected[_ngcontent-%COMP%] {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over[_ngcontent-%COMP%] {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool[_ngcontent-%COMP%] {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool[_ngcontent-%COMP%]:active {\n  cursor: grabbing;\n}\n#dig-canvas[_ngcontent-%COMP%] {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 420px;\n  height: auto;\n  min-height: 480px;\n  max-width: 100%;\n  display: block;\n}\n.overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\n.overlay[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.lvl-up-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal[_ngcontent-%COMP%] {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn[_ngcontent-%COMP%] {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn[_ngcontent-%COMP%] {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn[_ngcontent-%COMP%]:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn[_ngcontent-%COMP%] {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn[_ngcontent-%COMP%]:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */'] });
+  }, styles: ['\n\n[_ngcontent-%COMP%]:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper[_ngcontent-%COMP%] {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1[_ngcontent-%COMP%] {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title[_ngcontent-%COMP%] {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container[_ngcontent-%COMP%] {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n  background-color: #222020ec;\n}\n.ui-header[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins[_ngcontent-%COMP%] {\n  color: #FFD700;\n}\n.lvl[_ngcontent-%COMP%] {\n  color: #00FFFF;\n}\n.buy-controls[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton[_ngcontent-%COMP%] {\n  background: #45a049;\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton[_ngcontent-%COMP%]:hover {\n  background: #125516;\n}\nbutton[_ngcontent-%COMP%]:active {\n  transform: scale(0.95);\n}\nbutton[_ngcontent-%COMP%]:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn[_ngcontent-%COMP%] {\n  background: #2196F3;\n}\n.buy-btn[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.trash-slot[_ngcontent-%COMP%] {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over[_ngcontent-%COMP%] {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight[_ngcontent-%COMP%] {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(5, 1fr);\n  grid-template-rows: auto;\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 100%;\n  max-width: 430px;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(5, 1fr);\n  gap: 6px;\n  width: 100%;\n  max-width: 430px;\n  padding: 0 8px;\n  box-sizing: border-box;\n  color: #888;\n  font-size: clamp(0.6em, 2.5vw, 0.85em);\n  margin-bottom: 2px;\n}\n.lane-markers[_ngcontent-%COMP%]   span[_ngcontent-%COMP%] {\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.grid-slot[_ngcontent-%COMP%] {\n  width: 100%;\n  aspect-ratio: 1 / 1;\n  height: auto;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected[_ngcontent-%COMP%] {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over[_ngcontent-%COMP%] {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool[_ngcontent-%COMP%] {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool[_ngcontent-%COMP%]:active {\n  cursor: grabbing;\n}\n#dig-canvas[_ngcontent-%COMP%] {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 100%;\n  max-width: 420px;\n  height: auto;\n  aspect-ratio: 420 / 480;\n  display: block;\n  box-sizing: border-box;\n}\n.overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden[_ngcontent-%COMP%] {\n  display: none !important;\n}\n.overlay[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%] {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay[_ngcontent-%COMP%]   button[_ngcontent-%COMP%]:hover {\n  background: #1976D2;\n}\n.lvl-up-btn[_ngcontent-%COMP%] {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay[_ngcontent-%COMP%] {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal[_ngcontent-%COMP%] {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal[_ngcontent-%COMP%]   h3[_ngcontent-%COMP%] {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal[_ngcontent-%COMP%]   p[_ngcontent-%COMP%] {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons[_ngcontent-%COMP%] {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn[_ngcontent-%COMP%] {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn[_ngcontent-%COMP%] {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn[_ngcontent-%COMP%]:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn[_ngcontent-%COMP%] {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn[_ngcontent-%COMP%]:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */'] });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BlockBreakerComponent, [{
@@ -53298,7 +53324,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
         </div>
 
         <button id="actionBtn"
-                [disabled]="isActionDisabled()"
+                [disabled]="actionDisabled"
                 (click)="startDigging()"
                 style="width: 420px; max-width: 100%; padding: 15px; font-size: 1.2em;">
             {{ actionBtnText }}
@@ -53320,7 +53346,7 @@ var BlockBreakerComponent = class _BlockBreakerComponent {
         }
     </div>
 </div>
-`, styles: ['/* src/app/games/block_breaker/block_breaker.component.css */\n:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1 {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n  background-color: #222020ec;\n}\n.ui-header {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins {\n  color: #FFD700;\n}\n.lvl {\n  color: #00FFFF;\n}\n.buy-controls {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton {\n  background: var(--accent);\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton:hover {\n  background: #45a049;\n}\nbutton:active {\n  transform: scale(0.95);\n}\nbutton:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn {\n  background: #2196F3;\n}\n.buy-btn:hover {\n  background: #1976D2;\n}\n.trash-slot {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid {\n  display: grid;\n  grid-template-columns: repeat(5, 80px);\n  grid-template-rows: repeat(2, 80px);\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 430px;\n  max-width: 100%;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers {\n  display: flex;\n  width: 430px;\n  max-width: 100%;\n  justify-content: space-around;\n  color: #888;\n  font-size: 0.85em;\n  margin-bottom: 2px;\n}\n.grid-slot {\n  width: 80px;\n  height: 80px;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool:active {\n  cursor: grabbing;\n}\n#dig-canvas {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 420px;\n  height: auto;\n  min-height: 480px;\n  max-width: 100%;\n  display: block;\n}\n.overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden {\n  display: none !important;\n}\n.overlay h2 {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay p {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success h2 {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger h2 {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay button {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay button:hover {\n  background: #1976D2;\n}\n.lvl-up-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal h3 {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal p {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */\n'] }]
+`, styles: ['/* src/app/games/block_breaker/block_breaker.component.css */\n:root {\n  --bg-color: #121212;\n  --panel-bg: #1e1e1e;\n  --grid-bg: #2d2d2d;\n  --accent: #4CAF50;\n  --text: #ffffff;\n  --col-width: 80px;\n}\n.block-breaker-wrapper {\n  background-color: var(--bg-color);\n  color: var(--text);\n  font-family:\n    "Segoe UI",\n    Tahoma,\n    Geneva,\n    Verdana,\n    sans-serif;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  margin: 0;\n  padding: 20px;\n  -webkit-user-select: none;\n  user-select: none;\n  min-height: 100vh;\n  box-sizing: border-box;\n}\nh1 {\n  margin: 0 0 5px 0;\n  color: var(--accent);\n  text-align: center;\n}\n.level-title {\n  margin: 0 0 15px 0;\n  color: #aaa;\n  font-size: 1.2em;\n}\n#game-container {\n  background: var(--panel-bg);\n  padding: 20px;\n  border-radius: 12px;\n  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 15px;\n  width: 500px;\n  max-width: 100%;\n  position: relative;\n  box-sizing: border-box;\n  background-color: #222020ec;\n}\n.ui-header {\n  display: flex;\n  justify-content: space-between;\n  width: 100%;\n  align-items: center;\n  gap: 10px;\n  flex-wrap: wrap;\n}\n.stats-display {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\n.stat-box {\n  font-size: 1.2em;\n  font-weight: bold;\n  background: #333;\n  padding: 8px 15px;\n  border-radius: 8px;\n  border: 2px solid #555;\n  white-space: nowrap;\n}\n.coins {\n  color: #FFD700;\n}\n.lvl {\n  color: #00FFFF;\n}\n.buy-controls {\n  display: flex;\n  flex-direction: column;\n  gap: 5px;\n}\nbutton {\n  background: #45a049;\n  color: white;\n  border: none;\n  padding: 8px 16px;\n  border-radius: 8px;\n  font-size: 1em;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.1s, background 0.2s;\n}\nbutton:hover {\n  background: #125516;\n}\nbutton:active {\n  transform: scale(0.95);\n}\nbutton:disabled {\n  background: #555;\n  color: #888;\n  cursor: not-allowed;\n  transform: none;\n}\n.buy-btn {\n  background: #2196F3;\n}\n.buy-btn:hover {\n  background: #1976D2;\n}\n.trash-slot {\n  width: 80px;\n  height: 80px;\n  background: #4a1919;\n  border-radius: 8px;\n  border: 2px dashed #ff4444;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  font-weight: bold;\n  color: #ffaaaa;\n  text-align: center;\n  transition: background 0.2s;\n}\n.trash-slot.drag-over {\n  background: #8b2222;\n  border-color: #ff8888;\n}\n.trash-slot.highlight {\n  border-color: #FFD700;\n  background: #6e4010;\n  cursor: pointer;\n  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);\n}\n#merge-grid {\n  display: grid;\n  grid-template-columns: repeat(5, 1fr);\n  grid-template-rows: auto;\n  gap: 6px;\n  background: #2d2d2d;\n  padding: 8px;\n  border-radius: 8px;\n  width: 100%;\n  max-width: 430px;\n  box-sizing: border-box;\n  justify-content: center;\n  margin: 10px auto;\n}\n.lane-markers {\n  display: grid;\n  grid-template-columns: repeat(5, 1fr);\n  gap: 6px;\n  width: 100%;\n  max-width: 430px;\n  padding: 0 8px;\n  box-sizing: border-box;\n  color: #888;\n  font-size: clamp(0.6em, 2.5vw, 0.85em);\n  margin-bottom: 2px;\n}\n.lane-markers span {\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n.grid-slot {\n  width: 100%;\n  aspect-ratio: 1 / 1;\n  height: auto;\n  background: #3d3d3d;\n  border-radius: 6px;\n  border: 2px dashed #555;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  position: relative;\n  box-sizing: border-box;\n  cursor: pointer;\n  transition: border-color 0.2s, background 0.2s;\n}\n.grid-slot.selected {\n  border: 2px solid #FFD700;\n  background: #4a4a30;\n  box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);\n}\n.grid-slot.drag-over {\n  background: #4d4d4d;\n  border-color: #fff;\n}\n.tool {\n  width: 85%;\n  height: 85%;\n  border-radius: 8px;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n  align-items: center;\n  font-weight: bold;\n  cursor: grab;\n  text-shadow:\n    -1px -1px 0 #000,\n    1px -1px 0 #000,\n    -1px 1px 0 #000,\n    1px 1px 0 #000;\n  font-size: 0.85em;\n  text-align: center;\n  padding-bottom: 5px;\n  box-sizing: border-box;\n  background-size: contain;\n  background-repeat: no-repeat;\n  background-position: center;\n}\n.tool:active {\n  cursor: grabbing;\n}\n#dig-canvas {\n  background-color: #87CEEB;\n  border-radius: 8px;\n  border: 4px solid #333;\n  width: 100%;\n  max-width: 420px;\n  height: auto;\n  aspect-ratio: 420 / 480;\n  display: block;\n  box-sizing: border-box;\n}\n.overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.9);\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  align-items: center;\n  border-radius: 12px;\n  z-index: 100;\n  -webkit-backdrop-filter: blur(4px);\n  backdrop-filter: blur(4px);\n  text-align: center;\n  padding: 20px;\n}\n.overlay.hidden {\n  display: none !important;\n}\n.overlay h2 {\n  font-size: 3em;\n  margin: 0 0 10px 0;\n  text-transform: uppercase;\n}\n.overlay p {\n  font-size: 1.2em;\n  color: #ddd;\n  margin-bottom: 30px;\n}\n.overlay.success h2 {\n  color: #4CAF50;\n  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);\n}\n.overlay.danger h2 {\n  color: #f44336;\n  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);\n}\n.overlay button {\n  font-size: 1.5em;\n  padding: 15px 40px;\n  border-radius: 30px;\n  background: #2196F3;\n}\n.overlay button:hover {\n  background: #1976D2;\n}\n.lvl-up-btn {\n  background:\n    linear-gradient(\n      135deg,\n      #ff9800,\n      #f57c00);\n  color: #fff;\n  border: none;\n  border-radius: 20px;\n  padding: 6px 14px;\n  font-weight: bold;\n  cursor: pointer;\n  box-shadow: 0 4px 10px rgba(255, 152, 0, 0.4);\n  transition: transform 0.2s, box-shadow 0.2s;\n  margin-left: 10px;\n}\n.lvl-up-btn:hover {\n  transform: scale(1.05);\n  box-shadow: 0 6px 14px rgba(255, 152, 0, 0.6);\n}\n.modal-overlay {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.85);\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  z-index: 200;\n  -webkit-backdrop-filter: blur(5px);\n  backdrop-filter: blur(5px);\n}\n.confirm-modal {\n  background: #222;\n  border: 2px solid #ff9800;\n  border-radius: 16px;\n  padding: 24px;\n  text-align: center;\n  max-width: 320px;\n  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);\n}\n.confirm-modal h3 {\n  margin-top: 0;\n  color: #ff9800;\n  font-size: 1.5em;\n}\n.confirm-modal p {\n  color: #ccc;\n  margin-bottom: 24px;\n  line-height: 1.4;\n}\n.modal-buttons {\n  display: flex;\n  gap: 12px;\n  justify-content: center;\n}\n.confirm-btn {\n  padding: 10px 20px;\n  border-radius: 10px;\n  border: none;\n  font-weight: bold;\n  cursor: pointer;\n  transition: transform 0.2s;\n}\n.yes-btn {\n  background: #4CAF50;\n  color: #fff;\n}\n.yes-btn:hover {\n  background: #43a047;\n  transform: scale(1.05);\n}\n.no-btn {\n  background: #f44336;\n  color: #fff;\n}\n.no-btn:hover {\n  background: #e53935;\n  transform: scale(1.05);\n}\n/*# sourceMappingURL=block_breaker.component.css.map */\n'] }]
   }], null, null);
 })();
 (() => {
@@ -81394,6 +81420,156 @@ var WebGLRenderer = class {
   }
 };
 
+// node_modules/three/examples/jsm/utils/BufferGeometryUtils.js
+function mergeGeometries(geometries, useGroups = false) {
+  const isIndexed = geometries[0].index !== null;
+  const attributesUsed = new Set(Object.keys(geometries[0].attributes));
+  const morphAttributesUsed = new Set(Object.keys(geometries[0].morphAttributes));
+  const attributes = {};
+  const morphAttributes = {};
+  const morphTargetsRelative = geometries[0].morphTargetsRelative;
+  const mergedGeometry = new BufferGeometry();
+  let offset = 0;
+  for (let i = 0; i < geometries.length; ++i) {
+    const geometry = geometries[i];
+    let attributesCount = 0;
+    if (isIndexed !== (geometry.index !== null)) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". All geometries must have compatible attributes; make sure index attribute exists among all geometries, or in none of them.");
+      return null;
+    }
+    for (const name in geometry.attributes) {
+      if (!attributesUsed.has(name)) {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + '. All geometries must have compatible attributes; make sure "' + name + '" attribute exists among all geometries, or in none of them.');
+        return null;
+      }
+      if (attributes[name] === void 0) attributes[name] = [];
+      attributes[name].push(geometry.attributes[name]);
+      attributesCount++;
+    }
+    if (attributesCount !== attributesUsed.size) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". Make sure all geometries have the same number of attributes.");
+      return null;
+    }
+    if (morphTargetsRelative !== geometry.morphTargetsRelative) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". .morphTargetsRelative must be consistent throughout all geometries.");
+      return null;
+    }
+    for (const name in geometry.morphAttributes) {
+      if (!morphAttributesUsed.has(name)) {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ".  .morphAttributes must be consistent throughout all geometries.");
+        return null;
+      }
+      if (morphAttributes[name] === void 0) morphAttributes[name] = [];
+      morphAttributes[name].push(geometry.morphAttributes[name]);
+    }
+    if (useGroups) {
+      let count;
+      if (isIndexed) {
+        count = geometry.index.count;
+      } else if (geometry.attributes.position !== void 0) {
+        count = geometry.attributes.position.count;
+      } else {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed with geometry at index " + i + ". The geometry must have either an index or a position attribute");
+        return null;
+      }
+      mergedGeometry.addGroup(offset, count, i);
+      offset += count;
+    }
+  }
+  if (isIndexed) {
+    let indexOffset = 0;
+    const mergedIndex = [];
+    for (let i = 0; i < geometries.length; ++i) {
+      const index = geometries[i].index;
+      for (let j = 0; j < index.count; ++j) {
+        mergedIndex.push(index.getX(j) + indexOffset);
+      }
+      indexOffset += geometries[i].attributes.position.count;
+    }
+    mergedGeometry.setIndex(mergedIndex);
+  }
+  for (const name in attributes) {
+    const mergedAttribute = mergeAttributes(attributes[name]);
+    if (!mergedAttribute) {
+      console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed while trying to merge the " + name + " attribute.");
+      return null;
+    }
+    mergedGeometry.setAttribute(name, mergedAttribute);
+  }
+  for (const name in morphAttributes) {
+    const numMorphTargets = morphAttributes[name][0].length;
+    if (numMorphTargets === 0) continue;
+    mergedGeometry.morphAttributes = mergedGeometry.morphAttributes || {};
+    mergedGeometry.morphAttributes[name] = [];
+    for (let i = 0; i < numMorphTargets; ++i) {
+      const morphAttributesToMerge = [];
+      for (let j = 0; j < morphAttributes[name].length; ++j) {
+        morphAttributesToMerge.push(morphAttributes[name][j][i]);
+      }
+      const mergedMorphAttribute = mergeAttributes(morphAttributesToMerge);
+      if (!mergedMorphAttribute) {
+        console.error("THREE.BufferGeometryUtils: .mergeGeometries() failed while trying to merge the " + name + " morphAttribute.");
+        return null;
+      }
+      mergedGeometry.morphAttributes[name].push(mergedMorphAttribute);
+    }
+  }
+  return mergedGeometry;
+}
+function mergeAttributes(attributes) {
+  let TypedArray;
+  let itemSize;
+  let normalized;
+  let gpuType = -1;
+  let arrayLength = 0;
+  for (let i = 0; i < attributes.length; ++i) {
+    const attribute = attributes[i];
+    if (TypedArray === void 0) TypedArray = attribute.array.constructor;
+    if (TypedArray !== attribute.array.constructor) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.array must be of consistent array types across matching attributes.");
+      return null;
+    }
+    if (itemSize === void 0) itemSize = attribute.itemSize;
+    if (itemSize !== attribute.itemSize) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.itemSize must be consistent across matching attributes.");
+      return null;
+    }
+    if (normalized === void 0) normalized = attribute.normalized;
+    if (normalized !== attribute.normalized) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.normalized must be consistent across matching attributes.");
+      return null;
+    }
+    if (gpuType === -1) gpuType = attribute.gpuType;
+    if (gpuType !== attribute.gpuType) {
+      console.error("THREE.BufferGeometryUtils: .mergeAttributes() failed. BufferAttribute.gpuType must be consistent across matching attributes.");
+      return null;
+    }
+    arrayLength += attribute.count * itemSize;
+  }
+  const array = new TypedArray(arrayLength);
+  const result = new BufferAttribute(array, itemSize, normalized);
+  let offset = 0;
+  for (let i = 0; i < attributes.length; ++i) {
+    const attribute = attributes[i];
+    if (attribute.isInterleavedBufferAttribute) {
+      const tupleOffset = offset / itemSize;
+      for (let j = 0, l = attribute.count; j < l; j++) {
+        for (let c = 0; c < itemSize; c++) {
+          const value = attribute.getComponent(j, c);
+          result.setComponent(j + tupleOffset, c, value);
+        }
+      }
+    } else {
+      array.set(attribute.array, offset);
+    }
+    offset += attribute.count * itemSize;
+  }
+  if (gpuType !== void 0) {
+    result.gpuType = gpuType;
+  }
+  return result;
+}
+
 // src/app/games/attack_hole/attack_hole.component.ts
 var _c02 = ["gameContainer"];
 var _forTrack04 = ($index, $item) => $item.id;
@@ -81586,6 +81762,22 @@ var AttackHoleComponent = class _AttackHoleComponent {
   ngAfterViewInit() {
     this.init3D();
   }
+  disposeThreeObjects(obj) {
+    if (!obj)
+      return;
+    if (obj.geometry)
+      obj.geometry.dispose();
+    if (obj.material) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((mat) => mat.dispose());
+      } else {
+        obj.material.dispose();
+      }
+    }
+    if (obj.children) {
+      obj.children.forEach((child) => this.disposeThreeObjects(child));
+    }
+  }
   ngOnDestroy() {
     this.stopGameLoop();
     if (this.timerInterval) {
@@ -81598,6 +81790,9 @@ var AttackHoleComponent = class _AttackHoleComponent {
       window.removeEventListener("pointermove", this.onPointerMoveBound);
       window.removeEventListener("pointerup", this.onPointerUpBound);
       window.removeEventListener("pointercancel", this.onPointerUpBound);
+    }
+    if (this.scene) {
+      this.disposeThreeObjects(this.scene);
     }
     if (this.renderer) {
       this.renderer.dispose();
@@ -81712,11 +81907,13 @@ var AttackHoleComponent = class _AttackHoleComponent {
     this.ring.rotation.x = -Math.PI / 2;
     this.ring.position.y = 0.02;
     this.scene.add(this.ring);
-    window.addEventListener("resize", this.onResizeBound);
-    container.addEventListener("pointerdown", this.onPointerDownBound);
-    window.addEventListener("pointermove", this.onPointerMoveBound);
-    window.addEventListener("pointerup", this.onPointerUpBound);
-    window.addEventListener("pointercancel", this.onPointerUpBound);
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener("resize", this.onResizeBound);
+      container.addEventListener("pointerdown", this.onPointerDownBound);
+      window.addEventListener("pointermove", this.onPointerMoveBound);
+      window.addEventListener("pointerup", this.onPointerUpBound);
+      window.addEventListener("pointercancel", this.onPointerUpBound);
+    });
     this.ngZone.runOutsideAngular(() => {
       this.animate();
     });
@@ -81741,7 +81938,6 @@ var AttackHoleComponent = class _AttackHoleComponent {
           const geoData = geoJson["minecraft:geometry"][0];
           const texW = geoData.description.texture_width;
           const texH = geoData.description.texture_height;
-          const group = new Group();
           texture.wrapS = RepeatWrapping;
           texture.wrapT = RepeatWrapping;
           const mat = new MeshStandardMaterial({
@@ -81751,6 +81947,7 @@ var AttackHoleComponent = class _AttackHoleComponent {
             side: DoubleSide,
             emissive: new Color(2236962)
           });
+          const geometries = [];
           geoData.bones.forEach((bone) => {
             bone.cubes.forEach((cube) => {
               const [cx, cy, cz] = cube.size;
@@ -81793,13 +81990,16 @@ var AttackHoleComponent = class _AttackHoleComponent {
                   }
                 }
               }
-              const mesh = new Mesh(geo, mat);
-              mesh.castShadow = true;
-              mesh.position.set((ox + cx / 2) * scale, (oy + cy / 2) * scale, (oz + cz / 2) * scale);
-              group.add(mesh);
+              geo.translate((ox + cx / 2) * scale, (oy + cy / 2) * scale, (oz + cz / 2) * scale);
+              geometries.push(geo);
             });
           });
-          this.modelCache[item.id] = group;
+          if (geometries.length > 0) {
+            const mergedGeo = mergeGeometries(geometries, false);
+            const mesh = new Mesh(mergedGeo, mat);
+            mesh.castShadow = true;
+            this.modelCache[item.id] = mesh;
+          }
         }
       } catch (e) {
         console.error("Failed to load models", e);
@@ -81807,7 +82007,7 @@ var AttackHoleComponent = class _AttackHoleComponent {
     });
   }
   createItem(type) {
-    let itemGroup = new Group();
+    let itemGroup;
     let category = "ammo";
     let points = 10;
     const config2 = this.itemsConfig.find((i) => i.id === type);
@@ -81816,10 +82016,10 @@ var AttackHoleComponent = class _AttackHoleComponent {
       points = config2.points;
     }
     if (this.modelCache[type]) {
-      itemGroup.add(this.modelCache[type].clone());
+      itemGroup = this.modelCache[type].clone();
     } else {
-      const box = new Mesh(new BoxGeometry(0.5, 0.5, 0.5), new MeshStandardMaterial({ color: 16711680 }));
-      itemGroup.add(box);
+      itemGroup = new Mesh(new BoxGeometry(0.5, 0.5, 0.5), new MeshStandardMaterial({ color: 16711680 }));
+      itemGroup.castShadow = true;
     }
     return { group: itemGroup, points, category };
   }
@@ -82081,7 +82281,7 @@ var AttackHoleComponent = class _AttackHoleComponent {
           const distSq = dx * dx + dz * dz;
           if (distSq < (this.holeRadius - 0.5) * (this.holeRadius - 0.5)) {
             item.userData["isFalling"] = true;
-            item.children.forEach((c) => c.castShadow = false);
+            item.traverse((c) => c.castShadow = false);
           }
         } else {
           item.position.y -= 0.15;
@@ -82090,9 +82290,11 @@ var AttackHoleComponent = class _AttackHoleComponent {
           item.position.z += (this.hole.position.z - item.position.z) * 0.2;
           if (item.scale.x < 0.1) {
             const itemType = item.userData["type"];
-            this.collectedItems[itemType] = (this.collectedItems[itemType] || 0) + 1;
-            this.levelPoints += item.userData["points"];
-            this.gamePoints = this.levelPoints;
+            this.ngZone.run(() => {
+              this.collectedItems[itemType] = (this.collectedItems[itemType] || 0) + 1;
+              this.levelPoints += item.userData["points"];
+              this.gamePoints = this.levelPoints;
+            });
             this.scene.remove(item);
             this.items.splice(i, 1);
             if (this.items.length === 0) {
@@ -82213,10 +82415,30 @@ var AttackHoleComponent = class _AttackHoleComponent {
       }
       return a.points - b.points;
     });
+    let ammoCount = itemsList.filter((i) => i.category === "ammo").length;
+    let bombCount = itemsList.length - ammoCount;
+    let ammoIdx = 0;
+    let bombIdx = 0;
     itemsList.forEach((item) => {
       const { group, points, category } = this.createItem(item.type);
       group.position.set((Math.random() - 0.5) * 10, 5 + (Math.random() - 0.5) * 10, 15 + Math.random() * 5);
-      currentDelay += category === "bomb" ? 15 : 5;
+      let baseDelay = category === "bomb" ? 15 : 5;
+      let progress = 0;
+      if (category === "ammo") {
+        progress = ammoIdx / Math.max(1, ammoCount - 1);
+        ammoIdx++;
+      } else {
+        progress = bombIdx / Math.max(1, bombCount - 1);
+        bombIdx++;
+      }
+      let speedMultiplier = 1;
+      if (category === "ammo") {
+        speedMultiplier = 1 + Math.pow(progress, 2) * 4;
+      } else {
+        speedMultiplier = 1 + Math.pow(progress, 3) * 14;
+      }
+      let delayStep = Math.max(1, Math.floor(baseDelay / speedMultiplier));
+      currentDelay += delayStep;
       const delay = currentDelay;
       group.visible = false;
       this.scene.add(group);
@@ -82411,7 +82633,7 @@ var AttackHoleComponent = class _AttackHoleComponent {
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttackHoleComponent, { className: "AttackHoleComponent", filePath: "src/app/games/attack_hole/attack_hole.component.ts", lineNumber: 13 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttackHoleComponent, { className: "AttackHoleComponent", filePath: "src/app/games/attack_hole/attack_hole.component.ts", lineNumber: 14 });
 })();
 
 // src/app/games/doge_rescue/doge_rescue.component.ts
@@ -82714,10 +82936,12 @@ var DogeRescueComponent = class _DogeRescueComponent {
     const container = this.gameContainer.nativeElement;
     canvas.width = container.clientWidth;
     canvas.height = container.clientHeight;
-    canvas.addEventListener("pointerdown", this.onPointerDownBound);
-    canvas.addEventListener("pointermove", this.onPointerMoveBound);
-    canvas.addEventListener("pointerup", this.onPointerUpBound);
-    window.addEventListener("resize", this.onResizeBound);
+    this.ngZone.runOutsideAngular(() => {
+      canvas.addEventListener("pointerdown", this.onPointerDownBound);
+      canvas.addEventListener("pointermove", this.onPointerMoveBound);
+      canvas.addEventListener("pointerup", this.onPointerUpBound);
+      window.addEventListener("resize", this.onResizeBound);
+    });
     Matter.Events.on(this.engine, "collisionStart", (event) => {
       if (this.gameState !== "ATTACK")
         return;
@@ -82936,7 +83160,9 @@ var DogeRescueComponent = class _DogeRescueComponent {
     if (dist > 15) {
       if (this.lineLength + dist <= this.maxLineLength) {
         this.currentDrawing.push({ x, y });
-        this.lineLength += dist;
+        this.ngZone.run(() => {
+          this.lineLength += dist;
+        });
       } else {
         this.onPointerUp();
       }
@@ -82949,7 +83175,9 @@ var DogeRescueComponent = class _DogeRescueComponent {
     if (this.currentDrawing.length > 2) {
       this.createPhysicalLine(this.currentDrawing);
       this.currentDrawing = [];
-      this.startAttack();
+      this.ngZone.run(() => {
+        this.startAttack();
+      });
     } else {
       this.currentDrawing = [];
     }
@@ -83548,6 +83776,7 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
   tools = inject(ToolsService);
   ngZone = inject(NgZone);
   renderer = inject(Renderer2);
+  elRef = inject(ElementRef);
   gameContainer;
   canvasRef;
   gameState = "START";
@@ -83597,10 +83826,13 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     const canvas = this.canvasRef.nativeElement;
     this.ctx = canvas.getContext("2d");
     this.onResize();
-    window.addEventListener("resize", this.onResizeBound);
-    document.addEventListener("mousedown", this.onPointerDownBound);
-    document.addEventListener("touchstart", this.onPointerDownBound, { passive: false });
-    window.addEventListener("keydown", this.onKeyDownBound);
+    const host = this.elRef.nativeElement;
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener("resize", this.onResizeBound);
+      host.addEventListener("mousedown", this.onPointerDownBound);
+      host.addEventListener("touchstart", this.onPointerDownBound, { passive: false });
+      window.addEventListener("keydown", this.onKeyDownBound);
+    });
     this.ngZone.runOutsideAngular(() => {
       this.loop();
     });
@@ -83611,8 +83843,9 @@ var FlappyDunkComponent = class _FlappyDunkComponent {
     }
     window.removeEventListener("resize", this.onResizeBound);
     window.removeEventListener("keydown", this.onKeyDownBound);
-    document.removeEventListener("mousedown", this.onPointerDownBound);
-    document.removeEventListener("touchstart", this.onPointerDownBound);
+    const host = this.elRef.nativeElement;
+    host.removeEventListener("mousedown", this.onPointerDownBound);
+    host.removeEventListener("touchstart", this.onPointerDownBound);
     this.tools.leaveMinigame("flappy_dunk", this.sessionPoints);
   }
   onResize() {
@@ -84381,11 +84614,30 @@ var HelixJumpComponent = class _HelixJumpComponent {
   ngAfterViewInit() {
     this.init3D();
   }
+  disposeThreeObjects(obj) {
+    if (!obj)
+      return;
+    if (obj.geometry)
+      obj.geometry.dispose();
+    if (obj.material) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((mat) => mat.dispose());
+      } else {
+        obj.material.dispose();
+      }
+    }
+    if (obj.children) {
+      obj.children.forEach((child) => this.disposeThreeObjects(child));
+    }
+  }
   ngOnDestroy() {
     this.stopLoop();
     this.stopTimer();
     window.removeEventListener("resize", this.onResizeBound);
     window.removeEventListener("pointerup", this.onPointerUpBound);
+    if (this.scene) {
+      this.disposeThreeObjects(this.scene);
+    }
     if (this.renderer) {
       this.renderer.dispose();
       const dom = this.gameContainer?.nativeElement;
@@ -84464,10 +84716,12 @@ var HelixJumpComponent = class _HelixJumpComponent {
     this.ball = new Mesh(ballGeo, ballMat);
     this.ball.castShadow = true;
     this.scene.add(this.ball);
-    container.addEventListener("pointerdown", this.onPointerDownBound);
-    window.addEventListener("pointermove", this.onPointerMoveBound);
-    window.addEventListener("pointerup", this.onPointerUpBound);
-    window.addEventListener("resize", this.onResizeBound);
+    this.ngZone.runOutsideAngular(() => {
+      container.addEventListener("pointerdown", this.onPointerDownBound);
+      window.addEventListener("pointermove", this.onPointerMoveBound);
+      window.addEventListener("pointerup", this.onPointerUpBound);
+      window.addEventListener("resize", this.onResizeBound);
+    });
     this.ngZone.runOutsideAngular(() => {
       this.animate();
     });
@@ -85030,6 +85284,7 @@ var MagicSortComponent = class _MagicSortComponent {
   ngOnInit() {
     this.tools.setTitle("magic_sort");
     this.tools.actPage = "magic_sort";
+    this.tools.sessionPoints = 0;
     this.startLevel();
     this.gameState = "START";
   }
@@ -85042,7 +85297,7 @@ var MagicSortComponent = class _MagicSortComponent {
         this.renderer.removeChild(star.parentNode, star);
       }
     });
-    this.tools.leaveMinigame("magic_sort", this.tools.sessionPoints);
+    this.tools.leaveMinigame("magic_sort", this.tools.sessionPoints, this.level);
   }
   createStars() {
     for (let i = 0; i < 50; i++) {
@@ -85172,6 +85427,7 @@ var MagicSortComponent = class _MagicSortComponent {
     if (isWon) {
       setTimeout(() => {
         this.gameState = "WIN";
+        this.tools.playSound("sfx_4");
       }, 300);
     }
   }
@@ -85415,10 +85671,12 @@ var MobControlComponent = class _MobControlComponent {
     const container = this.gameContainer.nativeElement;
     canvas.width = container.clientWidth || 400;
     canvas.height = container.clientHeight || 600;
-    canvas.addEventListener("pointerdown", this.onPointerDownBound);
-    canvas.addEventListener("pointermove", this.onPointerMoveBound);
-    window.addEventListener("pointerup", this.onPointerUpBound);
-    window.addEventListener("resize", this.onResizeBound);
+    this.ngZone.runOutsideAngular(() => {
+      canvas.addEventListener("pointerdown", this.onPointerDownBound);
+      canvas.addEventListener("pointermove", this.onPointerMoveBound);
+      window.addEventListener("pointerup", this.onPointerUpBound);
+      window.addEventListener("resize", this.onResizeBound);
+    });
     this.ngZone.runOutsideAngular(() => {
       this.loop();
     });
@@ -85858,11 +86116,13 @@ var PaperIoComponent = class _PaperIoComponent {
       const container = this.gameContainer.nativeElement;
       canvas.width = container.clientWidth || window.innerWidth;
       canvas.height = container.clientHeight || window.innerHeight;
-      window.addEventListener("keydown", this.onKeyDownBound, { passive: false });
-      window.addEventListener("resize", this.onResizeBound);
-      canvas.addEventListener("touchstart", this.onTouchStartBound, { passive: true });
-      canvas.addEventListener("touchmove", this.onTouchMoveBound, { passive: false });
-      canvas.addEventListener("touchend", this.onTouchEndBound, { passive: true });
+      this.ngZone.runOutsideAngular(() => {
+        window.addEventListener("keydown", this.onKeyDownBound, { passive: false });
+        window.addEventListener("resize", this.onResizeBound);
+        canvas.addEventListener("touchstart", this.onTouchStartBound, { passive: true });
+        canvas.addEventListener("touchmove", this.onTouchMoveBound, { passive: false });
+        canvas.addEventListener("touchend", this.onTouchEndBound, { passive: true });
+      });
       yield this.loadData();
     });
   }
@@ -86897,12 +87157,31 @@ var SpiralRollComponent = class _SpiralRollComponent {
     window.addEventListener("keydown", this.onKeyDownBound);
     window.addEventListener("keyup", this.onKeyUpBound);
   }
+  disposeThreeObjects(obj) {
+    if (!obj)
+      return;
+    if (obj.geometry)
+      obj.geometry.dispose();
+    if (obj.material) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((mat) => mat.dispose());
+      } else {
+        obj.material.dispose();
+      }
+    }
+    if (obj.children) {
+      obj.children.forEach((child) => this.disposeThreeObjects(child));
+    }
+  }
   ngOnDestroy() {
     this.stopLoop();
     window.removeEventListener("resize", this.onResizeBound);
     window.removeEventListener("pointerup", this.onPointerUpBound);
     window.removeEventListener("keydown", this.onKeyDownBound);
     window.removeEventListener("keyup", this.onKeyUpBound);
+    if (this.scene) {
+      this.disposeThreeObjects(this.scene);
+    }
     if (this.renderer) {
       this.renderer.dispose();
       const dom = this.gameContainer?.nativeElement;
@@ -86989,9 +87268,11 @@ var SpiralRollComponent = class _SpiralRollComponent {
     this.handle.position.set(0, 0.7, 1.5);
     this.handle.castShadow = true;
     this.playerGroup.add(this.handle);
-    container.addEventListener("pointerdown", this.onPointerDownBound);
-    window.addEventListener("pointerup", this.onPointerUpBound);
-    window.addEventListener("resize", this.onResizeBound);
+    this.ngZone.runOutsideAngular(() => {
+      container.addEventListener("pointerdown", this.onPointerDownBound);
+      window.addEventListener("pointerup", this.onPointerUpBound);
+      window.addEventListener("resize", this.onResizeBound);
+    });
     this.ngZone.runOutsideAngular(() => {
       this.animate();
     });
@@ -87715,6 +87996,22 @@ var StackColorsComponent = class _StackColorsComponent {
     window.addEventListener("keydown", this.onKeyDownBound);
     window.addEventListener("keyup", this.onKeyUpBound);
   }
+  disposeThreeObjects(obj) {
+    if (!obj)
+      return;
+    if (obj.geometry)
+      obj.geometry.dispose();
+    if (obj.material) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((mat) => mat.dispose());
+      } else {
+        obj.material.dispose();
+      }
+    }
+    if (obj.children) {
+      obj.children.forEach((child) => this.disposeThreeObjects(child));
+    }
+  }
   ngOnDestroy() {
     this.stopLoop();
     if (this.kickDecayInterval)
@@ -87723,6 +88020,9 @@ var StackColorsComponent = class _StackColorsComponent {
     window.removeEventListener("pointerup", this.onPointerUpBound);
     window.removeEventListener("keydown", this.onKeyDownBound);
     window.removeEventListener("keyup", this.onKeyUpBound);
+    if (this.scene) {
+      this.disposeThreeObjects(this.scene);
+    }
     if (this.renderer) {
       this.renderer.dispose();
       const dom = this.gameContainer?.nativeElement;
@@ -87775,10 +88075,12 @@ var StackColorsComponent = class _StackColorsComponent {
     this.character.position.y = 0.75;
     this.character.castShadow = true;
     this.playerGroup.add(this.character);
-    container.addEventListener("pointerdown", this.onPointerDownBound);
-    window.addEventListener("pointermove", this.onPointerMoveBound);
-    window.addEventListener("pointerup", this.onPointerUpBound);
-    window.addEventListener("resize", this.onResizeBound);
+    this.ngZone.runOutsideAngular(() => {
+      container.addEventListener("pointerdown", this.onPointerDownBound);
+      window.addEventListener("pointermove", this.onPointerMoveBound);
+      window.addEventListener("pointerup", this.onPointerUpBound);
+      window.addEventListener("resize", this.onResizeBound);
+    });
     this.ngZone.runOutsideAngular(() => {
       this.animate();
     });
@@ -92185,7 +92487,7 @@ function NavbarComponent_Conditional_15_Conditional_7_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275textInterpolate2("\u26A1 x", ctx_r0.tools.boosterMultiplier, " ", (ctx_r0.tools.game[ctx_r0.tools.lang] == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].navbar == null ? null : ctx_r0.tools.game[ctx_r0.tools.lang].navbar.booster) || "Booster", "");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r0.tools.getBoosterFormattedTime());
+    \u0275\u0275textInterpolate(ctx_r0.boosterFormattedTime);
   }
 }
 function NavbarComponent_Conditional_15_Template(rf, ctx) {
@@ -92212,20 +92514,30 @@ function NavbarComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r0.tools.game[ctx_r0.tools.lang].navbar.highScore);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r0.tools.highScore);
+    \u0275\u0275textInterpolate(ctx_r0.tools.formatBigNumber(ctx_r0.tools.highScore));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r0.tools.boosterEndTime !== 0 && ctx_r0.tools.getBoosterRemainingSeconds() > 0 ? 7 : -1);
+    \u0275\u0275conditional(ctx_r0.tools.boosterEndTime !== 0 && ctx_r0.boosterRemainingSeconds > 0 ? 7 : -1);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r0.tools.game[ctx_r0.tools.lang].navbar.actScore);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r0.tools.actScore);
+    \u0275\u0275textInterpolate(ctx_r0.tools.formatBigNumber(ctx_r0.tools.actScore));
   }
 }
 var NavbarComponent = class _NavbarComponent {
   tools = inject(ToolsService);
   timerInterval = null;
+  boosterRemainingSeconds = 0;
+  boosterFormattedTime = "00:00";
+  updateBooster() {
+    this.boosterRemainingSeconds = this.tools.getBoosterRemainingSeconds();
+    if (this.boosterRemainingSeconds > 0) {
+      this.boosterFormattedTime = this.tools.getBoosterFormattedTime();
+    }
+  }
   ngOnInit() {
+    this.updateBooster();
     this.timerInterval = setInterval(() => {
+      this.updateBooster();
     }, 1e3);
   }
   ngOnDestroy() {
@@ -92321,17 +92633,17 @@ var NavbarComponent = class _NavbarComponent {
     <div class="upper-container {{tools.themeColor}} {{tools.fontSize}}" id="upper-container">
         <div class="score-box">
             <span class="score-label">{{tools.game[tools.lang].navbar.highScore}}</span>
-            <span class="score-value">{{tools.highScore}}</span>
+            <span class="score-value">{{tools.formatBigNumber(tools.highScore)}}</span>
         </div>
         <div class="score-box">
-            @if (tools.boosterEndTime !== 0 && tools.getBoosterRemainingSeconds() > 0) {
+            @if (tools.boosterEndTime !== 0 && boosterRemainingSeconds > 0) {
                 <span class="score-label booster-nav-label">\u26A1 x{{tools.boosterMultiplier}} {{tools.game[tools.lang]?.navbar?.booster || 'Booster'}}</span>
-                <span class="score-value booster-nav-value">{{tools.getBoosterFormattedTime()}}</span>
+                <span class="score-value booster-nav-value">{{boosterFormattedTime}}</span>
             }
         </div>
         <div class="score-box">
             <span class="score-label">{{tools.game[tools.lang].navbar.actScore}}</span>
-            <span class="score-value">{{tools.actScore}}</span>
+            <span class="score-value">{{tools.formatBigNumber(tools.actScore)}}</span>
         </div>
     </div>
 }`, styles: ["/* src/app/components/navbar/navbar.component.css */\nnav {\n  width: 100%;\n  min-height: 70px;\n  padding: 0.5rem 1.5rem;\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-between;\n  font-weight: 900;\n  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);\n  z-index: 10000;\n  position: sticky;\n  top: 0;\n  left: 0;\n  backdrop-filter: blur(15px);\n  -webkit-backdrop-filter: blur(15px);\n  transition: background-color 0.3s ease, border-color 0.3s ease;\n  gap: 0.5rem;\n}\n.counters-group {\n  display: flex;\n  align-items: center;\n  gap: 0.65rem;\n  flex-wrap: wrap;\n  z-index: 10;\n}\n.text {\n  display: flex;\n  align-items: center;\n  gap: 0.4rem;\n}\n.count-badge {\n  background: rgba(0, 0, 0, 0.35);\n  padding: 0.35rem 0.85rem;\n  border-radius: 50px;\n  border: 1px solid rgba(255, 255, 255, 0.15);\n}\n.logo-coin {\n  height: 36px;\n  width: 36px;\n  cursor: default;\n  object-fit: contain;\n}\n.pts-icon {\n  filter: drop-shadow(0 0 5px rgba(255, 209, 102, 0.6));\n  cursor: default;\n}\n.badge-number {\n  font-weight: 900;\n}\n.preventive {\n  position: absolute;\n  left: 50%;\n  transform: translateX(-50%);\n  max-width: 45vw;\n  text-align: center;\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  pointer-events: none;\n  z-index: 5;\n}\n.title-text {\n  font-weight: 900;\n  letter-spacing: 0.5px;\n}\n.nav-action {\n  cursor: pointer;\n  padding: 0.4rem;\n  border-radius: 50%;\n  background: rgba(0, 0, 0, 0.15);\n  transition: background-color 0.2s ease, transform 0.2s ease;\n  flex-shrink: 0;\n  z-index: 10;\n}\n.nav-action:hover {\n  background: rgba(0, 0, 0, 0.35);\n  transform: scale(1.1);\n}\n.nav-icon {\n  height: 34px;\n  width: 34px;\n}\n.upper-container {\n  width: 100%;\n  padding: 0.75rem 2rem;\n  display: flex;\n  justify-content: space-around;\n  align-items: center;\n  font-weight: 900;\n  border-bottom: 2px solid rgba(0, 0, 0, 0.2);\n  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);\n  transition: background-color 0.3s ease;\n}\n.score-box {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.2rem;\n}\n.score-label {\n  font-size: 0.8em;\n  opacity: 0.85;\n  text-transform: uppercase;\n  letter-spacing: 1px;\n}\n.score-value {\n  font-size: 1.3em;\n  font-weight: 900;\n}\nnav.theme-dark {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(55, 45, 35) 0%,\n      rgb(35, 28, 22) 100%);\n  border-bottom: 2px solid rgb(25, 20, 15);\n}\nnav.theme-light {\n  background:\n    linear-gradient(\n      180deg,\n      rgb(240, 220, 185) 0%,\n      rgb(220, 195, 150) 100%);\n  border-bottom: 2px solid rgb(180, 150, 110);\n}\nnav.theme-contrast {\n  background-color: #000000;\n  border-bottom: 2px solid #ffffff;\n}\n.upper-container.theme-dark {\n  background: rgba(45, 38, 30, 0.9);\n  color: #ffd166;\n}\n.upper-container.theme-light {\n  background: rgba(235, 215, 175, 0.9);\n  color: #9c5c14;\n}\n.upper-container.theme-contrast {\n  background: #000000;\n  color: #ffff00;\n  border-bottom: 2px solid #ffffff;\n}\n.booster-nav-label {\n  color: #f59e0b;\n  font-weight: 900;\n  text-shadow: 0 0 8px rgba(245, 158, 11, 0.4);\n}\n.booster-nav-value {\n  color: #fbbf24;\n  font-weight: 900;\n  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);\n}\n@media (max-width: 600px) {\n  nav {\n    padding: 0.5rem 0.75rem;\n  }\n  .preventive {\n    position: static;\n    transform: none;\n    flex: 1;\n    padding: 0 0.5rem;\n    max-width: none;\n  }\n  .counters-group {\n    gap: 0.35rem;\n  }\n  .count-badge {\n    padding: 0.25rem 0.6rem;\n  }\n  .logo-coin {\n    height: 28px;\n    width: 28px;\n  }\n  .upper-container {\n    padding: 0.5rem 0.5rem;\n  }\n  .score-label {\n    font-size: 0.7em;\n  }\n  .score-value {\n    font-size: 1.1em;\n  }\n}\n/*# sourceMappingURL=navbar.component.css.map */\n"] }]

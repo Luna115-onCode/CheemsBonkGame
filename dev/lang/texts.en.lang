@@ -244,6 +244,14 @@
     "shop_dogecoin_100_desc": "You get 100 Dogecoins. The price changes everyday!",
     "shop_dogecoin_200_name": "DogeCoin x200",
     "shop_dogecoin_200_desc": "You get 200 Dogecoins. The price changes everyday!",
+    "shop_dogecoin_500_name": "DogeCoin x500",
+    "shop_dogecoin_500_desc": "You get 500 Dogecoins. The price changes everyday!",
+    "shop_dogecoin_1000_name": "DogeCoin x1000",
+    "shop_dogecoin_1000_desc": "You get 1000 Dogecoins. The price changes everyday!",
+    "shop_dogecoin_5000_name": "DogeCoin x5000",
+    "shop_dogecoin_5000_desc": "You get 5000 Dogecoins. The price changes everyday!",
+    "shop_dogecoin_10000_name": "DogeCoin x10000",
+    "shop_dogecoin_10000_desc": "You get 10000 Dogecoins. The price changes everyday!",
     "shop_boost_2x_5m_name": "Booster x2 (5 min)",
     "shop_boost_2x_5m_desc": "Double your points per click for 5 minutes.",
     "shop_boost_3x_5m_name": "Booster x3 (5 min)",
@@ -469,7 +477,10 @@
     "levelFailed": "Level Failed",
     "levelFailedDesc": "Your tools broke before reaching the bottom.",
     "tryAgain": "Try Again",
-    "sell": "SELL"
+    "sell": "SELL",
+    "buy": "Buy",
+    "buyShovel": "Buy Shovel",
+    "buyPickaxe": "Buy Pickaxe"
   },
   "doge_rescue": {
     "level": "Level ",

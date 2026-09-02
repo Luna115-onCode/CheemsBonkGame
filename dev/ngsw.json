@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1788256176295,
+  "timestamp": 1788339110662,
   "index": "/index.html",
   "assetGroups": [
     {
@@ -2331,9 +2331,9 @@
     "/img/music/when_you_smile.webp": "4cf48e868f9d70508f202847fe78f00d436de093",
     "/img/music/where_the_path_bends.webp": "e1b0bdf0bf66994f33feb03c408e6e9aece5424e",
     "/index.html": "829c609363984f8132e4017269d2921b4553743c",
-    "/lang/texts.en.lang": "a07799e835f107966ba4c37275276490f915f289",
-    "/lang/texts.es.lang": "5f92f415d8f81d76338d2d16d647f532e72b9c54",
-    "/main.js": "5ba796f09a0b0d5e70dfa548d8af731fea94b640",
+    "/lang/texts.en.lang": "79f3ab80df85fe74e7faeb344c118dec581b9876",
+    "/lang/texts.es.lang": "4577606189c7aeca67d533f67fa81788776290aa",
+    "/main.js": "7dcf0af3c94bde98b3e1931bd5afa4e30ca394c2",
     "/manifest.webmanifest": "e1bb6537aeb79eeb070ef90801d13b102e6ad58f",
     "/polyfills.js": "321b3a888edbd93081a92e1659c272f85bbaf088",
     "/sound/music/A_Jazz_Piano.ogg": "22ea48309a8d198ef2b362acabe0ef34ad476ad0",

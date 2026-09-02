@@ -244,6 +244,14 @@
     "shop_dogecoin_100_desc": "Obtienes 100 Dogecoin. ¡El precio cambia cada día!",
     "shop_dogecoin_200_name": "DogeCoin x200",
     "shop_dogecoin_200_desc": "Obtienes 200 Dogecoin. ¡El precio cambia cada día!",
+    "shop_dogecoin_500_name": "DogeCoin x500",
+    "shop_dogecoin_500_desc": "Obtienes 500 Dogecoin. ¡El precio cambia cada día!",
+    "shop_dogecoin_1000_name": "DogeCoin x1000",
+    "shop_dogecoin_1000_desc": "Obtienes 1000 Dogecoin. ¡El precio cambia cada día!",
+    "shop_dogecoin_5000_name": "DogeCoin x5000",
+    "shop_dogecoin_5000_desc": "Obtienes 5000 Dogecoin. ¡El precio cambia cada día!",
+    "shop_dogecoin_10000_name": "DogeCoin x10000",
+    "shop_dogecoin_10000_desc": "Obtienes 10000 Dogecoin. ¡El precio cambia cada día!",
     "shop_boost_2x_5m_name": "Potenciador x2 (5 min)",
     "shop_boost_2x_5m_desc": "Duplica tus puntos por clic durante 5 minutos.",
     "shop_boost_3x_5m_name": "Potenciador x3 (5 min)",
@@ -469,7 +477,10 @@
     "levelFailed": "Nivel Fallido",
     "levelFailedDesc": "Tus herramientas se rompieron antes de llegar al fondo.",
     "tryAgain": "Intentar de nuevo",
-    "sell": "VENDER"
+    "sell": "VENDER",
+    "buy": "Comprar",
+    "buyShovel": "Comprar Pala",
+    "buyPickaxe": "Comprar Pico"
   },
   "doge_rescue": {
     "level": "Nivel ",
