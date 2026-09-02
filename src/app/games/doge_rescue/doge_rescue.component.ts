@@ -272,10 +272,12 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     canvas.width = container.clientWidth;
     canvas.height = container.clientHeight;
 
-    canvas.addEventListener('pointerdown', this.onPointerDownBound);
-    canvas.addEventListener('pointermove', this.onPointerMoveBound);
-    canvas.addEventListener('pointerup', this.onPointerUpBound);
-    window.addEventListener('resize', this.onResizeBound);
+    this.ngZone.runOutsideAngular(() => {
+      canvas.addEventListener('pointerdown', this.onPointerDownBound);
+      canvas.addEventListener('pointermove', this.onPointerMoveBound);
+      canvas.addEventListener('pointerup', this.onPointerUpBound);
+      window.addEventListener('resize', this.onResizeBound);
+    });
 
 
     Matter.Events.on(this.engine, 'collisionStart', (event) => {
@@ -516,7 +518,9 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     if (dist > 15) {
       if (this.lineLength + dist <= this.maxLineLength) {
         this.currentDrawing.push({ x, y });
-        this.lineLength += dist;
+        this.ngZone.run(() => {
+          this.lineLength += dist;
+        });
       } else {
         this.onPointerUp();
       }
@@ -529,7 +533,9 @@ export class DogeRescueComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.currentDrawing.length > 2) {
       this.createPhysicalLine(this.currentDrawing);
       this.currentDrawing = [];
-      this.startAttack();
+      this.ngZone.run(() => {
+        this.startAttack();
+      });
     } else {
       this.currentDrawing = [];
     }

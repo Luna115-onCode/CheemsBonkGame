@@ -92,11 +92,13 @@ export class PaperIoComponent implements OnInit, AfterViewInit, OnDestroy {
     canvas.width = container.clientWidth || window.innerWidth;
     canvas.height = container.clientHeight || window.innerHeight;
 
-    window.addEventListener('keydown', this.onKeyDownBound, { passive: false });
-    window.addEventListener('resize', this.onResizeBound);
-    canvas.addEventListener('touchstart', this.onTouchStartBound, { passive: true });
-    canvas.addEventListener('touchmove', this.onTouchMoveBound, { passive: false });
-    canvas.addEventListener('touchend', this.onTouchEndBound, { passive: true });
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener('keydown', this.onKeyDownBound, { passive: false });
+      window.addEventListener('resize', this.onResizeBound);
+      canvas.addEventListener('touchstart', this.onTouchStartBound, { passive: true });
+      canvas.addEventListener('touchmove', this.onTouchMoveBound, { passive: false });
+      canvas.addEventListener('touchend', this.onTouchEndBound, { passive: true });
+    });
 
     await this.loadData();
   }

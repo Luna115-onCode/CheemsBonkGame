@@ -123,12 +123,13 @@ export class FlappyDunkComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ctx = canvas.getContext('2d')!;
     
     this.onResize();
-    window.addEventListener('resize', this.onResizeBound);
-    
     const host = this.elRef.nativeElement;
-    host.addEventListener('mousedown', this.onPointerDownBound);
-    host.addEventListener('touchstart', this.onPointerDownBound, { passive: false });
-    window.addEventListener('keydown', this.onKeyDownBound);
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener('resize', this.onResizeBound);
+      host.addEventListener('mousedown', this.onPointerDownBound);
+      host.addEventListener('touchstart', this.onPointerDownBound, { passive: false });
+      window.addEventListener('keydown', this.onKeyDownBound);
+    });
     
     this.ngZone.runOutsideAngular(() => {
       this.loop();

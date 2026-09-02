@@ -81,11 +81,31 @@ export class HelixJumpComponent implements OnInit, AfterViewInit, OnDestroy {
     this.init3D();
   }
 
+  private disposeThreeObjects(obj: any) {
+    if (!obj) return;
+    if (obj.geometry) obj.geometry.dispose();
+    if (obj.material) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((mat: any) => mat.dispose());
+      } else {
+        obj.material.dispose();
+      }
+    }
+    if (obj.children) {
+      obj.children.forEach((child: any) => this.disposeThreeObjects(child));
+    }
+  }
+
   ngOnDestroy(): void {
     this.stopLoop();
     this.stopTimer();
     window.removeEventListener('resize', this.onResizeBound);
     window.removeEventListener('pointerup', this.onPointerUpBound);
+    
+    if (this.scene) {
+      this.disposeThreeObjects(this.scene);
+    }
+
     if (this.renderer) {
       this.renderer.dispose();
       const dom = this.gameContainer?.nativeElement;
@@ -177,10 +197,12 @@ export class HelixJumpComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ball.castShadow = true;
     this.scene.add(this.ball);
 
-    container.addEventListener('pointerdown', this.onPointerDownBound);
-    window.addEventListener('pointermove', this.onPointerMoveBound);
-    window.addEventListener('pointerup', this.onPointerUpBound);
-    window.addEventListener('resize', this.onResizeBound);
+    this.ngZone.runOutsideAngular(() => {
+      container.addEventListener('pointerdown', this.onPointerDownBound);
+      window.addEventListener('pointermove', this.onPointerMoveBound);
+      window.addEventListener('pointerup', this.onPointerUpBound);
+      window.addEventListener('resize', this.onResizeBound);
+    });
 
     this.ngZone.runOutsideAngular(() => {
       this.animate();

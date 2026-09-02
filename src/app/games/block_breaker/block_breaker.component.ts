@@ -137,6 +137,12 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
   }
   showLevelUpModal = false;
+  actionDisabled: boolean = true;
+  draggedIndex: number | null = null;
+
+  updateActionDisabled(): void {
+    this.actionDisabled = this.gameState !== 'MERGE' || !this.grid.some(t => t !== null);
+  }
 
   private canvas!: HTMLCanvasElement;
   private ctx!: CanvasRenderingContext2D;
@@ -201,6 +207,8 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    this.gameState = 'MERGE';
+    this.updateActionDisabled();
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);
       this.animationFrameId = null;
@@ -373,10 +381,6 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     return `${buyWord} ${toolKey.charAt(0).toUpperCase() + toolKey.slice(1)}`;
   }
 
-  isActionDisabled(): boolean {
-    return this.gameState !== 'MERGE' || !this.grid.some(t => t !== null);
-  }
-
   getToolImage(item: ToolItem): string {
     const toolData = this.toolTypes[item.type][item.level - 1];
     return this.assetPath + toolData.src;
@@ -398,6 +402,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
         this.tools.playSound('sfx_1');
         this.saveGrid();
         this.saveCosts();
+        this.updateActionDisabled();
       } else {
         this.tools.showToast("Grid is full!");
         this.tools.playSound('sfx_8');
@@ -448,6 +453,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.selectedSlotIndex = null;
     this.saveGrid();
+    this.updateActionDisabled();
   }
 
   getToolPrice(item: ToolItem): number {
@@ -467,7 +473,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     if (item) {
       const price = this.getToolPrice(item);
       this.grid[index] = null;
-      this.coins += price;
+      this.updateActionDisabled();
       this.tools.playSound('sfx_4');
       this.tools.showToast(`Sold ${item.type} Lv${item.level} for +${price} 🎮`);
       this.saveGrid();
@@ -486,6 +492,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   onDragStart(e: DragEvent, index: number): void {
+    this.draggedIndex = index;
     if (e.dataTransfer) {
       e.dataTransfer.setData('text/plain', String(index));
     }
@@ -493,18 +500,17 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onDragEnd(e: DragEvent, index: number): void {
     this.isDragOver[index] = false;
+    this.draggedIndex = null;
   }
 
   onDrop(e: DragEvent, index: number): void {
     e.preventDefault();
     this.isDragOver[index] = false;
-    if (this.gameState !== 'MERGE') return;
+    if (this.gameState !== 'MERGE' || this.draggedIndex === null) return;
 
-    const fromIndexStr = e.dataTransfer?.getData('text/plain');
-    if (!fromIndexStr) return;
-    const fromIndex = parseInt(fromIndexStr, 10);
+    const fromIndex = this.draggedIndex;
     const toIndex = index;
-    if (fromIndex === toIndex || isNaN(fromIndex) || fromIndex < 0 || fromIndex >= this.grid.length) return;
+    if (fromIndex === toIndex || fromIndex < 0 || fromIndex >= this.grid.length) return;
 
     const fromObj = this.grid[fromIndex];
     const toObj = this.grid[toIndex];
@@ -523,6 +529,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.tools.playSound('sfx_1');
     this.saveGrid();
+    this.updateActionDisabled();
   }
 
   allowDrop(e: DragEvent): void {

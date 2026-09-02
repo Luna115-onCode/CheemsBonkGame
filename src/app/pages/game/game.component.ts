@@ -22,6 +22,9 @@ export class GameComponent implements OnInit, OnDestroy {
   private nextScoreId: number = 0;
   private clickTimeout: any = null;
   showStatsModal: boolean = false;
+  
+  activeStats: { value: number, unitKey: string } = { value: 0, unitKey: 'ptsPerHr' };
+  offlineStats: { value: number, unitKey: string } = { value: 0, unitKey: 'ptsPerHr' };
 
   private onKeyUpBound = this.onKeyUp.bind(this);
 
@@ -102,12 +105,10 @@ export class GameComponent implements OnInit, OnDestroy {
     return { value: ptsPerHour, unitKey: 'ptsPerHr' };
   }
 
-  get activeStats() {
-    return this.getFormattedPoints(this.pointsPerHour);
-  }
-
-  get offlineStats() {
-    return this.getFormattedPoints(this.offlinePointsPerHour);
+  updateStats(): void {
+    const pph = (3600 / Math.max(1, this.tools.idleTime)) * this.tools.idlePoints;
+    this.activeStats = this.getFormattedPoints(pph);
+    this.offlineStats = this.getFormattedPoints(pph / 4);
   }
 
   formatDuration(seconds: number): string {
@@ -131,5 +132,8 @@ export class GameComponent implements OnInit, OnDestroy {
       event.stopPropagation();
     }
     this.showStatsModal = !this.showStatsModal;
+    if (this.showStatsModal) {
+      this.updateStats();
+    }
   }
 }

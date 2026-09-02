@@ -69,6 +69,21 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
     this.init3D();
   }
 
+  private disposeThreeObjects(obj: any) {
+    if (!obj) return;
+    if (obj.geometry) obj.geometry.dispose();
+    if (obj.material) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((mat: any) => mat.dispose());
+      } else {
+        obj.material.dispose();
+      }
+    }
+    if (obj.children) {
+      obj.children.forEach((child: any) => this.disposeThreeObjects(child));
+    }
+  }
+
   ngOnDestroy(): void {
     this.stopGameLoop();
     if (this.timerInterval) {
@@ -81,6 +96,10 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
       window.removeEventListener('pointermove', this.onPointerMoveBound);
       window.removeEventListener('pointerup', this.onPointerUpBound);
       window.removeEventListener('pointercancel', this.onPointerUpBound);
+    }
+
+    if (this.scene) {
+      this.disposeThreeObjects(this.scene);
     }
 
     if (this.renderer) {
@@ -222,11 +241,13 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
     this.ring.position.y = 0.02;
     this.scene.add(this.ring);
 
-    window.addEventListener('resize', this.onResizeBound);
-    container.addEventListener('pointerdown', this.onPointerDownBound);
-    window.addEventListener('pointermove', this.onPointerMoveBound);
-    window.addEventListener('pointerup', this.onPointerUpBound);
-    window.addEventListener('pointercancel', this.onPointerUpBound);
+    this.ngZone.runOutsideAngular(() => {
+      window.addEventListener('resize', this.onResizeBound);
+      container.addEventListener('pointerdown', this.onPointerDownBound);
+      window.addEventListener('pointermove', this.onPointerMoveBound);
+      window.addEventListener('pointerup', this.onPointerUpBound);
+      window.addEventListener('pointercancel', this.onPointerUpBound);
+    });
 
     this.ngZone.runOutsideAngular(() => {
       this.animate();
@@ -643,9 +664,11 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
 
           if (item.scale.x < 0.1) {
             const itemType = item.userData['type'] as string;
-            this.collectedItems[itemType] = (this.collectedItems[itemType] || 0) + 1;
-            this.levelPoints += item.userData['points'];
-            this.gamePoints = this.levelPoints; // compat
+            this.ngZone.run(() => {
+              this.collectedItems[itemType] = (this.collectedItems[itemType] || 0) + 1;
+              this.levelPoints += item.userData['points'];
+              this.gamePoints = this.levelPoints; // compat
+            });
             
             this.scene.remove(item);
             this.items.splice(i, 1);

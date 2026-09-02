@@ -46,16 +46,16 @@
     </div>
 
     <!-- Active Booster Banner -->
-    @if (tools.getBoosterRemainingSeconds() > 0) {
+    @if (boosterRemainingSeconds > 0) {
         <div class="active-booster-banner">
             <div class="booster-banner-icon">⚡</div>
             <div class="booster-banner-content">
                 <span class="booster-banner-title">
                     {{tools.shop[tools.lang]?.activeBooster || 'Active Booster:'}}
-                    <strong>x{{tools.getActiveMultiplier()}} {{tools.shop[tools.lang]?.pointsPerClick || 'Points per Click'}}</strong>
+                    <strong>x{{activeMultiplier}} {{tools.shop[tools.lang]?.pointsPerClick || 'Points per Click'}}</strong>
                 </span>
                 <span class="booster-banner-timer">
-                    ⏳ {{tools.getBoosterFormattedTime()}} {{tools.shop[tools.lang]?.remaining || 'remaining'}}
+                    ⏳ {{boosterFormattedTime}} {{tools.shop[tools.lang]?.remaining || 'remaining'}}
                 </span>
             </div>
         </div>

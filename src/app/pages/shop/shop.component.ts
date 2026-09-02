@@ -15,6 +15,18 @@ export class ShopComponent implements OnInit, OnDestroy {
   dailyPrice: number = 100;
   showScrollTop: boolean = false;
   private timerInterval: any = null;
+  
+  boosterRemainingSeconds: number = 0;
+  activeMultiplier: number = 1;
+  boosterFormattedTime: string = '00:00';
+
+  updateBoosterStats(): void {
+    this.boosterRemainingSeconds = this.tools.getBoosterRemainingSeconds();
+    if (this.boosterRemainingSeconds > 0) {
+      this.activeMultiplier = this.tools.getActiveMultiplier();
+      this.boosterFormattedTime = this.tools.getBoosterFormattedTime();
+    }
+  }
 
   ngOnInit(): void {
     this.tools.setTitle("shop");
@@ -23,8 +35,9 @@ export class ShopComponent implements OnInit, OnDestroy {
     if (this.tools.shopItems.length === 0) {
       this.tools.loadShopItems();
     }
+    this.updateBoosterStats();
     this.timerInterval = setInterval(() => {
-      // Refresh component for live timer updates
+      this.updateBoosterStats();
     }, 1000);
   }
 

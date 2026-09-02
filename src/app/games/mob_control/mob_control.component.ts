@@ -95,10 +95,12 @@ export class MobControlComponent implements OnInit, AfterViewInit, OnDestroy {
     canvas.width = container.clientWidth || 400;
     canvas.height = container.clientHeight || 600;
 
-    canvas.addEventListener('pointerdown', this.onPointerDownBound);
-    canvas.addEventListener('pointermove', this.onPointerMoveBound);
-    window.addEventListener('pointerup', this.onPointerUpBound);
-    window.addEventListener('resize', this.onResizeBound);
+    this.ngZone.runOutsideAngular(() => {
+      canvas.addEventListener('pointerdown', this.onPointerDownBound);
+      canvas.addEventListener('pointermove', this.onPointerMoveBound);
+      window.addEventListener('pointerup', this.onPointerUpBound);
+      window.addEventListener('resize', this.onResizeBound);
+    });
 
     this.ngZone.runOutsideAngular(() => {
       this.loop();

@@ -11,9 +11,20 @@ export class NavbarComponent implements OnInit, OnDestroy {
   tools: ToolsService = inject(ToolsService);
   private timerInterval: any = null;
 
+  boosterRemainingSeconds: number = 0;
+  boosterFormattedTime: string = '00:00';
+
+  updateBooster(): void {
+    this.boosterRemainingSeconds = this.tools.getBoosterRemainingSeconds();
+    if (this.boosterRemainingSeconds > 0) {
+      this.boosterFormattedTime = this.tools.getBoosterFormattedTime();
+    }
+  }
+
   ngOnInit(): void {
+    this.updateBooster();
     this.timerInterval = setInterval(() => {
-      // Trigger change detection for live booster countdown in navbar
+      this.updateBooster();
     }, 1000);
   }
 

@@ -70,7 +70,7 @@
         </div>
 
         <button id="actionBtn"
-                [disabled]="isActionDisabled()"
+                [disabled]="actionDisabled"
                 (click)="startDigging()"
                 style="width: 420px; max-width: 100%; padding: 15px; font-size: 1.2em;">
             {{ actionBtnText }}

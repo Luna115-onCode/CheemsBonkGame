@@ -77,12 +77,32 @@ export class SpiralRollComponent implements OnInit, AfterViewInit, OnDestroy {
     window.addEventListener('keyup', this.onKeyUpBound);
   }
 
+  private disposeThreeObjects(obj: any) {
+    if (!obj) return;
+    if (obj.geometry) obj.geometry.dispose();
+    if (obj.material) {
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((mat: any) => mat.dispose());
+      } else {
+        obj.material.dispose();
+      }
+    }
+    if (obj.children) {
+      obj.children.forEach((child: any) => this.disposeThreeObjects(child));
+    }
+  }
+
   ngOnDestroy(): void {
     this.stopLoop();
     window.removeEventListener('resize', this.onResizeBound);
     window.removeEventListener('pointerup', this.onPointerUpBound);
     window.removeEventListener('keydown', this.onKeyDownBound);
     window.removeEventListener('keyup', this.onKeyUpBound);
+    
+    if (this.scene) {
+      this.disposeThreeObjects(this.scene);
+    }
+
     if (this.renderer) {
       this.renderer.dispose();
       const dom = this.gameContainer?.nativeElement;
@@ -186,9 +206,11 @@ export class SpiralRollComponent implements OnInit, AfterViewInit, OnDestroy {
     this.handle.castShadow = true;
     this.playerGroup.add(this.handle);
 
-    container.addEventListener('pointerdown', this.onPointerDownBound);
-    window.addEventListener('pointerup', this.onPointerUpBound);
-    window.addEventListener('resize', this.onResizeBound);
+    this.ngZone.runOutsideAngular(() => {
+      container.addEventListener('pointerdown', this.onPointerDownBound);
+      window.addEventListener('pointerup', this.onPointerUpBound);
+      window.addEventListener('resize', this.onResizeBound);
+    });
 
     this.ngZone.runOutsideAngular(() => {
       this.animate();
