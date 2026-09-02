@@ -34,7 +34,7 @@
     <div class="upper-container {{tools.themeColor}} {{tools.fontSize}}" id="upper-container">
         <div class="score-box">
             <span class="score-label">{{tools.game[tools.lang].navbar.highScore}}</span>
-            <span class="score-value">{{tools.highScore}}</span>
+            <span class="score-value">{{tools.formatBigNumber(tools.highScore)}}</span>
         </div>
         <div class="score-box">
             @if (tools.boosterEndTime !== 0 && tools.getBoosterRemainingSeconds() > 0) {
@@ -44,7 +44,7 @@
         </div>
         <div class="score-box">
             <span class="score-label">{{tools.game[tools.lang].navbar.actScore}}</span>
-            <span class="score-value">{{tools.actScore}}</span>
+            <span class="score-value">{{tools.formatBigNumber(tools.actScore)}}</span>
         </div>
     </div>
 }

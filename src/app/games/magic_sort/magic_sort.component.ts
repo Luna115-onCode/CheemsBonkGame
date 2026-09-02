@@ -37,6 +37,7 @@ export class MagicSortComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.tools.setTitle("magic_sort" as any);
     this.tools.actPage = "magic_sort" as any;
+    this.tools.sessionPoints = 0;
     this.startLevel(); // Set initial UI states
     this.gameState = 'START';
   }
@@ -52,7 +53,7 @@ export class MagicSortComponent implements OnInit, AfterViewInit, OnDestroy {
         this.renderer.removeChild(star.parentNode, star);
       }
     });
-    this.tools.leaveMinigame('magic_sort', this.tools.sessionPoints);
+    this.tools.leaveMinigame('magic_sort', this.tools.sessionPoints, this.level);
   }
 
   private createStars(): void {
@@ -199,6 +200,7 @@ export class MagicSortComponent implements OnInit, AfterViewInit, OnDestroy {
     if (isWon) {
       setTimeout(() => {
         this.gameState = 'WIN';
+        this.tools.playSound('sfx_4');
       }, 300);
     }
   }

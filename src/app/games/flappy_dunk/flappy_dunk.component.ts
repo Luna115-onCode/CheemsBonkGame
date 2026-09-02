@@ -57,6 +57,7 @@ export class FlappyDunkComponent implements OnInit, AfterViewInit, OnDestroy {
   tools: ToolsService = inject(ToolsService);
   private ngZone: NgZone = inject(NgZone);
   private renderer: Renderer2 = inject(Renderer2);
+  private elRef: ElementRef = inject(ElementRef);
 
   @ViewChild('gameContainer') gameContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('canvas') canvasRef!: ElementRef<HTMLCanvasElement>;
@@ -124,8 +125,9 @@ export class FlappyDunkComponent implements OnInit, AfterViewInit, OnDestroy {
     this.onResize();
     window.addEventListener('resize', this.onResizeBound);
     
-    document.addEventListener('mousedown', this.onPointerDownBound);
-    document.addEventListener('touchstart', this.onPointerDownBound, { passive: false });
+    const host = this.elRef.nativeElement;
+    host.addEventListener('mousedown', this.onPointerDownBound);
+    host.addEventListener('touchstart', this.onPointerDownBound, { passive: false });
     window.addEventListener('keydown', this.onKeyDownBound);
     
     this.ngZone.runOutsideAngular(() => {
@@ -139,8 +141,10 @@ export class FlappyDunkComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     window.removeEventListener('resize', this.onResizeBound);
     window.removeEventListener('keydown', this.onKeyDownBound);
-    document.removeEventListener('mousedown', this.onPointerDownBound);
-    document.removeEventListener('touchstart', this.onPointerDownBound);
+    
+    const host = this.elRef.nativeElement;
+    host.removeEventListener('mousedown', this.onPointerDownBound);
+    host.removeEventListener('touchstart', this.onPointerDownBound);
     
     this.tools.leaveMinigame('flappy_dunk', this.sessionPoints);
   }

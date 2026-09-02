@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as THREE from 'three';
+import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { ToolsService } from '../../services/tools.service';
 
 @Component({
@@ -56,7 +57,7 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
   private attackProjectiles: { mesh: THREE.Object3D, target: THREE.Vector3, damage: number, type: string, delay: number }[] = [];
   private activeExplosions: { particles: THREE.Points, velocities: THREE.Vector3[] }[] = [];
   itemsConfig: any[] = [];
-  private modelCache: Record<string, THREE.Group> = {};
+  private modelCache: Record<string, THREE.Mesh> = {};
 
   ngOnInit(): void {
     this.tools.setTitle("attack_hole" as any);
@@ -255,8 +256,7 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
         const geoData = geoJson['minecraft:geometry'][0];
         const texW = geoData.description.texture_width;
         const texH = geoData.description.texture_height;
-        
-        const group = new THREE.Group();
+
         texture.wrapS = THREE.RepeatWrapping;
         texture.wrapT = THREE.RepeatWrapping;
 
@@ -267,6 +267,8 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
           side: THREE.DoubleSide,
           emissive: new THREE.Color(0x222222)
         });
+        
+        const geometries: THREE.BufferGeometry[] = [];
         
         geoData.bones.forEach((bone: any) => {
           bone.cubes.forEach((cube: any) => {
@@ -306,22 +308,25 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
                 }
               }
             }
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.castShadow = true;
-            mesh.position.set((ox + cx/2) * scale, (oy + cy/2) * scale, (oz + cz/2) * scale);
-            group.add(mesh);
+            geo.translate((ox + cx/2) * scale, (oy + cy/2) * scale, (oz + cz/2) * scale);
+            geometries.push(geo);
           });
         });
         
-        this.modelCache[item.id] = group;
+        if (geometries.length > 0) {
+          const mergedGeo = BufferGeometryUtils.mergeGeometries(geometries, false);
+          const mesh = new THREE.Mesh(mergedGeo, mat);
+          mesh.castShadow = true;
+          this.modelCache[item.id] = mesh;
+        }
       }
     } catch(e) {
       console.error('Failed to load models', e);
     }
   }
 
-  private createItem(type: string): { group: THREE.Group, points: number, category: string } {
-    let itemGroup = new THREE.Group();
+  private createItem(type: string): { group: THREE.Object3D, points: number, category: string } {
+    let itemGroup: THREE.Object3D;
     let category = 'ammo';
     let points = 10;
     
@@ -332,10 +337,10 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     if (this.modelCache[type]) {
-      itemGroup.add(this.modelCache[type].clone());
+      itemGroup = this.modelCache[type].clone();
     } else {
-      const box = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshStandardMaterial({color: 0xff0000}));
-      itemGroup.add(box);
+      itemGroup = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshStandardMaterial({color: 0xff0000}));
+      itemGroup.castShadow = true;
     }
     
     return { group: itemGroup, points, category };
@@ -628,7 +633,7 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
           if (distSq < (this.holeRadius - 0.5) * (this.holeRadius - 0.5)) {
             item.userData['isFalling'] = true;
             // Disable shadows when falling
-            item.children.forEach(c => c.castShadow = false);
+            item.traverse(c => c.castShadow = false);
           }
         } else {
           item.position.y -= 0.15;
@@ -793,11 +798,38 @@ export class AttackHoleComponent implements OnInit, AfterViewInit, OnDestroy {
       return a.points - b.points;
     });
 
+    let ammoCount = itemsList.filter(i => i.category === 'ammo').length;
+    let bombCount = itemsList.length - ammoCount;
+    let ammoIdx = 0;
+    let bombIdx = 0;
+
     itemsList.forEach((item) => {
       const { group, points, category } = this.createItem(item.type);
       group.position.set((Math.random() - 0.5) * 10, 5 + (Math.random() - 0.5) * 10, 15 + Math.random() * 5);
       
-      currentDelay += category === 'bomb' ? 15 : 5;
+      let baseDelay = category === 'bomb' ? 15 : 5;
+      
+      let progress = 0;
+      if (category === 'ammo') {
+        progress = ammoIdx / Math.max(1, ammoCount - 1);
+        ammoIdx++;
+      } else {
+        progress = bombIdx / Math.max(1, bombCount - 1);
+        bombIdx++;
+      }
+      
+      // Slower acceleration curve for ammo, faster for bombs
+      let speedMultiplier = 1;
+      if (category === 'ammo') {
+        speedMultiplier = 1 + Math.pow(progress, 2) * 4;
+      } else {
+        speedMultiplier = 1 + Math.pow(progress, 3) * 14;
+      }
+      
+      let delayStep = Math.max(1, Math.floor(baseDelay / speedMultiplier));
+      
+      currentDelay += delayStep;
+      
       const delay = currentDelay;
       group.visible = false;
       

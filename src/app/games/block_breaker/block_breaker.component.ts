@@ -130,7 +130,12 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   overlayTitleText = this.tools.block_breaker[this.tools.lang]?.title || "Title";
   overlayDescText = "Description goes here";
   overlayBtnText = "Continue";
-  actionBtnText = this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
+  get actionBtnText(): string {
+    if (this.gameState === 'DIG') {
+      return this.tools.block_breaker[this.tools.lang]?.digging || "DIGGING...";
+    }
+    return this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
+  }
   showLevelUpModal = false;
 
   private canvas!: HTMLCanvasElement;
@@ -140,6 +145,8 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.tools.setTitle("block_breaker" as any);
     this.tools.actPage = "block_breaker" as any;
+    
+    this.overlayTitleText = this.tools.block_breaker[this.tools.lang]?.title || "Title";
 
     this.loadLevel();
     this.loadGrid();
@@ -359,7 +366,7 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getToolBuyLabel(toolKey: string): string {
-    const langObj = this.tools.minigames[this.tools.lang];
+    const langObj = this.tools.block_breaker[this.tools.lang];
     if (toolKey === 'shovel' && langObj?.buyShovel) return langObj.buyShovel;
     if (toolKey === 'pickaxe' && langObj?.buyPickaxe) return langObj.buyPickaxe;
     const buyWord = langObj?.buy || 'Buy';
@@ -559,7 +566,6 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.gameState = 'DIG';
     this.bedrockHit = false;
-    this.actionBtnText = this.tools.block_breaker[this.tools.lang]?.digging || "DIGGING...";
     this.activeTools = [];
 
     for (let i = 0; i < this.grid.length; i++) {
@@ -789,7 +795,6 @@ export class BlockBreakerComponent implements OnInit, OnDestroy, AfterViewInit {
     this.drawCanvasStatic();
 
     this.gameState = 'MERGE';
-    this.actionBtnText = this.tools.block_breaker[this.tools.lang]?.dropTools || "DROP TOOLS!";
   }
 
   drawCanvasStatic(): void {
