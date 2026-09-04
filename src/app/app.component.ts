@@ -64,15 +64,17 @@ export class AppComponent implements OnInit {
       const urlsToCache = new Set<string>();
 
       // Fetch your JSON files
-      const [sfxRes, musicRes, cheemsRes] = await Promise.all([
-        fetch('/items/sound_effects.json'),
-        fetch('/items/music.json'),
-        fetch('/items/cheems.json')
+      const [sfxRes, musicRes, cheemsRes, bgRes] = await Promise.all([
+        fetch('/items/sound_effects.json').catch(() => null),
+        fetch('/items/music.json').catch(() => null),
+        fetch('/items/cheems.json').catch(() => null),
+        fetch('/items/backgrounds.json').catch(() => null)
       ]);
 
-      const sfxData = await sfxRes.json();
-      const musicData = await musicRes.json();
-      const cheemsData = await cheemsRes.json();
+      const sfxData = sfxRes ? await sfxRes.json() : [];
+      const musicData = musicRes ? await musicRes.json() : [];
+      const cheemsData = cheemsRes ? await cheemsRes.json() : [];
+      const bgData = bgRes ? await bgRes.json() : [];
 
       // Parse SFX
       sfxData.forEach((sfx: any) => {
@@ -90,6 +92,11 @@ export class AppComponent implements OnInit {
       cheemsData.forEach((cheems: any) => {
         if (cheems.img) urlsToCache.add(`/img/cheems/${cheems.img}`);
         if (cheems.hitImg) urlsToCache.add(`/img/cheems/${cheems.hitImg}`);
+      });
+
+      // Parse Backgrounds
+      bgData.forEach((bg: any) => {
+        if (bg.img) urlsToCache.add(`/img/background/${bg.img}`);
       });
 
       console.log(`Found ${urlsToCache.size} unique assets to cache.`);

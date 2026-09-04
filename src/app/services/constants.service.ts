@@ -67,6 +67,19 @@ export interface SoundEffectItem {
   description?: string;
 }
 
+export interface BackgroundItem {
+  id: string;
+  nameKey?: string;
+  nameEs?: string;
+  nameEn?: string;
+  img?: string;
+  imgUrl?: string;
+  cost?: number;
+  default?: boolean;
+  storageKey: string;
+  description?: string;
+}
+
 export interface MusicTrackItem {
   id: string | number;
   nameKey?: string;
@@ -253,6 +266,7 @@ export const closetText = {
   cheemsSection: "",
   soundsSection: "",
   musicSection: "",
+  backgroundsSection: "",
   selected: "",
   equipped: "",
   purchased: "",
@@ -341,9 +355,11 @@ export const SOUND_EFFECTS: Array<SoundEffectItem> = [];
 
 export const MUSIC_TRACKS: Array<MusicTrackItem> = [];
 
+export const BACKGROUNDS: Array<BackgroundItem> = [];
+
 export interface ShopItem {
   id: string;
-  type: 'dogecoin' | 'currency' | 'minigame' | 'booster' | 'cheems' | 'sound' | 'music' | 'upgrade';
+  type: 'dogecoin' | 'currency' | 'minigame' | 'booster' | 'cheems' | 'sound' | 'music' | 'background' | 'upgrade';
   targetId?: string | number;
   nameKey?: string;
   nameEs?: string;

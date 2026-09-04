@@ -115,6 +115,7 @@
     "cheemsSection": "Cheems (Skins)",
     "soundsSection": "Sonidos de golpe",
     "musicSection": "Música de fondo",
+    "backgroundsSection": "Fondos",
     "selected": "Seleccionado",
     "equipped": "Equipado",
     "purchased": "Comprado",
@@ -415,7 +416,11 @@
     "music_28": "The Unwritten Page",
     "music_28_desc": "Nueva pista de música: The Unwritten Page",
     "music_29": "Where The Path Bends",
-    "music_29_desc": "Nueva pista de música: Where The Path Bends"
+    "music_29_desc": "Nueva pista de música: Where The Path Bends",
+    "minecraft_copper_age": "Minecraft Copper Age",
+    "minecraft_copper_age_desc": "Fondo de Minecraft: Minecraft Copper Age",
+    "bg_none": "Ninguno",
+    "bg_none_desc": "Sin fondo"
   },
   "gallery": {
     "title": "Galería",

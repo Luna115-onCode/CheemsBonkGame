@@ -1,0 +1,16 @@
+[
+    {
+        "id": "bg_none",
+        "nameKey": "bg_none",
+        "default": true,
+        "storageKey": "bg_1",
+        "description": "bg_none_desc"
+    },
+    {
+        "id": "minecraft_copper_age",
+        "nameKey": "minecraft_copper_age",
+        "img": "minecraft_copper_age.jpg",
+        "storageKey": "bg_2",
+        "description": "minecraft_copper_age_desc"
+    }
+]

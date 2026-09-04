@@ -19,9 +19,11 @@ import {
   CHEEMS_SKINS,
   SOUND_EFFECTS,
   MUSIC_TRACKS,
+  BACKGROUNDS,
   CheemsSkinItem,
   SoundEffectItem,
   MusicTrackItem,
+  BackgroundItem,
   createLangMap,
   AVAILABLE_LANGUAGES,
   LanguageItem,
@@ -54,6 +56,7 @@ export class ToolsService {
   selectedCheems: string = "cheems_normal";
   selectedSound: string = "sfx_1";
   selectedMusic: string = "music_1";
+  selectedBackground: string = "bg_none";
 
   actScore: number = 0;
   points: number = 0;
@@ -81,6 +84,7 @@ export class ToolsService {
   unlockedCheems: Record<string, boolean> = {};
   unlockedSounds: Record<string, boolean> = {};
   unlockedMusic: Record<string, boolean> = {};
+  unlockedBackgrounds: Record<string, boolean> = {};
   unlockedMinigames: Record<string, boolean> = {};
 
   game: any = createLangMap(gameText);
@@ -142,6 +146,7 @@ export class ToolsService {
   cheemsSkins: Array<CheemsSkinItem> = CHEEMS_SKINS;
   soundEffects: Array<SoundEffectItem> = SOUND_EFFECTS;
   musicTracks: Array<MusicTrackItem> = MUSIC_TRACKS;
+  backgrounds: Array<BackgroundItem> = BACKGROUNDS;
 
   private musicAudio: HTMLAudioElement = new Audio();
 
@@ -356,16 +361,18 @@ export class ToolsService {
 
   async loadClosetPrices(): Promise<void> {
     try {
-      const [cheemsRes, soundsRes, musicRes, closetRes] = await Promise.all([
+      const [cheemsRes, soundsRes, musicRes, bgRes, closetRes] = await Promise.all([
         this.safeFetch('data/cheems.json').catch(() => null),
         this.safeFetch('data/sound_effects.json').catch(() => null),
         this.safeFetch('data/music.json').catch(() => null),
+        this.safeFetch('data/backgrounds.json').catch(() => null),
         this.safeFetch('data/closet.json').catch(() => null)
       ]);
 
       const cheemsCatalog: Array<CheemsSkinItem> = cheemsRes && cheemsRes.ok ? await cheemsRes.json() : [];
       const soundsCatalog: Array<SoundEffectItem> = soundsRes && soundsRes.ok ? await soundsRes.json() : [];
       const musicCatalog: Array<MusicTrackItem> = musicRes && musicRes.ok ? await musicRes.json() : [];
+      const bgCatalog: Array<BackgroundItem> = bgRes && bgRes.ok ? await bgRes.json() : [];
 
       let closetData: any = null;
       if (closetRes && closetRes.ok) {
@@ -376,10 +383,12 @@ export class ToolsService {
         this.cheemsSkins = this.buildItemsList<CheemsSkinItem>(closetData.cheems, cheemsCatalog);
         this.soundEffects = this.buildItemsList<SoundEffectItem>(closetData.sounds, soundsCatalog);
         this.musicTracks = this.buildItemsList<MusicTrackItem>(closetData.music, musicCatalog);
+        this.backgrounds = this.buildItemsList<BackgroundItem>(closetData.backgrounds, bgCatalog);
       } else {
         this.cheemsSkins = [...cheemsCatalog];
         this.soundEffects = [...soundsCatalog];
         this.musicTracks = [...musicCatalog];
+        this.backgrounds = [...bgCatalog];
       }
 
       this.loadUnlocks();
@@ -872,6 +881,30 @@ export class ToolsService {
     this.showToast(this.closet[this.lang].itemSelected);
   }
 
+  isBackgroundUnlocked(id: string): boolean {
+    if (id === 'bg_none') return true;
+    const item = this.backgrounds.find(b => b.id === id);
+    if (!item) return false;
+    return !!this.unlockedBackgrounds[item.storageKey];
+  }
+
+  buyOrSelectBackground(bg: BackgroundItem): boolean {
+    if (this.isBackgroundUnlocked(bg.id)) {
+      this.selectBackground(bg);
+      return true;
+    } else {
+      this.showToast(this.closet[this.lang]?.buyInShop || "Buy this item in the Shop!");
+      this.playSound('sfx_8');
+      return false;
+    }
+  }
+
+  selectBackground(bg: BackgroundItem): void {
+    this.selectedBackground = bg.id;
+    this.saveData("selected_bg", bg.id);
+    this.showToast(this.closet[this.lang].itemSelected || "Selected!");
+  }
+
   unlockAll(): void {
     this.actScore = 999999;
     this.points = 999999;
@@ -898,6 +931,10 @@ export class ToolsService {
       this.unlockedMusic[s.storageKey] = true;
     });
     this.saveUnlockedMusic();
+    this.backgrounds.forEach(s => {
+      this.unlockedBackgrounds[s.storageKey] = true;
+    });
+    this.saveUnlockedBackgrounds();
     
     this.saveData("points", String(this.points));
     this.saveData("total_score", String(this.totalScore));
@@ -932,6 +969,7 @@ export class ToolsService {
     this.unlockedCheems = {};
     this.unlockedSounds = {};
     this.unlockedMusic = {};
+    this.unlockedBackgrounds = {};
     this.cheemsSkins.forEach(s => {
       const isDef = !s.default;
       this.unlockedCheems[s.storageKey] = !isDef;
@@ -975,6 +1013,7 @@ export class ToolsService {
     this.saveData("selected_cheems", "cheems_normal");
     this.saveData("selected_sfx", "sfx_1");
     this.saveData("selected_music", "music_1");
+    this.saveData("selected_bg", "bg_none");
     this.saveData("music_volume", "50");
     this.saveData("sfx_volume", "100");
     this.saveData("app_theme", "1");
@@ -997,6 +1036,7 @@ export class ToolsService {
     this.loadCheems();
     this.loadSounds();
     this.loadMusic();
+    this.loadBackgrounds();
     this.loadScore();
     this.loadUnlocks();
     this.loadShopItems().then(() => {
@@ -1038,6 +1078,11 @@ export class ToolsService {
     const savedMusic = this.loadData("selected_music");
     this.selectedMusic = savedMusic ? savedMusic.replace(/"/g, '') : "music_1";
     this.playMusic(this.selectedMusic);
+  }
+
+  loadBackgrounds(): void {
+    const savedBg = this.loadData("selected_bg");
+    this.selectedBackground = savedBg ? savedBg.replace(/"/g, '') : "bg_none";
   }
 
   loadScore(): void {
@@ -1091,6 +1136,11 @@ export class ToolsService {
     this.musicTracks.forEach(s => {
       this.unlockedMusic[s.storageKey] = s.default || s.cost === 0 || unlockedMsc.includes(String(s.id));
     });
+
+    const unlockedBgs = this.parseArrayString(this.loadData("unlocked_backgrounds") || "");
+    this.backgrounds.forEach(s => {
+      this.unlockedBackgrounds[s.storageKey] = s.default || unlockedBgs.includes(s.id);
+    });
   }
 
   saveUnlockedMinigames(): void {
@@ -1111,6 +1161,11 @@ export class ToolsService {
   saveUnlockedMusic(): void {
     const list = this.musicTracks.filter(s => this.unlockedMusic[s.storageKey] && !s.default && s.cost !== 0).map(s => String(s.id));
     this.saveData("unlocked_music", this.stringifyArray(list));
+  }
+
+  saveUnlockedBackgrounds(): void {
+    const list = this.backgrounds.filter(s => this.unlockedBackgrounds[s.storageKey] && !s.default).map(s => s.id);
+    this.saveData("unlocked_backgrounds", this.stringifyArray(list));
   }
 
   loadRedeemedCodes(): void {
@@ -1329,6 +1384,10 @@ export class ToolsService {
       const target = String(item.targetId !== undefined ? item.targetId : item.id);
       return this.isMusicUnlocked(target);
     }
+    if (item.type === 'background') {
+      const target = String(item.targetId !== undefined ? item.targetId : item.id);
+      return this.isBackgroundUnlocked(target);
+    }
     if (item.oneTimePurchase) {
       return this.getLifetimePurchaseCount(item.id) >= 1;
     }
@@ -1336,7 +1395,7 @@ export class ToolsService {
   }
 
   appendUnlockableShopItems(): void {
-    if (!this.cheemsSkins.length && !this.soundEffects.length && !this.musicTracks.length) {
+    if (!this.cheemsSkins.length && !this.soundEffects.length && !this.musicTracks.length && !this.backgrounds.length) {
       return;
     }
 
@@ -1384,6 +1443,21 @@ export class ToolsService {
         });
       }
     });
+
+    this.backgrounds.forEach(bg => {
+      if (!bg.default && bg.id !== 'bg_none' && !this.shopItems.some(i => i.id === bg.id)) {
+        this.shopItems.push({
+          id: bg.id,
+          type: 'background',
+          targetId: bg.id,
+          nameKey: bg.nameKey,
+          cost: 0,
+          costCoins: bg.cost,
+          icon: this.getBackgroundImg(bg.id),
+          oneTimePurchase: true
+        });
+      }
+    });
   }
 
   buyShopUnlockableItem(item: ShopItem): boolean {
@@ -1419,6 +1493,13 @@ export class ToolsService {
         if (track) {
           this.unlockedMusic[track.storageKey] = true;
           this.saveUnlockedMusic();
+        }
+      } else if (item.type === 'background') {
+        const targetId = String(item.targetId !== undefined ? item.targetId : item.id);
+        const bg = this.backgrounds.find(b => b.id === targetId);
+        if (bg) {
+          this.unlockedBackgrounds[bg.storageKey] = true;
+          this.saveUnlockedBackgrounds();
         }
       }
 
@@ -1513,6 +1594,13 @@ export class ToolsService {
     return "img/hit/" + (skin?.hitImg || skin?.img || fallbackId + ".webp");
   }
 
+  getBackgroundImg(id: string): string {
+    const bg = this.backgrounds.find(b => b.id === id);
+    if (bg?.imgUrl) return bg.imgUrl;
+    const fallbackId = id.replace('bg_', '');
+    return "img/background/" + (bg?.img || fallbackId + ".jpg");
+  }
+
   getShopItemName(item: ShopItem): string {
     if (item.nameKey && this.shopItemsText[this.lang]?.[item.nameKey]) {
       return this.shopItemsText[this.lang][item.nameKey];
@@ -1540,6 +1628,20 @@ export class ToolsService {
   getCheemsDescription(skin: CheemsSkinItem): string {
     if (skin.description && this.itemsText[this.lang]?.[skin.description]) {
       return this.itemsText[this.lang][skin.description];
+    }
+    return '';
+  }
+
+  getBackgroundName(bg: BackgroundItem): string {
+    if (bg.nameKey && this.itemsText[this.lang]?.[bg.nameKey]) {
+      return this.itemsText[this.lang][bg.nameKey];
+    }
+    return this.lang === 'es' ? (bg.nameEs || bg.nameEn || bg.id) : (bg.nameEn || bg.nameEs || bg.id);
+  }
+
+  getBackgroundDescription(bg: BackgroundItem): string {
+    if (bg.description && this.itemsText[this.lang]?.[bg.description]) {
+      return this.itemsText[this.lang][bg.description];
     }
     return '';
   }

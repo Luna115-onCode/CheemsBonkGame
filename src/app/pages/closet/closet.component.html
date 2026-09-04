@@ -16,6 +16,11 @@
                 (click)="setTab('music')">
             {{tools.closet[tools.lang].musicSection}}
         </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}"
+                [class.active]="activeTab === 'backgrounds'"
+                (click)="setTab('backgrounds')">
+            {{tools.closet[tools.lang].backgroundsSection || 'Backgrounds'}}
+        </button>
     </div>
 
     @if (activeTab === 'cheems') {
@@ -85,6 +90,32 @@
                             <span class="item-desc">{{tools.getMusicDescription(track)}}</span>
                         }
                         @if (tools.selectedMusic === track.id) {
+                            <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
+                        } @else {
+                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (activeTab === 'backgrounds') {
+        <div class="shop-grid">
+            @for (bg of unlockedBackgrounds; track $index) {
+                <div class="shop-card {{tools.themeColor}}"
+                     [class.selected-cheems]="tools.selectedBackground === bg.id"
+                     (click)="onSelectBackground(bg)">
+                    <img [src]="tools.getBackgroundImg(bg.id)"
+                         class="item-img"
+                         style="border-radius: 8px; object-fit: cover;"
+                         [alt]="bg.id">
+                    <div class="item-info">
+                        <span class="item-name">{{tools.getBackgroundName(bg)}}</span>
+                        @if (tools.getBackgroundDescription(bg)) {
+                            <span class="item-desc">{{tools.getBackgroundDescription(bg)}}</span>
+                        }
+                        @if (tools.selectedBackground === bg.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else {
                             <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>

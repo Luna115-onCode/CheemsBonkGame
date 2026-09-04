@@ -43,6 +43,11 @@
                 {{tools.shop[tools.lang]?.musicSection || 'Background Music'}}
             </button>
         }
+        @if (backgroundItems.length > 0) {
+            <button class="shop-nav-btn nav-background" (click)="scrollToSection('sec-background')">
+                {{tools.shop[tools.lang]?.backgroundSection || 'Backgrounds'}}
+            </button>
+        }
     </div>
 
     <!-- Active Booster Banner -->
@@ -88,6 +93,7 @@
              [class.cheems-card]="item.type === 'cheems'"
              [class.sound-card]="item.type === 'sound'"
              [class.music-card]="item.type === 'music'"
+             [class.background-card]="item.type === 'background'"
              [class.minigames-card]="item.type === 'minigame'"
              [class.currency-dgc-to-mg-card]="item.id === 'curr_dgc_to_mg'"
              [class.currency-mg-to-dgc-card]="item.id === 'curr_mg_to_dgc'">
@@ -230,6 +236,18 @@
         </div>
         <div class="shop-grid">
             @for (item of musicItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Backgrounds Section -->
+    @if (backgroundItems.length > 0) {
+        <div class="section-separator" id="sec-background">
+            <h2 class="section-title background-title">{{tools.shop[tools.lang]?.backgroundSection || 'Backgrounds'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of backgroundItems; track item.id) {
                 <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
             }
         </div>

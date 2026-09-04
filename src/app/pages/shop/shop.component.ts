@@ -135,7 +135,7 @@ export class ShopComponent implements OnInit, OnDestroy {
           this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough DogeCoins!");
         }
       }
-    } else if (item.type === 'cheems' || item.type === 'sound' || item.type === 'music') {
+    } else if (item.type === 'cheems' || item.type === 'sound' || item.type === 'music' || item.type === 'background') {
       this.tools.buyShopUnlockableItem(item);
     }
   }
@@ -226,6 +226,10 @@ export class ShopComponent implements OnInit, OnDestroy {
     return this.tools.shopItems.filter(i => i.type === 'music');
   }
 
+  get backgroundItems(): ShopItem[] {
+    return this.tools.shopItems.filter(i => i.type === 'background');
+  }
+
   scrollToSection(sectionId: string): void {
     const el = document.getElementById(sectionId);
     if (el) {
@@ -253,6 +257,9 @@ export class ShopComponent implements OnInit, OnDestroy {
     }
     if (item.type === 'music') {
       return 'img/icons/black-music-svgrepo-com.svg';
+    }
+    if (item.type === 'background') {
+      return 'img/icons/picture-svgrepo-com.svg';
     }
     return item.icon;
   }

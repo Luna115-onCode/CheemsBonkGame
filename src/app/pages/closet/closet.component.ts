@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ToolsService } from '../../services/tools.service';
-import { CheemsSkinItem, SoundEffectItem, MusicTrackItem } from '../../services/constants.service';
+import { CheemsSkinItem, SoundEffectItem, MusicTrackItem, BackgroundItem } from '../../services/constants.service';
 
 @Component({
   selector: 'app-closet',
@@ -10,14 +10,14 @@ import { CheemsSkinItem, SoundEffectItem, MusicTrackItem } from '../../services/
 })
 export class ClosetComponent implements OnInit {
   tools: ToolsService = inject(ToolsService);
-  activeTab: 'cheems' | 'sounds' | 'music' = 'cheems';
+  activeTab: 'cheems' | 'sounds' | 'music' | 'backgrounds' = 'cheems';
 
   ngOnInit(): void {
     this.tools.setTitle("closet");
     this.tools.actPage = "closet";
   }
 
-  setTab(tab: 'cheems' | 'sounds' | 'music'): void {
+  setTab(tab: 'cheems' | 'sounds' | 'music' | 'backgrounds'): void {
     this.activeTab = tab;
   }
 
@@ -43,5 +43,13 @@ export class ClosetComponent implements OnInit {
 
   onSelectMusic(track: MusicTrackItem): void {
     this.tools.buyOrSelectMusic(track);
+  }
+
+  get unlockedBackgrounds(): BackgroundItem[] {
+    return this.tools.backgrounds.filter(bg => this.tools.isBackgroundUnlocked(bg.id));
+  }
+
+  onSelectBackground(bg: BackgroundItem): void {
+    this.tools.buyOrSelectBackground(bg);
   }
 }

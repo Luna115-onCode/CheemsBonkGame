@@ -12,6 +12,11 @@ import { ToolsService } from '../../services/tools.service';
 export class BackgroundComponent {
   tools = inject(ToolsService);
   
-  bgType: 'color' | 'image' = 'image';
-  bgImageUrl = 'img/background/test-bg.jpg';
+  get bgType(): 'color' | 'image' {
+    return this.tools.selectedBackground === 'bg_none' ? 'color' : 'image';
+  }
+
+  get bgImageUrl(): string {
+    return this.tools.getBackgroundImg(this.tools.selectedBackground);
+  }
 }

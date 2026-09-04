@@ -1098,5 +1098,18 @@
     "costMinigames": 0,
     "icon": "img/icons/music-svgrepo-com.svg",
     "oneTimePurchase": true
+  },
+  {
+    "_comment": "--- Backgrounds ---"
+  },
+  {
+    "id": "minecraft_copper_age",
+    "type": "background",
+    "nameKey": "minecraft_copper_age",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.svg",
+    "oneTimePurchase": true
   }
 ]
