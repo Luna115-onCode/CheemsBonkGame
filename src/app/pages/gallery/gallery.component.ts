@@ -13,7 +13,7 @@ import { CheemsSkinItem, MusicTrackItem, SoundEffectItem } from '../../services/
 export class GalleryComponent implements OnInit, OnDestroy {
   @ViewChild('audioPlayer') audioPlayer!: ElementRef<HTMLAudioElement>;
 
-  activeSection: 'skins' | 'sfx' | 'music' = 'skins';
+  activeSection: 'skins' | 'sfx' | 'music' | 'backgrounds' = 'skins';
   currentIndex: number = 0;
 
   isPlaying: boolean = false;
@@ -46,7 +46,11 @@ export class GalleryComponent implements OnInit, OnDestroy {
     return this.tools.musicTracks.filter(track => (track.default || this.tools.unlockedMusic[track.storageKey]) && track.id !== 'music_0');
   }
 
-  openSection(section: 'skins' | 'sfx' | 'music'): void {
+  get unlockedBackgrounds(): any[] {
+    return this.tools.backgrounds.filter(bg => (bg.default || this.tools.unlockedBackgrounds[bg.storageKey]) && bg.id !== 'bg_none');
+  }
+
+  openSection(section: 'skins' | 'sfx' | 'music' | 'backgrounds'): void {
     this.activeSection = section;
     this.currentIndex = 0;
     
@@ -86,6 +90,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
     if (this.activeSection === 'skins') listLength = this.unlockedCheemsSkins.length;
     if (this.activeSection === 'sfx') listLength = this.unlockedSoundEffects.length;
     if (this.activeSection === 'music') listLength = this.unlockedMusicTracks.length;
+    if (this.activeSection === 'backgrounds') listLength = this.unlockedBackgrounds.length;
 
     if (listLength > 0) {
       this.currentIndex = (this.currentIndex + 1) % listLength;
@@ -98,6 +103,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
     if (this.activeSection === 'skins') listLength = this.unlockedCheemsSkins.length;
     if (this.activeSection === 'sfx') listLength = this.unlockedSoundEffects.length;
     if (this.activeSection === 'music') listLength = this.unlockedMusicTracks.length;
+    if (this.activeSection === 'backgrounds') listLength = this.unlockedBackgrounds.length;
 
     if (listLength > 0) {
       this.currentIndex = (this.currentIndex - 1 + listLength) % listLength;
@@ -124,7 +130,7 @@ export class GalleryComponent implements OnInit, OnDestroy {
   get currentAudioSrc(): string {
     if (this.activeSection === 'sfx' && this.unlockedSoundEffects.length > 0) {
       const sfx = this.unlockedSoundEffects[this.currentIndex];
-      return sfx.basePath + (sfx.file || (sfx.files ? sfx.files[0] : ''));
+      return (sfx.basePath || 'sound/') + (sfx.file || (sfx.files ? sfx.files[0] : 'hit.ogg'));
     } else if (this.activeSection === 'music' && this.unlockedMusicTracks.length > 0) {
       const music = this.unlockedMusicTracks[this.currentIndex];
       return music.basePath + music.file;

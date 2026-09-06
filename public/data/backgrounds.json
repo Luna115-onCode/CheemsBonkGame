@@ -9,8 +9,218 @@
     {
         "id": "minecraft_copper_age",
         "nameKey": "minecraft_copper_age",
-        "img": "minecraft_copper_age.jpg",
+        "img": "minecraft_copper_age.webp",
         "storageKey": "bg_2",
         "description": "minecraft_copper_age_desc"
+    },
+    {
+        "id": "1307640",
+        "nameKey": "1307640",
+        "img": "1307640.webp",
+        "storageKey": "bg_3",
+        "description": "1307640_desc"
+    },
+    {
+        "id": "1326045",
+        "nameKey": "1326045",
+        "img": "1326045.webp",
+        "storageKey": "bg_4",
+        "description": "1326045_desc"
+    },
+    {
+        "id": "1326343",
+        "nameKey": "1326343",
+        "img": "1326343.webp",
+        "storageKey": "bg_5",
+        "description": "1326343_desc"
+    },
+    {
+        "id": "1371356",
+        "nameKey": "1371356",
+        "img": "1371356.webp",
+        "storageKey": "bg_6",
+        "description": "1371356_desc"
+    },
+    {
+        "id": "192100",
+        "nameKey": "192100",
+        "img": "192100.webp",
+        "storageKey": "bg_7",
+        "description": "192100_desc"
+    },
+    {
+        "id": "40949",
+        "nameKey": "40949",
+        "img": "40949.webp",
+        "storageKey": "bg_8",
+        "description": "40949_desc"
+    },
+    {
+        "id": "511695",
+        "nameKey": "511695",
+        "img": "511695.webp",
+        "storageKey": "bg_9",
+        "description": "511695_desc"
+    },
+    {
+        "id": "MCV_HOL25Drop_MoM_DotNet_Wallpaper_1920x1080",
+        "nameKey": "MCV_HOL25Drop_MoM_DotNet_Wallpaper_1920x1080",
+        "img": "MCV_HOL25Drop_MoM_DotNet_Wallpaper_1920x1080.webp",
+        "storageKey": "bg_10",
+        "description": "MCV_HOL25Drop_MoM_DotNet_Wallpaper_1920x1080_desc"
+    },
+    {
+        "id": "MCV_SpringDrop_DotNet_Downloadable_Wallpaper_1920x1080",
+        "nameKey": "MCV_SpringDrop_DotNet_Downloadable_Wallpaper_1920x1080",
+        "img": "MCV_SpringDrop_DotNet_Downloadable_Wallpaper_1920x1080.webp",
+        "storageKey": "bg_11",
+        "description": "MCV_SpringDrop_DotNet_Downloadable_Wallpaper_1920x1080_desc"
+    },
+    {
+        "id": "MCV_SummerDropKeyArt_NetDownloadableWallpaper_1920x1080",
+        "nameKey": "MCV_SummerDropKeyArt_NetDownloadableWallpaper_1920x1080",
+        "img": "MCV_SummerDropKeyArt_NetDownloadableWallpaper_1920x1080.webp",
+        "storageKey": "bg_12",
+        "description": "MCV_SummerDropKeyArt_NetDownloadableWallpaper_1920x1080_desc"
+    },
+    {
+        "id": "MCV_SummerDrop_Hero_DotNet_Downloadable_Wallpaper_r1920x1080",
+        "nameKey": "MCV_SummerDrop_Hero_DotNet_Downloadable_Wallpaper_r1920x1080",
+        "img": "MCV_SummerDrop_Hero_DotNet_Downloadable_Wallpaper_r1920x1080.webp",
+        "storageKey": "bg_13",
+        "description": "MCV_SummerDrop_Hero_DotNet_Downloadable_Wallpaper_r1920x1080_desc"
+    },
+    {
+        "id": "mc_wallpaper_movie_portal",
+        "nameKey": "mc_wallpaper_movie_portal",
+        "img": "mc_wallpaper_movie_portal.webp",
+        "storageKey": "bg_14",
+        "description": "mc_wallpaper_movie_portal_desc"
+    },
+    {
+        "id": "mc_wallpaper_movie_vista_1920x1080",
+        "nameKey": "mc_wallpaper_movie_vista_1920x1080",
+        "img": "mc_wallpaper_movie_vista_1920x1080.webp",
+        "storageKey": "bg_15",
+        "description": "mc_wallpaper_movie_vista_1920x1080_desc"
+    },
+    {
+        "id": "Minecraft_TheGardenAwakens_DotNet_1920x1080",
+        "nameKey": "Minecraft_TheGardenAwakens_DotNet_1920x1080",
+        "img": "Minecraft_TheGardenAwakens_DotNet_1920x1080.webp",
+        "storageKey": "bg_16",
+        "description": "Minecraft_TheGardenAwakens_DotNet_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_adventure_1920x1080",
+        "nameKey": "wallpaper_minecraft_adventure_1920x1080",
+        "img": "wallpaper_minecraft_adventure_1920x1080.webp",
+        "storageKey": "bg_17",
+        "description": "wallpaper_minecraft_adventure_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_bedrock_edition_1920x1080",
+        "nameKey": "wallpaper_minecraft_bedrock_edition_1920x1080",
+        "img": "wallpaper_minecraft_bedrock_edition_1920x1080.webp",
+        "storageKey": "bg_18",
+        "description": "wallpaper_minecraft_bedrock_edition_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_buzzybees_1920x1080",
+        "nameKey": "wallpaper_minecraft_buzzybees_1920x1080",
+        "img": "wallpaper_minecraft_buzzybees_1920x1080.webp",
+        "storageKey": "bg_19",
+        "description": "wallpaper_minecraft_buzzybees_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_caves_cliffs(part1)_1920x1080",
+        "nameKey": "wallpaper_minecraft_caves_cliffs(part1)_1920x1080",
+        "img": "wallpaper_minecraft_caves_cliffs(part1)_1920x1080.webp",
+        "storageKey": "bg_20",
+        "description": "wallpaper_minecraft_caves_cliffs(part1)_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_caves_cliffs(part2)_1920x1080",
+        "nameKey": "wallpaper_minecraft_caves_cliffs(part2)_1920x1080",
+        "img": "wallpaper_minecraft_caves_cliffs(part2)_1920x1080.webp",
+        "storageKey": "bg_21",
+        "description": "wallpaper_minecraft_caves_cliffs(part2)_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_island_1920x1080",
+        "nameKey": "wallpaper_minecraft_island_1920x1080",
+        "img": "wallpaper_minecraft_island_1920x1080.webp",
+        "storageKey": "bg_22",
+        "description": "wallpaper_minecraft_island_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_java_edition_1920x1080",
+        "nameKey": "wallpaper_minecraft_java_edition_1920x1080",
+        "img": "wallpaper_minecraft_java_edition_1920x1080.webp",
+        "storageKey": "bg_23",
+        "description": "wallpaper_minecraft_java_edition_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_mangroves_1920x1080",
+        "nameKey": "wallpaper_minecraft_mangroves_1920x1080",
+        "img": "wallpaper_minecraft_mangroves_1920x1080.webp",
+        "storageKey": "bg_24",
+        "description": "wallpaper_minecraft_mangroves_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_nether_update_1920x1080",
+        "nameKey": "wallpaper_minecraft_nether_update_1920x1080",
+        "img": "wallpaper_minecraft_nether_update_1920x1080.webp",
+        "storageKey": "bg_25",
+        "description": "wallpaper_minecraft_nether_update_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_pc_bundle_1920x1080",
+        "nameKey": "wallpaper_minecraft_pc_bundle_1920x1080",
+        "img": "wallpaper_minecraft_pc_bundle_1920x1080.webp",
+        "storageKey": "bg_26",
+        "description": "wallpaper_minecraft_pc_bundle_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_trickytrials_1920x1080",
+        "nameKey": "wallpaper_minecraft_trickytrials_1920x1080",
+        "img": "wallpaper_minecraft_trickytrials_1920x1080.webp",
+        "storageKey": "bg_27",
+        "description": "wallpaper_minecraft_trickytrials_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_update_aquatic_1920x1080",
+        "nameKey": "wallpaper_minecraft_update_aquatic_1920x1080",
+        "img": "wallpaper_minecraft_update_aquatic_1920x1080.webp",
+        "storageKey": "bg_28",
+        "description": "wallpaper_minecraft_update_aquatic_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_village_pillage_1920x1080",
+        "nameKey": "wallpaper_minecraft_village_pillage_1920x1080",
+        "img": "wallpaper_minecraft_village_pillage_1920x1080.webp",
+        "storageKey": "bg_29",
+        "description": "wallpaper_minecraft_village_pillage_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_warden_1920x1080",
+        "nameKey": "wallpaper_minecraft_warden_1920x1080",
+        "img": "wallpaper_minecraft_warden_1920x1080.webp",
+        "storageKey": "bg_30",
+        "description": "wallpaper_minecraft_warden_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_wild_update_1920x1080",
+        "nameKey": "wallpaper_minecraft_wild_update_1920x1080",
+        "img": "wallpaper_minecraft_wild_update_1920x1080.webp",
+        "storageKey": "bg_31",
+        "description": "wallpaper_minecraft_wild_update_1920x1080_desc"
+    },
+    {
+        "id": "wallpaper_minecraft_world_color_1920x1080",
+        "nameKey": "wallpaper_minecraft_world_color_1920x1080",
+        "img": "wallpaper_minecraft_world_color_1920x1080.webp",
+        "storageKey": "bg_32",
+        "description": "wallpaper_minecraft_world_color_1920x1080_desc"
     }
 ]

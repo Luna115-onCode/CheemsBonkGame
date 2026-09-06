@@ -115,7 +115,7 @@ export class ToolsService {
   tic_tac_toe: any = createLangMap(tic_tac_toeText);
   black_jack: any = createLangMap(black_jackText);
   shopItemsText: Record<string, Record<string, string>> = {};
-  itemsText: Record<string, Record<string, string>> = {};
+  itemsText: any = {};
   shopItems: Array<ShopItem> = [];
   boosterEndTime: number = 0;
   boosterMultiplier: number = 1;
@@ -878,6 +878,7 @@ export class ToolsService {
     this.selectedMusic = track.id as any;
     this.saveData("selected_music", String(track.id));
     this.playMusic(track.id);
+    this.playSound();
     this.showToast(this.closet[this.lang].itemSelected);
   }
 
@@ -902,6 +903,7 @@ export class ToolsService {
   selectBackground(bg: BackgroundItem): void {
     this.selectedBackground = bg.id;
     this.saveData("selected_bg", bg.id);
+    this.playSound();
     this.showToast(this.closet[this.lang].itemSelected || "Selected!");
   }
 
@@ -1598,82 +1600,93 @@ export class ToolsService {
     const bg = this.backgrounds.find(b => b.id === id);
     if (bg?.imgUrl) return bg.imgUrl;
     const fallbackId = id.replace('bg_', '');
-    return "img/background/" + (bg?.img || fallbackId + ".jpg");
+    return "img/background/" + (bg?.img || fallbackId + ".webp");
+  }
+
+  getCategory(type?: string): string {
+    if (type === 'sound') return 'sfx';
+    if (type === 'dogecoin') return 'dogecoin';
+    if (type === 'currency') return 'currency';
+    if (type === 'minigame') return 'minigame';
+    if (type === 'upgrade') return 'upgrade';
+    if (type === 'booster') return 'booster';
+    if (type === 'cheems') return 'cheems';
+    if (type === 'music') return 'music';
+    if (type === 'background') return 'background';
+    return 'misc';
   }
 
   getShopItemName(item: ShopItem): string {
-    if (item.nameKey && this.shopItemsText[this.lang]?.[item.nameKey]) {
-      return this.shopItemsText[this.lang][item.nameKey];
-    }
-    if (item.nameKey && this.itemsText[this.lang]?.[item.nameKey]) {
-      return this.itemsText[this.lang][item.nameKey];
+    const cat = this.getCategory(item.type);
+    if (item.nameKey && this.itemsText[this.lang]?.[cat]?.[item.nameKey]) {
+      return this.itemsText[this.lang][cat][item.nameKey];
     }
     return this.lang === 'es' ? (item.nameEs || item.nameEn || item.id) : (item.nameEn || item.nameEs || item.id);
   }
 
   getShopItemDesc(item: ShopItem): string {
-    if (item.descKey && this.shopItemsText[this.lang]?.[item.descKey]) {
-      return this.shopItemsText[this.lang][item.descKey];
+    const cat = this.getCategory(item.type);
+    if (item.descKey && this.itemsText[this.lang]?.[cat]?.[item.descKey]) {
+      return this.itemsText[this.lang][cat][item.descKey];
     }
     return this.lang === 'es' ? (item.descEs || item.descEn || '') : (item.descEn || item.descEs || '');
   }
 
   getCheemsName(skin: CheemsSkinItem): string {
-    if (skin.nameKey && this.itemsText[this.lang]?.[skin.nameKey]) {
-      return this.itemsText[this.lang][skin.nameKey];
+    if (skin.nameKey && this.itemsText[this.lang]?.['cheems']?.[skin.nameKey]) {
+      return this.itemsText[this.lang]['cheems'][skin.nameKey];
     }
     return this.lang === 'es' ? (skin.nameEs || skin.nameEn || skin.id) : (skin.nameEn || skin.nameEs || skin.id);
   }
 
   getCheemsDescription(skin: CheemsSkinItem): string {
-    if (skin.description && this.itemsText[this.lang]?.[skin.description]) {
-      return this.itemsText[this.lang][skin.description];
+    if (skin.description && this.itemsText[this.lang]?.['cheems']?.[skin.description]) {
+      return this.itemsText[this.lang]['cheems'][skin.description];
     }
     return '';
   }
 
   getBackgroundName(bg: BackgroundItem): string {
-    if (bg.nameKey && this.itemsText[this.lang]?.[bg.nameKey]) {
-      return this.itemsText[this.lang][bg.nameKey];
+    if (bg.nameKey && this.itemsText[this.lang]?.['background']?.[bg.nameKey]) {
+      return this.itemsText[this.lang]['background'][bg.nameKey];
     }
     return this.lang === 'es' ? (bg.nameEs || bg.nameEn || bg.id) : (bg.nameEn || bg.nameEs || bg.id);
   }
 
   getBackgroundDescription(bg: BackgroundItem): string {
-    if (bg.description && this.itemsText[this.lang]?.[bg.description]) {
-      return this.itemsText[this.lang][bg.description];
+    if (bg.description && this.itemsText[this.lang]?.['background']?.[bg.description]) {
+      return this.itemsText[this.lang]['background'][bg.description];
     }
     return '';
   }
 
   getSoundName(sound: SoundEffectItem): string {
-    if (sound.nameKey && this.itemsText[this.lang]?.[sound.nameKey]) {
-      return this.itemsText[this.lang][sound.nameKey];
+    if (sound.nameKey && this.itemsText[this.lang]?.['sfx']?.[sound.nameKey]) {
+      return this.itemsText[this.lang]['sfx'][sound.nameKey];
     }
     return sound.name || sound.id;
   }
 
   getSoundDescription(sound: SoundEffectItem): string {
-    if (sound.description && this.itemsText[this.lang]?.[sound.description]) {
-      return this.itemsText[this.lang][sound.description];
+    if (sound.description && this.itemsText[this.lang]?.['sfx']?.[sound.description]) {
+      return this.itemsText[this.lang]['sfx'][sound.description];
     }
     return '';
   }
 
   getMusicName(track: MusicTrackItem): string {
-    if (track.nameKey && this.itemsText[this.lang]?.[track.nameKey]) {
-      return this.itemsText[this.lang][track.nameKey];
+    if (track.nameKey && this.itemsText[this.lang]?.['music']?.[track.nameKey]) {
+      return this.itemsText[this.lang]['music'][track.nameKey];
     }
     return track.name || String(track.id);
   }
 
   getMusicDescription(track: MusicTrackItem): string {
-    if (track.description && this.itemsText[this.lang]?.[track.description]) {
-      return this.itemsText[this.lang][track.description];
+    if (track.description && this.itemsText[this.lang]?.['music']?.[track.description]) {
+      return this.itemsText[this.lang]['music'][track.description];
     }
     return '';
   }
-
 
   async exportSave(): Promise<void> {
     const saveData: Record<string, string> = {};

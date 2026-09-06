@@ -25,6 +25,11 @@
                 (click)="openSection('music')">
             {{tools.gallery[tools.lang]?.musicSection || 'Music'}}
         </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}" 
+                [class.active]="activeSection === 'backgrounds'"
+                (click)="openSection('backgrounds')">
+            {{tools.gallery[tools.lang]?.backgroundsSection || 'Backgrounds'}}
+        </button>
     </div>
 
     @if (activeSection === 'skins') {
@@ -60,6 +65,35 @@
             </div>
         } @else {
             <p class="no-items">No skins unlocked yet.</p>
+        }
+    }
+
+    @if (activeSection === 'backgrounds') {
+        @if (unlockedBackgrounds.length > 0) {
+            <div class="viewer-container {{tools.themeColor}}">
+                <div class="viewer-header">
+                    <h2>{{tools.getBackgroundName(unlockedBackgrounds[currentIndex])}}</h2>
+                    <p class="desc">{{tools.getBackgroundDescription(unlockedBackgrounds[currentIndex])}}</p>
+                </div>
+                
+                <div class="skins-display" style="justify-content: center;">
+                    <div class="skin-box" style="width: 80%; max-width: 600px;">
+                        <img [src]="tools.getBackgroundImg(unlockedBackgrounds[currentIndex].id)" 
+                             class="viewer-img clickable" 
+                             style="width: 100%; border-radius: 8px; object-fit: cover;"
+                             alt="Background"
+                             (click)="openFullScreen(tools.getBackgroundImg(unlockedBackgrounds[currentIndex].id))">
+                    </div>
+                </div>
+
+                <div class="viewer-controls">
+                    <button class="control-btn {{tools.themeColor}}" (click)="prevItem()">◀</button>
+                    <span class="counter">{{currentIndex + 1}} / {{unlockedBackgrounds.length}}</span>
+                    <button class="control-btn {{tools.themeColor}}" (click)="nextItem()">▶</button>
+                </div>
+            </div>
+        } @else {
+            <p class="no-items">No backgrounds unlocked yet.</p>
         }
     }
 

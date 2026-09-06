@@ -298,5 +298,85 @@
     "storageKey": "m29",
     "description": "music_29_desc",
     "cover": "img/music/where_the_path_bends.webp"
+  },
+  {
+    "id": "music_30",
+    "nameKey": "music_30",
+    "file": "Ambiental music.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m30",
+    "description": "music_30_desc",
+    "cover": "img/music/ambiental_rain_&_music.webp"
+  },
+  {
+    "id": "music_31",
+    "nameKey": "music_31",
+    "file": "Ambiental rain & music.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m31",
+    "description": "music_31_desc",
+    "cover": "img/music/ambiental_rain_&_music.webp"
+  },
+  {
+    "id": "music_32",
+    "nameKey": "music_32",
+    "file": "Doubt to be - dance version.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m32",
+    "description": "music_32_desc",
+    "cover": "img/music/doubt_to_be_dance.webp"
+  },
+  {
+    "id": "music_33",
+    "nameKey": "music_33",
+    "file": "Doubt to be - rap version.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m33",
+    "description": "music_33_desc",
+    "cover": "img/music/doubt_to_be_rap.webp"
+  },
+  {
+    "id": "music_34",
+    "nameKey": "music_34",
+    "file": "Dudo de ser - dance version.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m34",
+    "description": "music_34_desc",
+    "cover": "img/music/doubt_to_be_dance.webp"
+  },
+  {
+    "id": "music_35",
+    "nameKey": "music_35",
+    "file": "Dudo de ser - rap version.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m35",
+    "description": "music_35_desc",
+    "cover": "img/music/doubt_to_be_rap.webp"
+  },
+  {
+    "id": "music_36",
+    "nameKey": "music_36",
+    "file": "Noisy loneliness.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m36",
+    "description": "music_36_desc",
+    "cover": "img/music/noisy_loneliness.webp"
+  },
+  {
+    "id": "music_37",
+    "nameKey": "music_37",
+    "file": "Ruido en soledad Extended.ogg",
+    "basePath": "sound/music/",
+    "default": false,
+    "storageKey": "m37",
+    "description": "music_37_desc",
+    "cover": "img/music/ruido_en_soledad.webp"
   }
 ]

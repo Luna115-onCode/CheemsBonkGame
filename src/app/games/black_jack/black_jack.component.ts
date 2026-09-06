@@ -64,7 +64,6 @@ export class BlackJackComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.tools.actPage = "black_jack" as any;
     this.tools.setTitle("Black Jack");
-    this.tools.playMusic("music_1");
     
     await this.loadAssets();
     this.restartGame();

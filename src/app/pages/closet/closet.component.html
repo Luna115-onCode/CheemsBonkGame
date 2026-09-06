@@ -106,10 +106,14 @@
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedBackground === bg.id"
                      (click)="onSelectBackground(bg)">
-                    <img [src]="tools.getBackgroundImg(bg.id)"
-                         class="item-img"
-                         style="border-radius: 8px; object-fit: cover;"
-                         [alt]="bg.id">
+                    @if (bg.id === 'bg_none') {
+                        <img src="img/icons/picture-svgrepo-com.png" class="item-icon" [alt]="tools.getBackgroundName(bg)">
+                    } @else {
+                        <img [src]="tools.getBackgroundImg(bg.id)"
+                             class="item-img"
+                             style="border-radius: 8px; object-fit: cover;"
+                             [alt]="bg.id">
+                    }
                     <div class="item-info">
                         <span class="item-name">{{tools.getBackgroundName(bg)}}</span>
                         @if (tools.getBackgroundDescription(bg)) {

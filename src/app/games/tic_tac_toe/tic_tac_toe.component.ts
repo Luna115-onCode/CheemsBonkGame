@@ -39,7 +39,6 @@ export class TicTacToeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.tools.actPage = "tic_tac_toe" as any;
     this.tools.setTitle("Tic Tac Toe");
-    this.tools.playMusic("music_1");
     this.startNewGame();
   }
 
