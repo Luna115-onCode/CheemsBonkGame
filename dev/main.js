@@ -40706,6 +40706,7 @@ var closetText = {
   cheemsSection: "",
   soundsSection: "",
   musicSection: "",
+  backgroundsSection: "",
   selected: "",
   equipped: "",
   purchased: "",
@@ -40776,6 +40777,7 @@ var offlineText = {
 var CHEEMS_SKINS = [];
 var SOUND_EFFECTS = [];
 var MUSIC_TRACKS = [];
+var BACKGROUNDS = [];
 var TranslationsService = class _TranslationsService {
   constructor() {
   }
@@ -40875,6 +40877,7 @@ var ToolsService = class _ToolsService {
   selectedCheems = "cheems_normal";
   selectedSound = "sfx_1";
   selectedMusic = "music_1";
+  selectedBackground = "bg_none";
   actScore = 0;
   points = 0;
   highScore = 0;
@@ -40896,6 +40899,7 @@ var ToolsService = class _ToolsService {
   unlockedCheems = {};
   unlockedSounds = {};
   unlockedMusic = {};
+  unlockedBackgrounds = {};
   unlockedMinigames = {};
   game = createLangMap(gameText);
   options = createLangMap(optionsText);
@@ -40954,6 +40958,7 @@ var ToolsService = class _ToolsService {
   cheemsSkins = CHEEMS_SKINS;
   soundEffects = SOUND_EFFECTS;
   musicTracks = MUSIC_TRACKS;
+  backgrounds = BACKGROUNDS;
   musicAudio = new Audio();
   toastMessage = "";
   toastTimer = null;
@@ -41182,15 +41187,17 @@ var ToolsService = class _ToolsService {
   loadClosetPrices() {
     return __async(this, null, function* () {
       try {
-        const [cheemsRes, soundsRes, musicRes, closetRes] = yield Promise.all([
+        const [cheemsRes, soundsRes, musicRes, bgRes, closetRes] = yield Promise.all([
           this.safeFetch("data/cheems.json").catch(() => null),
           this.safeFetch("data/sound_effects.json").catch(() => null),
           this.safeFetch("data/music.json").catch(() => null),
+          this.safeFetch("data/backgrounds.json").catch(() => null),
           this.safeFetch("data/closet.json").catch(() => null)
         ]);
         const cheemsCatalog = cheemsRes && cheemsRes.ok ? yield cheemsRes.json() : [];
         const soundsCatalog = soundsRes && soundsRes.ok ? yield soundsRes.json() : [];
         const musicCatalog = musicRes && musicRes.ok ? yield musicRes.json() : [];
+        const bgCatalog = bgRes && bgRes.ok ? yield bgRes.json() : [];
         let closetData = null;
         if (closetRes && closetRes.ok) {
           closetData = yield closetRes.json();
@@ -41199,10 +41206,12 @@ var ToolsService = class _ToolsService {
           this.cheemsSkins = this.buildItemsList(closetData.cheems, cheemsCatalog);
           this.soundEffects = this.buildItemsList(closetData.sounds, soundsCatalog);
           this.musicTracks = this.buildItemsList(closetData.music, musicCatalog);
+          this.backgrounds = this.buildItemsList(closetData.backgrounds, bgCatalog);
         } else {
           this.cheemsSkins = [...cheemsCatalog];
           this.soundEffects = [...soundsCatalog];
           this.musicTracks = [...musicCatalog];
+          this.backgrounds = [...bgCatalog];
         }
         this.loadUnlocks();
         this.appendUnlockableShopItems();
@@ -41681,7 +41690,32 @@ var ToolsService = class _ToolsService {
     this.selectedMusic = track.id;
     this.saveData("selected_music", String(track.id));
     this.playMusic(track.id);
+    this.playSound();
     this.showToast(this.closet[this.lang].itemSelected);
+  }
+  isBackgroundUnlocked(id) {
+    if (id === "bg_none")
+      return true;
+    const item = this.backgrounds.find((b) => b.id === id);
+    if (!item)
+      return false;
+    return !!this.unlockedBackgrounds[item.storageKey];
+  }
+  buyOrSelectBackground(bg) {
+    if (this.isBackgroundUnlocked(bg.id)) {
+      this.selectBackground(bg);
+      return true;
+    } else {
+      this.showToast(this.closet[this.lang]?.buyInShop || "Buy this item in the Shop!");
+      this.playSound("sfx_8");
+      return false;
+    }
+  }
+  selectBackground(bg) {
+    this.selectedBackground = bg.id;
+    this.saveData("selected_bg", bg.id);
+    this.playSound();
+    this.showToast(this.closet[this.lang].itemSelected || "Selected!");
   }
   unlockAll() {
     this.actScore = 999999;
@@ -41709,6 +41743,10 @@ var ToolsService = class _ToolsService {
       this.unlockedMusic[s2.storageKey] = true;
     });
     this.saveUnlockedMusic();
+    this.backgrounds.forEach((s2) => {
+      this.unlockedBackgrounds[s2.storageKey] = true;
+    });
+    this.saveUnlockedBackgrounds();
     this.saveData("points", String(this.points));
     this.saveData("total_score", String(this.totalScore));
     this.saveData("high_score", String(this.highScore));
@@ -41739,6 +41777,7 @@ var ToolsService = class _ToolsService {
     this.unlockedCheems = {};
     this.unlockedSounds = {};
     this.unlockedMusic = {};
+    this.unlockedBackgrounds = {};
     this.cheemsSkins.forEach((s2) => {
       const isDef = !s2.default;
       this.unlockedCheems[s2.storageKey] = !isDef;
@@ -41775,6 +41814,7 @@ var ToolsService = class _ToolsService {
     this.saveData("selected_cheems", "cheems_normal");
     this.saveData("selected_sfx", "sfx_1");
     this.saveData("selected_music", "music_1");
+    this.saveData("selected_bg", "bg_none");
     this.saveData("music_volume", "50");
     this.saveData("sfx_volume", "100");
     this.saveData("app_theme", "1");
@@ -41795,6 +41835,7 @@ var ToolsService = class _ToolsService {
     this.loadCheems();
     this.loadSounds();
     this.loadMusic();
+    this.loadBackgrounds();
     this.loadScore();
     this.loadUnlocks();
     this.loadShopItems().then(() => {
@@ -41828,6 +41869,10 @@ var ToolsService = class _ToolsService {
     const savedMusic = this.loadData("selected_music");
     this.selectedMusic = savedMusic ? savedMusic.replace(/"/g, "") : "music_1";
     this.playMusic(this.selectedMusic);
+  }
+  loadBackgrounds() {
+    const savedBg = this.loadData("selected_bg");
+    this.selectedBackground = savedBg ? savedBg.replace(/"/g, "") : "bg_none";
   }
   loadScore() {
     const totalScore = this.loadData("total_score");
@@ -41869,6 +41914,10 @@ var ToolsService = class _ToolsService {
     this.musicTracks.forEach((s2) => {
       this.unlockedMusic[s2.storageKey] = s2.default || s2.cost === 0 || unlockedMsc.includes(String(s2.id));
     });
+    const unlockedBgs = this.parseArrayString(this.loadData("unlocked_backgrounds") || "");
+    this.backgrounds.forEach((s2) => {
+      this.unlockedBackgrounds[s2.storageKey] = s2.default || unlockedBgs.includes(s2.id);
+    });
   }
   saveUnlockedMinigames() {
     const list = Object.keys(this.unlockedMinigames).filter((k) => this.unlockedMinigames[k]);
@@ -41885,6 +41934,10 @@ var ToolsService = class _ToolsService {
   saveUnlockedMusic() {
     const list = this.musicTracks.filter((s2) => this.unlockedMusic[s2.storageKey] && !s2.default && s2.cost !== 0).map((s2) => String(s2.id));
     this.saveData("unlocked_music", this.stringifyArray(list));
+  }
+  saveUnlockedBackgrounds() {
+    const list = this.backgrounds.filter((s2) => this.unlockedBackgrounds[s2.storageKey] && !s2.default).map((s2) => s2.id);
+    this.saveData("unlocked_backgrounds", this.stringifyArray(list));
   }
   loadRedeemedCodes() {
     const stored = this.loadData("redeemed_codes");
@@ -42086,13 +42139,17 @@ var ToolsService = class _ToolsService {
       const target = String(item.targetId !== void 0 ? item.targetId : item.id);
       return this.isMusicUnlocked(target);
     }
+    if (item.type === "background") {
+      const target = String(item.targetId !== void 0 ? item.targetId : item.id);
+      return this.isBackgroundUnlocked(target);
+    }
     if (item.oneTimePurchase) {
       return this.getLifetimePurchaseCount(item.id) >= 1;
     }
     return false;
   }
   appendUnlockableShopItems() {
-    if (!this.cheemsSkins.length && !this.soundEffects.length && !this.musicTracks.length) {
+    if (!this.cheemsSkins.length && !this.soundEffects.length && !this.musicTracks.length && !this.backgrounds.length) {
       return;
     }
     this.cheemsSkins.forEach((skin) => {
@@ -42118,7 +42175,7 @@ var ToolsService = class _ToolsService {
           nameKey: sound.nameKey,
           cost: 0,
           costCoins: sound.cost,
-          icon: "img/icons/sound-svgrepo-com.svg",
+          icon: "img/icons/sound-svgrepo-com.png",
           oneTimePurchase: true
         });
       }
@@ -42132,7 +42189,21 @@ var ToolsService = class _ToolsService {
           nameKey: track.nameKey,
           cost: 0,
           costCoins: track.cost,
-          icon: "img/icons/music-svgrepo-com.svg",
+          icon: "img/icons/music-svgrepo-com.png",
+          oneTimePurchase: true
+        });
+      }
+    });
+    this.backgrounds.forEach((bg) => {
+      if (!bg.default && bg.id !== "bg_none" && !this.shopItems.some((i) => i.id === bg.id)) {
+        this.shopItems.push({
+          id: bg.id,
+          type: "background",
+          targetId: bg.id,
+          nameKey: bg.nameKey,
+          cost: 0,
+          costCoins: bg.cost,
+          icon: this.getBackgroundImg(bg.id),
           oneTimePurchase: true
         });
       }
@@ -42170,6 +42241,13 @@ var ToolsService = class _ToolsService {
         if (track) {
           this.unlockedMusic[track.storageKey] = true;
           this.saveUnlockedMusic();
+        }
+      } else if (item.type === "background") {
+        const targetId = String(item.targetId !== void 0 ? item.targetId : item.id);
+        const bg = this.backgrounds.find((b) => b.id === targetId);
+        if (bg) {
+          this.unlockedBackgrounds[bg.storageKey] = true;
+          this.saveUnlockedBackgrounds();
         }
       }
       this.recordDailyPurchase(item.id);
@@ -42260,54 +42338,93 @@ var ToolsService = class _ToolsService {
     const fallbackId = id.replace("cheems_", "");
     return "img/hit/" + (skin?.hitImg || skin?.img || fallbackId + ".webp");
   }
+  getBackgroundImg(id) {
+    const bg = this.backgrounds.find((b) => b.id === id);
+    if (bg?.imgUrl)
+      return bg.imgUrl;
+    const fallbackId = id.replace("bg_", "");
+    return "img/background/" + (bg?.img || fallbackId + ".webp");
+  }
+  getCategory(type) {
+    if (type === "sound")
+      return "sfx";
+    if (type === "dogecoin")
+      return "dogecoin";
+    if (type === "currency")
+      return "currency";
+    if (type === "minigame")
+      return "minigame";
+    if (type === "upgrade")
+      return "upgrade";
+    if (type === "booster")
+      return "booster";
+    if (type === "cheems")
+      return "cheems";
+    if (type === "music")
+      return "music";
+    if (type === "background")
+      return "background";
+    return "misc";
+  }
   getShopItemName(item) {
-    if (item.nameKey && this.shopItemsText[this.lang]?.[item.nameKey]) {
-      return this.shopItemsText[this.lang][item.nameKey];
-    }
-    if (item.nameKey && this.itemsText[this.lang]?.[item.nameKey]) {
-      return this.itemsText[this.lang][item.nameKey];
+    const cat = this.getCategory(item.type);
+    if (item.nameKey && this.itemsText[this.lang]?.[cat]?.[item.nameKey]) {
+      return this.itemsText[this.lang][cat][item.nameKey];
     }
     return this.lang === "es" ? item.nameEs || item.nameEn || item.id : item.nameEn || item.nameEs || item.id;
   }
   getShopItemDesc(item) {
-    if (item.descKey && this.shopItemsText[this.lang]?.[item.descKey]) {
-      return this.shopItemsText[this.lang][item.descKey];
+    const cat = this.getCategory(item.type);
+    if (item.descKey && this.itemsText[this.lang]?.[cat]?.[item.descKey]) {
+      return this.itemsText[this.lang][cat][item.descKey];
     }
     return this.lang === "es" ? item.descEs || item.descEn || "" : item.descEn || item.descEs || "";
   }
   getCheemsName(skin) {
-    if (skin.nameKey && this.itemsText[this.lang]?.[skin.nameKey]) {
-      return this.itemsText[this.lang][skin.nameKey];
+    if (skin.nameKey && this.itemsText[this.lang]?.["cheems"]?.[skin.nameKey]) {
+      return this.itemsText[this.lang]["cheems"][skin.nameKey];
     }
     return this.lang === "es" ? skin.nameEs || skin.nameEn || skin.id : skin.nameEn || skin.nameEs || skin.id;
   }
   getCheemsDescription(skin) {
-    if (skin.description && this.itemsText[this.lang]?.[skin.description]) {
-      return this.itemsText[this.lang][skin.description];
+    if (skin.description && this.itemsText[this.lang]?.["cheems"]?.[skin.description]) {
+      return this.itemsText[this.lang]["cheems"][skin.description];
+    }
+    return "";
+  }
+  getBackgroundName(bg) {
+    if (bg.nameKey && this.itemsText[this.lang]?.["background"]?.[bg.nameKey]) {
+      return this.itemsText[this.lang]["background"][bg.nameKey];
+    }
+    return this.lang === "es" ? bg.nameEs || bg.nameEn || bg.id : bg.nameEn || bg.nameEs || bg.id;
+  }
+  getBackgroundDescription(bg) {
+    if (bg.description && this.itemsText[this.lang]?.["background"]?.[bg.description]) {
+      return this.itemsText[this.lang]["background"][bg.description];
     }
     return "";
   }
   getSoundName(sound) {
-    if (sound.nameKey && this.itemsText[this.lang]?.[sound.nameKey]) {
-      return this.itemsText[this.lang][sound.nameKey];
+    if (sound.nameKey && this.itemsText[this.lang]?.["sfx"]?.[sound.nameKey]) {
+      return this.itemsText[this.lang]["sfx"][sound.nameKey];
     }
     return sound.name || sound.id;
   }
   getSoundDescription(sound) {
-    if (sound.description && this.itemsText[this.lang]?.[sound.description]) {
-      return this.itemsText[this.lang][sound.description];
+    if (sound.description && this.itemsText[this.lang]?.["sfx"]?.[sound.description]) {
+      return this.itemsText[this.lang]["sfx"][sound.description];
     }
     return "";
   }
   getMusicName(track) {
-    if (track.nameKey && this.itemsText[this.lang]?.[track.nameKey]) {
-      return this.itemsText[this.lang][track.nameKey];
+    if (track.nameKey && this.itemsText[this.lang]?.["music"]?.[track.nameKey]) {
+      return this.itemsText[this.lang]["music"][track.nameKey];
     }
     return track.name || String(track.id);
   }
   getMusicDescription(track) {
-    if (track.description && this.itemsText[this.lang]?.[track.description]) {
-      return this.itemsText[this.lang][track.description];
+    if (track.description && this.itemsText[this.lang]?.["music"]?.[track.description]) {
+      return this.itemsText[this.lang]["music"][track.description];
     }
     return "";
   }
@@ -42693,7 +42810,7 @@ var GameComponent = class _GameComponent {
   static \u0275fac = function GameComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _GameComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GameComponent, selectors: [["app-game"]], decls: 11, vars: 12, consts: [[1, "game-container", 3, "click", "touchstart"], [1, "img-wrapper"], ["alt", "Cheems Hit", 1, "cheems-img", "hit-img", 3, "src"], ["alt", "Cheems", 1, "cheems-img", 3, "src"], [3, "class", "left", "top"], [3, "click", "touchstart"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "icon", "stats-icon"], [1, "modal-backdrop"], [1, "modal-backdrop", 3, "click", "touchstart"], [1, "modal-title"], [1, "stat-row"], [1, "stat-label"], [1, "stat-value"], [3, "click"]], template: function GameComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _GameComponent, selectors: [["app-game"]], decls: 11, vars: 12, consts: [[1, "game-container", 3, "click", "touchstart"], [1, "img-wrapper"], ["alt", "Cheems Hit", 1, "cheems-img", "hit-img", 3, "src"], ["alt", "Cheems", 1, "cheems-img", 3, "src"], [3, "class", "left", "top"], [3, "click", "touchstart"], ["src", "img/icons/report-svgrepo-com.png", "alt", "Stats", 1, "icon", "stats-icon"], [1, "modal-backdrop"], [1, "modal-backdrop", 3, "click", "touchstart"], [1, "modal-title"], [1, "stat-row"], [1, "stat-label"], [1, "stat-value"], [3, "click"]], template: function GameComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0);
       \u0275\u0275listener("click", function GameComponent_Template_div_click_0_listener($event) {
@@ -42766,7 +42883,7 @@ var GameComponent = class _GameComponent {
     }
 
     <button class="stats-btn {{tools.themeColor}}" (click)="toggleStatsModal($event)" (touchstart)="toggleStatsModal($event)">
-        <img src="img/icons/report-svgrepo-com.svg" alt="Stats" class="icon stats-icon">
+        <img src="img/icons/report-svgrepo-com.png" alt="Stats" class="icon stats-icon">
     </button>
 
     @if (showStatsModal) {
@@ -42807,7 +42924,7 @@ var MenuComponent = class _MenuComponent {
   static \u0275fac = function MenuComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _MenuComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 42, vars: 35, consts: [[1, "container"], [3, "click"], ["src", "img/icons/shopping-svgrepo-com.svg", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.svg", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.svg", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/picture-svgrepo-com.svg", "alt", "Gallery", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.svg", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.svg", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.svg", "alt", "Licenses", 1, "menu-icon"], ["src", "img/icons/application-svgrepo-com.svg", "alt", "Redeem Code", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MenuComponent, selectors: [["app-menu"]], decls: 42, vars: 35, consts: [[1, "container"], [3, "click"], ["src", "img/icons/shopping-svgrepo-com.png", "alt", "Shop", 1, "menu-icon", "coin-glow"], [1, "card-content"], [1, "card-title"], ["src", "img/icons/play-svgrepo-com.png", "alt", "Minigames", 1, "menu-icon"], ["src", "img/icons/personal-svgrepo-com.png", "alt", "Closet", 1, "menu-icon"], ["src", "img/icons/picture-svgrepo-com.png", "alt", "Gallery", 1, "menu-icon"], ["src", "img/icons/set-up-svgrepo-com.png", "alt", "Settings", 1, "menu-icon"], ["src", "img/icons/report-svgrepo-com.png", "alt", "Stats", 1, "menu-icon"], ["src", "img/icons/the-internet-svgrepo-com.png", "alt", "Licenses", 1, "menu-icon"], ["src", "img/icons/application-svgrepo-com.png", "alt", "Redeem Code", 1, "menu-icon"]], template: function MenuComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "div", 1);
       \u0275\u0275listener("click", function MenuComponent_Template_div_click_2_listener() {
@@ -42919,7 +43036,7 @@ var MenuComponent = class _MenuComponent {
     <div class="group {{tools.themeColor}} menu-grid">
         <!-- Shop Card -->
         <div class="menu-card dogecoin-card {{tools.themeColor}}" (click)="tools.redirect('shop')">
-            <img src="img/icons/shopping-svgrepo-com.svg" class="menu-icon coin-glow" alt="Shop">
+            <img src="img/icons/shopping-svgrepo-com.png" class="menu-icon coin-glow" alt="Shop">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].shop}}</div>
             </div>
@@ -42927,7 +43044,7 @@ var MenuComponent = class _MenuComponent {
 
         <!-- Minigames Card -->
         <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('minigames')">
-            <img src="img/icons/play-svgrepo-com.svg" class="menu-icon" alt="Minigames">
+            <img src="img/icons/play-svgrepo-com.png" class="menu-icon" alt="Minigames">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].minigames || 'Minigames'}}</div>
             </div>
@@ -42935,7 +43052,7 @@ var MenuComponent = class _MenuComponent {
 
         <!-- Customization / Closet -->
         <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('closet')">
-            <img src="img/icons/personal-svgrepo-com.svg" class="menu-icon" alt="Closet">
+            <img src="img/icons/personal-svgrepo-com.png" class="menu-icon" alt="Closet">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].closet}}</div>
             </div>
@@ -42943,7 +43060,7 @@ var MenuComponent = class _MenuComponent {
 
         <!-- Gallery -->
         <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('gallery')">
-            <img src="img/icons/picture-svgrepo-com.svg" class="menu-icon" alt="Gallery">
+            <img src="img/icons/picture-svgrepo-com.png" class="menu-icon" alt="Gallery">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].gallery || 'Gallery'}}</div>
             </div>
@@ -42951,7 +43068,7 @@ var MenuComponent = class _MenuComponent {
 
         <!-- Settings -->
         <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('settings')">
-            <img src="img/icons/set-up-svgrepo-com.svg" class="menu-icon" alt="Settings">
+            <img src="img/icons/set-up-svgrepo-com.png" class="menu-icon" alt="Settings">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].settings}}</div>
             </div>
@@ -42959,7 +43076,7 @@ var MenuComponent = class _MenuComponent {
 
         <!-- Statistics -->
         <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('stats')">
-            <img src="img/icons/report-svgrepo-com.svg" class="menu-icon" alt="Stats">
+            <img src="img/icons/report-svgrepo-com.png" class="menu-icon" alt="Stats">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].stats}}</div>
             </div>
@@ -42967,7 +43084,7 @@ var MenuComponent = class _MenuComponent {
 
         <!-- Licenses -->
         <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('licenses')">
-            <img src="img/icons/the-internet-svgrepo-com.svg" class="menu-icon" alt="Licenses">
+            <img src="img/icons/the-internet-svgrepo-com.png" class="menu-icon" alt="Licenses">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].licenses}}</div>
             </div>
@@ -42975,7 +43092,7 @@ var MenuComponent = class _MenuComponent {
 
         <!-- Redeem Code -->
         <div class="menu-card {{tools.themeColor}}" (click)="tools.redirect('redeem')">
-            <img src="img/icons/application-svgrepo-com.svg" class="menu-icon" alt="Redeem Code">
+            <img src="img/icons/application-svgrepo-com.png" class="menu-icon" alt="Redeem Code">
             <div class="card-content">
                 <div class="card-title">{{tools.menu[tools.lang].redeem || 'Redeem Code'}}</div>
             </div>
@@ -50037,7 +50154,7 @@ var RedeemComponent = class _RedeemComponent {
   static \u0275fac = function RedeemComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _RedeemComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RedeemComponent, selectors: [["app-redeem"]], decls: 15, vars: 21, consts: [[1, "container", "fade-in", "page-content", "with-navbar"], [2, "width", "95%", "max-width", "1100px", "margin-top", "1rem"], [1, "section-title"], [1, "input-group"], ["type", "text", 3, "ngModelChange", "keyup.enter", "ngModel", "placeholder"], [3, "click"], [1, "history-list"], [1, "empty-state"], [3, "class"], ["src", "img/icons/check-svgrepo-com.svg", "alt", "check", 1, "icon"], [1, "code-text"]], template: function RedeemComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _RedeemComponent, selectors: [["app-redeem"]], decls: 15, vars: 21, consts: [[1, "container", "fade-in", "page-content", "with-navbar"], [2, "width", "95%", "max-width", "1100px", "margin-top", "1rem"], [1, "section-title"], [1, "input-group"], ["type", "text", 3, "ngModelChange", "keyup.enter", "ngModel", "placeholder"], [3, "click"], [1, "history-list"], [1, "empty-state"], [3, "class"], ["src", "img/icons/check-svgrepo-com.png", "alt", "check", 1, "icon"], [1, "code-text"]], template: function RedeemComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div")(3, "h2", 2);
       \u0275\u0275text(4);
@@ -50111,7 +50228,7 @@ var RedeemComponent = class _RedeemComponent {
             @if (tools.redeemedCodes.length > 0) {
                 @for (code of tools.redeemedCodes; track $index) {
                     <div class="history-item {{tools.themeColor}}">
-                        <img src="img/icons/check-svgrepo-com.svg" class="icon" alt="check">
+                        <img src="img/icons/check-svgrepo-com.png" class="icon" alt="check">
                         <span class="code-text">{{code}}</span>
                     </div>
                 }
@@ -50130,7 +50247,7 @@ var RedeemComponent = class _RedeemComponent {
 })();
 
 // src/app/pages/closet/closet.component.ts
-function ClosetComponent_Conditional_9_For_2_Conditional_5_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 8);
     \u0275\u0275text(1);
@@ -50143,7 +50260,7 @@ function ClosetComponent_Conditional_9_For_2_Conditional_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.getCheemsDescription(skin_r2));
   }
 }
-function ClosetComponent_Conditional_9_For_2_Conditional_6_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 9);
     \u0275\u0275text(1);
@@ -50155,7 +50272,7 @@ function ClosetComponent_Conditional_9_For_2_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
   }
 }
-function ClosetComponent_Conditional_9_For_2_Conditional_7_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 10);
     \u0275\u0275text(1);
@@ -50167,11 +50284,11 @@ function ClosetComponent_Conditional_9_For_2_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
   }
 }
-function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275listener("click", function ClosetComponent_Conditional_9_For_2_Template_div_click_0_listener() {
+    \u0275\u0275listener("click", function ClosetComponent_Conditional_11_For_2_Template_div_click_0_listener() {
       const skin_r2 = \u0275\u0275restoreView(_r1).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectCheems(skin_r2));
@@ -50180,7 +50297,7 @@ function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
     \u0275\u0275elementStart(2, "div", 6)(3, "span", 7);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, ClosetComponent_Conditional_9_For_2_Conditional_5_Template, 2, 1, "span", 8)(6, ClosetComponent_Conditional_9_For_2_Conditional_6_Template, 2, 1, "span", 9)(7, ClosetComponent_Conditional_9_For_2_Conditional_7_Template, 2, 1, "span", 10);
+    \u0275\u0275template(5, ClosetComponent_Conditional_11_For_2_Conditional_5_Template, 2, 1, "span", 8)(6, ClosetComponent_Conditional_11_For_2_Conditional_6_Template, 2, 1, "span", 9)(7, ClosetComponent_Conditional_11_For_2_Conditional_7_Template, 2, 1, "span", 10);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -50198,10 +50315,10 @@ function ClosetComponent_Conditional_9_For_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r2.tools.selectedCheems === skin_r2.id ? 6 : 7);
   }
 }
-function ClosetComponent_Conditional_9_Template(rf, ctx) {
+function ClosetComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 3);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_9_For_2_Template, 8, 10, "div", 4, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_11_For_2_Template, 8, 10, "div", 4, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -50210,7 +50327,7 @@ function ClosetComponent_Conditional_9_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.unlockedCheemsSkins);
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_5_Template(rf, ctx) {
+function ClosetComponent_Conditional_12_For_2_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 8);
     \u0275\u0275text(1);
@@ -50223,7 +50340,7 @@ function ClosetComponent_Conditional_10_For_2_Conditional_5_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.getSoundDescription(sound_r5));
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_6_Template(rf, ctx) {
+function ClosetComponent_Conditional_12_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 9);
     \u0275\u0275text(1);
@@ -50235,7 +50352,7 @@ function ClosetComponent_Conditional_10_For_2_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
   }
 }
-function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
+function ClosetComponent_Conditional_12_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 10);
     \u0275\u0275text(1);
@@ -50247,11 +50364,11 @@ function ClosetComponent_Conditional_10_For_2_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
   }
 }
-function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
+function ClosetComponent_Conditional_12_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275listener("click", function ClosetComponent_Conditional_10_For_2_Template_div_click_0_listener() {
+    \u0275\u0275listener("click", function ClosetComponent_Conditional_12_For_2_Template_div_click_0_listener() {
       const sound_r5 = \u0275\u0275restoreView(_r4).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectSound(sound_r5));
@@ -50260,7 +50377,7 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
     \u0275\u0275elementStart(2, "div", 6)(3, "span", 7);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(5, ClosetComponent_Conditional_10_For_2_Conditional_5_Template, 2, 1, "span", 8)(6, ClosetComponent_Conditional_10_For_2_Conditional_6_Template, 2, 1, "span", 9)(7, ClosetComponent_Conditional_10_For_2_Conditional_7_Template, 2, 1, "span", 10);
+    \u0275\u0275template(5, ClosetComponent_Conditional_12_For_2_Conditional_5_Template, 2, 1, "span", 8)(6, ClosetComponent_Conditional_12_For_2_Conditional_6_Template, 2, 1, "span", 9)(7, ClosetComponent_Conditional_12_For_2_Conditional_7_Template, 2, 1, "span", 10);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -50278,10 +50395,10 @@ function ClosetComponent_Conditional_10_For_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r2.tools.selectedSound === sound_r5.id ? 6 : 7);
   }
 }
-function ClosetComponent_Conditional_10_Template(rf, ctx) {
+function ClosetComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 3);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_10_For_2_Template, 8, 9, "div", 4, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_12_For_2_Template, 8, 9, "div", 4, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -50290,7 +50407,7 @@ function ClosetComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.unlockedSoundEffects);
   }
 }
-function ClosetComponent_Conditional_11_For_2_Conditional_1_Template(rf, ctx) {
+function ClosetComponent_Conditional_13_For_2_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 12);
   }
@@ -50300,7 +50417,7 @@ function ClosetComponent_Conditional_11_For_2_Conditional_1_Template(rf, ctx) {
     \u0275\u0275property("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
-function ClosetComponent_Conditional_11_For_2_Conditional_2_Template(rf, ctx) {
+function ClosetComponent_Conditional_13_For_2_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 13);
   }
@@ -50310,7 +50427,7 @@ function ClosetComponent_Conditional_11_For_2_Conditional_2_Template(rf, ctx) {
     \u0275\u0275property("src", track_r7.cover || "img/music/no_image.webp", \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getMusicName(track_r7));
   }
 }
-function ClosetComponent_Conditional_11_For_2_Conditional_6_Template(rf, ctx) {
+function ClosetComponent_Conditional_13_For_2_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 8);
     \u0275\u0275text(1);
@@ -50323,7 +50440,7 @@ function ClosetComponent_Conditional_11_For_2_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.getMusicDescription(track_r7));
   }
 }
-function ClosetComponent_Conditional_11_For_2_Conditional_7_Template(rf, ctx) {
+function ClosetComponent_Conditional_13_For_2_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 9);
     \u0275\u0275text(1);
@@ -50335,7 +50452,7 @@ function ClosetComponent_Conditional_11_For_2_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
   }
 }
-function ClosetComponent_Conditional_11_For_2_Conditional_8_Template(rf, ctx) {
+function ClosetComponent_Conditional_13_For_2_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 10);
     \u0275\u0275text(1);
@@ -50347,20 +50464,20 @@ function ClosetComponent_Conditional_11_For_2_Conditional_8_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
   }
 }
-function ClosetComponent_Conditional_11_For_2_Template(rf, ctx) {
+function ClosetComponent_Conditional_13_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 2);
-    \u0275\u0275listener("click", function ClosetComponent_Conditional_11_For_2_Template_div_click_0_listener() {
+    \u0275\u0275listener("click", function ClosetComponent_Conditional_13_For_2_Template_div_click_0_listener() {
       const track_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.onSelectMusic(track_r7));
     });
-    \u0275\u0275template(1, ClosetComponent_Conditional_11_For_2_Conditional_1_Template, 1, 1, "img", 12)(2, ClosetComponent_Conditional_11_For_2_Conditional_2_Template, 1, 2, "img", 13);
+    \u0275\u0275template(1, ClosetComponent_Conditional_13_For_2_Conditional_1_Template, 1, 1, "img", 12)(2, ClosetComponent_Conditional_13_For_2_Conditional_2_Template, 1, 2, "img", 13);
     \u0275\u0275elementStart(3, "div", 6)(4, "span", 7);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(6, ClosetComponent_Conditional_11_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_11_For_2_Conditional_7_Template, 2, 1, "span", 9)(8, ClosetComponent_Conditional_11_For_2_Conditional_8_Template, 2, 1, "span", 10);
+    \u0275\u0275template(6, ClosetComponent_Conditional_13_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_13_For_2_Conditional_7_Template, 2, 1, "span", 9)(8, ClosetComponent_Conditional_13_For_2_Conditional_8_Template, 2, 1, "span", 10);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -50378,16 +50495,116 @@ function ClosetComponent_Conditional_11_For_2_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r2.tools.selectedMusic === track_r7.id ? 7 : 8);
   }
 }
-function ClosetComponent_Conditional_11_Template(rf, ctx) {
+function ClosetComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 3);
-    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_11_For_2_Template, 9, 9, "div", 4, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_13_For_2_Template, 9, 9, "div", 4, \u0275\u0275repeaterTrackByIndex);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
     \u0275\u0275repeater(ctx_r2.unlockedMusicTracks);
+  }
+}
+function ClosetComponent_Conditional_14_For_2_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 14);
+  }
+  if (rf & 2) {
+    const bg_r9 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("alt", ctx_r2.tools.getBackgroundName(bg_r9));
+  }
+}
+function ClosetComponent_Conditional_14_For_2_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 15);
+  }
+  if (rf & 2) {
+    const bg_r9 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("src", ctx_r2.tools.getBackgroundImg(bg_r9.id), \u0275\u0275sanitizeUrl)("alt", bg_r9.id);
+  }
+}
+function ClosetComponent_Conditional_14_For_2_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 8);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const bg_r9 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.tools.getBackgroundDescription(bg_r9));
+  }
+}
+function ClosetComponent_Conditional_14_For_2_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 9);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].selected);
+  }
+}
+function ClosetComponent_Conditional_14_For_2_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 10);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r2.tools.closet[ctx_r2.tools.lang].equip);
+  }
+}
+function ClosetComponent_Conditional_14_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 2);
+    \u0275\u0275listener("click", function ClosetComponent_Conditional_14_For_2_Template_div_click_0_listener() {
+      const bg_r9 = \u0275\u0275restoreView(_r8).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.onSelectBackground(bg_r9));
+    });
+    \u0275\u0275template(1, ClosetComponent_Conditional_14_For_2_Conditional_1_Template, 1, 1, "img", 14)(2, ClosetComponent_Conditional_14_For_2_Conditional_2_Template, 1, 2, "img", 15);
+    \u0275\u0275elementStart(3, "div", 6)(4, "span", 7);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275template(6, ClosetComponent_Conditional_14_For_2_Conditional_6_Template, 2, 1, "span", 8)(7, ClosetComponent_Conditional_14_For_2_Conditional_7_Template, 2, 1, "span", 9)(8, ClosetComponent_Conditional_14_For_2_Conditional_8_Template, 2, 1, "span", 10);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const bg_r9 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMapInterpolate1("shop-card ", ctx_r2.tools.themeColor, "");
+    \u0275\u0275classProp("selected-cheems", ctx_r2.tools.selectedBackground === bg_r9.id);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(bg_r9.id === "bg_none" ? 1 : 2);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(ctx_r2.tools.getBackgroundName(bg_r9));
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.tools.getBackgroundDescription(bg_r9) ? 6 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.tools.selectedBackground === bg_r9.id ? 7 : 8);
+  }
+}
+function ClosetComponent_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275repeaterCreate(1, ClosetComponent_Conditional_14_For_2_Template, 9, 9, "div", 4, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r2.unlockedBackgrounds);
   }
 }
 var ClosetComponent = class _ClosetComponent {
@@ -50418,10 +50635,16 @@ var ClosetComponent = class _ClosetComponent {
   onSelectMusic(track) {
     this.tools.buyOrSelectMusic(track);
   }
+  get unlockedBackgrounds() {
+    return this.tools.backgrounds.filter((bg) => this.tools.isBackgroundUnlocked(bg.id));
+  }
+  onSelectBackground(bg) {
+    this.tools.buyOrSelectBackground(bg);
+  }
   static \u0275fac = function ClosetComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ClosetComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 12, vars: 30, consts: [[1, "container"], [2, "width", "95%", "max-width", "1100px", "margin-top", "1rem"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "item-desc"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], ["src", "img/icons/sound-svgrepo-com.svg", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.svg", 1, "item-icon", 3, "alt"], [1, "item-icon", 2, "border-radius", "8px", "object-fit", "cover", 3, "src", "alt"]], template: function ClosetComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ClosetComponent, selectors: [["app-closet"]], decls: 15, vars: 38, consts: [[1, "container"], [2, "width", "95%", "max-width", "1100px", "margin-top", "1rem"], [3, "click"], [1, "shop-grid"], [3, "class", "selected-cheems"], [1, "item-img", 3, "src", "alt"], [1, "item-info"], [1, "item-name"], [1, "item-desc"], [1, "status-badge", "active-badge"], [1, "status-badge", "unlocked-badge"], ["src", "img/icons/sound-svgrepo-com.png", 1, "item-icon", 3, "alt"], ["src", "img/icons/volume-cross-svgrepo-com.png", 1, "item-icon", 3, "alt"], [1, "item-icon", 2, "border-radius", "8px", "object-fit", "cover", 3, "src", "alt"], ["src", "img/icons/picture-svgrepo-com.png", 1, "item-icon", 3, "alt"], [1, "item-img", 2, "border-radius", "8px", "object-fit", "cover", 3, "src", "alt"]], template: function ClosetComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div")(3, "button", 2);
       \u0275\u0275listener("click", function ClosetComponent_Template_button_click_3_listener() {
@@ -50440,8 +50663,14 @@ var ClosetComponent = class _ClosetComponent {
         return ctx.setTab("music");
       });
       \u0275\u0275text(8);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(9, "button", 2);
+      \u0275\u0275listener("click", function ClosetComponent_Template_button_click_9_listener() {
+        return ctx.setTab("backgrounds");
+      });
+      \u0275\u0275text(10);
       \u0275\u0275elementEnd()();
-      \u0275\u0275template(9, ClosetComponent_Conditional_9_Template, 3, 0, "div", 3)(10, ClosetComponent_Conditional_10_Template, 3, 0, "div", 3)(11, ClosetComponent_Conditional_11_Template, 3, 0, "div", 3);
+      \u0275\u0275template(11, ClosetComponent_Conditional_11_Template, 3, 0, "div", 3)(12, ClosetComponent_Conditional_12_Template, 3, 0, "div", 3)(13, ClosetComponent_Conditional_13_Template, 3, 0, "div", 3)(14, ClosetComponent_Conditional_14_Template, 3, 0, "div", 3);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -50465,11 +50694,18 @@ var ClosetComponent = class _ClosetComponent {
       \u0275\u0275advance();
       \u0275\u0275textInterpolate1(" ", ctx.tools.closet[ctx.tools.lang].musicSection, " ");
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeTab === "cheems" ? 9 : -1);
+      \u0275\u0275classMapInterpolate2("tab-btn ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
+      \u0275\u0275classProp("active", ctx.activeTab === "backgrounds");
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeTab === "sounds" ? 10 : -1);
+      \u0275\u0275textInterpolate1(" ", ctx.tools.closet[ctx.tools.lang].backgroundsSection || "Backgrounds", " ");
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeTab === "music" ? 11 : -1);
+      \u0275\u0275conditional(ctx.activeTab === "cheems" ? 11 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.activeTab === "sounds" ? 12 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.activeTab === "music" ? 13 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.activeTab === "backgrounds" ? 14 : -1);
     }
   }, styles: ["\n\n.tabs-header[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn[_ngcontent-%COMP%] {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active[_ngcontent-%COMP%] {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.shop-grid[_ngcontent-%COMP%] {\n  display: grid;\n  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));\n  gap: 1.5rem;\n  width: 95%;\n  max-width: 1000px;\n  margin: 0 auto 3rem auto;\n}\n.shop-card[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: space-between;\n  padding: 1.25rem;\n  border-radius: 18px;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n}\n.shop-card[_ngcontent-%COMP%]:hover {\n  transform: translateY(-5px) scale(1.03);\n  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);\n}\n.shop-card.theme-light[_ngcontent-%COMP%] {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.shop-card.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.shop-card.theme-contrast[_ngcontent-%COMP%]:hover {\n  border-color: #ffff00;\n}\n.item-img[_ngcontent-%COMP%] {\n  width: 110px;\n  height: 110px;\n  object-fit: contain;\n  margin-bottom: 0.75rem;\n}\n.item-icon[_ngcontent-%COMP%] {\n  width: 60px;\n  height: 60px;\n  object-fit: contain;\n  margin: 1rem 0;\n}\n.item-info[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 0.5rem;\n  width: 100%;\n}\n.item-name[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1em;\n  text-align: center;\n}\n.item-desc[_ngcontent-%COMP%] {\n  font-size: 0.85em;\n  text-align: center;\n  opacity: 0.8;\n}\n.status-badge[_ngcontent-%COMP%] {\n  padding: 0.3rem 0.85rem;\n  border-radius: 50px;\n  font-size: 0.85em;\n  font-weight: 900;\n  text-transform: uppercase;\n  letter-spacing: 0.5px;\n}\n.active-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 209, 102, 0.3);\n  color: #ffd166;\n  border: 1px solid #ffd166;\n}\n.unlocked-badge[_ngcontent-%COMP%] {\n  background: rgba(100, 255, 100, 0.2);\n  color: #55ff55;\n  border: 1px solid #55ff55;\n}\n.cost-badge[_ngcontent-%COMP%] {\n  background: rgba(255, 100, 100, 0.2);\n  color: #ff8888;\n  border: 1px solid #ff8888;\n}\n/*# sourceMappingURL=closet.component.css.map */"] });
 };
@@ -50493,6 +50729,11 @@ var ClosetComponent = class _ClosetComponent {
                 [class.active]="activeTab === 'music'"
                 (click)="setTab('music')">
             {{tools.closet[tools.lang].musicSection}}
+        </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}"
+                [class.active]="activeTab === 'backgrounds'"
+                (click)="setTab('backgrounds')">
+            {{tools.closet[tools.lang].backgroundsSection || 'Backgrounds'}}
         </button>
     </div>
 
@@ -50527,7 +50768,7 @@ var ClosetComponent = class _ClosetComponent {
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedSound === sound.id"
                      (click)="onSelectSound(sound)">
-                    <img src="img/icons/sound-svgrepo-com.svg"
+                    <img src="img/icons/sound-svgrepo-com.png"
                          class="item-icon"
                          [alt]="tools.getSoundName(sound)">
                     <div class="item-info">
@@ -50553,7 +50794,7 @@ var ClosetComponent = class _ClosetComponent {
                      [class.selected-cheems]="tools.selectedMusic === track.id"
                      (click)="onSelectMusic(track)">
                     @if (track.id === 0) {
-                        <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
+                        <img src="img/icons/volume-cross-svgrepo-com.png" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else {
                         <img [src]="track.cover || 'img/music/no_image.webp'" class="item-icon" [alt]="tools.getMusicName(track)" style="border-radius: 8px; object-fit: cover;">
                     }
@@ -50563,6 +50804,36 @@ var ClosetComponent = class _ClosetComponent {
                             <span class="item-desc">{{tools.getMusicDescription(track)}}</span>
                         }
                         @if (tools.selectedMusic === track.id) {
+                            <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
+                        } @else {
+                            <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    @if (activeTab === 'backgrounds') {
+        <div class="shop-grid">
+            @for (bg of unlockedBackgrounds; track $index) {
+                <div class="shop-card {{tools.themeColor}}"
+                     [class.selected-cheems]="tools.selectedBackground === bg.id"
+                     (click)="onSelectBackground(bg)">
+                    @if (bg.id === 'bg_none') {
+                        <img src="img/icons/picture-svgrepo-com.png" class="item-icon" [alt]="tools.getBackgroundName(bg)">
+                    } @else {
+                        <img [src]="tools.getBackgroundImg(bg.id)"
+                             class="item-img"
+                             style="border-radius: 8px; object-fit: cover;"
+                             [alt]="bg.id">
+                    }
+                    <div class="item-info">
+                        <span class="item-name">{{tools.getBackgroundName(bg)}}</span>
+                        @if (tools.getBackgroundDescription(bg)) {
+                            <span class="item-desc">{{tools.getBackgroundDescription(bg)}}</span>
+                        }
+                        @if (tools.selectedBackground === bg.id) {
                             <span class="status-badge active-badge">{{tools.closet[tools.lang].selected}}</span>
                         } @else {
                             <span class="status-badge unlocked-badge">{{tools.closet[tools.lang].equip}}</span>
@@ -50652,7 +50923,7 @@ var LicensesComponent = class _LicensesComponent {
   static \u0275fac = function LicensesComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _LicensesComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LicensesComponent, selectors: [["app-licenses"]], decls: 233, vars: 24, consts: [[1, "container"], [1, "licenses-title"], [1, "licenses-content"], ["href", "https://www.svgrepo.com/page/licensing/#CC0", "target", "_blank"], ["href", "https://www.svgrepo.com/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/solar-bold-icons/", "target", "_blank"], ["href", "https://www.svgrepo.com/collection/isometric-3d-interface-icons/", "target", "_blank"], ["href", "https://cosme.itch.io/snake", "target", "_blank"], ["href", "https://opengameart.org/", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-a-jazz-piano-110481/", "target", "_blank"], ["href", "https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-when-you-smile-151423/", "target", "_blank"], ["href", "https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-tradicional-magic-night-134393/", "target", "_blank"], ["href", "https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-titanium-170190/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-coffee-shop-189585/", "target", "_blank"], ["href", "https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com/es/music/cafeter%C3%ADa-believe-me-143530/", "target", "_blank"], ["href", "https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-city-streets-background-version-166003/", "target", "_blank"], ["href", "https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-trap-future-bass-royalty-free-music-167020/", "target", "_blank"], ["href", "https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com/es/music/electro-electro-summer-positive-party-141081/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"]], template: function LicensesComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _LicensesComponent, selectors: [["app-licenses"]], decls: 233, vars: 24, consts: [[1, "container"], [1, "licenses-title"], [1, "licenses-content"], ["href", "https://www.pngrepo.com/page/licensing/#CC0", "target", "_blank"], ["href", "https://www.pngrepo.com/", "target", "_blank"], ["href", "https://www.pngrepo.com/collection/solar-bold-icons/", "target", "_blank"], ["href", "https://www.pngrepo.com/collection/isometric-3d-interface-icons/", "target", "_blank"], ["href", "https://cosme.itch.io/snake", "target", "_blank"], ["href", "https://opengameart.org/", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/sugar6borg-dust-ft-raphael-novarina?si=dcf18380d94e4f029906b5ab13f212c9&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/dj-noah-6/jack-bootleg-free-download?si=0ea8c3007d314b6aba92cb5a5dc9fc73&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://soundcloud.com/relaxing-music-production/chillout-piano-lounge-calming-music?si=698f869d606546518e751a83447600a3&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-a-jazz-piano-110481/", "target", "_blank"], ["href", "https://pixabay.com/es/users/music_for_videos-26992513/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=110481", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-moderno-when-you-smile-151423/", "target", "_blank"], ["href", "https://pixabay.com/es/users/lexin_music-28841948/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=151423", "target", "_blank"], ["href", "https://pixabay.com/es/music/jazz-tradicional-magic-night-134393/", "target", "_blank"], ["href", "https://pixabay.com/es/users/keyframe_audio-32058364/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=134393", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-titanium-170190/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alisiabeats-39461785/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=170190", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-coffee-shop-189585/", "target", "_blank"], ["href", "https://pixabay.com/es/users/cryptologymedia-37604736/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=189585", "target", "_blank"], ["href", "https://pixabay.com/es/music/cafeter%C3%ADa-believe-me-143530/", "target", "_blank"], ["href", "https://pixabay.com/es/users/monument_music-34040748/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=143530", "target", "_blank"], ["href", "https://pixabay.com/es/music/late-city-streets-background-version-166003/", "target", "_blank"], ["href", "https://pixabay.com/es/users/howling_hound_music-39347795/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=166003", "target", "_blank"], ["href", "https://pixabay.com/es/music/futuro-bajo-trap-future-bass-royalty-free-music-167020/", "target", "_blank"], ["href", "https://pixabay.com/es/users/royaltyfreemusic-29393722/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=167020", "target", "_blank"], ["href", "https://pixabay.com/es/music/electro-electro-summer-positive-party-141081/", "target", "_blank"], ["href", "https://pixabay.com/es/users/alex_kizenkov-33612407/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=141081", "target", "_blank"], ["href", "https://soundcloud.com/joeyillah/tetris-joey-illah-bootleg-1?si=d58f385c9db242479b066090d6536864&utm_source=clipboard&utm_medium=text&utm_campaign=social_sharing", "target", "_blank"]], template: function LicensesComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 0)(1, "div")(2, "h2", 1);
       \u0275\u0275text(3);
@@ -50975,10 +51246,10 @@ var LicensesComponent = class _LicensesComponent {
         <div class="licenses-content">
             <h3>SVG & Icons</h3>
             <ul>
-                <li><strong>CC0 License:</strong> <a href="https://www.svgrepo.com/page/licensing/#CC0" target="_blank">SVG Repo Licensing</a></li>
-                <li><strong>Page:</strong> <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a></li>
-                <li><strong>Solar Bold Icons:</strong> <a href="https://www.svgrepo.com/collection/solar-bold-icons/" target="_blank">Collection</a></li>
-                <li><strong>Isometric 3D Interface Icons:</strong> <a href="https://www.svgrepo.com/collection/isometric-3d-interface-icons/" target="_blank">Collection</a></li>
+                <li><strong>CC0 License:</strong> <a href="https://www.pngrepo.com/page/licensing/#CC0" target="_blank">SVG Repo Licensing</a></li>
+                <li><strong>Page:</strong> <a href="https://www.pngrepo.com/" target="_blank">SVG Repo</a></li>
+                <li><strong>Solar Bold Icons:</strong> <a href="https://www.pngrepo.com/collection/solar-bold-icons/" target="_blank">Collection</a></li>
+                <li><strong>Isometric 3D Interface Icons:</strong> <a href="https://www.pngrepo.com/collection/isometric-3d-interface-icons/" target="_blank">Collection</a></li>
                 <li><strong>Snake Assets:</strong> <a href="https://cosme.itch.io/snake" target="_blank">Snake Game Assets</a></li>
                 <li><strong>Board game assets:</strong> <a href="https://opengameart.org/" target="_blank">OpenGameArt.Org</a></li>
             </ul>
@@ -51102,7 +51373,7 @@ var _forTrack03 = ($index, $item) => $item.id;
 function ShopComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275elementStart(0, "button", 24);
     \u0275\u0275listener("click", function ShopComponent_Conditional_8_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51120,7 +51391,7 @@ function ShopComponent_Conditional_8_Template(rf, ctx) {
 function ShopComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 24);
+    \u0275\u0275elementStart(0, "button", 25);
     \u0275\u0275listener("click", function ShopComponent_Conditional_9_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r4);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51138,7 +51409,7 @@ function ShopComponent_Conditional_9_Template(rf, ctx) {
 function ShopComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 25);
+    \u0275\u0275elementStart(0, "button", 26);
     \u0275\u0275listener("click", function ShopComponent_Conditional_10_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51156,7 +51427,7 @@ function ShopComponent_Conditional_10_Template(rf, ctx) {
 function ShopComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 26);
+    \u0275\u0275elementStart(0, "button", 27);
     \u0275\u0275listener("click", function ShopComponent_Conditional_11_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r6);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51174,7 +51445,7 @@ function ShopComponent_Conditional_11_Template(rf, ctx) {
 function ShopComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 27);
+    \u0275\u0275elementStart(0, "button", 28);
     \u0275\u0275listener("click", function ShopComponent_Conditional_12_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r7);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51192,7 +51463,7 @@ function ShopComponent_Conditional_12_Template(rf, ctx) {
 function ShopComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 28);
+    \u0275\u0275elementStart(0, "button", 29);
     \u0275\u0275listener("click", function ShopComponent_Conditional_13_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51210,7 +51481,7 @@ function ShopComponent_Conditional_13_Template(rf, ctx) {
 function ShopComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
+    \u0275\u0275elementStart(0, "button", 30);
     \u0275\u0275listener("click", function ShopComponent_Conditional_14_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -51227,15 +51498,33 @@ function ShopComponent_Conditional_14_Template(rf, ctx) {
 }
 function ShopComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 14)(1, "div", 30);
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 31);
+    \u0275\u0275listener("click", function ShopComponent_Conditional_15_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.scrollToSection("sec-background"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].backgroundSection) || "Backgrounds", " ");
+  }
+}
+function ShopComponent_Conditional_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 15)(1, "div", 32);
     \u0275\u0275text(2, "\u26A1");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 31)(4, "span", 32);
+    \u0275\u0275elementStart(3, "div", 33)(4, "span", 34);
     \u0275\u0275text(5);
     \u0275\u0275elementStart(6, "strong");
     \u0275\u0275text(7);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(8, "span", 33);
+    \u0275\u0275elementStart(8, "span", 35);
     \u0275\u0275text(9);
     \u0275\u0275elementEnd()()();
   }
@@ -51249,41 +51538,41 @@ function ShopComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275textInterpolate2(" \u23F3 ", ctx_r2.boosterFormattedTime, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remaining) || "remaining", " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_2_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 36);
+    \u0275\u0275element(0, "img", 38);
   }
   if (rf & 2) {
-    const item_r10 = \u0275\u0275nextContext().$implicit;
+    const item_r11 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275property("src", ctx_r2.getShopCardIcon(item_r10), \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getShopItemName(item_r10));
+    \u0275\u0275property("src", ctx_r2.getShopCardIcon(item_r11), \u0275\u0275sanitizeUrl)("alt", ctx_r2.tools.getShopItemName(item_r11));
   }
 }
-function ShopComponent_ng_template_33_Conditional_3_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 37);
+    \u0275\u0275elementStart(0, "span", 39);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r10 = \u0275\u0275nextContext().$implicit;
+    const item_r11 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(item_r10.icon);
+    \u0275\u0275textInterpolate(item_r11.icon);
   }
 }
-function ShopComponent_ng_template_33_Conditional_4_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 38);
+    \u0275\u0275elementStart(0, "span", 40);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r10 = \u0275\u0275nextContext().$implicit;
+    const item_r11 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1("x", item_r10.multiplier || 1, "");
+    \u0275\u0275textInterpolate1("x", item_r11.multiplier || 1, "");
   }
 }
-function ShopComponent_ng_template_33_Conditional_5_Conditional_1_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_5_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
   }
@@ -51292,32 +51581,32 @@ function ShopComponent_ng_template_33_Conditional_5_Conditional_1_Template(rf, c
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].maxLevel) || "Max Level", " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_5_Conditional_2_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_5_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
   }
   if (rf & 2) {
-    const item_r10 = \u0275\u0275nextContext(2).$implicit;
+    const item_r11 = \u0275\u0275nextContext(2).$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275textInterpolate1(" Lvl ", ctx_r2.tools.purchasedUpgrades[item_r10.id] || 0, " ");
+    \u0275\u0275textInterpolate1(" Lvl ", ctx_r2.tools.purchasedUpgrades[item_r11.id] || 0, " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_5_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 39);
-    \u0275\u0275template(1, ShopComponent_ng_template_33_Conditional_5_Conditional_1_Template, 1, 1)(2, ShopComponent_ng_template_33_Conditional_5_Conditional_2_Template, 1, 1);
+    \u0275\u0275elementStart(0, "span", 41);
+    \u0275\u0275template(1, ShopComponent_ng_template_34_Conditional_5_Conditional_1_Template, 1, 1)(2, ShopComponent_ng_template_34_Conditional_5_Conditional_2_Template, 1, 1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r10 = \u0275\u0275nextContext().$implicit;
+    const item_r11 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.isUpgradeMaxLevel(item_r10) ? 1 : 2);
+    \u0275\u0275conditional(ctx_r2.isUpgradeMaxLevel(item_r11) ? 1 : 2);
   }
 }
-function ShopComponent_ng_template_33_Conditional_11_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 43);
+    \u0275\u0275elementStart(0, "div", 45);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51327,26 +51616,26 @@ function ShopComponent_ng_template_33_Conditional_11_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_12_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 46);
+    \u0275\u0275elementStart(0, "div", 48);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r10 = \u0275\u0275nextContext().$implicit;
+    const item_r11 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("limit-reached", !ctx_r2.tools.canBuyDailyLimit(item_r10));
+    \u0275\u0275classProp("limit-reached", !ctx_r2.tools.canBuyDailyLimit(item_r11));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate3(" ", ctx_r2.tools.getRemainingDailyLimit(item_r10), " / ", item_r10.dailyLimit, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remainingToday) || "left today", " ");
+    \u0275\u0275textInterpolate3(" ", ctx_r2.tools.getRemainingDailyLimit(item_r11), " / ", item_r11.dailyLimit, " ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].remainingToday) || "left today", " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_14_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 47)(1, "span", 48);
+    \u0275\u0275elementStart(0, "div", 49)(1, "span", 50);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "button", 49);
+    \u0275\u0275elementStart(3, "button", 51);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
   }
@@ -51358,9 +51647,9 @@ function ShopComponent_ng_template_33_Conditional_14_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].purchased) || "Purchased", " ");
   }
 }
-function ShopComponent_ng_template_33_Conditional_15_Conditional_1_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 50);
+    \u0275\u0275elementStart(0, "span", 52);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -51370,99 +51659,99 @@ function ShopComponent_ng_template_33_Conditional_15_Conditional_1_Template(rf, 
     \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].todaysPrice) || "Today's Price:");
   }
 }
-function ShopComponent_ng_template_33_Conditional_15_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 47);
-    \u0275\u0275template(1, ShopComponent_ng_template_33_Conditional_15_Conditional_1_Template, 2, 1, "span", 50);
-    \u0275\u0275elementStart(2, "span", 51);
+    const _r12 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 49);
+    \u0275\u0275template(1, ShopComponent_ng_template_34_Conditional_15_Conditional_1_Template, 2, 1, "span", 52);
+    \u0275\u0275elementStart(2, "span", 53);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "button", 52);
-    \u0275\u0275listener("click", function ShopComponent_ng_template_33_Conditional_15_Template_button_click_4_listener() {
-      \u0275\u0275restoreView(_r11);
-      const item_r10 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275elementStart(4, "button", 54);
+    \u0275\u0275listener("click", function ShopComponent_ng_template_34_Conditional_15_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r12);
+      const item_r11 = \u0275\u0275nextContext().$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.buyItem(item_r10));
+      return \u0275\u0275resetView(ctx_r2.buyItem(item_r11));
     });
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const item_r10 = \u0275\u0275nextContext().$implicit;
+    const item_r11 = \u0275\u0275nextContext().$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275conditional(item_r10.type === "dogecoin" ? 1 : -1);
+    \u0275\u0275conditional(item_r11.type === "dogecoin" ? 1 : -1);
     \u0275\u0275advance();
-    \u0275\u0275classProp("free-cost", ctx_r2.formatItemCost(item_r10) === ((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].free) || "Free"));
+    \u0275\u0275classProp("free-cost", ctx_r2.formatItemCost(item_r11) === ((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].free) || "Free"));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(ctx_r2.formatItemCost(item_r10));
+    \u0275\u0275textInterpolate(ctx_r2.formatItemCost(item_r11));
     \u0275\u0275advance();
-    \u0275\u0275property("disabled", !ctx_r2.canBuy(item_r10));
+    \u0275\u0275property("disabled", !ctx_r2.canBuy(item_r11));
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", (ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].buyBtn) || "Buy", " ");
   }
 }
-function ShopComponent_ng_template_33_Template(rf, ctx) {
+function ShopComponent_ng_template_34_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 34)(1, "div", 35);
-    \u0275\u0275template(2, ShopComponent_ng_template_33_Conditional_2_Template, 1, 2, "img", 36)(3, ShopComponent_ng_template_33_Conditional_3_Template, 2, 1, "span", 37)(4, ShopComponent_ng_template_33_Conditional_4_Template, 2, 1, "span", 38)(5, ShopComponent_ng_template_33_Conditional_5_Template, 3, 1, "span", 39);
+    \u0275\u0275elementStart(0, "div", 36)(1, "div", 37);
+    \u0275\u0275template(2, ShopComponent_ng_template_34_Conditional_2_Template, 1, 2, "img", 38)(3, ShopComponent_ng_template_34_Conditional_3_Template, 2, 1, "span", 39)(4, ShopComponent_ng_template_34_Conditional_4_Template, 2, 1, "span", 40)(5, ShopComponent_ng_template_34_Conditional_5_Template, 3, 1, "span", 41);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 40)(7, "h3", 41);
+    \u0275\u0275elementStart(6, "div", 42)(7, "h3", 43);
     \u0275\u0275text(8);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "p", 42);
+    \u0275\u0275elementStart(9, "p", 44);
     \u0275\u0275text(10);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(11, ShopComponent_ng_template_33_Conditional_11_Template, 2, 1, "div", 43)(12, ShopComponent_ng_template_33_Conditional_12_Template, 2, 5, "div", 44);
+    \u0275\u0275template(11, ShopComponent_ng_template_34_Conditional_11_Template, 2, 1, "div", 45)(12, ShopComponent_ng_template_34_Conditional_12_Template, 2, 5, "div", 46);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "div", 45);
-    \u0275\u0275template(14, ShopComponent_ng_template_33_Conditional_14_Template, 5, 2)(15, ShopComponent_ng_template_33_Conditional_15_Template, 6, 6);
+    \u0275\u0275elementStart(13, "div", 47);
+    \u0275\u0275template(14, ShopComponent_ng_template_34_Conditional_14_Template, 5, 2)(15, ShopComponent_ng_template_34_Conditional_15_Template, 6, 6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r10 = ctx.$implicit;
+    const item_r11 = ctx.$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275classProp("coin-card", item_r10.type === "dogecoin")("booster-card", item_r10.type === "booster")("cheems-card", item_r10.type === "cheems")("sound-card", item_r10.type === "sound")("music-card", item_r10.type === "music")("minigames-card", item_r10.type === "minigame")("currency-dgc-to-mg-card", item_r10.id === "curr_dgc_to_mg")("currency-mg-to-dgc-card", item_r10.id === "curr_mg_to_dgc");
+    \u0275\u0275classProp("coin-card", item_r11.type === "dogecoin")("booster-card", item_r11.type === "booster")("cheems-card", item_r11.type === "cheems")("sound-card", item_r11.type === "sound")("music-card", item_r11.type === "music")("background-card", item_r11.type === "background")("minigames-card", item_r11.type === "minigame")("currency-dgc-to-mg-card", item_r11.id === "curr_dgc_to_mg")("currency-mg-to-dgc-card", item_r11.id === "curr_mg_to_dgc");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(item_r10.icon.endsWith(".svg") || item_r10.icon.endsWith(".png") || item_r10.icon.endsWith(".webp") ? 2 : 3);
+    \u0275\u0275conditional(item_r11.icon.endsWith(".png") || item_r11.icon.endsWith(".png") || item_r11.icon.endsWith(".webp") ? 2 : 3);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(item_r10.type === "booster" ? 4 : -1);
+    \u0275\u0275conditional(item_r11.type === "booster" ? 4 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(item_r10.type === "upgrade" ? 5 : -1);
+    \u0275\u0275conditional(item_r11.type === "upgrade" ? 5 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemName(item_r10));
+    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemName(item_r11));
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemDesc(item_r10));
+    \u0275\u0275textInterpolate(ctx_r2.tools.getShopItemDesc(item_r11));
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r10) ? 11 : item_r10.dailyLimit && item_r10.dailyLimit > 0 ? 12 : -1);
+    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r11) ? 11 : item_r11.dailyLimit && item_r11.dailyLimit > 0 ? 12 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r10) ? 14 : 15);
+    \u0275\u0275conditional(ctx_r2.tools.isLifetimeLimitReached(item_r11) ? 14 : 15);
   }
 }
-function ShopComponent_Conditional_35_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_36_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_35_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_36_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_35_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
+    \u0275\u0275template(0, ShopComponent_Conditional_36_For_5_ng_container_0_Template, 1, 0, "ng-container", 58);
   }
   if (rf & 2) {
-    const item_r12 = ctx.$implicit;
+    const item_r13 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r12));
+    const shopCard_r14 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r13));
   }
 }
-function ShopComponent_Conditional_35_Template(rf, ctx) {
+function ShopComponent_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 53)(1, "h2", 54);
+    \u0275\u0275elementStart(0, "div", 55)(1, "h2", 56);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 55);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_35_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 57);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51473,29 +51762,29 @@ function ShopComponent_Conditional_35_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.dogecoinItems);
   }
 }
-function ShopComponent_Conditional_36_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_37_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_36_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_37_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_36_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
+    \u0275\u0275template(0, ShopComponent_Conditional_37_For_5_ng_container_0_Template, 1, 0, "ng-container", 58);
   }
   if (rf & 2) {
-    const item_r14 = ctx.$implicit;
+    const item_r15 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r14));
+    const shopCard_r14 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r15));
   }
 }
-function ShopComponent_Conditional_36_Template(rf, ctx) {
+function ShopComponent_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 57)(1, "h2", 58);
+    \u0275\u0275elementStart(0, "div", 59)(1, "h2", 60);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 55);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_36_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 57);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51506,29 +51795,29 @@ function ShopComponent_Conditional_36_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.upgradeItems);
   }
 }
-function ShopComponent_Conditional_37_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_38_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_37_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_38_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_37_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
+    \u0275\u0275template(0, ShopComponent_Conditional_38_For_5_ng_container_0_Template, 1, 0, "ng-container", 58);
   }
   if (rf & 2) {
-    const item_r15 = ctx.$implicit;
+    const item_r16 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r15));
+    const shopCard_r14 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r16));
   }
 }
-function ShopComponent_Conditional_37_Template(rf, ctx) {
+function ShopComponent_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 59)(1, "h2", 60);
+    \u0275\u0275elementStart(0, "div", 61)(1, "h2", 62);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 55);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_37_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 57);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51539,29 +51828,29 @@ function ShopComponent_Conditional_37_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.boosterItems);
   }
 }
-function ShopComponent_Conditional_38_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_39_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_38_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_39_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_38_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
+    \u0275\u0275template(0, ShopComponent_Conditional_39_For_5_ng_container_0_Template, 1, 0, "ng-container", 58);
   }
   if (rf & 2) {
-    const item_r16 = ctx.$implicit;
+    const item_r17 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r16));
+    const shopCard_r14 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r17));
   }
 }
-function ShopComponent_Conditional_38_Template(rf, ctx) {
+function ShopComponent_Conditional_39_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 61)(1, "h2", 62);
+    \u0275\u0275elementStart(0, "div", 63)(1, "h2", 64);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 55);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_38_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 57);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51572,29 +51861,29 @@ function ShopComponent_Conditional_38_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.minigameItems);
   }
 }
-function ShopComponent_Conditional_39_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_40_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_39_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_40_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_39_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
+    \u0275\u0275template(0, ShopComponent_Conditional_40_For_5_ng_container_0_Template, 1, 0, "ng-container", 58);
   }
   if (rf & 2) {
-    const item_r17 = ctx.$implicit;
+    const item_r18 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r17));
+    const shopCard_r14 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r18));
   }
 }
-function ShopComponent_Conditional_39_Template(rf, ctx) {
+function ShopComponent_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 63)(1, "h2", 64);
+    \u0275\u0275elementStart(0, "div", 65)(1, "h2", 66);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 55);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_39_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 57);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51605,29 +51894,29 @@ function ShopComponent_Conditional_39_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.cheemsItems);
   }
 }
-function ShopComponent_Conditional_40_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_41_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_40_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_41_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_40_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
+    \u0275\u0275template(0, ShopComponent_Conditional_41_For_5_ng_container_0_Template, 1, 0, "ng-container", 58);
   }
   if (rf & 2) {
-    const item_r18 = ctx.$implicit;
+    const item_r19 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r18));
+    const shopCard_r14 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r19));
   }
 }
-function ShopComponent_Conditional_40_Template(rf, ctx) {
+function ShopComponent_Conditional_41_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 65)(1, "h2", 66);
+    \u0275\u0275elementStart(0, "div", 67)(1, "h2", 68);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 55);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_40_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 57);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_41_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51638,29 +51927,29 @@ function ShopComponent_Conditional_40_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r2.soundItems);
   }
 }
-function ShopComponent_Conditional_41_For_5_ng_container_0_Template(rf, ctx) {
+function ShopComponent_Conditional_42_For_5_ng_container_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementContainer(0);
   }
 }
-function ShopComponent_Conditional_41_For_5_Template(rf, ctx) {
+function ShopComponent_Conditional_42_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, ShopComponent_Conditional_41_For_5_ng_container_0_Template, 1, 0, "ng-container", 56);
+    \u0275\u0275template(0, ShopComponent_Conditional_42_For_5_ng_container_0_Template, 1, 0, "ng-container", 58);
   }
   if (rf & 2) {
-    const item_r19 = ctx.$implicit;
+    const item_r20 = ctx.$implicit;
     \u0275\u0275nextContext(2);
-    const shopCard_r13 = \u0275\u0275reference(34);
-    \u0275\u0275property("ngTemplateOutlet", shopCard_r13)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r19));
+    const shopCard_r14 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r20));
   }
 }
-function ShopComponent_Conditional_41_Template(rf, ctx) {
+function ShopComponent_Conditional_42_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 67)(1, "h2", 68);
+    \u0275\u0275elementStart(0, "div", 69)(1, "h2", 70);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(3, "div", 55);
-    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_41_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementStart(3, "div", 57);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_42_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -51669,6 +51958,39 @@ function ShopComponent_Conditional_41_Template(rf, ctx) {
     \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].musicSection) || "Background Music");
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r2.musicItems);
+  }
+}
+function ShopComponent_Conditional_43_For_5_ng_container_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementContainer(0);
+  }
+}
+function ShopComponent_Conditional_43_For_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, ShopComponent_Conditional_43_For_5_ng_container_0_Template, 1, 0, "ng-container", 58);
+  }
+  if (rf & 2) {
+    const item_r21 = ctx.$implicit;
+    \u0275\u0275nextContext(2);
+    const shopCard_r14 = \u0275\u0275reference(35);
+    \u0275\u0275property("ngTemplateOutlet", shopCard_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(2, _c0, item_r21));
+  }
+}
+function ShopComponent_Conditional_43_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 71)(1, "h2", 72);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "div", 57);
+    \u0275\u0275repeaterCreate(4, ShopComponent_Conditional_43_For_5_Template, 1, 4, "ng-container", null, _forTrack03);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate((ctx_r2.tools.shop[ctx_r2.tools.lang] == null ? null : ctx_r2.tools.shop[ctx_r2.tools.lang].backgroundSection) || "Backgrounds");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r2.backgroundItems);
   }
 }
 var ShopComponent = class _ShopComponent {
@@ -51783,7 +52105,7 @@ var ShopComponent = class _ShopComponent {
           this.tools.showToast(this.tools.shop[this.tools.lang]?.notEnoughCoins || "Not enough DogeCoins!");
         }
       }
-    } else if (item.type === "cheems" || item.type === "sound" || item.type === "music") {
+    } else if (item.type === "cheems" || item.type === "sound" || item.type === "music" || item.type === "background") {
       this.tools.buyShopUnlockableItem(item);
     }
   }
@@ -51857,6 +52179,9 @@ var ShopComponent = class _ShopComponent {
   get musicItems() {
     return this.tools.shopItems.filter((i) => i.type === "music");
   }
+  get backgroundItems() {
+    return this.tools.shopItems.filter((i) => i.type === "background");
+  }
   scrollToSection(sectionId) {
     const el = document.getElementById(sectionId);
     if (el) {
@@ -51878,10 +52203,13 @@ var ShopComponent = class _ShopComponent {
       return "img/cheems/locked-cheems.webp";
     }
     if (item.type === "sound") {
-      return "img/icons/black-sound-svgrepo-com.svg";
+      return "img/icons/black-sound-svgrepo-com.png";
     }
     if (item.type === "music") {
-      return "img/icons/black-music-svgrepo-com.svg";
+      return "img/icons/black-music-svgrepo-com.png";
+    }
+    if (item.type === "background") {
+      return "img/icons/black-picture-svgrepo-com.png";
     }
     return item.icon;
   }
@@ -51894,7 +52222,7 @@ var ShopComponent = class _ShopComponent {
         return ctx.onWindowScroll();
       }, false, \u0275\u0275resolveWindow);
     }
-  }, decls: 44, vars: 28, consts: [["shopCard", ""], [1, "container"], ["id", "shop-top", 2, "width", "95%", "max-width", "1100px", "margin-top", "1rem", "border-radius", "20px"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-upgrade"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-minigames"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin.png", "alt", "DogeCoin", 1, "mini-coin-icon"], [1, "balance-value"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-upgrade", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-minigames", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "upgrade-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-upgrade", 1, "section-separator"], [1, "section-title", "upgrade-title"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-minigame", 1, "section-separator"], [1, "section-title", "minigames-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"]], template: function ShopComponent_Template(rf, ctx) {
+  }, decls: 46, vars: 30, consts: [["shopCard", ""], [1, "container"], ["id", "shop-top", 2, "width", "95%", "max-width", "1100px", "margin-top", "1rem", "border-radius", "20px"], [1, "shop-header"], [1, "shop-title"], [1, "shop-subtitle"], [1, "shop-nav-bar"], [1, "shop-nav-btn", "nav-dogecoin"], [1, "shop-nav-btn", "nav-upgrade"], [1, "shop-nav-btn", "nav-booster"], [1, "shop-nav-btn", "nav-minigames"], [1, "shop-nav-btn", "nav-cheems"], [1, "shop-nav-btn", "nav-sound"], [1, "shop-nav-btn", "nav-music"], [1, "shop-nav-btn", "nav-background"], [1, "active-booster-banner"], [1, "shop-balance-bar"], [1, "balance-item"], [1, "balance-label"], [1, "balance-value", "points-val"], [1, "balance-value", "doge-val"], ["src", "img/dogecoin.png", "alt", "DogeCoin", 1, "mini-coin-icon"], [1, "balance-value"], ["aria-label", "Back to top", 3, "click"], [1, "shop-nav-btn", "nav-dogecoin", 3, "click"], [1, "shop-nav-btn", "nav-upgrade", 3, "click"], [1, "shop-nav-btn", "nav-booster", 3, "click"], [1, "shop-nav-btn", "nav-minigames", 3, "click"], [1, "shop-nav-btn", "nav-cheems", 3, "click"], [1, "shop-nav-btn", "nav-sound", 3, "click"], [1, "shop-nav-btn", "nav-music", 3, "click"], [1, "shop-nav-btn", "nav-background", 3, "click"], [1, "booster-banner-icon"], [1, "booster-banner-content"], [1, "booster-banner-title"], [1, "booster-banner-timer"], [1, "shop-card"], [1, "shop-card-icon-wrapper"], [1, "shop-card-icon", 3, "src", "alt"], [1, "shop-card-emoji"], [1, "multiplier-badge"], [1, "upgrade-badge"], [1, "shop-card-info"], [1, "item-name"], [1, "item-desc"], [1, "daily-limit-badge", "limit-reached"], [1, "daily-limit-badge", 3, "limit-reached"], [1, "shop-card-footer"], [1, "daily-limit-badge"], [1, "item-cost"], [1, "cost-val", "free-cost"], ["disabled", "", 1, "buy-btn"], [1, "cost-label"], [1, "cost-val"], [1, "buy-btn", 3, "click", "disabled"], ["id", "sec-dogecoin", 1, "section-separator"], [1, "section-title", "dogecoin-title"], [1, "shop-grid"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"], ["id", "sec-upgrade", 1, "section-separator"], [1, "section-title", "upgrade-title"], ["id", "sec-booster", 1, "section-separator"], [1, "section-title", "booster-title"], ["id", "sec-minigame", 1, "section-separator"], [1, "section-title", "minigames-title"], ["id", "sec-cheems", 1, "section-separator"], [1, "section-title", "cheems-title"], ["id", "sec-sound", 1, "section-separator"], [1, "section-title", "sound-title"], ["id", "sec-music", 1, "section-separator"], [1, "section-title", "music-title"], ["id", "sec-background", 1, "section-separator"], [1, "section-title", "background-title"]], template: function ShopComponent_Template(rf, ctx) {
     if (rf & 1) {
       const _r1 = \u0275\u0275getCurrentView();
       \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "header", 3)(3, "h1", 4);
@@ -51904,36 +52232,36 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275text(6);
       \u0275\u0275elementEnd()();
       \u0275\u0275elementStart(7, "div", 6);
-      \u0275\u0275template(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 8)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 9)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 10)(12, ShopComponent_Conditional_12_Template, 2, 1, "button", 11)(13, ShopComponent_Conditional_13_Template, 2, 1, "button", 12)(14, ShopComponent_Conditional_14_Template, 2, 1, "button", 13);
+      \u0275\u0275template(8, ShopComponent_Conditional_8_Template, 2, 1, "button", 7)(9, ShopComponent_Conditional_9_Template, 2, 1, "button", 8)(10, ShopComponent_Conditional_10_Template, 2, 1, "button", 9)(11, ShopComponent_Conditional_11_Template, 2, 1, "button", 10)(12, ShopComponent_Conditional_12_Template, 2, 1, "button", 11)(13, ShopComponent_Conditional_13_Template, 2, 1, "button", 12)(14, ShopComponent_Conditional_14_Template, 2, 1, "button", 13)(15, ShopComponent_Conditional_15_Template, 2, 1, "button", 14);
       \u0275\u0275elementEnd();
-      \u0275\u0275template(15, ShopComponent_Conditional_15_Template, 10, 5, "div", 14);
-      \u0275\u0275elementStart(16, "div", 15)(17, "div", 16)(18, "span", 17);
-      \u0275\u0275text(19, "Points:");
+      \u0275\u0275template(16, ShopComponent_Conditional_16_Template, 10, 5, "div", 15);
+      \u0275\u0275elementStart(17, "div", 16)(18, "div", 17)(19, "span", 18);
+      \u0275\u0275text(20, "Points:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(20, "span", 18);
-      \u0275\u0275text(21);
+      \u0275\u0275elementStart(21, "span", 19);
+      \u0275\u0275text(22);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(22, "div", 16)(23, "span", 17);
-      \u0275\u0275text(24, "DogeCoins:");
+      \u0275\u0275elementStart(23, "div", 17)(24, "span", 18);
+      \u0275\u0275text(25, "DogeCoins:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(25, "span", 19);
-      \u0275\u0275element(26, "img", 20);
-      \u0275\u0275text(27);
+      \u0275\u0275elementStart(26, "span", 20);
+      \u0275\u0275element(27, "img", 21);
+      \u0275\u0275text(28);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(28, "div", 16)(29, "span", 17);
-      \u0275\u0275text(30, "Minigame Pts:");
+      \u0275\u0275elementStart(29, "div", 17)(30, "span", 18);
+      \u0275\u0275text(31, "Minigame Pts:");
       \u0275\u0275elementEnd();
-      \u0275\u0275elementStart(31, "span", 21);
-      \u0275\u0275text(32);
+      \u0275\u0275elementStart(32, "span", 22);
+      \u0275\u0275text(33);
       \u0275\u0275elementEnd()()();
-      \u0275\u0275template(33, ShopComponent_ng_template_33_Template, 16, 23, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(35, ShopComponent_Conditional_35_Template, 6, 1)(36, ShopComponent_Conditional_36_Template, 6, 1)(37, ShopComponent_Conditional_37_Template, 6, 1)(38, ShopComponent_Conditional_38_Template, 6, 1)(39, ShopComponent_Conditional_39_Template, 6, 1)(40, ShopComponent_Conditional_40_Template, 6, 1)(41, ShopComponent_Conditional_41_Template, 6, 1);
+      \u0275\u0275template(34, ShopComponent_ng_template_34_Template, 16, 25, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(36, ShopComponent_Conditional_36_Template, 6, 1)(37, ShopComponent_Conditional_37_Template, 6, 1)(38, ShopComponent_Conditional_38_Template, 6, 1)(39, ShopComponent_Conditional_39_Template, 6, 1)(40, ShopComponent_Conditional_40_Template, 6, 1)(41, ShopComponent_Conditional_41_Template, 6, 1)(42, ShopComponent_Conditional_42_Template, 6, 1)(43, ShopComponent_Conditional_43_Template, 6, 1);
       \u0275\u0275elementEnd()();
-      \u0275\u0275elementStart(42, "button", 22);
-      \u0275\u0275listener("click", function ShopComponent_Template_button_click_42_listener() {
+      \u0275\u0275elementStart(44, "button", 23);
+      \u0275\u0275listener("click", function ShopComponent_Template_button_click_44_listener() {
         \u0275\u0275restoreView(_r1);
         return \u0275\u0275resetView(ctx.scrollToTop());
       });
-      \u0275\u0275text(43, " \u2191\n");
+      \u0275\u0275text(45, " \u2191\n");
       \u0275\u0275elementEnd();
     }
     if (rf & 2) {
@@ -51958,7 +52286,9 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275advance();
       \u0275\u0275conditional(ctx.musicItems.length > 0 ? 14 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterRemainingSeconds > 0 ? 15 : -1);
+      \u0275\u0275conditional(ctx.backgroundItems.length > 0 ? 15 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.boosterRemainingSeconds > 0 ? 16 : -1);
       \u0275\u0275advance(6);
       \u0275\u0275textInterpolate1("", ctx.tools.formatBigNumber(ctx.tools.points), " Pts");
       \u0275\u0275advance(6);
@@ -51966,19 +52296,21 @@ var ShopComponent = class _ShopComponent {
       \u0275\u0275advance(5);
       \u0275\u0275textInterpolate1("\u{1F3AE} ", ctx.tools.formatBigNumber(ctx.tools.minigameCoins), "");
       \u0275\u0275advance(3);
-      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 35 : -1);
+      \u0275\u0275conditional(ctx.dogecoinItems.length > 0 ? 36 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 36 : -1);
+      \u0275\u0275conditional(ctx.upgradeItems.length > 0 ? 37 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 37 : -1);
+      \u0275\u0275conditional(ctx.boosterItems.length > 0 ? 38 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 38 : -1);
+      \u0275\u0275conditional(ctx.minigameItems.length > 0 ? 39 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 39 : -1);
+      \u0275\u0275conditional(ctx.cheemsItems.length > 0 ? 40 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 40 : -1);
+      \u0275\u0275conditional(ctx.soundItems.length > 0 ? 41 : -1);
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 41 : -1);
+      \u0275\u0275conditional(ctx.musicItems.length > 0 ? 42 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.backgroundItems.length > 0 ? 43 : -1);
       \u0275\u0275advance();
       \u0275\u0275classMapInterpolate1("back-to-top-btn ", ctx.tools.themeColor, "");
       \u0275\u0275classProp("visible", ctx.showScrollTop);
@@ -52033,6 +52365,11 @@ var ShopComponent = class _ShopComponent {
                 {{tools.shop[tools.lang]?.musicSection || 'Background Music'}}
             </button>
         }
+        @if (backgroundItems.length > 0) {
+            <button class="shop-nav-btn nav-background" (click)="scrollToSection('sec-background')">
+                {{tools.shop[tools.lang]?.backgroundSection || 'Backgrounds'}}
+            </button>
+        }
     </div>
 
     <!-- Active Booster Banner -->
@@ -52078,11 +52415,12 @@ var ShopComponent = class _ShopComponent {
              [class.cheems-card]="item.type === 'cheems'"
              [class.sound-card]="item.type === 'sound'"
              [class.music-card]="item.type === 'music'"
+             [class.background-card]="item.type === 'background'"
              [class.minigames-card]="item.type === 'minigame'"
              [class.currency-dgc-to-mg-card]="item.id === 'curr_dgc_to_mg'"
              [class.currency-mg-to-dgc-card]="item.id === 'curr_mg_to_dgc'">
             <div class="shop-card-icon-wrapper">
-                @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png') || item.icon.endsWith('.webp')) {
+                @if (item.icon.endsWith('.png') || item.icon.endsWith('.png') || item.icon.endsWith('.webp')) {
                     <img [src]="getShopCardIcon(item)" class="shop-card-icon" [alt]="tools.getShopItemName(item)">
                 } @else {
                     <span class="shop-card-emoji">{{item.icon}}</span>
@@ -52220,6 +52558,18 @@ var ShopComponent = class _ShopComponent {
         </div>
         <div class="shop-grid">
             @for (item of musicItems; track item.id) {
+                <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
+            }
+        </div>
+    }
+
+    <!-- Backgrounds Section -->
+    @if (backgroundItems.length > 0) {
+        <div class="section-separator" id="sec-background">
+            <h2 class="section-title background-title">{{tools.shop[tools.lang]?.backgroundSection || 'Backgrounds'}}</h2>
+        </div>
+        <div class="shop-grid">
+            @for (item of backgroundItems; track item.id) {
                 <ng-container *ngTemplateOutlet="shopCard; context: { $implicit: item }"></ng-container>
             }
         </div>
@@ -89572,7 +89922,6 @@ var TicTacToeComponent = class _TicTacToeComponent {
   ngOnInit() {
     this.tools.actPage = "tic_tac_toe";
     this.tools.setTitle("Tic Tac Toe");
-    this.tools.playMusic("music_1");
     this.startNewGame();
   }
   startNewGame() {
@@ -90384,7 +90733,6 @@ var BlackJackComponent = class _BlackJackComponent {
     return __async(this, null, function* () {
       this.tools.actPage = "black_jack";
       this.tools.setTitle("Black Jack");
-      this.tools.playMusic("music_1");
       yield this.loadAssets();
       this.restartGame();
     });
@@ -90976,7 +91324,7 @@ function MinigamesComponent_For_3_Template(rf, ctx) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275classMapInterpolate1("menu-card ", ctx_r2.tools.themeColor, "");
     \u0275\u0275advance();
-    \u0275\u0275property("src", ctx_r2.tools.isMinigameUnlocked(game_r2.id) ? "img/icons/play-svgrepo-com.svg" : "img/icons/lock-keyhole-minimalistic-svgrepo-com.svg", \u0275\u0275sanitizeUrl)("alt", game_r2.defaultTitle);
+    \u0275\u0275property("src", ctx_r2.tools.isMinigameUnlocked(game_r2.id) ? "img/icons/play-svgrepo-com.png" : "img/icons/lock-keyhole-minimalistic-svgrepo-com.png", \u0275\u0275sanitizeUrl)("alt", game_r2.defaultTitle);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate((ctx_r2.tools[game_r2.id] == null ? null : ctx_r2.tools[game_r2.id][ctx_r2.tools.lang] == null ? null : ctx_r2.tools[game_r2.id][ctx_r2.tools.lang]["title"]) || game_r2.defaultTitle);
     \u0275\u0275advance();
@@ -91036,7 +91384,7 @@ var MinigamesComponent = class _MinigamesComponent {
     <div class="group {{tools.themeColor}} menu-grid">
         @for (game of gamesList; track game.id) {
             <div class="menu-card {{tools.themeColor}}" (click)="openMinigame(game.id)">
-                <img [src]="tools.isMinigameUnlocked(game.id) ? 'img/icons/play-svgrepo-com.svg' : 'img/icons/lock-keyhole-minimalistic-svgrepo-com.svg'"
+                <img [src]="tools.isMinigameUnlocked(game.id) ? 'img/icons/play-svgrepo-com.png' : 'img/icons/lock-keyhole-minimalistic-svgrepo-com.png'"
                      class="menu-icon coin-glow"
                      [alt]="game.defaultTitle">
                 <div class="card-content">
@@ -91189,7 +91537,7 @@ function GalleryComponent_Conditional_2_Template(rf, ctx) {
     \u0275\u0275property("src", ctx_r1.fullScreenImg, \u0275\u0275sanitizeUrl);
   }
 }
-function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
+function GalleryComponent_Conditional_15_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div")(1, "div", 10)(2, "h2");
@@ -91202,7 +91550,7 @@ function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
     \u0275\u0275text(9);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(10, "img", 15);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_img_click_10_listener() {
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_15_Conditional_0_Template_img_click_10_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.openFullScreen(ctx_r1.tools.getCheemsImg(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex].id)));
@@ -91212,14 +91560,14 @@ function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
     \u0275\u0275text(13);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(14, "img", 16);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_img_click_14_listener() {
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_15_Conditional_0_Template_img_click_14_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.openFullScreen(ctx_r1.tools.getCheemsHitImg(ctx_r1.unlockedCheemsSkins[ctx_r1.currentIndex].id)));
     });
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(15, "div", 17)(16, "button", 5);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_16_listener() {
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_15_Conditional_0_Template_button_click_16_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.prevItem());
@@ -91230,7 +91578,7 @@ function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
     \u0275\u0275text(19);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(20, "button", 5);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_13_Conditional_0_Template_button_click_20_listener() {
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_15_Conditional_0_Template_button_click_20_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.nextItem());
@@ -91261,26 +91609,95 @@ function GalleryComponent_Conditional_13_Conditional_0_Template(rf, ctx) {
     \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
   }
 }
-function GalleryComponent_Conditional_13_Conditional_1_Template(rf, ctx) {
+function GalleryComponent_Conditional_15_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 9);
     \u0275\u0275text(1, "No skins unlocked yet.");
     \u0275\u0275elementEnd();
   }
 }
-function GalleryComponent_Conditional_13_Template(rf, ctx) {
+function GalleryComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, GalleryComponent_Conditional_13_Conditional_0_Template, 22, 17, "div", 8)(1, GalleryComponent_Conditional_13_Conditional_1_Template, 2, 0, "p", 9);
+    \u0275\u0275template(0, GalleryComponent_Conditional_15_Conditional_0_Template, 22, 17, "div", 8)(1, GalleryComponent_Conditional_15_Conditional_1_Template, 2, 0, "p", 9);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275conditional(ctx_r1.unlockedCheemsSkins.length > 0 ? 0 : 1);
   }
 }
-function GalleryComponent_Conditional_14_Conditional_0_Conditional_7_Template(rf, ctx) {
+function GalleryComponent_Conditional_16_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20);
-    \u0275\u0275element(1, "img", 26);
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div")(1, "div", 10)(2, "h2");
+    \u0275\u0275text(3);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 11);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "div", 19)(7, "div", 20)(8, "img", 21);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_16_Conditional_0_Template_img_click_8_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.openFullScreen(ctx_r1.tools.getBackgroundImg(ctx_r1.unlockedBackgrounds[ctx_r1.currentIndex].id)));
+    });
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(9, "div", 17)(10, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_16_Conditional_0_Template_button_click_10_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.prevItem());
+    });
+    \u0275\u0275text(11, "\u25C0");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(12, "span", 18);
+    \u0275\u0275text(13);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(14, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_16_Conditional_0_Template_button_click_14_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.nextItem());
+    });
+    \u0275\u0275text(15, "\u25B6");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275classMapInterpolate1("viewer-container ", ctx_r1.tools.themeColor, "");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(ctx_r1.tools.getBackgroundName(ctx_r1.unlockedBackgrounds[ctx_r1.currentIndex]));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.tools.getBackgroundDescription(ctx_r1.unlockedBackgrounds[ctx_r1.currentIndex]));
+    \u0275\u0275advance(3);
+    \u0275\u0275property("src", ctx_r1.tools.getBackgroundImg(ctx_r1.unlockedBackgrounds[ctx_r1.currentIndex].id), \u0275\u0275sanitizeUrl);
+    \u0275\u0275advance(2);
+    \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate2("", ctx_r1.currentIndex + 1, " / ", ctx_r1.unlockedBackgrounds.length, "");
+    \u0275\u0275advance();
+    \u0275\u0275classMapInterpolate1("control-btn ", ctx_r1.tools.themeColor, "");
+  }
+}
+function GalleryComponent_Conditional_16_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 9);
+    \u0275\u0275text(1, "No backgrounds unlocked yet.");
+    \u0275\u0275elementEnd();
+  }
+}
+function GalleryComponent_Conditional_16_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275template(0, GalleryComponent_Conditional_16_Conditional_0_Template, 16, 14, "div", 8)(1, GalleryComponent_Conditional_16_Conditional_1_Template, 2, 0, "p", 9);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r1.unlockedBackgrounds.length > 0 ? 0 : 1);
+  }
+}
+function GalleryComponent_Conditional_17_Conditional_0_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 23);
+    \u0275\u0275element(1, "img", 29);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -91289,15 +91706,15 @@ function GalleryComponent_Conditional_14_Conditional_0_Conditional_7_Template(rf
     \u0275\u0275property("src", ctx_r1.currentAudioCover, \u0275\u0275sanitizeUrl);
   }
 }
-function GalleryComponent_Conditional_14_Conditional_0_Conditional_10_Template(rf, ctx) {
+function GalleryComponent_Conditional_17_Conditional_0_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 22)(1, "span");
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 25)(1, "span");
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "input", 27);
-    \u0275\u0275listener("input", function GalleryComponent_Conditional_14_Conditional_0_Conditional_10_Template_input_input_3_listener($event) {
-      \u0275\u0275restoreView(_r5);
+    \u0275\u0275elementStart(3, "input", 30);
+    \u0275\u0275listener("input", function GalleryComponent_Conditional_17_Conditional_0_Conditional_10_Template_input_input_3_listener($event) {
+      \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.onSeek($event));
     });
@@ -91316,12 +91733,12 @@ function GalleryComponent_Conditional_14_Conditional_0_Conditional_10_Template(r
     \u0275\u0275textInterpolate(ctx_r1.formatTime(ctx_r1.duration));
   }
 }
-function GalleryComponent_Conditional_14_Conditional_0_Conditional_14_Template(rf, ctx) {
+function GalleryComponent_Conditional_17_Conditional_0_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
+    const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 5);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Conditional_14_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r6);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_17_Conditional_0_Conditional_14_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.skip(-10));
     });
@@ -91333,12 +91750,12 @@ function GalleryComponent_Conditional_14_Conditional_0_Conditional_14_Template(r
     \u0275\u0275classMapInterpolate1("control-btn secondary-btn ", ctx_r1.tools.themeColor, "");
   }
 }
-function GalleryComponent_Conditional_14_Conditional_0_Conditional_17_Template(rf, ctx) {
+function GalleryComponent_Conditional_17_Conditional_0_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
+    const _r8 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 5);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Conditional_17_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r7);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_17_Conditional_0_Conditional_17_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.skip(10));
     });
@@ -91350,15 +91767,15 @@ function GalleryComponent_Conditional_14_Conditional_0_Conditional_17_Template(r
     \u0275\u0275classMapInterpolate1("control-btn secondary-btn ", ctx_r1.tools.themeColor, "");
   }
 }
-function GalleryComponent_Conditional_14_Conditional_0_Conditional_20_Template(rf, ctx) {
+function GalleryComponent_Conditional_17_Conditional_0_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 24)(1, "span", 28);
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 27)(1, "span", 31);
     \u0275\u0275text(2, "\u{1F50A}");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "input", 29);
-    \u0275\u0275listener("input", function GalleryComponent_Conditional_14_Conditional_0_Conditional_20_Template_input_input_3_listener($event) {
-      \u0275\u0275restoreView(_r8);
+    \u0275\u0275elementStart(3, "input", 32);
+    \u0275\u0275listener("input", function GalleryComponent_Conditional_17_Conditional_0_Conditional_20_Template_input_input_3_listener($event) {
+      \u0275\u0275restoreView(_r9);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.onVolumeChange($event));
     });
@@ -91370,70 +91787,70 @@ function GalleryComponent_Conditional_14_Conditional_0_Conditional_20_Template(r
     \u0275\u0275property("value", ctx_r1.currentVolume);
   }
 }
-function GalleryComponent_Conditional_14_Conditional_0_Template(rf, ctx) {
+function GalleryComponent_Conditional_17_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
+    const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div")(1, "div", 10)(2, "h2");
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "p", 11);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(6, "div", 19);
-    \u0275\u0275template(7, GalleryComponent_Conditional_14_Conditional_0_Conditional_7_Template, 2, 1, "div", 20);
-    \u0275\u0275elementStart(8, "audio", 21, 0);
-    \u0275\u0275listener("timeupdate", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_timeupdate_8_listener($event) {
-      \u0275\u0275restoreView(_r4);
+    \u0275\u0275elementStart(6, "div", 22);
+    \u0275\u0275template(7, GalleryComponent_Conditional_17_Conditional_0_Conditional_7_Template, 2, 1, "div", 23);
+    \u0275\u0275elementStart(8, "audio", 24, 0);
+    \u0275\u0275listener("timeupdate", function GalleryComponent_Conditional_17_Conditional_0_Template_audio_timeupdate_8_listener($event) {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onTimeUpdate($event));
-    })("loadedmetadata", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_loadedmetadata_8_listener($event) {
-      \u0275\u0275restoreView(_r4);
+    })("loadedmetadata", function GalleryComponent_Conditional_17_Conditional_0_Template_audio_loadedmetadata_8_listener($event) {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onLoadedMetadata($event));
-    })("play", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_play_8_listener() {
-      \u0275\u0275restoreView(_r4);
+    })("play", function GalleryComponent_Conditional_17_Conditional_0_Template_audio_play_8_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onAudioPlay());
-    })("pause", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_pause_8_listener() {
-      \u0275\u0275restoreView(_r4);
+    })("pause", function GalleryComponent_Conditional_17_Conditional_0_Template_audio_pause_8_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onAudioPause());
-    })("ended", function GalleryComponent_Conditional_14_Conditional_0_Template_audio_ended_8_listener() {
-      \u0275\u0275restoreView(_r4);
+    })("ended", function GalleryComponent_Conditional_17_Conditional_0_Template_audio_ended_8_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onAudioEnded());
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275template(10, GalleryComponent_Conditional_14_Conditional_0_Conditional_10_Template, 6, 4, "div", 22);
-    \u0275\u0275elementStart(11, "div", 23)(12, "button", 5);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Template_button_click_12_listener() {
-      \u0275\u0275restoreView(_r4);
+    \u0275\u0275template(10, GalleryComponent_Conditional_17_Conditional_0_Conditional_10_Template, 6, 4, "div", 25);
+    \u0275\u0275elementStart(11, "div", 26)(12, "button", 5);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_17_Conditional_0_Template_button_click_12_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.prevItem());
     });
     \u0275\u0275text(13, "\u25C0");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(14, GalleryComponent_Conditional_14_Conditional_0_Conditional_14_Template, 2, 3, "button", 8);
+    \u0275\u0275template(14, GalleryComponent_Conditional_17_Conditional_0_Conditional_14_Template, 2, 3, "button", 8);
     \u0275\u0275elementStart(15, "button", 5);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Template_button_click_15_listener() {
-      \u0275\u0275restoreView(_r4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_17_Conditional_0_Template_button_click_15_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.togglePlay());
     });
     \u0275\u0275text(16);
     \u0275\u0275elementEnd();
-    \u0275\u0275template(17, GalleryComponent_Conditional_14_Conditional_0_Conditional_17_Template, 2, 3, "button", 8);
+    \u0275\u0275template(17, GalleryComponent_Conditional_17_Conditional_0_Conditional_17_Template, 2, 3, "button", 8);
     \u0275\u0275elementStart(18, "button", 5);
-    \u0275\u0275listener("click", function GalleryComponent_Conditional_14_Conditional_0_Template_button_click_18_listener() {
-      \u0275\u0275restoreView(_r4);
+    \u0275\u0275listener("click", function GalleryComponent_Conditional_17_Conditional_0_Template_button_click_18_listener() {
+      \u0275\u0275restoreView(_r5);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.nextItem());
     });
     \u0275\u0275text(19, "\u25B6");
     \u0275\u0275elementEnd();
-    \u0275\u0275template(20, GalleryComponent_Conditional_14_Conditional_0_Conditional_20_Template, 4, 1, "div", 24);
+    \u0275\u0275template(20, GalleryComponent_Conditional_17_Conditional_0_Conditional_20_Template, 4, 1, "div", 27);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "div", 25)(22, "span", 18);
+    \u0275\u0275elementStart(21, "div", 28)(22, "span", 18);
     \u0275\u0275text(23);
     \u0275\u0275elementEnd()()()();
   }
@@ -91468,16 +91885,16 @@ function GalleryComponent_Conditional_14_Conditional_0_Template(rf, ctx) {
     \u0275\u0275textInterpolate2(" ", ctx_r1.currentIndex + 1, " / ", ctx_r1.activeSection === "sfx" ? ctx_r1.unlockedSoundEffects.length : ctx_r1.unlockedMusicTracks.length, " ");
   }
 }
-function GalleryComponent_Conditional_14_Conditional_1_Template(rf, ctx) {
+function GalleryComponent_Conditional_17_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 9);
     \u0275\u0275text(1, "No media unlocked yet.");
     \u0275\u0275elementEnd();
   }
 }
-function GalleryComponent_Conditional_14_Template(rf, ctx) {
+function GalleryComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275template(0, GalleryComponent_Conditional_14_Conditional_0_Template, 24, 23, "div", 8)(1, GalleryComponent_Conditional_14_Conditional_1_Template, 2, 0, "p", 9);
+    \u0275\u0275template(0, GalleryComponent_Conditional_17_Conditional_0_Template, 24, 23, "div", 8)(1, GalleryComponent_Conditional_17_Conditional_1_Template, 2, 0, "p", 9);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -91511,6 +91928,9 @@ var GalleryComponent = class _GalleryComponent {
   }
   get unlockedMusicTracks() {
     return this.tools.musicTracks.filter((track) => (track.default || this.tools.unlockedMusic[track.storageKey]) && track.id !== "music_0");
+  }
+  get unlockedBackgrounds() {
+    return this.tools.backgrounds.filter((bg) => (bg.default || this.tools.unlockedBackgrounds[bg.storageKey]) && bg.id !== "bg_none");
   }
   openSection(section) {
     this.activeSection = section;
@@ -91547,6 +91967,8 @@ var GalleryComponent = class _GalleryComponent {
       listLength = this.unlockedSoundEffects.length;
     if (this.activeSection === "music")
       listLength = this.unlockedMusicTracks.length;
+    if (this.activeSection === "backgrounds")
+      listLength = this.unlockedBackgrounds.length;
     if (listLength > 0) {
       this.currentIndex = (this.currentIndex + 1) % listLength;
       if (this.activeSection !== "skins")
@@ -91561,6 +91983,8 @@ var GalleryComponent = class _GalleryComponent {
       listLength = this.unlockedSoundEffects.length;
     if (this.activeSection === "music")
       listLength = this.unlockedMusicTracks.length;
+    if (this.activeSection === "backgrounds")
+      listLength = this.unlockedBackgrounds.length;
     if (listLength > 0) {
       this.currentIndex = (this.currentIndex - 1 + listLength) % listLength;
       if (this.activeSection !== "skins")
@@ -91585,7 +92009,7 @@ var GalleryComponent = class _GalleryComponent {
   get currentAudioSrc() {
     if (this.activeSection === "sfx" && this.unlockedSoundEffects.length > 0) {
       const sfx = this.unlockedSoundEffects[this.currentIndex];
-      return sfx.basePath + (sfx.file || (sfx.files ? sfx.files[0] : ""));
+      return (sfx.basePath || "sound/") + (sfx.file || (sfx.files ? sfx.files[0] : "hit.ogg"));
     } else if (this.activeSection === "music" && this.unlockedMusicTracks.length > 0) {
       const music = this.unlockedMusicTracks[this.currentIndex];
       return music.basePath + music.file;
@@ -91686,7 +92110,7 @@ var GalleryComponent = class _GalleryComponent {
       let _t;
       \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.audioPlayer = _t.first);
     }
-  }, decls: 15, vars: 34, consts: [["audioPlayer", ""], [1, "container"], [2, "width", "95%", "max-width", "1100px", "margin-top", "1rem"], [1, "fullscreen-overlay"], [1, "header"], [3, "click"], [1, "fullscreen-overlay", 3, "click"], ["alt", "Fullscreen Image", 1, "fullscreen-img", 3, "src"], [3, "class"], [1, "no-items"], [1, "viewer-header"], [1, "desc"], [1, "skins-display"], [1, "skin-box"], [1, "skin-label"], ["alt", "Normal Skin", 1, "viewer-img", "clickable", 3, "click", "src"], ["alt", "Hit Skin", 1, "viewer-img", "clickable", 3, "click", "src"], [1, "viewer-controls"], [1, "counter"], [1, "audio-player"], [1, "cover-container", 2, "text-align", "center", "margin-bottom", "20px"], [3, "timeupdate", "loadedmetadata", "play", "pause", "ended", "src"], [1, "time-slider-container"], [1, "audio-controls"], [1, "volume-slider-container"], [1, "counter-display"], ["alt", "Music Cover", 2, "width", "160px", "height", "160px", "object-fit", "cover", "border-radius", "12px", "box-shadow", "0 4px 12px rgba(0,0,0,0.3)", 3, "src"], ["type", "range", "min", "0", 1, "time-slider", 3, "input", "max", "value"], [1, "vol-icon"], ["type", "range", "min", "0", "max", "1", "step", "0.01", 1, "volume-slider", 3, "input", "value"]], template: function GalleryComponent_Template(rf, ctx) {
+  }, decls: 18, vars: 42, consts: [["audioPlayer", ""], [1, "container"], [2, "width", "95%", "max-width", "1100px", "margin-top", "1rem"], [1, "fullscreen-overlay"], [1, "header"], [3, "click"], [1, "fullscreen-overlay", 3, "click"], ["alt", "Fullscreen Image", 1, "fullscreen-img", 3, "src"], [3, "class"], [1, "no-items"], [1, "viewer-header"], [1, "desc"], [1, "skins-display"], [1, "skin-box"], [1, "skin-label"], ["alt", "Normal Skin", 1, "viewer-img", "clickable", 3, "click", "src"], ["alt", "Hit Skin", 1, "viewer-img", "clickable", 3, "click", "src"], [1, "viewer-controls"], [1, "counter"], [1, "skins-display", 2, "justify-content", "center"], [1, "skin-box", 2, "width", "80%", "max-width", "600px"], ["alt", "Background", 1, "viewer-img", "clickable", 2, "width", "100%", "border-radius", "8px", "object-fit", "cover", 3, "click", "src"], [1, "audio-player"], [1, "cover-container", 2, "text-align", "center", "margin-bottom", "20px"], [3, "timeupdate", "loadedmetadata", "play", "pause", "ended", "src"], [1, "time-slider-container"], [1, "audio-controls"], [1, "volume-slider-container"], [1, "counter-display"], ["alt", "Music Cover", 2, "width", "160px", "height", "160px", "object-fit", "cover", "border-radius", "12px", "box-shadow", "0 4px 12px rgba(0,0,0,0.3)", 3, "src"], ["type", "range", "min", "0", 1, "time-slider", 3, "input", "max", "value"], [1, "vol-icon"], ["type", "range", "min", "0", "max", "1", "step", "0.01", 1, "volume-slider", 3, "input", "value"]], template: function GalleryComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "div", 1)(1, "div", 2);
       \u0275\u0275template(2, GalleryComponent_Conditional_2_Template, 2, 1, "div", 3);
@@ -91710,8 +92134,14 @@ var GalleryComponent = class _GalleryComponent {
         return ctx.openSection("music");
       });
       \u0275\u0275text(12);
+      \u0275\u0275elementEnd();
+      \u0275\u0275elementStart(13, "button", 5);
+      \u0275\u0275listener("click", function GalleryComponent_Template_button_click_13_listener() {
+        return ctx.openSection("backgrounds");
+      });
+      \u0275\u0275text(14);
       \u0275\u0275elementEnd()();
-      \u0275\u0275template(13, GalleryComponent_Conditional_13_Template, 2, 1)(14, GalleryComponent_Conditional_14_Template, 2, 1);
+      \u0275\u0275template(15, GalleryComponent_Conditional_15_Template, 2, 1)(16, GalleryComponent_Conditional_16_Template, 2, 1)(17, GalleryComponent_Conditional_17_Template, 2, 1);
       \u0275\u0275elementEnd()();
     }
     if (rf & 2) {
@@ -91741,9 +92171,16 @@ var GalleryComponent = class _GalleryComponent {
       \u0275\u0275advance();
       \u0275\u0275textInterpolate1(" ", (ctx.tools.gallery[ctx.tools.lang] == null ? null : ctx.tools.gallery[ctx.tools.lang].musicSection) || "Music", " ");
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeSection === "skins" ? 13 : -1);
+      \u0275\u0275classMapInterpolate2("tab-btn ", ctx.tools.themeColor, " ", ctx.tools.fontSize, "");
+      \u0275\u0275classProp("active", ctx.activeSection === "backgrounds");
       \u0275\u0275advance();
-      \u0275\u0275conditional(ctx.activeSection === "sfx" || ctx.activeSection === "music" ? 14 : -1);
+      \u0275\u0275textInterpolate1(" ", (ctx.tools.gallery[ctx.tools.lang] == null ? null : ctx.tools.gallery[ctx.tools.lang].backgroundsSection) || "Backgrounds", " ");
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.activeSection === "skins" ? 15 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.activeSection === "backgrounds" ? 16 : -1);
+      \u0275\u0275advance();
+      \u0275\u0275conditional(ctx.activeSection === "sfx" || ctx.activeSection === "music" ? 17 : -1);
     }
   }, dependencies: [CommonModule], styles: ["\n\n.container[_ngcontent-%COMP%] {\n  padding-top: 10vh;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  position: relative;\n  padding-bottom: 5rem;\n}\n.header[_ngcontent-%COMP%]   h1[_ngcontent-%COMP%] {\n  font-size: 2.5rem;\n  font-weight: 900;\n  margin: 0;\n  text-transform: uppercase;\n  text-shadow: 2px 2px 0 #000;\n}\n.tabs-header[_ngcontent-%COMP%] {\n  display: flex;\n  flex-wrap: wrap;\n  justify-content: center;\n  gap: 0.75rem;\n  margin: 1.5rem 0;\n}\n.tab-btn[_ngcontent-%COMP%] {\n  padding: 0.75rem 1.5rem;\n  border-radius: 50px;\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  font-weight: 900;\n  cursor: pointer;\n  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);\n  background: rgba(0, 0, 0, 0.2);\n  color: inherit;\n}\n.tab-btn.active[_ngcontent-%COMP%] {\n  background: #ffd166;\n  color: #1a1612;\n  transform: scale(1.08);\n  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.5);\n}\n.tab-btn.theme-light.active[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: #fff;\n  box-shadow: 0 4px 15px rgba(156, 92, 20, 0.5);\n}\n.tab-btn.theme-contrast.active[_ngcontent-%COMP%] {\n  background: #ffff00;\n  color: #000000;\n  border: 2px solid #ffff00;\n  box-shadow: none;\n}\n.viewer-container[_ngcontent-%COMP%] {\n  width: 95%;\n  max-width: 800px;\n  background: rgba(65, 55, 45, 0.65);\n  border: 2px solid transparent;\n  border-radius: 18px;\n  padding: 2rem;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);\n  margin: 0 auto;\n}\n.viewer-container.theme-light[_ngcontent-%COMP%] {\n  background: rgba(255, 248, 235, 0.85);\n  border-color: rgba(156, 92, 20, 0.2);\n}\n.viewer-container.theme-contrast[_ngcontent-%COMP%] {\n  background: #000000;\n  border: 2px solid #ffffff;\n  color: #ffffff;\n}\n.viewer-header[_ngcontent-%COMP%] {\n  text-align: center;\n  margin-bottom: 2rem;\n}\n.viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  font-size: 1.8rem;\n  margin: 0 0 0.5rem 0;\n  color: #ffd166;\n}\n.theme-light[_ngcontent-%COMP%]   .viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #9c5c14;\n}\n.theme-contrast[_ngcontent-%COMP%]   .viewer-header[_ngcontent-%COMP%]   h2[_ngcontent-%COMP%] {\n  color: #ffff00;\n}\n.viewer-header[_ngcontent-%COMP%]   .desc[_ngcontent-%COMP%] {\n  opacity: 0.8;\n  font-size: 0.95rem;\n  margin: 0;\n}\n.skins-display[_ngcontent-%COMP%] {\n  display: flex;\n  justify-content: center;\n  gap: 2rem;\n  width: 100%;\n  margin-bottom: 2rem;\n}\n.skin-box[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 1rem;\n  background: rgba(0, 0, 0, 0.3);\n  padding: 1.5rem;\n  border-radius: 16px;\n  flex: 1;\n  max-width: 300px;\n  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2);\n}\n.theme-light[_ngcontent-%COMP%]   .skin-box[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.05);\n}\n.skin-label[_ngcontent-%COMP%] {\n  font-weight: 900;\n  text-transform: uppercase;\n  font-size: 1rem;\n  opacity: 0.9;\n  letter-spacing: 1px;\n}\n.viewer-img[_ngcontent-%COMP%] {\n  width: 150px;\n  height: 150px;\n  object-fit: contain;\n}\n.viewer-controls[_ngcontent-%COMP%], \n.audio-controls[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  gap: 1rem;\n  margin-top: 1rem;\n  width: 100%;\n}\n.control-btn[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.4);\n  border: 2px solid rgba(255, 209, 102, 0.3);\n  color: white;\n  width: 50px;\n  height: 50px;\n  border-radius: 50%;\n  font-size: 1.2rem;\n  cursor: pointer;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n.control-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(255, 209, 102, 0.2);\n  border-color: #ffd166;\n  transform: scale(1.1);\n}\n.control-btn[_ngcontent-%COMP%]:active {\n  transform: scale(0.9);\n}\n.secondary-btn[_ngcontent-%COMP%] {\n  width: 65px;\n  height: 45px;\n  border-radius: 20px;\n  font-size: 0.95rem;\n  font-weight: bold;\n}\n.play-btn[_ngcontent-%COMP%] {\n  width: 90px;\n  height: 60px;\n  border-radius: 30px;\n  font-size: 1.1rem;\n  font-weight: 900;\n  background: #ffd166;\n  color: #1a1612;\n  border-color: #ffd166;\n}\n.play-btn[_ngcontent-%COMP%]:hover {\n  background: #ffb703;\n  color: #1a1612;\n  transform: scale(1.08);\n}\n.theme-light[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%] {\n  background: rgba(156, 92, 20, 0.1);\n  border-color: rgba(156, 92, 20, 0.3);\n  color: #9c5c14;\n}\n.theme-light[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%]:hover {\n  background: rgba(156, 92, 20, 0.2);\n  border-color: #9c5c14;\n}\n.theme-light[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%] {\n  background: #9c5c14;\n  color: white;\n}\n.theme-light[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%]:hover {\n  background: #7a460c;\n  color: white;\n}\n.theme-contrast[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%] {\n  background: #000;\n  border-color: #fff;\n  color: #fff;\n}\n.theme-contrast[_ngcontent-%COMP%]   .control-btn[_ngcontent-%COMP%]:hover {\n  border-color: #ff0;\n  color: #ff0;\n}\n.theme-contrast[_ngcontent-%COMP%]   .play-btn[_ngcontent-%COMP%] {\n  background: #ff0;\n  color: #000;\n  border-color: #ff0;\n}\n.counter-display[_ngcontent-%COMP%] {\n  margin-top: 1.5rem;\n  text-align: center;\n}\n.counter[_ngcontent-%COMP%] {\n  font-weight: 900;\n  font-size: 1.2rem;\n  opacity: 0.8;\n}\n.audio-player[_ngcontent-%COMP%] {\n  width: 100%;\n  display: flex;\n  flex-direction: column;\n  gap: 1.5rem;\n}\n.time-slider-container[_ngcontent-%COMP%] {\n  display: flex;\n  align-items: center;\n  gap: 1rem;\n  width: 100%;\n  font-family: monospace;\n  font-size: 1.1rem;\n  font-weight: bold;\n}\n.time-slider[_ngcontent-%COMP%] {\n  flex: 1;\n  cursor: pointer;\n  height: 8px;\n  border-radius: 4px;\n  appearance: none;\n  -webkit-appearance: none;\n  background: rgba(0, 0, 0, 0.5);\n  border: 1px solid rgba(255, 255, 255, 0.1);\n}\n.theme-light[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.1);\n  border-color: rgba(0, 0, 0, 0.1);\n}\n.time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  -webkit-appearance: none;\n  width: 20px;\n  height: 20px;\n  border-radius: 50%;\n  background: #ffd166;\n  cursor: pointer;\n  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);\n}\n.theme-light[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  background: #9c5c14;\n}\n.theme-contrast[_ngcontent-%COMP%]   .time-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n  background: #ff0;\n  border: 2px solid #000;\n}\n.no-items[_ngcontent-%COMP%] {\n  opacity: 0.6;\n  margin-top: 2rem;\n  font-style: italic;\n  font-size: 1.2rem;\n}\n.fullscreen-overlay[_ngcontent-%COMP%] {\n  position: fixed;\n  top: 0;\n  left: 0;\n  width: 100vw;\n  height: 100vh;\n  background: rgba(0, 0, 0, 0.9);\n  -webkit-backdrop-filter: blur(8px);\n  backdrop-filter: blur(8px);\n  z-index: 9999;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  cursor: zoom-out;\n}\n.fullscreen-img[_ngcontent-%COMP%] {\n  max-width: 90vw;\n  max-height: 90vh;\n  object-fit: contain;\n  animation: _ngcontent-%COMP%_zoomIn 0.2s ease-out;\n}\n@keyframes _ngcontent-%COMP%_zoomIn {\n  from {\n    transform: scale(0.8);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n.clickable[_ngcontent-%COMP%] {\n  cursor: zoom-in;\n  transition: transform 0.2s;\n}\n.clickable[_ngcontent-%COMP%]:hover {\n  transform: scale(1.05);\n}\n.volume-slider-container[_ngcontent-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 0.5rem;\n  height: 80px;\n  margin-left: 1rem;\n}\n.volume-slider[_ngcontent-%COMP%] {\n  writing-mode: vertical-lr;\n  direction: rtl;\n  width: 8px;\n  height: 60px;\n  border-radius: 4px;\n  background: rgba(0, 0, 0, 0.5);\n  cursor: pointer;\n}\n.theme-light[_ngcontent-%COMP%]   .volume-slider[_ngcontent-%COMP%] {\n  background: rgba(0, 0, 0, 0.1);\n}\n@media (max-width: 600px) {\n  .skins-display[_ngcontent-%COMP%] {\n    flex-direction: column;\n    align-items: center;\n  }\n  .viewer-img[_ngcontent-%COMP%] {\n    width: 120px;\n    height: 120px;\n  }\n  .audio-controls[_ngcontent-%COMP%] {\n    gap: 0.5rem;\n    flex-wrap: wrap;\n  }\n  .control-btn[_ngcontent-%COMP%] {\n    width: 45px;\n    height: 45px;\n  }\n  .secondary-btn[_ngcontent-%COMP%] {\n    width: 60px;\n    height: 40px;\n    font-size: 0.85rem;\n  }\n  .play-btn[_ngcontent-%COMP%] {\n    width: 80px;\n    height: 50px;\n  }\n  .volume-slider-container[_ngcontent-%COMP%] {\n    flex-direction: row;\n    height: auto;\n    margin-left: 0;\n    margin-top: 1rem;\n    width: 100%;\n  }\n  .volume-slider[_ngcontent-%COMP%] {\n    appearance: none;\n    -webkit-appearance: none;\n    writing-mode: horizontal-tb;\n    width: 100px;\n    height: 8px;\n  }\n  .volume-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n    -webkit-appearance: none;\n    width: 15px;\n    height: 15px;\n    border-radius: 50%;\n    background: #ffd166;\n    cursor: pointer;\n  }\n  .theme-light[_ngcontent-%COMP%]   .volume-slider[_ngcontent-%COMP%]::-webkit-slider-thumb {\n    background: #9c5c14;\n  }\n}\n/*# sourceMappingURL=gallery.component.css.map */"] });
 };
@@ -91776,6 +92213,11 @@ var GalleryComponent = class _GalleryComponent {
                 [class.active]="activeSection === 'music'"
                 (click)="openSection('music')">
             {{tools.gallery[tools.lang]?.musicSection || 'Music'}}
+        </button>
+        <button class="tab-btn {{tools.themeColor}} {{tools.fontSize}}" 
+                [class.active]="activeSection === 'backgrounds'"
+                (click)="openSection('backgrounds')">
+            {{tools.gallery[tools.lang]?.backgroundsSection || 'Backgrounds'}}
         </button>
     </div>
 
@@ -91812,6 +92254,35 @@ var GalleryComponent = class _GalleryComponent {
             </div>
         } @else {
             <p class="no-items">No skins unlocked yet.</p>
+        }
+    }
+
+    @if (activeSection === 'backgrounds') {
+        @if (unlockedBackgrounds.length > 0) {
+            <div class="viewer-container {{tools.themeColor}}">
+                <div class="viewer-header">
+                    <h2>{{tools.getBackgroundName(unlockedBackgrounds[currentIndex])}}</h2>
+                    <p class="desc">{{tools.getBackgroundDescription(unlockedBackgrounds[currentIndex])}}</p>
+                </div>
+                
+                <div class="skins-display" style="justify-content: center;">
+                    <div class="skin-box" style="width: 80%; max-width: 600px;">
+                        <img [src]="tools.getBackgroundImg(unlockedBackgrounds[currentIndex].id)" 
+                             class="viewer-img clickable" 
+                             style="width: 100%; border-radius: 8px; object-fit: cover;"
+                             alt="Background"
+                             (click)="openFullScreen(tools.getBackgroundImg(unlockedBackgrounds[currentIndex].id))">
+                    </div>
+                </div>
+
+                <div class="viewer-controls">
+                    <button class="control-btn {{tools.themeColor}}" (click)="prevItem()">\u25C0</button>
+                    <span class="counter">{{currentIndex + 1}} / {{unlockedBackgrounds.length}}</span>
+                    <button class="control-btn {{tools.themeColor}}" (click)="nextItem()">\u25B6</button>
+                </div>
+            </div>
+        } @else {
+            <p class="no-items">No backgrounds unlocked yet.</p>
         }
     }
 
@@ -92550,7 +93021,7 @@ var NavbarComponent = class _NavbarComponent {
   static \u0275fac = function NavbarComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _NavbarComponent)();
   };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], decls: 16, vars: 21, consts: [[1, "counters-group"], [1, "text", "count-badge"], ["src", "img/dogecoin.png", "title", "DogeCoins", "alt", "DogeCoins", 1, "icon", "logo-coin"], ["src", "img/icons/trophy-svgrepo-com.svg", "title", "Puntos", "alt", "Puntos", 1, "icon", "logo-coin", "pts-icon"], [1, "text", "nav-action", 3, "click"], ["src", "img/icons/front-page-svgrepo-com.svg", "alt", "Back", "title", "Back", 1, "icon", "nav-icon"], ["src", "img/icons/menu-svgrepo-com.svg", "alt", "Menu", "title", "Menu", 1, "icon", "nav-icon"], ["id", "upper-container", 3, "class"], ["id", "upper-container"], [1, "score-box"], [1, "score-label"], [1, "score-value"], [1, "score-label", "booster-nav-label"], [1, "score-value", "booster-nav-value"]], template: function NavbarComponent_Template(rf, ctx) {
+  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _NavbarComponent, selectors: [["app-navbar"]], decls: 16, vars: 21, consts: [[1, "counters-group"], [1, "text", "count-badge"], ["src", "img/dogecoin.png", "title", "DogeCoins", "alt", "DogeCoins", 1, "icon", "logo-coin"], ["src", "img/icons/trophy-svgrepo-com.png", "title", "Puntos", "alt", "Puntos", 1, "icon", "logo-coin", "pts-icon"], [1, "text", "nav-action", 3, "click"], ["src", "img/icons/front-page-svgrepo-com.png", "alt", "Back", "title", "Back", 1, "icon", "nav-icon"], ["src", "img/icons/menu-svgrepo-com.png", "alt", "Menu", "title", "Menu", 1, "icon", "nav-icon"], ["id", "upper-container", 3, "class"], ["id", "upper-container"], [1, "score-box"], [1, "score-label"], [1, "score-value"], [1, "score-label", "booster-nav-label"], [1, "score-value", "booster-nav-value"]], template: function NavbarComponent_Template(rf, ctx) {
     if (rf & 1) {
       \u0275\u0275elementStart(0, "nav")(1, "div", 0)(2, "span", 1);
       \u0275\u0275element(3, "img", 2);
@@ -92608,7 +93079,7 @@ var NavbarComponent = class _NavbarComponent {
         </span>
 
         <span class="text count-badge">
-            <img src="img/icons/trophy-svgrepo-com.svg"
+            <img src="img/icons/trophy-svgrepo-com.png"
                  class="icon logo-coin pts-icon"
                  title="Puntos"
                  alt="Puntos">
@@ -92622,9 +93093,9 @@ var NavbarComponent = class _NavbarComponent {
 
     <span class="text nav-action" (click)="tools.redirectBack()">
         @if (tools.actPage !== "game") {
-            <img src="img/icons/front-page-svgrepo-com.svg" class="icon nav-icon" alt="Back" title="Back">
+            <img src="img/icons/front-page-svgrepo-com.png" class="icon nav-icon" alt="Back" title="Back">
         } @else {
-            <img src="img/icons/menu-svgrepo-com.svg" class="icon nav-icon" alt="Menu" title="Menu">
+            <img src="img/icons/menu-svgrepo-com.png" class="icon nav-icon" alt="Menu" title="Menu">
         }
     </span>
 </nav>
@@ -92674,8 +93145,12 @@ function BackgroundComponent_Conditional_2_Template(rf, ctx) {
 }
 var BackgroundComponent = class _BackgroundComponent {
   tools = inject(ToolsService);
-  bgType = "image";
-  bgImageUrl = "img/background/test-bg.jpg";
+  get bgType() {
+    return this.tools.selectedBackground === "bg_none" ? "color" : "image";
+  }
+  get bgImageUrl() {
+    return this.tools.getBackgroundImg(this.tools.selectedBackground);
+  }
   static \u0275fac = function BackgroundComponent_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _BackgroundComponent)();
   };
@@ -92776,14 +93251,16 @@ var AppComponent = class _AppComponent {
     return __async(this, null, function* () {
       try {
         const urlsToCache = /* @__PURE__ */ new Set();
-        const [sfxRes, musicRes, cheemsRes] = yield Promise.all([
-          fetch("/items/sound_effects.json"),
-          fetch("/items/music.json"),
-          fetch("/items/cheems.json")
+        const [sfxRes, musicRes, cheemsRes, bgRes] = yield Promise.all([
+          fetch("/items/sound_effects.json").catch(() => null),
+          fetch("/items/music.json").catch(() => null),
+          fetch("/items/cheems.json").catch(() => null),
+          fetch("/items/backgrounds.json").catch(() => null)
         ]);
-        const sfxData = yield sfxRes.json();
-        const musicData = yield musicRes.json();
-        const cheemsData = yield cheemsRes.json();
+        const sfxData = sfxRes ? yield sfxRes.json() : [];
+        const musicData = musicRes ? yield musicRes.json() : [];
+        const cheemsData = cheemsRes ? yield cheemsRes.json() : [];
+        const bgData = bgRes ? yield bgRes.json() : [];
         sfxData.forEach((sfx) => {
           if (sfx.file)
             urlsToCache.add(`/sound/${sfx.file}`);
@@ -92801,6 +93278,10 @@ var AppComponent = class _AppComponent {
             urlsToCache.add(`/img/cheems/${cheems.img}`);
           if (cheems.hitImg)
             urlsToCache.add(`/img/cheems/${cheems.hitImg}`);
+        });
+        bgData.forEach((bg) => {
+          if (bg.img)
+            urlsToCache.add(`/img/background/${bg.img}`);
         });
         console.log(`Found ${urlsToCache.size} unique assets to cache.`);
         const fetchPromises = Array.from(urlsToCache).map((url) => fetch(url, { mode: "no-cors" }).catch((err) => console.error(`Failed to cache: ${url}`, err)));

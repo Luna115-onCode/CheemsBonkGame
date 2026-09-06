@@ -11,7 +11,7 @@
     "costCoins": 1,
     "costMinigames": 0,
     "minigameCoinsGiven": 10,
-    "icon": "img/icons/play-svgrepo-com.svg"
+    "icon": "img/icons/play-svgrepo-com.png"
   },
   {
     "id": "curr_mg_to_dgc",
@@ -180,7 +180,7 @@
     "descKey": "shop_upgrade_qty_1_desc",
     "cost": 0,
     "costCoins": 5,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -193,7 +193,7 @@
     "descKey": "shop_upgrade_qty_2_desc",
     "cost": 0,
     "costCoins": 8,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -206,7 +206,7 @@
     "descKey": "shop_upgrade_qty_3_desc",
     "cost": 0,
     "costCoins": 12,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -219,7 +219,7 @@
     "descKey": "shop_upgrade_qty_5_desc",
     "cost": 0,
     "costCoins": 18,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -232,7 +232,7 @@
     "descKey": "shop_upgrade_qty_10_desc",
     "cost": 0,
     "costCoins": 30,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -245,7 +245,7 @@
     "descKey": "shop_upgrade_click_1_desc",
     "cost": 0,
     "costCoins": 5,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -258,7 +258,7 @@
     "descKey": "shop_upgrade_click_2_desc",
     "cost": 0,
     "costCoins": 8,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -271,7 +271,7 @@
     "descKey": "shop_upgrade_click_3_desc",
     "cost": 0,
     "costCoins": 12,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -284,7 +284,7 @@
     "descKey": "shop_upgrade_click_5_desc",
     "cost": 0,
     "costCoins": 18,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -297,7 +297,7 @@
     "descKey": "shop_upgrade_click_10_desc",
     "cost": 0,
     "costCoins": 30,
-    "icon": "img/icons/report-svgrepo-com.svg",
+    "icon": "img/icons/report-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -312,7 +312,7 @@
     "costCoins": 0,
     "multiplier": 2,
     "durationMin": 5,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "icon": "img/icons/trophy-svgrepo-com.png",
     "dailyLimit": "${daily_price} / 100 + 1"
   },
   {
@@ -324,7 +324,7 @@
     "costCoins": 0,
     "multiplier": 3,
     "durationMin": 5,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "icon": "img/icons/trophy-svgrepo-com.png",
     "dailyLimit": "${daily_price_2} / 100 + 1"
   },
   {
@@ -336,7 +336,7 @@
     "costCoins": 0,
     "multiplier": 10,
     "durationMin": 3,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "icon": "img/icons/trophy-svgrepo-com.png",
     "dailyLimit": "${daily_price_3} / 100 + 1"
   },
   {
@@ -348,7 +348,7 @@
     "costCoins": 0,
     "multiplier": 2,
     "durationMin": 5,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "icon": "img/icons/trophy-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -360,7 +360,7 @@
     "costCoins": 0,
     "multiplier": 2,
     "durationMin": 10,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "icon": "img/icons/trophy-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -372,7 +372,7 @@
     "costCoins": 0,
     "multiplier": 2,
     "durationMin": 20,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "icon": "img/icons/trophy-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -384,7 +384,7 @@
     "costCoins": 100,
     "multiplier": 3,
     "durationMin": 5,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "icon": "img/icons/trophy-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -396,7 +396,7 @@
     "costCoins": 180,
     "multiplier": 3,
     "durationMin": 10,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "icon": "img/icons/trophy-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -408,7 +408,7 @@
     "costCoins": 300,
     "multiplier": 3,
     "durationMin": 20,
-    "icon": "img/icons/trophy-svgrepo-com.svg",
+    "icon": "img/icons/trophy-svgrepo-com.png",
     "dailyLimit": 0
   },
   {
@@ -423,7 +423,7 @@
     "cost": 0,
     "costCoins": 250,
     "costMinigames": 800,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -435,7 +435,7 @@
     "cost": 0,
     "costCoins": 750,
     "costMinigames": 0,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -447,7 +447,7 @@
     "cost": 0,
     "costCoins": 150,
     "costMinigames": 550,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -459,7 +459,7 @@
     "cost": 0,
     "costCoins": 400,
     "costMinigames": 800,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -471,7 +471,7 @@
     "cost": 0,
     "costCoins": 250,
     "costMinigames": 1200,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -483,7 +483,7 @@
     "cost": 0,
     "costCoins": 250,
     "costMinigames": 1200,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -495,7 +495,7 @@
     "cost": 0,
     "costCoins": 400,
     "costMinigames": 800,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -507,7 +507,7 @@
     "cost": 0,
     "costCoins": 750,
     "costMinigames": 1500,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -519,7 +519,7 @@
     "cost": 0,
     "costCoins": 750,
     "costMinigames": 1500,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -531,7 +531,7 @@
     "cost": 0,
     "costCoins": 150,
     "costMinigames": 550,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -543,7 +543,7 @@
     "cost": 0,
     "costCoins": 150,
     "costMinigames": 500,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -555,7 +555,7 @@
     "cost": 0,
     "costCoins": 50,
     "costMinigames": 200,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -567,7 +567,7 @@
     "cost": 0,
     "costCoins": 150,
     "costMinigames": 500,
-    "icon": "img/icons/play-svgrepo-com.svg",
+    "icon": "img/icons/play-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -713,7 +713,7 @@
     "cost": 0,
     "costCoins": 900,
     "costMinigames": 450,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -723,7 +723,7 @@
     "cost": 0,
     "costCoins": 900,
     "costMinigames": 450,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -733,7 +733,7 @@
     "cost": 0,
     "costCoins": 1600,
     "costMinigames": 800,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -743,7 +743,7 @@
     "cost": 0,
     "costCoins": 1600,
     "costMinigames": 800,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -753,7 +753,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 300,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -763,7 +763,7 @@
     "cost": 0,
     "costCoins": 900,
     "costMinigames": 450,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -773,7 +773,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -783,7 +783,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -793,7 +793,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -803,7 +803,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -813,7 +813,7 @@
     "cost": 0,
     "costCoins": 1600,
     "costMinigames": 0,
-    "icon": "img/icons/sound-svgrepo-com.svg",
+    "icon": "img/icons/sound-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -826,7 +826,7 @@
     "cost": 0,
     "costCoins": 3000,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -836,7 +836,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -846,7 +846,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -856,7 +856,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -866,7 +866,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -876,7 +876,7 @@
     "cost": 0,
     "costCoins": 3000,
     "costMinigames": 1500,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -886,7 +886,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -896,7 +896,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -906,7 +906,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -916,7 +916,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -926,7 +926,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -936,7 +936,7 @@
     "cost": 0,
     "costCoins": 600,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -946,7 +946,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -956,7 +956,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -966,7 +966,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -976,7 +976,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 550,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -986,7 +986,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 550,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -996,7 +996,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 550,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1006,7 +1006,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1016,7 +1016,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1026,7 +1026,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 550,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1036,7 +1036,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 550,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1046,7 +1046,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 550,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1056,7 +1056,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1066,7 +1066,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1076,7 +1076,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1086,7 +1086,7 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
     "oneTimePurchase": true
   },
   {
@@ -1096,7 +1096,400 @@
     "cost": 0,
     "costCoins": 1100,
     "costMinigames": 0,
-    "icon": "img/icons/music-svgrepo-com.svg",
+    "icon": "img/icons/music-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_30",
+    "type": "music",
+    "nameKey": "music_30",
+    "cost": 0,
+    "costCoins": 1100,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_31",
+    "type": "music",
+    "nameKey": "music_31",
+    "cost": 0,
+    "costCoins": 1100,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_32",
+    "type": "music",
+    "nameKey": "music_32",
+    "cost": 0,
+    "costCoins": 1100,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_33",
+    "type": "music",
+    "nameKey": "music_33",
+    "cost": 0,
+    "costCoins": 1100,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_34",
+    "type": "music",
+    "nameKey": "music_34",
+    "cost": 0,
+    "costCoins": 1100,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_35",
+    "type": "music",
+    "nameKey": "music_35",
+    "cost": 0,
+    "costCoins": 1100,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_36",
+    "type": "music",
+    "nameKey": "music_36",
+    "cost": 0,
+    "costCoins": 1100,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "music_37",
+    "type": "music",
+    "nameKey": "music_37",
+    "cost": 0,
+    "costCoins": 1100,
+    "costMinigames": 0,
+    "icon": "img/icons/music-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "_comment": "--- Backgrounds ---"
+  },
+  {
+    "id": "minecraft_copper_age",
+    "type": "background",
+    "nameKey": "minecraft_copper_age",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "1307640",
+    "type": "background",
+    "nameKey": "1307640",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "1326045",
+    "type": "background",
+    "nameKey": "1326045",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "1326343",
+    "type": "background",
+    "nameKey": "1326343",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "1371356",
+    "type": "background",
+    "nameKey": "1371356",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "192100",
+    "type": "background",
+    "nameKey": "192100",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "40949",
+    "type": "background",
+    "nameKey": "40949",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "511695",
+    "type": "background",
+    "nameKey": "511695",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "MCV_HOL25Drop_MoM_DotNet_Wallpaper_1920x1080",
+    "type": "background",
+    "nameKey": "MCV_HOL25Drop_MoM_DotNet_Wallpaper_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "MCV_SpringDrop_DotNet_Downloadable_Wallpaper_1920x1080",
+    "type": "background",
+    "nameKey": "MCV_SpringDrop_DotNet_Downloadable_Wallpaper_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "MCV_SummerDropKeyArt_NetDownloadableWallpaper_1920x1080",
+    "type": "background",
+    "nameKey": "MCV_SummerDropKeyArt_NetDownloadableWallpaper_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "MCV_SummerDrop_Hero_DotNet_Downloadable_Wallpaper_r1920x1080",
+    "type": "background",
+    "nameKey": "MCV_SummerDrop_Hero_DotNet_Downloadable_Wallpaper_r1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "mc_wallpaper_movie_portal",
+    "type": "background",
+    "nameKey": "mc_wallpaper_movie_portal",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "mc_wallpaper_movie_vista_1920x1080",
+    "type": "background",
+    "nameKey": "mc_wallpaper_movie_vista_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "Minecraft_TheGardenAwakens_DotNet_1920x1080",
+    "type": "background",
+    "nameKey": "Minecraft_TheGardenAwakens_DotNet_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_adventure_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_adventure_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_bedrock_edition_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_bedrock_edition_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_buzzybees_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_buzzybees_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_caves_cliffs(part1)_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_caves_cliffs(part1)_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_caves_cliffs(part2)_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_caves_cliffs(part2)_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_island_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_island_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_java_edition_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_java_edition_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_mangroves_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_mangroves_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_nether_update_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_nether_update_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_pc_bundle_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_pc_bundle_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_trickytrials_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_trickytrials_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_update_aquatic_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_update_aquatic_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_village_pillage_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_village_pillage_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_warden_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_warden_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_wild_update_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_wild_update_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
+    "oneTimePurchase": true
+  },
+  {
+    "id": "wallpaper_minecraft_world_color_1920x1080",
+    "type": "background",
+    "nameKey": "wallpaper_minecraft_world_color_1920x1080",
+    "cost": 0,
+    "costCoins": 500,
+    "costMinigames": 0,
+    "icon": "img/icons/picture-svgrepo-com.png",
     "oneTimePurchase": true
   }
 ]
