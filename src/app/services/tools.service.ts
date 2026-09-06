@@ -1423,7 +1423,7 @@ export class ToolsService {
           nameKey: sound.nameKey,
           cost: 0,
           costCoins: sound.cost,
-          icon: "img/icons/sound-svgrepo-com.svg",
+          icon: "img/icons/sound-svgrepo-com.png",
           oneTimePurchase: true
         });
       }
@@ -1438,7 +1438,7 @@ export class ToolsService {
           nameKey: track.nameKey,
           cost: 0,
           costCoins: track.cost,
-          icon: "img/icons/music-svgrepo-com.svg",
+          icon: "img/icons/music-svgrepo-com.png",
           oneTimePurchase: true
         });
       }

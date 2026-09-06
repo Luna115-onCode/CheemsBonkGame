@@ -2,7 +2,7 @@
     <div class="group {{tools.themeColor}} menu-grid">
         @for (game of gamesList; track game.id) {
             <div class="menu-card {{tools.themeColor}}" (click)="openMinigame(game.id)">
-                <img [src]="tools.isMinigameUnlocked(game.id) ? 'img/icons/play-svgrepo-com.svg' : 'img/icons/lock-keyhole-minimalistic-svgrepo-com.svg'"
+                <img [src]="tools.isMinigameUnlocked(game.id) ? 'img/icons/play-svgrepo-com.png' : 'img/icons/lock-keyhole-minimalistic-svgrepo-com.png'"
                      class="menu-icon coin-glow"
                      [alt]="game.defaultTitle">
                 <div class="card-content">

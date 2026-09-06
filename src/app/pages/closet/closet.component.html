@@ -54,7 +54,7 @@
                 <div class="shop-card {{tools.themeColor}}"
                      [class.selected-cheems]="tools.selectedSound === sound.id"
                      (click)="onSelectSound(sound)">
-                    <img src="img/icons/sound-svgrepo-com.svg"
+                    <img src="img/icons/sound-svgrepo-com.png"
                          class="item-icon"
                          [alt]="tools.getSoundName(sound)">
                     <div class="item-info">
@@ -80,7 +80,7 @@
                      [class.selected-cheems]="tools.selectedMusic === track.id"
                      (click)="onSelectMusic(track)">
                     @if (track.id === 0) {
-                        <img src="img/icons/volume-cross-svgrepo-com.svg" class="item-icon" [alt]="tools.getMusicName(track)">
+                        <img src="img/icons/volume-cross-svgrepo-com.png" class="item-icon" [alt]="tools.getMusicName(track)">
                     } @else {
                         <img [src]="track.cover || 'img/music/no_image.webp'" class="item-icon" [alt]="tools.getMusicName(track)" style="border-radius: 8px; object-fit: cover;">
                     }

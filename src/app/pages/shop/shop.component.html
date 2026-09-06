@@ -98,7 +98,7 @@
              [class.currency-dgc-to-mg-card]="item.id === 'curr_dgc_to_mg'"
              [class.currency-mg-to-dgc-card]="item.id === 'curr_mg_to_dgc'">
             <div class="shop-card-icon-wrapper">
-                @if (item.icon.endsWith('.svg') || item.icon.endsWith('.png') || item.icon.endsWith('.webp')) {
+                @if (item.icon.endsWith('.png') || item.icon.endsWith('.png') || item.icon.endsWith('.webp')) {
                     <img [src]="getShopCardIcon(item)" class="shop-card-icon" [alt]="tools.getShopItemName(item)">
                 } @else {
                     <span class="shop-card-emoji">{{item.icon}}</span>

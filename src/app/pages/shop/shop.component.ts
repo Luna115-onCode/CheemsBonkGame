@@ -253,13 +253,13 @@ export class ShopComponent implements OnInit, OnDestroy {
       return 'img/cheems/locked-cheems.webp';
     }
     if (item.type === 'sound') {
-      return 'img/icons/black-sound-svgrepo-com.svg';
+      return 'img/icons/black-sound-svgrepo-com.png';
     }
     if (item.type === 'music') {
-      return 'img/icons/black-music-svgrepo-com.svg';
+      return 'img/icons/black-music-svgrepo-com.png';
     }
     if (item.type === 'background') {
-      return 'img/icons/picture-svgrepo-com.svg';
+      return 'img/icons/black-picture-svgrepo-com.png';
     }
     return item.icon;
   }
